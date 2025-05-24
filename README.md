@@ -6,7 +6,7 @@
 
 Taskify é um dashboard web interativo e responsivo para acompanhar suas metas diárias, semanais, mensais e anuais de forma visual e motivadora. Desenvolvido com foco na experiência do usuário, oferece temas personalizáveis e persistência de dados local.
 
-**Acesse a live demo:** [**Taskify ao Vivo**](https://taskify-wine.vercel.app/)
+**Acesse a live demo:** [**Taskify**](https://taskify-wine.vercel.app/)
 
 ## 🚀 Funcionalidades
 
@@ -27,18 +27,27 @@ Taskify é um dashboard web interativo e responsivo para acompanhar suas metas d
 
 ## 📸 Screenshots
 
-<!--
-  Adicione aqui mais screenshots se desejar. Sugestões:
-  - Modo mobile.
-  - Modal de edição de metas.
-  - Seletor de cores em ação.
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/99c2fe2a-dd15-402c-b35e-e8dee60e57c0" alt="Taskify Mobile - Dark Mode" width="28%">
+     
+  <img src="https://github.com/user-attachments/assets/1dd23026-7589-423d-b3d0-fcf45bfaed41" alt="Taskify Mobile - Light Mode" width="28%">
+     
+  <img src="https://github.com/user-attachments/assets/d4dac5fd-e508-452e-8b14-8774a0c6e02d" alt="Taskify Mobile - Edit Goals Modal" width="28%">
+</p>
+<p align="center">
+  <em>Visualização Mobile (Modo Escuro, Claro e Modal de Metas)</em>
+</p>
 
-  Exemplo:
-  <p align="center">
-    <img src="URL_DA_SUA_IMAGEM_MOBILE.png" alt="Taskify Mobile" width="300">
-    <img src="URL_DO_SEU_MODAL_METAS.png" alt="Modal de Metas" width="400">
-  </p>
--->
+<br>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1c5a2294-25b7-4104-a021-ec25089af533" alt="Taskify Desktop - Color Picker" width="48%">
+     
+  <img src="https://github.com/user-attachments/assets/c7479104-d5b9-4ce9-94f6-77e273f959ee" alt="Taskify Desktop - Light Mode Details" width="48%">
+</p>
+<p align="center">
+  <em>Desktop: Personalização de Cor e Detalhes no Modo Claro</em>
+</p>
 
 ## 🛠️ Tecnologias
 
@@ -88,5 +97,4 @@ Taskify/
 
 Feito por [(Fabinxz)](https://www.instagram.com/fabiomachado7_/)
 
-<!-- Adicione um badge do GitHub se quiser: -->
 [![GitHub Profile](https://img.shields.io/badge/GitHub-Fabinxz-181717?style=for-the-badge&logo=github)](https://github.com/Fabinxz)
