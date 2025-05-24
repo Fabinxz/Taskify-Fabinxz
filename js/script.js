@@ -52,7 +52,7 @@ function getStartOfYear(date) {
 }
 
 function getLast7DayLabels() {
-    const dayAbbreviations = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]; // Abreviações curtas
+    const dayAbbreviations = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]; 
     const labels = [];
     const today = new Date();
     for (let i = 6; i >= 0; i--) {
