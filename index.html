@@ -1,222 +1,218 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taskify</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="css/style.css">
-
-    <script>
-        // Script inline essencial para aplicar tema/cor antes do DOM carregar completamente
-        (function () {
-            try {
-                const savedPrimaryColor = localStorage.getItem('taskify-primary-color');
-                const savedTheme = localStorage.getItem('taskify-theme');
-                const docElement = document.documentElement;
-                const faviconEl = document.getElementById('favicon'); // Será definido abaixo
-                let initialFaviconColor = '#007AFF';
-
-                if (savedPrimaryColor) {
-                    docElement.style.setProperty('--primary-color-light', savedPrimaryColor);
-                    docElement.style.setProperty('--primary-color-dark', savedPrimaryColor);
-                    initialFaviconColor = savedPrimaryColor;
+<file path="index.html">
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Taskify</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <link rel="stylesheet" href="css/style.css">
+    
+        <script>
+            // Script inline essencial para aplicar tema/cor antes do DOM carregar completamente
+            (function () {
+                try {
+                    const savedPrimaryColor = localStorage.getItem('taskify-primary-color');
+                    const savedTheme = localStorage.getItem('taskify-theme');
+                    const docElement = document.documentElement;
+                    const faviconEl = document.getElementById('favicon'); // Será definido abaixo
+                    let initialFaviconColor = '#007AFF';
+    
+                    if (savedPrimaryColor) {
+                        docElement.style.setProperty('--primary-color-light', savedPrimaryColor);
+                        docElement.style.setProperty('--primary-color-dark', savedPrimaryColor);
+                        initialFaviconColor = savedPrimaryColor;
+                    }
+    
+                    if (savedTheme === 'light') {
+                        docElement.classList.add('light-theme-active');
+                    }
+    
+                } catch (e) {
+                    console.warn('Error applying initial theme/color from inline script:', e);
                 }
-
-                // O elemento favicon ainda não existe neste ponto do parsing se estiver abaixo,
-                // mas o link será atualizado dinamicamente depois ou na carga inicial do JS.
-                // Para o favicon inicial, podemos já tentar defini-lo aqui se o link estiver no head.
-                // A tag link para o favicon precisa ter o ID 'favicon'.
-
-                if (savedTheme === 'light') {
-                    docElement.classList.add('light-theme-active');
-                }
-
-            } catch (e) {
-                console.warn('Error applying initial theme/color from inline script:', e);
-            }
-        })();
-    </script>
-
-    <link id="favicon" rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23007AFF' class='bi bi-check2-square' viewBox='0 0 16 16'><path d='M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8A1.5 1.5 0 0 1 12.5 3v1.5a.5.5 0 0 1-1 0V3a.5.5 0 0 0-.5-.5H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 1 0 1H3z'/><path d='m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z'/></svg>"
-        type="image/svg+xml">
-
-</head>
-
-<body>
-    <canvas id="particle-canvas"></canvas>
-    <div class="loader-container" id="loader">
-        <span class="loader"></span>
-    </div>
-
-    <div class="container">
-        <div class="header">
-            <div class="logo" title="Clique para mudar a cor primária">
-                <div class="logo-icon">✓</div>
-                Taskify
+            })();
+        </script>
+    
+        <link id="favicon" rel="icon"
+            href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23007AFF' class='bi bi-check2-square' viewBox='0 0 16 16'><path d='M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8A1.5 1.5 0 0 1 12.5 3v1.5a.5.5 0 0 1-1 0V3a.5.5 0 0 0-.5-.5H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 1 0 1H3z'/><path d='m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z'/></svg>"
+            type="image/svg+xml">
+    
+    </head>
+    
+    <body>
+        <canvas id="particle-canvas"></canvas>
+        <div class="loader-container" id="loader">
+            <span class="loader"></span>
+        </div>
+    
+        <div class="container">
+            <div class="header">
+                <div class="logo" title="Clique para mudar a cor primária">
+                    <div class="logo-icon">✓</div>
+                    <span class="logo-text logo-text-full">Taskify</span>
+                    <span class="logo-text logo-text-short">Tkfy</span>
+                </div>
+                <input type="color" id="direct-color-input">
+    
+                <div class="question-counter">
+                    <button class="counter-btn" id="decrement-btn" onclick="decrementToday()">−</button>
+                    <input type="number" class="counter-display" id="questions-step-input" value="1" min="1">
+                    <button class="counter-btn" id="increment-btn" onclick="incrementToday()">+</button>
+                </div>
+    
+                <div class="header-controls">
+                    <button class="btn-icon-nav" id="btn-edit-goals-header" aria-label="Editar metas"
+                        onclick="openGoalsModal()">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="theme-toggle-btn" id="theme-toggle" aria-label="Alternar tema" onclick="toggleTheme()">
+                        <i id="theme-icon" class="bi bi-moon-fill"></i>
+                    </button>
+                </div>
             </div>
-            <input type="color" id="direct-color-input">
-
-            <div class="question-counter">
-                <button class="counter-btn" id="decrement-btn" onclick="decrementToday()">−</button>
-                <input type="number" class="counter-display" id="questions-step-input" value="1" min="1">
-                <button class="counter-btn" id="increment-btn" onclick="incrementToday()">+</button>
+    
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Hoje</div>
+                    <div class="circular-progress">
+                        <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                            <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                            <circle class="progress-ring-circle progress-ring-fill" id="today-progress" cx="60" cy="60"
+                                r="52" stroke-width="8"
+                                style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                        </svg>
+                        <div class="progress-number" id="today-count">0</div>
+                    </div>
+                    <div class="progress-target">Meta: <span id="today-target">20</span></div>
+                </div>
+    
+                <div class="stat-card">
+                    <div class="stat-title">Semana</div>
+                    <div class="circular-progress">
+                        <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                            <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                            <circle class="progress-ring-circle progress-ring-fill" id="week-progress" cx="60" cy="60"
+                                r="52" stroke-width="8"
+                                style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                        </svg>
+                        <div class="progress-number" id="week-count">0</div>
+                    </div>
+                    <div class="progress-target">Meta: <span id="week-target">50</span></div>
+                </div>
+    
+                <div class="stat-card">
+                    <div class="stat-title">Mês</div>
+                    <div class="circular-progress">
+                        <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                            <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                            <circle class="progress-ring-circle progress-ring-fill" id="month-progress" cx="60" cy="60"
+                                r="52" stroke-width="8"
+                                style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                        </svg>
+                        <div class="progress-number" id="month-count">0</div>
+                    </div>
+                    <div class="progress-target">Meta: <span id="month-target">1200</span></div>
+                </div>
+    
+                <div class="stat-card">
+                    <div class="stat-title">Ano</div>
+                    <div class="circular-progress">
+                        <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                            <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                            <circle class="progress-ring-circle progress-ring-fill" id="year-progress" cx="60" cy="60"
+                                r="52" stroke-width="8"
+                                style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                        </svg>
+                        <div class="progress-number" id="year-count">0</div>
+                    </div>
+                    <div class="progress-target">Meta: <span id="year-target">20000</span></div>
+                </div>
             </div>
-
-            <div class="header-controls">
-                <button class="btn-icon-nav" id="btn-edit-goals-header" aria-label="Editar metas"
-                    onclick="openGoalsModal()">
-                    <i class="bi bi-pencil-square"></i>
+    
+            <div class="bottom-cards">
+                <div class="info-card">
+                    <div class="card-title">
+                        <span>Recorde Diário</span>
+                        <i class="bi bi-trophy card-title-icon"></i>
+                    </div>
+                    <div class="card-value" id="daily-record-value">0</div>
+                    <div class="card-subtitle" id="daily-record-date">-</div>
+                </div>
+    
+                <div class="info-card">
+                    <div class="card-title">
+                        <span>Streak Atual</span>
+                        <i class="bi bi-fire card-title-icon"></i>
+                    </div>
+                    <div class="card-value" id="current-streak-value">0 dias</div>
+                    <div class="progress-bar-horizontal" style="margin-top: 16px;">
+                        <div class="progress-fill" id="streak-progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+    
+                <div class="info-card">
+                    <div class="card-title">
+                        <span>Pico de Atividade Semanal</span>
+                        <i class="bi bi-graph-up-arrow card-title-icon"></i>
+                    </div>
+                    <div class="card-value" id="peak-activity-day">-</div>
+                    <div class="card-subtitle" id="peak-activity-questions">0 questões</div>
+                </div>
+            </div>
+    
+            <div class="activity-section">
+                <div class="activity-header">
+                    <div class="activity-title">Atividade Semanal</div>
+                    <div class="activity-controls">
+                        <span style="font-size:0.9em; color: #888;" id="weekly-activity-period">Últimos 7 dias</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="weeklyActivityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    
+        <div class="modal-overlay" id="goals-modal-overlay"></div>
+        <div class="modal" id="goals-modal">
+            <div class="modal-content">
+                <button class="modal-close-btn" aria-label="Fechar" onclick="closeGoalsModal()">
+                    <i class="bi bi-x-lg"></i>
                 </button>
-                <button class="theme-toggle-btn" id="theme-toggle" aria-label="Alternar tema" onclick="toggleTheme()">
-                    <i id="theme-icon" class="bi bi-moon-fill"></i>
-                </button>
+                <h2 class="modal-title">Editar Metas</h2>
+                <form id="goals-form">
+                    <div class="form-group">
+                        <label class="form-label" for="daily-goal-input">Meta Diária</label>
+                        <input type="number" class="form-input" id="daily-goal-input" value="20" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="weekly-goal-input">Meta Semanal</label>
+                        <input type="number" class="form-input" id="weekly-goal-input" value="50" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="monthly-goal-input">Meta Mensal</label>
+                        <input type="number" class="form-input" id="monthly-goal-input" value="1200" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="yearly-goal-input">Meta Anual</label>
+                        <input type="number" class="form-input" id="yearly-goal-input" value="20000" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="streak-goal-input">Meta de Streak (dias)</label>
+                        <input type="number" class="form-input" id="streak-goal-input" value="30" min="1">
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="closeGoalsModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
             </div>
         </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-title">Hoje</div>
-                <div class="circular-progress">
-                    <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-                        <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
-                        <circle class="progress-ring-circle progress-ring-fill" id="today-progress" cx="60" cy="60"
-                            r="52" stroke-width="8"
-                            style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
-                    </svg>
-                    <div class="progress-number" id="today-count">0</div>
-                </div>
-                <div class="progress-target">Meta: <span id="today-target">20</span></div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-title">Semana</div>
-                <div class="circular-progress">
-                    <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-                        <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
-                        <circle class="progress-ring-circle progress-ring-fill" id="week-progress" cx="60" cy="60"
-                            r="52" stroke-width="8"
-                            style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
-                    </svg>
-                    <div class="progress-number" id="week-count">0</div>
-                </div>
-                <div class="progress-target">Meta: <span id="week-target">50</span></div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-title">Mês</div>
-                <div class="circular-progress">
-                    <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-                        <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
-                        <circle class="progress-ring-circle progress-ring-fill" id="month-progress" cx="60" cy="60"
-                            r="52" stroke-width="8"
-                            style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
-                    </svg>
-                    <div class="progress-number" id="month-count">0</div>
-                </div>
-                <div class="progress-target">Meta: <span id="month-target">1200</span></div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-title">Ano</div>
-                <div class="circular-progress">
-                    <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-                        <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
-                        <circle class="progress-ring-circle progress-ring-fill" id="year-progress" cx="60" cy="60"
-                            r="52" stroke-width="8"
-                            style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
-                    </svg>
-                    <div class="progress-number" id="year-count">0</div>
-                </div>
-                <div class="progress-target">Meta: <span id="year-target">20000</span></div>
-            </div>
-        </div>
-
-        <div class="bottom-cards">
-            <div class="info-card">
-                <div class="card-title">
-                    <span>Recorde Diário</span>
-                    <i class="bi bi-trophy card-title-icon"></i>
-                </div>
-                <div class="card-value" id="daily-record-value">0</div>
-                <div class="card-subtitle" id="daily-record-date">-</div>
-            </div>
-
-            <div class="info-card">
-                <div class="card-title">
-                    <span>Streak Atual</span>
-                    <i class="bi bi-fire card-title-icon"></i>
-                </div>
-                <div class="card-value" id="current-streak-value">0 dias</div>
-                <div class="progress-bar-horizontal" style="margin-top: 16px;">
-                    <div class="progress-fill" id="streak-progress-fill" style="width: 0%;"></div>
-                </div>
-            </div>
-
-            <div class="info-card">
-                <div class="card-title">
-                    <span>Pico de Atividade Semanal</span>
-                    <i class="bi bi-graph-up-arrow card-title-icon"></i>
-                </div>
-                <div class="card-value" id="peak-activity-day">-</div>
-                <div class="card-subtitle" id="peak-activity-questions">0 questões</div>
-            </div>
-        </div>
-
-        <div class="activity-section">
-            <div class="activity-header">
-                <div class="activity-title">Atividade Semanal</div>
-                <div class="activity-controls">
-                    <span style="font-size:0.9em; color: #888;" id="weekly-activity-period">Últimos 7 dias</span>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="weeklyActivityChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="goals-modal-overlay"></div>
-    <div class="modal" id="goals-modal">
-        <div class="modal-content">
-            <button class="modal-close-btn" aria-label="Fechar" onclick="closeGoalsModal()">
-                <i class="bi bi-x-lg"></i>
-            </button>
-            <h2 class="modal-title">Editar Metas</h2>
-            <form id="goals-form">
-                <div class="form-group">
-                    <label class="form-label" for="daily-goal-input">Meta Diária</label>
-                    <input type="number" class="form-input" id="daily-goal-input" value="20" min="1">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="weekly-goal-input">Meta Semanal</label>
-                    <input type="number" class="form-input" id="weekly-goal-input" value="50" min="1">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="monthly-goal-input">Meta Mensal</label>
-                    <input type="number" class="form-input" id="monthly-goal-input" value="1200" min="1">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="yearly-goal-input">Meta Anual</label>
-                    <input type="number" class="form-input" id="yearly-goal-input" value="20000" min="1">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="streak-goal-input">Meta de Streak (dias)</label>
-                    <input type="number" class="form-input" id="streak-goal-input" value="30" min="1">
-                </div>
-                <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" onclick="closeGoalsModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Salvar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/script.js" defer></script>
-</body>
-
-</html>
-</file>
+    
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="js/script.js" defer></script>
+    </body>
+    
+    </html>
