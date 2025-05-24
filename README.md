@@ -6,7 +6,7 @@
 
 Taskify é um dashboard responsivo para acompanhamento de metas diárias, semanais, mensais e anuais, de forma simples e intuitiva. Totalmente personalizável, com dados salvos no seu navegador.
 
-**👉** [** Acesse a Demo**](https://taskify-wine.vercel.app/)
+**👉** [Acesse a Demo](https://taskify-wine.vercel.app/)
 
 ## 🚀 Funcionalidades
 
