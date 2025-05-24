@@ -155,14 +155,22 @@ body.light .theme-toggle-btn:hover {
 .logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 8px; /* Espaçamento entre o ícone e o texto */
     font-size: 26px;
     font-weight: 600;
-    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), font-size 0.2s ease; /* Click animation */
-    user-select: none; /* Prevent text selection */
+    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), font-size 0.2s ease;
+    user-select: none;
 }
 body.light .logo {
-    color: #222; /* Cor do texto do logo no modo claro */
+    color: #222;
+}
+
+.logo-text { /* Estilo base para ambos os textos, se necessário */
+    line-height: 1; /* Para melhor alinhamento vertical com o ícone */
+}
+
+.logo-text-short {
+    display: none; /* Escondido por padrão */
 }
 
 
@@ -953,12 +961,20 @@ body.light .loader::after {
     }
     .header .logo {
         width: auto;
-        font-size: 20px;
+        font-size: 20px; /* Ajuste o tamanho da fonte do logo se desejar */
         margin-bottom: 0;
-        flex-shrink: 0; /* Evita que o logo encolha demais */
+        flex-shrink: 0;
+        gap: 6px; /* Espaçamento menor no mobile entre ícone e texto */
     }
     .header .logo-icon {
         width: 20px; height: 20px; font-size: 10px; margin-top: 2px;
+    }
+
+    .header .logo-text-full {
+        display: none; /* Esconde o texto completo no mobile */
+    }
+    .header .logo-text-short {
+        display: inline; /* Mostra o texto curto no mobile */
     }
 
     .header .question-counter {
