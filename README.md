@@ -86,7 +86,7 @@ Taskify/
 
 ---
 
-Feito por [Fabiano (Fabinxz)](https://www.instagram.com/fabiomachado7_/)
+Feito por [(Fabinxz)](https://www.instagram.com/fabiomachado7_/)
 
 <!-- Adicione um badge do GitHub se quiser: -->
 [![GitHub Profile](https://img.shields.io/badge/GitHub-Fabinxz-181717?style=for-the-badge&logo=github)](https://github.com/Fabinxz)
