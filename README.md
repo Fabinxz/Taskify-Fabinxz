@@ -1,4 +1,4 @@
-# Taskify - Seu Dashboard de Metas e Progresso 📝✨
+# Taskify - Seu Dashboard de Metas e Progresso
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/0556a3c1-b54d-4c1b-8f01-b055a7f36474" alt="Taskify Dashboard Demo" width="700">
