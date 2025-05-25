@@ -1201,8 +1201,6 @@ body.light .loader::after {
     .container {
         padding-left: 12px;
         padding-right: 12px;
-        display: flex; /* For reordering child elements */
-        flex-direction: column; /* For reordering child elements */
     }
     .header {
         position: sticky;
@@ -1221,7 +1219,6 @@ body.light .loader::after {
         -webkit-backdrop-filter: blur(10px);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
         transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        /* order: 0; /* Default, header comes first */
     }
     body.light .header { 
         background: rgba(248, 249, 250, 0.85); 
@@ -1277,9 +1274,8 @@ body.light .loader::after {
         grid-template-columns: repeat(2, 1fr); 
         gap: 12px;
         margin-bottom: 20px;
-        order: 1; /* Display after header */
     }
-    .stat-card, .info-card, .activity-section { /* .activity-section is also a direct child of .container */
+    .stat-card, .info-card, .activity-section {
         padding: 12px;
     }
      .circular-progress {
@@ -1297,7 +1293,6 @@ body.light .loader::after {
     .bottom-cards {
         gap: 12px;
         margin-bottom: 20px;
-        order: 3; /* Display after activity-section */
     }
     .card-value {
         font-size: 24px;
@@ -1309,8 +1304,7 @@ body.light .loader::after {
         font-size: 11px;
     }
     .activity-section {
-         margin-bottom: 16px; /* Espaçamento entre Atividade Semanal e os cards abaixo (Recorde, Streak, Pico) no mobile */
-         order: 2; /* Display after stats-grid and before bottom-cards */
+         margin-bottom: 16px; /* Espaçamento antes do footer no mobile */
     }
     .activity-title { font-size: 15px; }
     .activity-controls .control-btn {
@@ -1320,10 +1314,6 @@ body.light .loader::after {
         padding: 4px 8px; font-size: 12px;
     }
     .chart-container { height: 150px; }
-
-    footer { /* Ensures footer is last in the flex order */
-        order: 4;
-    }
 
     .modal {
         padding: 20px;
