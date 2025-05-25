@@ -51,7 +51,7 @@
                 <div class="logo" title="Clique para mudar a cor primária">
                     <div class="logo-icon">✓</div>
                     <span class="logo-text logo-text-full">Taskify</span>
-                    <span class="logo-text logo-text-short">Tkfy</span>
+                    <span class="logo-text logo-text-short">Taskify</span>
                 </div>
                 <input type="color" id="direct-color-input">
     
@@ -65,6 +65,9 @@
                     <button class="btn-icon-nav" id="btn-edit-goals-header" aria-label="Editar metas"
                         onclick="openGoalsModal()">
                         <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="btn-icon-nav" id="btn-open-guide" aria-label="Abrir guia rápido">
+                        <i class="bi bi-question-circle"></i>
                     </button>
                     <button class="theme-toggle-btn" id="theme-toggle" aria-label="Alternar tema" onclick="toggleTheme()">
                         <i id="theme-icon" class="bi bi-moon-fill"></i>
@@ -139,14 +142,19 @@
                     <div class="card-value" id="daily-record-value">0</div>
                     <div class="card-subtitle" id="daily-record-date">-</div>
                 </div>
-    
+
                 <div class="info-card">
                     <div class="card-title">
                         <span>Streak Atual</span>
                         <i class="bi bi-fire card-title-icon"></i>
                     </div>
-                    <div class="card-value" id="current-streak-value">0 dias</div>
-                    <div class="progress-bar-horizontal" style="margin-top: 16px;">
+                    <!-- Novo contêiner para valor e meta -->
+                    <div class="streak-value-meta-container">
+                        <div class="card-value" id="current-streak-value">0 dias</div>
+                        <div class="card-streak-target">Meta: <span id="streak-target-value">30</span></div>
+                    </div>
+                    <!-- Fim do novo contêiner -->
+                    <div class="progress-bar-horizontal">
                         <div class="progress-fill" id="streak-progress-fill" style="width: 0%;"></div>
                     </div>
                 </div>
@@ -203,6 +211,7 @@
                         <input type="number" class="form-input" id="streak-goal-input" value="30" min="1">
                     </div>
                     <div class="modal-buttons">
+                        <button type="button" class="btn btn-reset-app" id="btn-reset-app-data">Resetar App</button>
                         <button type="button" class="btn btn-secondary" onclick="closeGoalsModal()">Cancelar</button>
                         <button type="submit" class="btn btn-primary">Salvar</button>
                     </div>
@@ -210,6 +219,67 @@
             </div>
         </div>
     
+        <div class="modal-overlay" id="confirm-reset-modal-overlay"></div>
+        <div class="modal" id="confirm-reset-modal">
+            <div class="modal-content">
+                <button class="modal-close-btn" id="confirm-reset-modal-close-btn" aria-label="Fechar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                <h2 class="modal-title">Confirmar Reset de Dados</h2>
+                <div class="modal-body-text">
+                    <p>Você tem certeza que deseja resetar todos os dados do Taskify?</p>
+                    <p><strong>Esta ação não pode ser desfeita e removerá:</strong></p>
+                    <ul>
+                        <li>Todo o seu progresso (diário, semanal, mensal, anual)</li>
+                        <li>Seu recorde diário</li>
+                        <li>Seu streak atual e histórico de streak</li>
+                        <li>Suas metas personalizadas (serão revertidas para o padrão)</li>
+                        <li>Sua preferência de tema e cor primária (serão revertidas para o padrão)</li>
+                    </ul>
+                    <p>A página será recarregada com as configurações de fábrica.</p>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-reset-confirmation">Cancelar</button>
+                    <button type="button" class="btn btn-reset-app" id="btn-confirm-reset-action">Confirmar Reset</button> 
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="welcome-guide-modal-overlay"></div>
+        <div class="modal" id="welcome-guide-modal">
+            <div class="modal-content">
+                <button class="modal-close-btn" id="welcome-guide-modal-close-btn" aria-label="Fechar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                <h2 class="modal-title">Bem-vindo ao Taskify!</h2>
+                <div class="modal-body-text guide-text">
+                    <p>Este é um guia rápido para te ajudar a começar:</p>
+                    <ul>
+                        <li><strong>Contador Principal (<span class="guide-highlight">no centro do cabeçalho</span>):</strong> Use os botões <span class="guide-highlight guide-btn-example">+</span> e <span class="guide-highlight guide-btn-example">−</span> para adicionar ou remover questões resolvidas hoje. O número entre eles define quantas questões são adicionadas/removidas por clique.</li>
+                        <li><strong>Progresso (<span class="guide-highlight">cards superiores</span>):</strong> Acompanhe suas questões de Hoje, da Semana, do Mês e do Ano em relação às suas metas.</li>
+                        <li><strong>Editar Metas:</strong> Clique no ícone <i class="bi bi-pencil-square guide-icon-example"></i> no cabeçalho para definir suas metas diárias, semanais, mensais, anuais e de streak.</li>
+                        <li><strong>Recordes e Infos (<span class="guide-highlight">cards inferiores</span>):</strong>
+                            <ul>
+                                <li><i class="bi bi-trophy guide-icon-example"></i> Recorde Diário: Seu maior número de questões em um único dia.</li>
+                                <li><i class="bi bi-fire guide-icon-example"></i> Streak Atual: Sequência de dias em que você atingiu sua meta diária.</li>
+                                <li><i class="bi bi-graph-up-arrow guide-icon-example"></i> Pico Semanal: O dia da semana com mais questões resolvidas nos últimos 7 dias.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Mudar Cor Principal:</strong> Clique no logo <span class="guide-highlight">"Taskify"</span> no cabeçalho para abrir o seletor de cores e personalizar a cor principal do site.</li>
+                        <li><strong>Alternar Tema:</strong> Use o ícone <i class="bi bi-moon-fill guide-icon-example"></i> / <i class="bi bi-sun-fill guide-icon-example"></i> no cabeçalho para trocar entre o tema escuro e claro.</li>
+                        <li><strong>Atividade Semanal (<span class="guide-highlight">gráfico</span>):</strong> Visualize sua contagem de questões dos últimos 7 dias.</li>
+                    </ul>
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="dont-show-guide-again-checkbox">
+                        <label for="dont-show-guide-again-checkbox">Não mostrar esta mensagem novamente</label>
+                    </div>
+                </div>
+                <div class="modal-buttons" style="justify-content: flex-end;">
+                    <button type="button" class="btn btn-primary" id="btn-close-welcome-guide">Entendi!</button>
+                </div>
+            </div>
+        </div>
+
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="js/script.js" defer></script>
     </body>
