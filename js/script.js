@@ -11,23 +11,23 @@ const initialDefaultState = {
         yearly: 20000,
         streak: 30
     },
-    weeklyProgress: 0, // ZERADO
-    monthlyProgress: 0, // ZERADO
-    yearlyProgress: 0, // ZERADO
-    weeklyActivityData: [0, 0, 0, 0, 0, 0, 0], // ZERADO (7 dias)
+    weeklyProgress: 0, 
+    monthlyProgress: 0, 
+    yearlyProgress: 0, 
+    weeklyActivityData: [0, 0, 0, 0, 0, 0, 0], 
     dailyRecord: {
-        value: 0, // ZERADO
-        date: "-" // Placeholder para data zerada
+        value: 0,
+        date: "-"
     },
     currentStreak: {
-        days: 0, // ZERADO
-        lastCompletionDate: null // ZERADO
+        days: 0, 
+        lastCompletionDate: null 
     },
     peakActivity: {
-        dayName: "-", // Placeholder para dia zerado
-        questions: 0 // ZERADO
+        dayName: "-", 
+        questions: 0 
     },
-    isDarkMode: true, // Default, mas localStorage pode sobrescrever
+    isDarkMode: true, 
     lastWeekStartDate: getStartOfWeek(new Date()).toDateString(),
     lastMonthStartDate: getStartOfMonth(new Date()).toDateString(),
     lastYearStartDate: getStartOfYear(new Date()).toDateString(),
