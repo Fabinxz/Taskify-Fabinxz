@@ -7,8 +7,8 @@ const initialDefaultState = {
     goals: { // Valores dos inputs do modal no HTML, "pré-estabelecidos"
         daily: 50,
         weekly: 300,
-        monthly: 10000,
-        yearly: 10000,
+        monthly: 1000,
+        yearly: 15000,
         streak: 5
     },
     weeklyProgress: 0, 
