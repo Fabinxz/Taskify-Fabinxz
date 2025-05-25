@@ -24,7 +24,7 @@ const initialDefaultState = {
         lastCompletionDate: null
     },
     peakActivity: {
-        dayName: "Sáb",
+        dayName: "Sábado",
         questions: 132
     },
     isDarkMode: true,
@@ -52,13 +52,13 @@ function getStartOfYear(date) {
 }
 
 function getLast7DayLabels() {
-    const dayAbbreviations = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]; 
+    const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"]; 
     const labels = [];
     const today = new Date();
     for (let i = 6; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(today.getDate() - i);
-        labels.push(dayAbbreviations[date.getDay()]);
+        labels.push(dayNames[date.getDay()]);
     }
     return labels;
 }
@@ -346,8 +346,8 @@ function updatePeakActivity() {
         const today = new Date();
         const peakDate = new Date(today);
         peakDate.setDate(today.getDate() - (6 - peakDayOriginalIndex));
-        const dayAbbreviations = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]; // Mesmas do gráfico
-        state.peakActivity.dayName = dayAbbreviations[peakDate.getDay()];
+        const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+        state.peakActivity.dayName = dayNames[peakDate.getDay()];
         state.peakActivity.questions = maxQuestions;
     } else {
         state.peakActivity.dayName = "-";
