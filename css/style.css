@@ -650,39 +650,25 @@ body.light .modal-overlay {
     background: #121212;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
+    padding: 32px;
+    padding-top: 48px;
     width: 90%;
     max-width: 500px;
     z-index: 1000;
     opacity: 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    max-height: 90vh; /* Limita a altura máxima do modal */
-    display: flex; 
-    flex-direction: column;
 }
-
 .modal.show {
-    display: flex; /* Alterado de block para flex */
+    display: block;
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
 }
-
 body.light .modal {
     background: #fefefe; 
     border-color: #ccc;
     box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
     color: #222; 
-}
-
-/* Estilo para o container INTERNO do modal */
-.modal-content {
-    padding: 32px;
-    padding-top: 48px; /* Mantém o espaço para o botão de fechar */
-    overflow-y: auto;   /* Scroll vertical se o conteúdo for muito longo */
-    flex-grow: 1;       /* Faz o conteúdo ocupar o espaço vertical disponível no .modal */
-    display: flex;
-    flex-direction: column; /* Para alinhar título, corpo, botões verticalmente */
-    word-break: break-word; /* Para quebrar palavras longas e evitar overflow horizontal */
 }
 
 .modal-close-btn {
@@ -697,7 +683,7 @@ body.light .modal {
     line-height: 1;
     border-radius: 50%;
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease, font-size 0.2s ease;
-    z-index: 10; /* Garante que fique sobre o .modal-content */
+    z-index: 10;
 }
 body.light .modal-close-btn {
     color: var(--primary-color-light);
@@ -728,7 +714,6 @@ body.light .modal-title {
     line-height: 1.6;
     margin-bottom: 24px;
     color: #ccc;
-    flex-grow: 1; /* Faz o corpo do texto ocupar o espaço disponível */
 }
 body.light .modal-body-text {
     color: #444;
@@ -821,7 +806,7 @@ body.light .form-input:focus {
     display: flex;
     gap: 12px;
     justify-content: flex-end;
-    margin-top: 24px; /* Mantido, pois .modal-body-text tem flex-grow */
+    margin-top: 24px;
 }
 .btn {
     padding: 10px 20px;
@@ -1160,16 +1145,11 @@ body.light .loader::after {
     .chart-container { height: 150px; }
 
     .modal {
+        padding: 20px;
+        padding-top: 40px;
         max-width: calc(100% - 24px);
         border-radius: 12px;
-        max-height: 95vh; /* Pode ser um pouco mais alto em mobile se necessário */
     }
-    /* Ajusta o padding interno do conteúdo do modal para mobile */
-    .modal-content {
-        padding: 20px;
-        padding-top: 40px; /* Menor padding para telas pequenas, dá espaço ao botão fechar */
-    }
-
     .modal-close-btn {
         top: 10px;
         right: 10px;
