@@ -94,9 +94,12 @@ body.light .loader-container {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding-top: 20px; /* Mantém o padding superior */
+    padding-left: 20px; /* Mantém o padding esquerdo */
+    padding-right: 20px; /* Mantém o padding direito */
+    padding-bottom: 0px; /* <<<<<< REDUZIDO AQUI (era 20px, ajuste conforme necessário) */
     position: relative; /* Para z-index funcionar corretamente com partículas */
-    z-index: 1; 
+    z-index: 1;
 }
 
 .header {
@@ -394,13 +397,13 @@ body.light .card-title {
 
 .streak-value-meta-container {
     display: flex; 
-    align-items: baseline;
+    align-items: baseline; 
     justify-content: space-between; 
     margin-bottom: 8px; 
 }
 
 body.light .card-value {
-    color: #222; /* Darker number for light theme - Melhorado */
+    color: #222; 
     font-weight: 700;
 }
 
@@ -410,10 +413,10 @@ body.light .card-value {
     transition: font-size 0.2s ease;
 }
 body.light .card-subtitle {
-    color: #6c757d; /* Ajustado para modo claro */
+    color: #6c757d; 
 }
 body.light .card-title-icon {
-    color: var(--primary-color-light); /* Cor primária para light theme */
+    color: var(--primary-color-light); 
 }
 
 .progress-bar-horizontal {
@@ -422,7 +425,7 @@ body.light .card-title-icon {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 4px;
     overflow: hidden;
-    margin-top: 0; /* Garante que a margem superior seja controlada pelo contêiner acima */
+    margin-top: 0; 
 }
 body.light .progress-bar-horizontal {
     background: #e0e0e0;
@@ -439,15 +442,9 @@ body.light .progress-fill {
 }
 
 .card-streak-target {
-    font-size: 13px; /* Pode precisar de um ajuste fino no tamanho */
+    font-size: 13px; 
     color: #d1d1d1;
-    /* REMOVA as seguintes linhas: */
-    /* margin-top: 8px;    */
-    /* margin-bottom: 6px; */
-    /* text-align: left;   */
     transition: color 0.3s ease;
-    /* Opcional: adicionar um margin-left se justify-content: space-between não for suficiente */
-    /* margin-left: auto;  Se quiser que a meta vá para a extrema direita */
 }
 body.light .card-streak-target {
     color: #6c757d;
@@ -457,7 +454,7 @@ body.light .card-streak-target {
 .activity-section {
     border-radius: 16px;
     padding: 24px;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -468,10 +465,10 @@ body.light .card-streak-target {
     color: white;
 }
 body.light .activity-section {
-    background: #ffffff; /* White background for light theme - Melhorado */
-    border-color: #e8e8e8; /* Lighter border - Melhorado */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Softer shadow - Melhorado */
-    color: #333; /* Darker text for light theme */
+    background: #ffffff; 
+    border-color: #e8e8e8; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+    color: #333; 
 }
 
 .activity-header {
@@ -488,7 +485,7 @@ body.light .activity-section {
     transition: font-size 0.2s ease;
 }
 body.light .activity-title {
-    color: #222; /* Melhorado */
+    color: #222; 
 }
 
 .activity-controls {
@@ -497,7 +494,7 @@ body.light .activity-title {
     gap: 12px;
 }
 
-body.light .activity-controls span { /* Ajuste cor do "Últimos 7 dias" no modo claro */
+body.light .activity-controls span { 
     color: #666 !important;
 }
 
@@ -640,7 +637,7 @@ body.light .counter-display {
     opacity: 1;
 }
 body.light .modal-overlay {
-    background: rgba(220,220,220,0.5); /* Overlay mais suave no modo claro */
+    background: rgba(220,220,220,0.5); 
 }
 
 
@@ -668,10 +665,10 @@ body.light .modal-overlay {
     transform: translate(-50%, -50%) scale(1);
 }
 body.light .modal {
-    background: #fefefe; /* Fundo do modal (light) - Melhorado */
+    background: #fefefe; 
     border-color: #ccc;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15); /* Sombra mais suave - Melhorado */
-    color: #222; /* Cor do texto no modal modo claro */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
+    color: #222; 
 }
 
 .modal-close-btn {
@@ -709,7 +706,7 @@ body.light .modal-close-btn:hover {
     text-align: center;
 }
 body.light .modal-title {
-    color: #222; /* Cor do título no tema claro - Melhorado */
+    color: #222; 
 }
 
 .modal-body-text {
@@ -723,11 +720,11 @@ body.light .modal-body-text {
 }
 .modal-body-text ul {
     list-style-position: inside;
-    padding-left: 0px; /* Ajuste se necessário ou use margin */
+    padding-left: 0px; 
     margin-top: 8px;
     margin-bottom: 12px;
 }
-.modal-body-text ul ul { /* Sub-listas */
+.modal-body-text ul ul { 
     margin-left: 20px;
     margin-top: 4px;
     margin-bottom: 8px;
@@ -746,7 +743,6 @@ body.light .guide-highlight {
     color: var(--primary-color-light);
 }
 .guide-icon-example, .guide-btn-example {
-    /* Para destacar ícones/botões no texto do guia */
     padding: 0 2px;
     border-radius: 3px;
     background-color: rgba(128,128,128,0.1);
@@ -761,17 +757,17 @@ body.light .guide-highlight {
     color: #aaa;
 }
 body.light .form-label {
-    color: #555; /* Cor do label (light) - Melhorado */
+    color: #555; 
 }
 .form-group-checkbox {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-top: 20px;
-    margin-bottom: 10px; /* Reduzido para não empurrar muito o botão "Entendi" */
+    margin-bottom: 10px; 
 }
 .form-group-checkbox input[type="checkbox"] {
-    width: auto; /* Reset para o tamanho natural do checkbox */
+    width: auto; 
 }
 
 .form-input {
@@ -798,7 +794,7 @@ body.light .form-label {
 body.light .form-input {
     background: #f0f0f0;
     border-color: #ccc;
-    color: #222; /* Texto do input (light) - Melhorado */
+    color: #222; 
 }
 body.light .form-input:focus {
     border-color: var(--primary-color-light);
@@ -845,18 +841,18 @@ body.light .btn-secondary:hover {
     background: #d0d0d0;
 }
 .btn-reset-app {
-    background-color: #dc3545; /* Vermelho perigo (Bootstrap-like) */
+    background-color: #dc3545; 
     color: white;
 }
 .btn-reset-app:hover {
-    background-color: #c82333; /* Mais escuro no hover */
+    background-color: #c82333; 
 }
 .btn-reset-app:active {
-    background-color: #bd2130; /* Ainda mais escuro no active */
+    background-color: #bd2130; 
 }
 
 .modal-buttons .btn-reset-app {
-    margin-right: auto; /* Alinha o botão "Resetar App" (no modal de metas) à esquerda */
+    margin-right: auto; 
 }
 
 
@@ -921,13 +917,13 @@ body.light .loader::after {
 }
 
 #direct-color-input {
-    position: absolute; /* Posicionado fora da tela */
+    position: absolute; 
     opacity: 0;
     width: 1px;
     height: 1px;
     left: -300px;
     top: -0px;
-    pointer-events: none; /* Não interfere com a UI */
+    pointer-events: none; 
 }
 
 /* Responsive adjustments */
@@ -963,7 +959,7 @@ body.light .loader::after {
     }
     .header {
         flex-wrap: wrap;
-        padding: 16px 16px 16px 11px; /* Ajustado padding esquerdo */
+        padding: 16px 16px 16px 11px; 
         padding-bottom: 20px; 
         margin-bottom: 20px; 
         justify-content: center;
@@ -1034,7 +1030,6 @@ body.light .loader::after {
     .container {
         padding-left: 12px;
         padding-right: 12px;
-        /* padding-top: calc(56px + 16px);  */
     }
     .header {
         position: sticky;
@@ -1043,7 +1038,7 @@ body.light .loader::after {
         display: flex;
         justify-content: space-between; 
         align-items: center;
-        padding: 0 12px 0 7px; /* Ajustado padding esquerdo */
+        padding: 0 12px 0 7px; 
         height: 56px; 
         margin-bottom: 5; 
         border-radius: 0 0 12px 12px; 
@@ -1130,16 +1125,16 @@ body.light .loader::after {
     }
     .card-value {
         font-size: 24px;
-        /* margin-bottom: 4px; */ /* REMOVA ou comente esta linha também */
     }
     .card-title { font-size: 12px; margin-bottom: 6px; }
     .card-subtitle { font-size: 11px; }
 
     .card-streak-target {
         font-size: 11px;
-        /* As margens e text-align já foram removidas da regra principal */
     }
-    .activity-section { margin-bottom: 16px;}
+    .activity-section {
+         margin-bottom: 16px; /* Espaçamento antes do footer no mobile */
+    }
     .activity-title { font-size: 15px; }
     .activity-controls .control-btn {
         width: 28px; height: 28px;
@@ -1172,9 +1167,102 @@ body.light .loader::after {
     }
 
     .streak-value-meta-container {
-        margin-bottom: 6px; /* Ajuste para telas menores */
-        /* Você pode querer ajustar o justify-content ou usar gap aqui se necessário */
-        /* gap: 8px; */ /* Exemplo, se space-between não for ideal */
+        margin-bottom: 6px; 
+    }
+    
+    /* Ajustes para o modal do guia em telas menores */
+    #welcome-guide-modal .modal-title {
+        font-size: 17px; 
+    }
+    #welcome-guide-modal .modal-body-text {
+        font-size: 13px; 
+        line-height: 1.5;
+    }
+    #welcome-guide-modal .modal-body-text ul ul {
+        margin-left: 15px; 
+    }
+     #welcome-guide-modal .guide-text li {
+        margin-bottom: 6px; 
+    }
+    #welcome-guide-modal .form-group-checkbox label {
+        font-size: 12px; 
+    }
+    #welcome-guide-modal .modal-buttons .btn { 
+        padding: 7px 10px;
+        font-size: 12px;
     }
 
+}
+
+/* Footer Styles */
+footer {
+    text-align: center;
+    padding: 20px 0; /* Padding vertical. Padding horizontal virá do .container */
+    font-size: 0.85rem;
+    color: #777;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 0; /* Colado ao margin-bottom do .activity-section */
+}
+
+body.light footer {
+    color: #888;
+    border-top-color: rgba(0, 0, 0, 0.05);
+}
+
+.footer-link {
+    color: var(--primary-color-dark); /* Usa a cor primária do tema */
+    text-decoration: none; /* Remove sublinhado padrão */
+    transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+.footer-link:hover {
+    text-decoration: underline; /* Adiciona sublinhado no hover */
+}
+body.light .footer-link {
+    color: var(--primary-color-light);
+}
+
+/* Custom Scrollbar Styles */
+/* Works on Chrome, Edge, and Safari */
+::-webkit-scrollbar {
+    width: 8px; /* Largura da barra de rolagem */
+    height: 8px; /* Altura da barra de rolagem (para scroll horizontal) */
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.08); /* Cor da trilha no tema escuro */
+    border-radius: 10px;
+}
+
+body.light ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.08); /* Cor da trilha no tema claro */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color-dark); /* Cor do "polegar" da barra de rolagem */
+    border-radius: 10px;
+    border: 2px solid transparent; /* Cria um padding visual ao redor do thumb */
+    background-clip: content-box; /* Faz o border ser o "padding" efetivo */
+}
+
+body.light ::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color-light); /* Cor do "polegar" no tema claro */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, var(--primary-color-dark) 80%, #000000); /* Escurece um pouco no hover */
+}
+
+body.light ::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, var(--primary-color-light) 80%, #ffffff); /* Clareia um pouco no hover */
+}
+
+/* For Firefox */
+html {
+    scrollbar-width: thin; /* "auto" ou "thin" */
+    scrollbar-color: var(--primary-color-dark) rgba(255, 255, 255, 0.08); /* thumb track */
+}
+
+html.light-theme-active, 
+body.light { /* Estilo da scrollbar do Firefox para tema claro */
+    scrollbar-color: var(--primary-color-light) rgba(0, 0, 0, 0.08); /* thumb track */
 }
