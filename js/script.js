@@ -5,11 +5,11 @@ const initialDefaultState = {
     todayCount: 0, // ZERADO
     lastAccessDate: new Date().toDateString(), // Mantém lógica atual
     goals: { // Valores dos inputs do modal no HTML, "pré-estabelecidos"
-        daily: 100,
-        weekly: 500,
-        monthly: 2000,
+        daily: 20,
+        weekly: 50,
+        monthly: 1200,
         yearly: 20000,
-        streak: 10
+        streak: 30
     },
     weeklyProgress: 0, // ZERADO
     monthlyProgress: 0, // ZERADO
@@ -756,6 +756,12 @@ function handleResetAppData() {
     openConfirmResetModal();
 }
 
+// Atualiza o ano no rodapé
+function updateFooterYear() {
+    const yearSpan = document.getElementById('current-year');
+    if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+}
+
 // Inicialização Principal
 function init() {
     const loaderElement = document.getElementById('loader');
@@ -766,6 +772,8 @@ function init() {
     checkAllResets(); 
     initStreak();     
     
+    updateFooterYear(); // Atualiza o ano no rodapé
+
     if (weeklyChartInstance) weeklyChartInstance.destroy(); 
     setupChart(true); 
 
