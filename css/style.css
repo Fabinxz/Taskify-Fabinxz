@@ -96,15 +96,15 @@ body.light .loader-container {
     margin: 0 auto;
     padding: 20px;
     position: relative; /* Para z-index funcionar corretamente com partículas */
-    z-index: 1;
+    z-index: 1; 
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 40px;
-    padding: 24px;
+    margin-bottom: 31px;
+    padding: 22px 22px 22px 17px; /* Ajustado padding esquerdo */
     background: rgba(255, 255, 255, 0.07); /* Glassmorphism background */
     border: 1px solid rgba(255, 255, 255, 0.1); /* Glassmorphism border */
     border-radius: 16px;
@@ -830,6 +830,16 @@ body.light .loader::after {
     }
 }
 
+#direct-color-input {
+    position: absolute; /* Posicionado fora da tela */
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    left: -300px;
+    top: -0px;
+    pointer-events: none; /* Não interfere com a UI */
+}
+
 /* Responsive adjustments */
 
 /* Header layout refined for central counter (para telas maiores) */
@@ -863,17 +873,18 @@ body.light .loader::after {
     }
     .header {
         flex-wrap: wrap;
-        padding: 16px;
-        padding-bottom: 20px; /* Ajustado de 70px */
-        margin-bottom: 20px; /* Ajustado de 40px */
+        padding: 16px 16px 16px 11px; /* Ajustado padding esquerdo */
+        padding-bottom: 20px; 
+        margin-bottom: 20px; 
         justify-content: center;
-        gap: 15px; /* Espaço entre linhas do header */
+        gap: 15px; 
     }
     .header .logo {
         width: 100%;
         justify-content: center;
-        margin-bottom: 0; /* Removido, gap do flex container pai */
+        margin-bottom: 0; 
         font-size: 24px;
+        margin-left: 0; 
     }
      .header .logo-icon {
         width: 22px; height: 22px; font-size: 11px;
@@ -884,7 +895,7 @@ body.light .loader::after {
         width: 100%;
         justify-content: center;
         order: 2;
-        margin-bottom: 0;  /* Removido, gap do flex container pai */
+        margin-bottom: 0;  
     }
     .header .header-controls {
         width: 100%;
@@ -893,7 +904,7 @@ body.light .loader::after {
     }
 
     .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Mais flexível para tablets */
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
         gap: 15px;
     }
     .bottom-cards {
@@ -938,51 +949,50 @@ body.light .loader::after {
     .header {
         position: sticky;
         top: 0;
-        z-index: 100; /* Mantido, mas ver nota sobre modal-open */
+        z-index: 100; 
         display: flex;
-        justify-content: space-between; /* Logo à esquerda, controles à direita */
+        justify-content: space-between; 
         align-items: center;
-        padding: 0 12px; /* Padding horizontal para espaçamento interno */
-        height: 56px; /* Altura fixa para header sticky */
-        margin-bottom: 5; /* Header é sticky, não precisa de margin-bottom */
-        border-radius: 0 0 12px 12px; /* Arredondar cantos inferiores */
-        /* Estilos de fundo e borda para modo escuro */
-        background: none; /* Fundo escuro translúcido */
-        border: none; /* Linha sutil na base */
+        padding: 0 12px 0 7px; /* Ajustado padding esquerdo */
+        height: 56px; 
+        margin-bottom: 5; 
+        border-radius: 0 0 12px 12px; 
+        background: none; 
+        border: none; 
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
         transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     }
-    body.light .header { /* Estilos para modo claro no mobile header */
-        background: rgba(248, 249, 250, 0.85); /* Fundo claro translúcido */
+    body.light .header { 
+        background: rgba(248, 249, 250, 0.85); 
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     .header .logo {
         width: auto;
-        font-size: 20px; /* Ajuste o tamanho da fonte do logo se desejar */
+        font-size: 20px; 
         margin-bottom: 0;
         flex-shrink: 0;
-        gap: 6px; /* Espaçamento menor no mobile entre ícone e texto */
+        gap: 6px; 
     }
     .header .logo-icon {
         width: 20px; height: 20px; font-size: 10px; margin-top: 2px;
     }
 
     .header .logo-text-full {
-        display: none; /* Esconde o texto completo no mobile */
+        display: none; 
     }
     .header .logo-text-short {
-        display: inline; /* Mostra o texto curto no mobile */
+        display: inline; 
     }
 
     .header .question-counter {
-        position: absolute; /* Centralização absoluta */
+        position: absolute; 
         left: 50%;
         width: auto;
         transform: translateX(-50%);
-        display: flex; /* Para alinhar seus filhos (botões e input) */
+        display: flex; 
         align-items: center;
         gap: 6px;
     }
@@ -997,17 +1007,15 @@ body.light .loader::after {
     .header .header-controls {
         width: auto;
         gap: 6px;
-        flex-shrink: 0; /* Evita que os controles encolham demais */
-        /* Não precisa mais de order */
+        flex-shrink: 0; 
     }
     .header .btn-icon-nav, .header .theme-toggle-btn {
         font-size: 1.2rem; padding: 5px;
     }
 
-    /* ... (restante das regras para stats-grid, cards, modal, etc. permanecem as mesmas) ... */
 
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr); /* Grade 2x2 */
+        grid-template-columns: repeat(2, 1fr); 
         gap: 12px;
         margin-bottom: 20px;
     }
