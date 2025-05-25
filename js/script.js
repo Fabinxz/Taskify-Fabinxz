@@ -11,8 +11,8 @@ const initialDefaultState = {
         yearly: 20000,
         streak: 30
     },
+    weeklyProgress: 0, 
     monthlyProgress: 0, 
-    yearlyProgress: 0, 
     yearlyProgress: 0, 
     weeklyActivityData: [0, 0, 0, 0, 0, 0, 0], 
     dailyRecord: {
