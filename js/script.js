@@ -5,11 +5,11 @@ const initialDefaultState = {
     todayCount: 0, // ZERADO
     lastAccessDate: new Date().toDateString(), // Mantém lógica atual
     goals: { // Valores dos inputs do modal no HTML, "pré-estabelecidos"
-        daily: 20,
-        weekly: 50,
-        monthly: 1200,
+        daily: 100,
+        weekly: 500,
+        monthly: 2000,
         yearly: 20000,
-        streak: 30
+        streak: 10
     },
     weeklyProgress: 0, // ZERADO
     monthlyProgress: 0, // ZERADO
