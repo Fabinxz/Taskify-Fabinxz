@@ -943,13 +943,184 @@ body.light .loader::after {
         transform: translateX(-50%);
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 8px; /* Base para telas grandes, ajustada abaixo para notebooks */
     }
 
     .header-controls {
         margin-left: auto;
     }
 }
+
+/* Ajustes específicos para notebooks e telas médias */
+/* Aplicado para telas maiores que tablet e menores que full HD típicas, com foco em otimizar o espaço vertical */
+@media screen and (min-width: 769px) and (max-width: 1700px) {
+    .container {
+        padding-top: 15px; /* Original: 20px */
+    }
+
+    .header {
+        padding: 18px 20px 18px 15px; /* Original: 22px 22px 22px 17px */
+        margin-bottom: 20px; /* Original: 31px */
+    }
+    
+    .logo {
+        font-size: 22px; /* Original: 26px */
+    }
+    .logo-icon {
+        width: 22px; /* Original: 24px */
+        height: 22px; /* Original: 24px */
+        font-size: 11px; /* Original: 12px */
+    }
+    .question-counter { /* Refina o gap para esta faixa de tamanho */
+        gap: 6px; /* Original: 8px na MQ desktop, 10px base */
+    }
+    .counter-btn {
+        width: 32px; /* Original: 36px */
+        height: 32px; /* Original: 36px */
+        font-size: 18px; /* Original: 20px */
+    }
+    .counter-display, #questions-step-input.counter-display {
+        font-size: 20px; /* Original: 24px */
+        min-width: 40px; /* Original: 50px */
+    }
+    #questions-step-input.counter-display { /* Input específico */
+        max-width: 60px; /* Original: 80px */
+    }
+
+    .btn-icon-nav, .theme-toggle-btn {
+        font-size: 1.4rem; /* Original: 1.6rem */
+        padding: 7px; /* Original: 8px */
+    }
+    .header-controls {
+        gap: 10px; /* Original: 12px */
+    }
+
+    .stats-grid {
+        gap: 15px; /* Original: 20px */
+        margin-bottom: 20px; /* Original: 30px */
+    }
+
+    .stat-card {
+        padding: 18px; /* Original: 24px */
+        border-radius: 12px; /* Original: 16px */
+    }
+    .stat-title {
+        font-size: 13px; /* Original: 14px */
+        margin-bottom: 12px; /* Original: 16px */
+    }
+    .circular-progress {
+        width: 90px; /* Original: 120px */
+        height: 90px; /* Original: 120px */
+        margin-bottom: 12px; /* Original: 16px */
+    }
+    .progress-ring-circle {
+        stroke-width: 7; /* Original: 8 */
+    }
+    .progress-number {
+        font-size: 26px; /* Original: 32px */
+    }
+    .progress-target {
+        font-size: 12px; /* Original: 14px */
+    }
+
+    .bottom-cards {
+        gap: 15px; /* Original: 20px */
+        margin-bottom: 20px; /* Original: 30px */
+    }
+
+    .info-card {
+        padding: 18px; /* Original: 24px */
+        border-radius: 12px; /* Original: 16px */
+    }
+    .card-title {
+        font-size: 14px; /* Original: 16px */
+        margin-bottom: 10px; /* Original: 12px */
+    }
+    .card-title-icon {
+        font-size: 1rem; /* Original: 1.1rem */
+    }
+    .card-value {
+        font-size: 26px; /* Original: 32px */
+        margin-bottom: 6px; /* Original: 8px */
+    }
+    .streak-value-meta-container {
+        margin-bottom: 6px; /* Original: 8px */
+    }
+    .card-subtitle {
+        font-size: 13px; /* Original: 14px */
+    }
+     .card-streak-target {
+        font-size: 12px; /* Original: 13px */
+    }
+    .progress-bar-horizontal {
+        height: 7px; /* Original: 8px */
+    }
+
+    .activity-section {
+        padding: 18px; /* Original: 24px */
+        border-radius: 12px; /* Original: 16px */
+        /* margin-bottom: 0px; é o padrão, mas adicionaremos espaço via footer */
+    }
+    .activity-header {
+        margin-bottom: 18px; /* Original: 24px */
+    }
+    .activity-title {
+        font-size: 16px; /* Original: 18px */
+    }
+    .activity-controls .control-btn {
+        width: 28px; /* Original: 32px */
+        height: 28px; /* Original: 32px */
+    }
+    .activity-value {
+        padding: 5px 10px; /* Original: 6px 12px */
+        font-size: 13px; /* Original: 14px */
+    }
+    .chart-container {
+        height: 160px; /* Original: 200px. Importante para economizar espaço vertical */
+    }
+    
+    footer {
+        padding: 15px 0; /* Original: 20px 0 */
+        font-size: 0.8rem; /* Original: 0.85rem */
+        margin-top: 20px; /* Adiciona espaço acima do footer, já que activity-section não tem margin-bottom */
+    }
+
+    .modal {
+        padding: 24px; /* Original: 32px */
+        padding-top: 40px; /* Original: 48px */
+        border-radius: 12px; /* Original: 16px */
+    }
+    .modal-close-btn {
+        top: 12px; /* Original: 16px */
+        right: 12px; /* Original: 16px */
+        font-size: 1.3rem; /* Original: 1.5rem */
+        padding: 6px; /* Original: 8px */
+    }
+    .modal-title {
+        font-size: 20px; /* Original: 22px */
+        margin-bottom: 20px; /* Original: 24px */
+    }
+    .modal-body-text {
+        margin-bottom: 20px; /* Original: 24px */
+    }
+    .form-label {
+        font-size: 13px; /* Original: 14px */
+    }
+    .form-input {
+        padding: 10px; /* Original: 12px */
+        font-size: 15px; /* Original: 16px */
+        border-radius: 6px; /* Original: 8px */
+    }
+    .modal-buttons {
+        margin-top: 20px; /* Original: 24px */
+    }
+    .btn { /* Aplicado aos botões de modal */
+        padding: 8px 16px; /* Original: 10px 20px */
+        font-size: 13px; /* Original: 14px */
+        border-radius: 6px; /* Original: 8px */
+    }
+}
+
 
 /* Tablet and General Mobile Layout (768px and below) */
 @media (max-width: 768px) {
