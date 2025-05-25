@@ -131,14 +131,14 @@ body.light .header {
     font-size: 1.6rem; /* Icon size */
     padding: 8px;
     border-radius: 50%; /* Circular button */
-    transition: background-color 0.2s ease, color 0.2s ease, font-size 0.2s ease, padding 0.2s ease;
+    transition: background-color 0.2s ease, color 0.3s ease, font-size 0.2s ease, padding 0.2s ease;
     line-height: 1; /* Ensures icon is centered */
-    color: var(--nav-icon-btn-color-dark); /* Default icon color for dark theme */
+    color: var(--primary-color-dark); /* Usa cor primária */
 }
 
 body.light .btn-icon-nav,
 body.light .theme-toggle-btn {
-    color: var(--nav-icon-btn-color-light); /* Icon color for light theme */
+    color: var(--primary-color-light); /* Usa cor primária */
 }
 
 /* Hover effect for icon buttons - subtle background */
@@ -378,17 +378,27 @@ body.light .card-title {
 }
 
 .card-title-icon {
-    font-size: 0.95rem;
+    font-size: 1.1rem; /* Aumentado o tamanho do ícone */
     margin-left: 8px;
+    color: var(--primary-color-dark); /* Cor primária padrão (dark theme) */
+    transition: color 0.3s ease;
 }
 
 
 .card-value {
     font-size: 32px;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 8px; 
     transition: font-size 0.2s ease, margin-bottom 0.2s ease;
 }
+
+.streak-value-meta-container {
+    display: flex; 
+    align-items: baseline;
+    justify-content: space-between; 
+    margin-bottom: 8px; 
+}
+
 body.light .card-value {
     color: #222; /* Darker number for light theme - Melhorado */
     font-weight: 700;
@@ -402,7 +412,9 @@ body.light .card-value {
 body.light .card-subtitle {
     color: #6c757d; /* Ajustado para modo claro */
 }
-
+body.light .card-title-icon {
+    color: var(--primary-color-light); /* Cor primária para light theme */
+}
 
 .progress-bar-horizontal {
     width: 100%;
@@ -410,7 +422,7 @@ body.light .card-subtitle {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 4px;
     overflow: hidden;
-    margin-top: 12px;
+    margin-top: 0; /* Garante que a margem superior seja controlada pelo contêiner acima */
 }
 body.light .progress-bar-horizontal {
     background: #e0e0e0;
@@ -424,6 +436,21 @@ body.light .progress-bar-horizontal {
 }
 body.light .progress-fill {
      background: var(--primary-color-light);
+}
+
+.card-streak-target {
+    font-size: 13px; /* Pode precisar de um ajuste fino no tamanho */
+    color: #d1d1d1;
+    /* REMOVA as seguintes linhas: */
+    /* margin-top: 8px;    */
+    /* margin-bottom: 6px; */
+    /* text-align: left;   */
+    transition: color 0.3s ease;
+    /* Opcional: adicionar um margin-left se justify-content: space-between não for suficiente */
+    /* margin-left: auto;  Se quiser que a meta vá para a extrema direita */
+}
+body.light .card-streak-target {
+    color: #6c757d;
 }
 
 
@@ -685,6 +712,45 @@ body.light .modal-title {
     color: #222; /* Cor do título no tema claro - Melhorado */
 }
 
+.modal-body-text {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    color: #ccc;
+}
+body.light .modal-body-text {
+    color: #444;
+}
+.modal-body-text ul {
+    list-style-position: inside;
+    padding-left: 0px; /* Ajuste se necessário ou use margin */
+    margin-top: 8px;
+    margin-bottom: 12px;
+}
+.modal-body-text ul ul { /* Sub-listas */
+    margin-left: 20px;
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+.guide-text p {
+    margin-bottom: 10px;
+}
+.guide-text li {
+    margin-bottom: 8px;
+}
+.guide-highlight {
+    color: var(--primary-color-dark);
+    font-weight: 500;
+}
+body.light .guide-highlight {
+    color: var(--primary-color-light);
+}
+.guide-icon-example, .guide-btn-example {
+    /* Para destacar ícones/botões no texto do guia */
+    padding: 0 2px;
+    border-radius: 3px;
+    background-color: rgba(128,128,128,0.1);
+}
 .form-group {
     margin-bottom: 20px;
 }
@@ -696,6 +762,16 @@ body.light .modal-title {
 }
 body.light .form-label {
     color: #555; /* Cor do label (light) - Melhorado */
+}
+.form-group-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    margin-bottom: 10px; /* Reduzido para não empurrar muito o botão "Entendi" */
+}
+.form-group-checkbox input[type="checkbox"] {
+    width: auto; /* Reset para o tamanho natural do checkbox */
 }
 
 .form-input {
@@ -767,6 +843,20 @@ body.light .btn-secondary {
 }
 body.light .btn-secondary:hover {
     background: #d0d0d0;
+}
+.btn-reset-app {
+    background-color: #dc3545; /* Vermelho perigo (Bootstrap-like) */
+    color: white;
+}
+.btn-reset-app:hover {
+    background-color: #c82333; /* Mais escuro no hover */
+}
+.btn-reset-app:active {
+    background-color: #bd2130; /* Ainda mais escuro no active */
+}
+
+.modal-buttons .btn-reset-app {
+    margin-right: auto; /* Alinha o botão "Resetar App" (no modal de metas) à esquerda */
 }
 
 
@@ -1038,10 +1128,17 @@ body.light .loader::after {
         gap: 12px;
         margin-bottom: 20px;
     }
-    .card-value { font-size: 24px; margin-bottom: 4px; }
+    .card-value {
+        font-size: 24px;
+        /* margin-bottom: 4px; */ /* REMOVA ou comente esta linha também */
+    }
     .card-title { font-size: 12px; margin-bottom: 6px; }
     .card-subtitle { font-size: 11px; }
 
+    .card-streak-target {
+        font-size: 11px;
+        /* As margens e text-align já foram removidas da regra principal */
+    }
     .activity-section { margin-bottom: 16px;}
     .activity-title { font-size: 15px; }
     .activity-controls .control-btn {
@@ -1073,4 +1170,11 @@ body.light .loader::after {
         font-size: 13px;
         border-radius: 6px;
     }
+
+    .streak-value-meta-container {
+        margin-bottom: 6px; /* Ajuste para telas menores */
+        /* Você pode querer ajustar o justify-content ou usar gap aqui se necessário */
+        /* gap: 8px; */ /* Exemplo, se space-between não for ideal */
+    }
+
 }
