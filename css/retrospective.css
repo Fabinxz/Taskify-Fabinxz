@@ -1,0 +1,1165 @@
+/* Estilos Gerais da Retrospectiva */
+.retrospective-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 1999;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.retrospective-modal-overlay.show {
+    display: block;
+    opacity: 1;
+}
+
+.retrospective-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 95vw;
+    max-width: 700px;
+    height: 90vh;
+    max-height: 780px;
+    background: #121212;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    overflow: hidden;
+    color: #FFFFFF;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.retrospective-modal.show {
+    display: flex; /* Alterado para flex para consistência com as telas internas */
+    flex-direction: column; /* Adicionado para empilhar conteúdo se necessário */
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+body.light .retrospective-modal-overlay {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+}
+
+body.light .retrospective-modal {
+    background: #f0f0f0;
+    border-color: #d0d0d0;
+    color: #121212;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(50px) scale(0.98); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes fadeOutLeft {
+    from { opacity: 1; transform: translateX(0) scale(1); }
+    to { opacity: 0; transform: translateX(-50px) scale(0.98); visibility: hidden; }
+}
+
+@keyframes fadeInFromLeft {
+    from { opacity: 0; transform: translateX(-50px) scale(0.98); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes fadeOutToRight {
+    from { opacity: 1; transform: translateX(0) scale(1); }
+    to { opacity: 0; transform: translateX(50px) scale(0.98); visibility: hidden; }
+}
+
+.retrospective-screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around; /* Ajustado para space-around para melhor distribuição inicial */
+    padding: clamp(20px, 4vh, 30px) clamp(15px, 5vw, 40px); /* Padding responsivo */
+    box-sizing: border-box;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform-origin: center center;
+    overflow-y: auto; /* Adicionado para rolagem interna da tela, se necessário */
+}
+
+.retrospective-screen.active {
+    opacity: 1;
+    visibility: visible;
+    animation: fadeInRight 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    z-index: 10;
+}
+
+.retrospective-screen.previous {
+    animation: fadeOutLeft 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    z-index: 1;
+}
+
+.retrospective-screen.next-out {
+    animation: fadeOutToRight 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    z-index: 1;
+}
+
+.retrospective-screen.previous-in.active {
+    animation: fadeInFromLeft 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    z-index: 10;
+}
+
+.retrospective-content-wrapper {
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Centraliza conteúdo por padrão */
+    flex-grow: 1;
+    padding: clamp(5px, 1vh, 10px) 0; /* Padding vertical responsivo e compacto */
+    overflow-x: hidden;
+    /* overflow-y será herdado de .retrospective-screen ou definido especificamente abaixo */
+}
+
+.retrospective-text-center {
+    text-align: center;
+}
+
+/* Tela de Seleção de Métricas */
+.retrospective-selection-card {
+    background: transparent;
+    border: none;
+    padding: clamp(15px, 3vh, 20px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(15px, 3vh, 25px);
+    width: 100%;
+    max-width: 450px;
+}
+
+body.light .retrospective-selection-card {
+    background: transparent;
+}
+
+.retrospective-logo-container {
+    text-align: center;
+    margin-bottom: clamp(10px, 2vh, 20px);
+}
+
+.retrospective-logo-icon-wrapper {
+    width: clamp(70px, 10vw, 80px);
+    height: clamp(70px, 10vw, 80px);
+    margin: 0 auto clamp(15px, 2vh, 20px);
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.retrospective-logo-icon-wrapper .retrospective-icon {
+    font-size: clamp(32px, 5vw, 38px);
+    color: white;
+}
+
+.retrospective-main-title {
+    font-size: clamp(28px, 5vw, 34px);
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 5px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.light .retrospective-main-title {
+    color: var(--text-color-light);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.retrospective-month {
+    font-size: clamp(18px, 3vw, 20px);
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: clamp(15px, 3vh, 25px);
+}
+
+body.light .retrospective-month {
+    color: var(--text-muted-light);
+}
+
+.retrospective-selection-prompt {
+    font-size: clamp(16px, 2.8vw, 18px);
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+body.light .retrospective-selection-prompt {
+    color: var(--text-muted-light);
+}
+
+.retrospective-metrics-selection {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2vh, 15px);
+    margin-bottom: clamp(20px, 4vh, 30px);
+}
+
+.retrospective-metric-button {
+    width: 100%;
+    padding: clamp(12px, 2.2vh, 16px) clamp(18px, 3vw, 22px);
+    font-size: clamp(16px, 2.8vw, 18px);
+    font-weight: 500;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+    text-align: left;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.retrospective-metric-button .retrospective-icon {
+    font-size: clamp(18px, 3vw, 22px);
+    color: rgba(255, 255, 255, 0.8);
+    transition: color 0.25s ease;
+    min-width: 25px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.light .retrospective-metric-button {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-color-light);
+}
+
+body.light .retrospective-metric-button .retrospective-icon {
+    color: var(--text-muted-light);
+}
+
+.retrospective-metric-button:hover {
+    border-color: var(--primary-color-dark);
+    background-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.retrospective-metric-button:hover .retrospective-icon {
+    color: var(--primary-color-dark);
+}
+
+body.light .retrospective-metric-button:hover {
+    border-color: var(--primary-color-light);
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light .retrospective-metric-button:hover .retrospective-icon {
+    color: var(--primary-color-light);
+}
+
+.retrospective-metric-button.selected {
+    background-color: var(--primary-color-dark);
+    color: white;
+    border-color: var(--primary-color-dark);
+    box-shadow: 0 0 15px rgba(var(--primary-color-dark-rgb), 0.5);
+}
+
+.retrospective-metric-button.selected .retrospective-icon {
+    color: white;
+}
+
+body.light .retrospective-metric-button.selected {
+    background-color: var(--primary-color-light);
+    border-color: var(--primary-color-light);
+    box-shadow: 0 0 15px rgba(var(--primary-color-light-rgb), 0.5);
+}
+
+body.light .retrospective-metric-button.selected .retrospective-icon {
+    color: white;
+}
+
+.retrospective-metric-button .retrospective-checkmark-placeholder {
+    margin-left: auto;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.retrospective-metric-button.selected .retrospective-checkmark-placeholder::before {
+    content: "\F26E";
+    font-family: 'bootstrap-icons';
+    font-size: clamp(18px, 3vw, 22px);
+    color: white;
+    transform: scale(1.1);
+}
+
+.retrospective-button {
+    padding: clamp(12px, 2.2vh, 14px) clamp(25px, 4vw, 30px);
+    font-size: clamp(16px, 2.8vw, 18px);
+    font-weight: 600;
+    border-radius: 25px;
+    border: none;
+    transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+}
+
+.retrospective-start-button {
+    width: 100%;
+    max-width: 320px;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin-top: clamp(10px, 2vh, 15px);
+}
+
+.retrospective-start-button:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.light .retrospective-start-button {
+    background: linear-gradient(135deg, var(--primary-color-light) 0%, var(--primary-color-light) 100%);
+}
+
+.retrospective-start-button:disabled {
+    background: var(--text-muted-dark);
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: none;
+    transform: scale(1);
+}
+
+body.light .retrospective-start-button:disabled {
+    background-color: var(--text-muted-light);
+    opacity: 0.6;
+}
+
+/* Tela de Introdução */
+.retrospective-intro-content { /* Este é um wrapper interno, não a tela em si */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+@keyframes pulseStar {
+    0% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4)); }
+    50% { transform: scale(1.1); filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.7)); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4)); }
+}
+
+.retrospective-intro-icon-wrapper {
+    width: clamp(120px, 20vh, 140px);
+    height: clamp(120px, 20vh, 140px);
+    margin-bottom: clamp(25px, 5vh, 35px);
+    background: linear-gradient(145deg, #fcc72b, #ff8000);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulseStar 2.2s infinite cubic-bezier(0.455, 0.030, 0.515, 0.955);
+}
+
+.retrospective-intro-icon-wrapper .retrospective-icon-large {
+    font-size: clamp(60px, 10vh, 70px);
+    color: white;
+}
+
+.retrospective-intro-title {
+    font-size: clamp(40px, 8vh, 50px);
+    font-weight: 800;
+    margin-bottom: clamp(8px, 1.5vh, 12px);
+    line-height: 1.1;
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+body.light .retrospective-intro-title {
+    background: linear-gradient(45deg, #007cf0 0%, #00dfd8 25%, #79f1a4 50%, #f5e653 75%, #ff8c42 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.retrospective-intro-subtitle {
+    font-size: clamp(20px, 3.5vh, 24px);
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: clamp(30px, 6vh, 45px);
+    font-weight: 300;
+}
+
+body.light .retrospective-intro-subtitle {
+    color: rgba(0, 0, 0, 0.65);
+}
+
+.retrospective-intro-button {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    padding: clamp(14px, 2.5vh, 16px) clamp(30px, 5vw, 35px);
+    font-size: clamp(17px, 3vh, 19px);
+    border-radius: 30px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 5px 20px rgba(78, 64, 255, 0.4);
+}
+
+body.light .retrospective-intro-button {
+    background: linear-gradient(135deg, var(--primary-color-light) 0%, var(--primary-color-light) 100%);
+    box-shadow: 0 5px 20px rgba(var(--primary-color-light-rgb), 0.4);
+}
+
+.retrospective-intro-button:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 8px 25px rgba(78, 64, 255, 0.5);
+}
+
+body.light .retrospective-intro-button:hover {
+    box-shadow: 0 8px 25px rgba(var(--primary-color-light-rgb), 0.5);
+}
+
+
+/* Tela de Estatísticas Principais ("Brilharam!") */
+#retrospective-main-stats-screen .retrospective-content-wrapper {
+    justify-content: space-around; /* Para espaçar título, grid e botão */
+}
+
+.retrospective-screen-title {
+    font-size: clamp(32px, 6vw, 38px);
+    font-weight: 700;
+    margin-bottom: clamp(15px, 3vh, 20px);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #FFFFFF;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.light .retrospective-screen-title {
+    color: var(--text-color-light);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.retrospective-title-icon {
+    font-size: 0.9em;
+    color: #FFD700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+    filter: brightness(1.1);
+}
+
+.retrospective-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Ajustado para ser mais responsivo */
+    gap: clamp(15px, 2.5vw, 20px);
+    margin-bottom: clamp(15px, 3vh, 20px);
+    width: 100%;
+    max-width: 600px;
+    justify-content: center;
+}
+
+.retrospective-stats-grid:has(:nth-child(1):not(:nth-child(2))) {
+    grid-template-columns: minmax(180px, 300px); /* Mantido, mas auto-fit deve cobrir */
+}
+
+.retrospective-stats-grid:has(:nth-child(2):not(:nth-child(3))) {
+    grid-template-columns: repeat(2, minmax(150px, 1fr)); /* Ajustado */
+}
+
+
+.retrospective-stat-card {
+    background: rgba(37, 117, 252, 0.1);
+    border-color: rgba(37, 117, 252, 0.3);
+    box-shadow: 0 0 15px rgba(37, 117, 252, 0.15);
+    padding: clamp(15px, 2.5vh, 20px) clamp(10px, 2vw, 15px);
+    border-radius: 16px;
+    text-align: center;
+    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: clamp(180px, 30vh, 230px);
+}
+
+.retrospective-stat-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+body.light .retrospective-stat-card {
+    background: #ffffff;
+    border-color: #e0e0e0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+body.light .retrospective-stat-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes metricCardAppear {
+    from { opacity: 0; transform: translateY(25px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animated-metric-card {
+    opacity: 0;
+    animation: metricCardAppear 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.retrospective-stats-grid>.animated-metric-card:nth-child(1) { animation-delay: 0.1s; }
+.retrospective-stats-grid>.animated-metric-card:nth-child(2) { animation-delay: 0.2s; }
+.retrospective-stats-grid>.animated-metric-card:nth-child(3) { animation-delay: 0.3s; }
+
+.retrospective-icon-large { font-size: clamp(40px, 6vw, 48px); margin-bottom: 15px; }
+.retrospective-icon-medium { font-size: clamp(20px, 3.5vw, 24px); }
+.retrospective-icon-small { font-size: clamp(14px, 2.5vw, 16px); }
+.retrospective-icon-xlarge { font-size: clamp(60px, 10vw, 75px); margin-bottom: 25px; }
+
+.retrospective-icon-blue { color: #00A9FF; }
+.retrospective-icon-green { color: #39FF14; }
+.retrospective-icon-purple { color: #BC13FE; }
+.retrospective-icon-yellow { color: #FCE205; }
+
+.retrospective-icon-main { color: var(--primary-color-dark); }
+body.light .retrospective-icon-main { color: var(--primary-color-light); }
+
+.retrospective-stat-value {
+    font-size: clamp(32px, 5.5vw, 40px);
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 6px;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+body.light .retrospective-stat-value {
+    color: var(--text-color-light);
+    text-shadow: none;
+}
+
+.retrospective-stat-label {
+    font-size: clamp(14px, 2.5vw, 16px);
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 12px;
+    flex-grow: 1;
+}
+
+body.light .retrospective-stat-label {
+    color: var(--text-muted-light);
+}
+
+.retrospective-badge {
+    display: block;
+    padding: clamp(6px, 1vh, 8px) clamp(10px, 1.8vw, 12px);
+    border-radius: 18px;
+    font-size: clamp(11px, 1.8vw, 13px);
+    line-height: 1.3;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    word-break: break-word;
+    white-space: normal;
+    margin-top: auto;
+}
+
+.retrospective-badge-blue { background-color: rgba(0, 169, 255, 0.2); color: #00A9FF; border: 1px solid rgba(0, 169, 255, 0.4); }
+.retrospective-badge-green { background-color: rgba(57, 255, 20, 0.2); color: #39FF14; border: 1px solid rgba(57, 255, 20, 0.4); }
+.retrospective-badge-purple { background-color: rgba(188, 19, 254, 0.2); color: #BC13FE; border: 1px solid rgba(188, 19, 254, 0.4); }
+
+.retrospective-navigation-button {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    margin-top: clamp(15px, 3vh, 25px);
+    margin-bottom: clamp(5px, 1vh, 10px);
+}
+
+body.light .retrospective-navigation-button {
+    background: linear-gradient(135deg, var(--primary-color-light) 0%, var(--primary-color-light) 100%);
+}
+
+.retrospective-navigation-button:hover {
+    opacity: 1;
+    transform: scale(1.03);
+}
+
+/* Tela Dia Mais Produtivo */
+#retrospective-productive-day-screen .retrospective-content-wrapper {
+    justify-content: space-around;
+}
+
+.retrospective-title-yellow {
+    background: linear-gradient(135deg, #FCE205, #ffab00);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;
+}
+
+.retrospective-productive-day-card {
+    background: linear-gradient(145deg, rgba(252, 226, 5, 0.1), rgba(255, 171, 0, 0.15));
+    border: 1px solid rgba(252, 226, 5, 0.3);
+    padding: clamp(20px, 4vh, 30px);
+    border-radius: 16px;
+    margin-bottom: clamp(15px, 3vh, 20px);
+    box-shadow: 0 0 25px rgba(252, 226, 5, 0.2);
+    width: 100%;
+    max-width: 450px;
+}
+
+.retrospective-productive-day-date {
+    font-size: clamp(48px, 9vw, 60px);
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 10px;
+    text-shadow: 0 0 12px #FCE205;
+}
+
+.retrospective-productive-day-value {
+    font-size: clamp(18px, 3vw, 20px);
+    color: #fff3a0;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.retrospective-stars-container { display: flex; justify-content: center; gap: 8px; }
+.retrospective-stars-container i { text-shadow: 0 0 7px #FCE205; font-size: clamp(22px, 4vw, 26px); }
+
+.retrospective-motivational-text {
+    font-size: clamp(18px, 3.5vw, 22px);
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: clamp(15px, 3vh, 25px);
+    font-weight: 300;
+}
+body.light .retrospective-motivational-text { color: var(--text-muted-light); }
+
+.retrospective-highlight-yellow { color: #FCE205; font-weight: 600; text-shadow: 0 0 5px #FCE205; }
+
+.retrospective-button-yellow {
+    background: linear-gradient(135deg, #FCE205, #ffab00);
+    color: #333;
+    box-shadow: 0 4px 15px rgba(252, 226, 5, 0.4);
+}
+.retrospective-button-yellow:hover {
+    opacity: 1; transform: scale(1.03); box-shadow: 0 6px 20px rgba(252, 226, 5, 0.5);
+}
+
+/* Tela Padrões de Tempo */
+#retrospective-time-patterns-screen .retrospective-content-wrapper {
+    justify-content: space-between; gap: clamp(15px, 3vh, 20px); width: 100%; max-width: 600px;
+}
+
+.retrospective-title-cyan {
+    background: linear-gradient(135deg, #05F4F0, #00A9FF);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;
+}
+
+.retrospective-time-patterns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Ajustado para ser mais responsivo */
+    gap: clamp(15px, 2.5vw, 20px); margin-bottom: 0; width: 100%; align-items: stretch;
+}
+
+.retrospective-card-header .retrospective-icon-large { font-size: clamp(32px, 5vw, 38px); }
+.retrospective-card-title { font-size: clamp(18px, 3vw, 20px); font-weight: 600; color: #FFFFFF; }
+body.light .retrospective-card-title { color: var(--text-color-light); }
+
+.retrospective-card-cyan, .retrospective-card-purple {
+    min-height: clamp(150px, 25vh, 180px); display: flex; flex-direction: column; justify-content: center;
+}
+
+.retrospective-card-indigo {
+    background: rgba(37, 117, 252, 0.1); border-color: rgba(37, 117, 252, 0.3);
+    padding: clamp(15px, 2.5vh, 20px); box-shadow: 0 0 15px rgba(37, 117, 252, 0.15);
+    width: 100%; box-sizing: border-box; margin-bottom: 0; display: flex; flex-direction: column;
+    min-height: clamp(200px, 35vh, 240px);
+}
+.retrospective-card-indigo .retrospective-card-header { margin-bottom: 10px; }
+
+.retrospective-weekday-chart {
+    display: flex; justify-content: space-around; align-items: flex-end; flex-grow: 1;
+    min-height: clamp(100px, 15vh, 130px); margin-top: 10px; padding: 0 5px; margin-bottom: 5px;
+}
+.retrospective-weekday-bar-container {
+    display: flex; flex-direction: column; align-items: center; height: 100%;
+    justify-content: flex-end; flex-grow: 1; max-width: 35px;
+}
+.retrospective-weekday-bar {
+    width: 65%; max-width: 22px; background: linear-gradient(to top, #05F4F0, #00A9FF);
+    border-radius: 4px 4px 0 0; transition: height 0.6s cubic-bezier(0.25, 0.1, 0.25, 1), filter 0.3s ease;
+    box-shadow: 0 0 6px rgba(5, 244, 240, 0.3);
+}
+.retrospective-weekday-bar:hover { filter: brightness(1.3) drop-shadow(0 0 8px #05F4F0); }
+body.light .retrospective-weekday-bar {
+    background: linear-gradient(to top, var(--primary-color-light), color-mix(in srgb, var(--primary-color-light) 60%, #9c27b0));
+    box-shadow: 0 0 6px rgba(var(--primary-color-light-rgb), 0.3);
+}
+body.light .retrospective-weekday-bar:hover { filter: brightness(1.1) drop-shadow(0 0 8px var(--primary-color-light)); }
+.retrospective-weekday-label { font-size: 12px; color: rgba(255, 255, 255, 0.7); margin-top: 6px; font-weight: 500; }
+body.light .retrospective-weekday-label { color: var(--text-muted-light); }
+
+#retrospective-time-patterns-next-button.retrospective-button-cyan {
+    margin-top: clamp(15px, 3vh, 25px) !important; align-self: center;
+    background: linear-gradient(135deg, #05F4F0, #00A9FF);
+    box-shadow: 0 4px 15px rgba(5, 244, 240, 0.4);
+}
+#retrospective-time-patterns-next-button.retrospective-button-cyan:hover { box-shadow: 0 6px 20px rgba(5, 244, 240, 0.5); }
+
+/* Tela Comparação */
+#retrospective-comparison-screen .retrospective-content-wrapper { justify-content: space-around; }
+.retrospective-title-green {
+    background: linear-gradient(135deg, #39FF14, #8EFF7B);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;
+}
+.retrospective-comparison-percentage {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    font-size: 1.2em; margin-top: 8px;
+}
+.retrospective-comparison-percentage .retrospective-icon-green { color: #39FF14 !important; }
+.retrospective-comparison-percentage .retrospective-icon-red { color: #FF3B30; }
+body.light .retrospective-comparison-percentage .retrospective-icon-red { color: #D90000; }
+.retrospective-highlight-green { color: #39FF14; font-weight: bold; text-shadow: 0 0 8px #39FF14; }
+#retrospective-comparison-next-button.retrospective-button-green {
+    background: linear-gradient(135deg, #39FF14, #8EFF7B); color: #121212;
+    box-shadow: 0 4px 15px rgba(57, 255, 20, 0.4);
+}
+#retrospective-comparison-next-button.retrospective-button-green:hover { box-shadow: 0 6px 20px rgba(57, 255, 20, 0.5); }
+
+
+/* --- ESTILOS DA TELA FINAL (SPOTIFY WRAPPED STYLE) --- */
+.retrospective-final-screen-spotify-style {
+    display: flex; /* Adicionado para centralizar o card */
+    align-items: center; /* Adicionado para centralizar o card */
+    justify-content: center; /* Adicionado para centralizar o card */
+    padding: clamp(10px, 2vh, 20px); /* Padding ao redor do card */
+    background-color: var(--body-bg-dark); /* Usa variáveis do tema principal */
+    color: var(--text-color-dark);
+    overflow-y: auto; /* Permite rolagem se o card for maior que a tela do modal */
+    position: relative; /* Para o botão de fechar */
+    width: 100%; /* Ocupa toda a largura da tela pai (.retrospective-screen) */
+    height: 100%; /* Ocupa toda a altura da tela pai (.retrospective-screen) */
+}
+
+body.light .retrospective-final-screen-spotify-style {
+    background-color: var(--body-bg-light);
+    color: var(--text-color-light);
+}
+
+.retrospective-final-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    /* justify-content: space-between;  Será controlado por margin-top: auto nos filhos */
+    width: 100%;
+    max-width: 380px; /* Largura máxima para o card em telas grandes */
+    aspect-ratio: 9 / 16; /* Proporção fixa do card */
+    height: auto; /* A altura será definida pelo aspect-ratio e pela largura */
+    background: linear-gradient(160deg,
+            rgba(var(--primary-color-dark-rgb), 0.3) 0%,
+            rgba(var(--primary-color-dark-rgb), 0.1) 40%,
+            #0a0a0a 100%);
+    color: #FFFFFF;
+    padding: clamp(18px, 3.5vh, 25px) clamp(15px, 3vw, 20px); /* Padding interno responsivo e compacto */
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    overflow-y: auto; /* Rolagem interna se o conteúdo exceder o card */
+    box-sizing: border-box;
+    position: relative; /* Para contextos de posicionamento interno se necessário */
+}
+
+body.light .retrospective-final-content-wrapper {
+    background: linear-gradient(160deg,
+            rgba(var(--primary-color-light-rgb), 0.2) 0%, /* Mais suave para light mode */
+            rgba(var(--primary-color-light-rgb), 0.05) 40%,
+            #ffffff 100%);
+    color: var(--text-color-light);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* Sombra mais suave */
+}
+
+.retrospective-final-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: clamp(10px, 2vh, 15px); /* Compactado */
+    flex-shrink: 0; /* Para não encolher */
+}
+
+.retrospective-final-logo {
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1vw, 8px);
+    font-size: clamp(16px, 2.5vw, 18px);
+    font-weight: 700;
+    color: #FFFFFF;
+}
+body.light .retrospective-final-logo { color: var(--text-color-light); }
+
+.retrospective-final-logo .logo-icon {
+    width: clamp(18px, 3vw, 22px);
+    height: clamp(18px, 3vw, 22px);
+    background: var(--primary-color-dark);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: clamp(9px, 1.5vw, 11px);
+    font-weight: bold;
+    line-height: 1;
+}
+body.light .retrospective-final-logo .logo-icon { background: var(--primary-color-light); }
+
+.retrospective-final-date {
+    font-size: clamp(12px, 2vw, 14px);
+    color: rgba(255, 255, 255, 0.7);
+}
+body.light .retrospective-final-date { color: rgba(0, 0, 0, 0.6); }
+
+.retrospective-final-main-title {
+    font-size: clamp(22px, 4.5vh, 28px); /* Compactado */
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: clamp(12px, 2.5vh, 20px); /* Compactado */
+    line-height: 1.2;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+body.light .retrospective-final-main-title { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
+
+.retrospective-final-highlights {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Sempre 3 colunas */
+    gap: clamp(8px, 1.5vw, 10px); /* Compactado */
+    width: 100%;
+    margin-bottom: clamp(12px, 2.5vh, 20px); /* Compactado */
+    flex-shrink: 0;
+}
+
+.retrospective-final-highlight-item {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: clamp(8px, 1.8vh, 12px) clamp(6px, 1.2vw, 10px); /* Compactado */
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around; /* Distribui o conteúdo verticalmente */
+    min-height: auto; /* Permite que o conteúdo defina a altura */
+}
+body.light .retrospective-final-highlight-item {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.retrospective-final-highlight-value {
+    font-size: clamp(18px, 3.5vh, 24px); /* Compactado */
+    font-weight: 700;
+    margin-bottom: 2px; /* Compactado */
+    color: var(--primary-color-dark);
+}
+body.light .retrospective-final-highlight-value { color: var(--primary-color-light); }
+
+.retrospective-final-highlight-label {
+    font-size: clamp(10px, 1.8vh, 12px); /* Compactado */
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 4px; /* Compactado */
+    flex-grow: 1;
+    line-height: 1.2; /* Para evitar quebra de linha estranha */
+}
+body.light .retrospective-final-highlight-label { color: rgba(0, 0, 0, 0.6); }
+
+.final-highlight-icon {
+    font-size: clamp(16px, 2.8vh, 20px); /* Compactado */
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: auto; /* Garante que o ícone fique na parte inferior se houver espaço */
+}
+body.light .final-highlight-icon { color: rgba(0, 0, 0, 0.4); }
+
+.retrospective-final-other-stats {
+    width: 100%;
+    margin-bottom: clamp(10px, 2vh, 15px); /* Compactado */
+    font-size: clamp(12px, 2.2vh, 14px);
+    flex-shrink: 0;
+}
+.retrospective-final-other-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: clamp(5px, 1vh, 8px) 0; /* Compactado */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.retrospective-final-other-stat-item:last-child { border-bottom: none; }
+body.light .retrospective-final-other-stat-item { border-bottom-color: rgba(0, 0, 0, 0.08); }
+.retrospective-final-other-stat-item i {
+    font-size: clamp(14px, 2.5vh, 17px);
+    color: var(--primary-color-dark);
+    min-width: 20px;
+}
+body.light .retrospective-final-other-stat-item i { color: var(--primary-color-light); }
+.retrospective-final-other-stat-item strong { font-weight: 600; }
+
+.retrospective-final-achievements-container {
+    width: 100%;
+    margin-top: auto; /* Empurra para baixo */
+    margin-bottom: clamp(8px, 1.5vh, 12px); /* Compactado */
+    text-align: center;
+    flex-shrink: 0;
+}
+.retrospective-final-achievements-title {
+    font-size: clamp(13px, 2.5vh, 16px);
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.8);
+}
+body.light .retrospective-final-achievements-title { color: rgba(0, 0, 0, 0.7); }
+.retrospective-final-achievements-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+
+.retrospective-badge-achievement {
+    background: linear-gradient(45deg, var(--primary-color-dark), #4e4376, var(--primary-color-dark), #1c1629, var(--primary-color-dark));
+    background-size: 400% 400%;
+    animation: achievementGradient 5s ease infinite;
+    color: white;
+    padding: clamp(6px, 1.2vh, 8px) clamp(10px, 2vw, 15px); /* Compactado */
+    font-size: clamp(10px, 1.8vh, 13px); /* Compactado */
+    border-radius: 20px; border: none;
+    box-shadow: 0 0 8px rgba(var(--primary-color-dark-rgb), 0.5), 0 0 12px rgba(255, 255, 255, 0.15) inset;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4); font-weight: 600;
+}
+body.light .retrospective-badge-achievement {
+    background: linear-gradient(45deg, var(--primary-color-light), #877cb0, var(--primary-color-light), #e0d9f0, var(--primary-color-light));
+    background-size: 400% 400%; animation: achievementGradient 5s ease infinite;
+    color: var(--card-bg-light); text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+@keyframes achievementGradient {
+    0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; }
+}
+
+.retrospective-final-footer {
+    width: 100%;
+    text-align: center;
+    font-size: clamp(11px, 2vh, 13px); /* Compactado */
+    color: rgba(255, 255, 255, 0.6);
+    padding-top: clamp(8px, 1.5vh, 12px); /* Compactado */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto; /* Empurra para baixo, se achievements não tiver feito */
+    flex-shrink: 0;
+}
+body.light .retrospective-final-footer { color: rgba(0, 0, 0, 0.5); border-top-color: rgba(0, 0, 0, 0.08); }
+
+/* Botões de Ação ficam FORA do .retrospective-final-content-wrapper */
+.retrospective-action-buttons-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(10px, 2vh, 15px);
+    width: 100%;
+    max-width: 350px; /* Para centralizar em telas maiores */
+    margin-top: clamp(15px, 3vh, 20px); /* Espaço após o card */
+    padding-bottom: 10px; /* Para evitar que cole no fundo do modal */
+}
+.retrospective-action-buttons {
+    display: flex;
+    gap: clamp(10px, 2vw, 15px);
+    justify-content: center;
+    width: 100%;
+}
+.retrospective-action-button {
+    color: white;
+    flex-grow: 1;
+    max-width: 180px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: clamp(10px, 1.8vh, 12px) clamp(15px, 2.5vw, 20px);
+    font-size: clamp(14px, 2.2vh, 16px);
+}
+.retrospective-action-button#retrospective-share-button {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: transparent; border: 2px solid var(--primary-color-dark); color: var(--primary-color-dark);
+}
+.retrospective-action-button#retrospective-share-button:hover {
+    background: rgba(var(--primary-color-dark-rgb), 0.2); border-color: var(--primary-color-dark);
+}
+body.light .retrospective-action-button#retrospective-share-button {
+    border-color: var(--primary-color-light); color: var(--primary-color-light);
+}
+body.light .retrospective-action-button#retrospective-share-button:hover {
+    background: rgba(var(--primary-color-light-rgb), 0.2); border-color: var(--primary-color-light);
+}
+.twitter-logo-retro { width: 1.2em; height: 1.2em; fill: #1DA1F2; vertical-align: middle; }
+body.light .retrospective-action-button#retrospective-share-button .twitter-logo-retro { fill: #1DA1F2; }
+
+.retrospective-action-button#retrospective-download-button {
+    background: transparent; border: 2px solid var(--primary-color-dark); color: var(--primary-color-dark);
+}
+body.light .retrospective-action-button#retrospective-download-button {
+    border-color: var(--primary-color-light); color: var(--primary-color-light);
+}
+.retrospective-action-button#retrospective-download-button:hover {
+    background: rgba(var(--primary-color-dark-rgb), 0.2); border-color: var(--primary-color-dark);
+}
+body.light .retrospective-action-button#retrospective-download-button:hover {
+    background: rgba(var(--primary-color-light-rgb), 0.2); border-color: var(--primary-color-light);
+}
+.retrospective-action-button .retrospective-icon-small { font-size: 1.2em; }
+
+.retrospective-final-close-x-btn {
+    position: absolute;
+    top: clamp(10px, 2vh, 15px); right: clamp(10px, 2vw, 15px);
+    background: rgba(0, 0, 0, 0.3); border: none; color: rgba(255, 255, 255, 0.7);
+    font-size: clamp(18px, 3vw, 20px);
+    width: clamp(32px, 5vw, 36px); height: clamp(32px, 5vw, 36px);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background-color 0.2s, color 0.2s; z-index: 10;
+}
+.retrospective-final-close-x-btn:hover { background: rgba(0, 0, 0, 0.5); color: white; }
+body.light .retrospective-final-close-x-btn {
+    background: rgba(255, 255, 255, 0.5); color: rgba(0, 0, 0, 0.6);
+}
+body.light .retrospective-final-close-x-btn:hover {
+    background: rgba(255, 255, 255, 0.8); color: black;
+}
+
+/* Ícones Globais da Retrospectiva */
+.retrospective-icon, .retrospective-icon-small, .retrospective-icon-medium,
+.retrospective-icon-large, .retrospective-icon-xlarge {
+    display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;
+}
+
+/* Scrollbar para todas as telas da retrospectiva (exceto a final, que tem estilo próprio) */
+.retrospective-screen:not(.retrospective-final-screen-spotify-style)::-webkit-scrollbar { width: 8px; }
+.retrospective-screen:not(.retrospective-final-screen-spotify-style)::-webkit-scrollbar-track { background: transparent; }
+.retrospective-screen:not(.retrospective-final-screen-spotify-style)::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color-dark); border-radius: 10px;
+    border: 2px solid transparent; background-clip: content-box;
+}
+.retrospective-screen:not(.retrospective-final-screen-spotify-style) {
+    scrollbar-width: thin; scrollbar-color: var(--primary-color-dark) transparent;
+}
+body.light .retrospective-screen:not(.retrospective-final-screen-spotify-style)::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color-light);
+}
+body.light .retrospective-screen:not(.retrospective-final-screen-spotify-style) {
+    scrollbar-color: var(--primary-color-light) transparent;
+}
+
+/* Scrollbar para a TELA que contém o card da retrospectiva final */
+.retrospective-final-screen-spotify-style::-webkit-scrollbar { width: 8px; }
+.retrospective-final-screen-spotify-style::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
+.retrospective-final-screen-spotify-style::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color-dark); border-radius: 10px;
+    border: 2px solid rgba(0,0,0,0.05); background-clip: content-box;
+}
+.retrospective-final-screen-spotify-style {
+    scrollbar-width: thin; scrollbar-color: var(--primary-color-dark) rgba(0,0,0,0.05);
+}
+body.light .retrospective-final-screen-spotify-style::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); }
+body.light .retrospective-final-screen-spotify-style::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color-light); border-color: rgba(255,255,255,0.1);
+}
+body.light .retrospective-final-screen-spotify-style {
+    scrollbar-color: var(--primary-color-light) rgba(255,255,255,0.1);
+}
+
+/* Scrollbar para o CONTEÚDO DENTRO do card da retrospectiva final */
+.retrospective-final-content-wrapper::-webkit-scrollbar { width: 6px; }
+.retrospective-final-content-wrapper::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 8px; }
+.retrospective-final-content-wrapper::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.2); border-radius: 8px; }
+.retrospective-final-content-wrapper {
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) rgba(255,255,255,0.05);
+}
+body.light .retrospective-final-content-wrapper::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); }
+body.light .retrospective-final-content-wrapper::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); }
+body.light .retrospective-final-content-wrapper {
+    scrollbar-color: rgba(0,0,0,0.2) rgba(0,0,0,0.03);
+}
+
+
+/* Ajustes de responsividade */
+@media (min-width: 701px) {
+    #retrospective-time-patterns-screen .retrospective-content-wrapper {
+        display: grid;
+        grid-template-areas: "title title" "grid grid" "chart chart" "button button";
+        grid-template-columns: 1fr 1fr; grid-template-rows: auto auto 1fr auto;
+        gap: 20px; align-items: start; height: 100%;
+    }
+    #retrospective-time-patterns-screen .retrospective-screen-title { grid-area: title; margin-bottom: 0; }
+    #retrospective-time-patterns-screen .retrospective-time-patterns-grid { grid-area: grid; margin-bottom: 0; align-self: stretch; }
+    #retrospective-time-patterns-screen .retrospective-card-indigo {
+        grid-area: chart; margin-bottom: 0; height: 100%; display: flex; flex-direction: column;
+    }
+    #retrospective-time-patterns-screen .retrospective-weekday-chart { flex-grow: 1; height: auto; min-height: 150px; }
+    #retrospective-time-patterns-screen .retrospective-navigation-button {
+        grid-area: button; margin-top: 0; align-self: end; justify-self: center;
+    }
+
+    .retrospective-action-buttons-container {
+        flex-direction: row; justify-content: center; gap: 20px;
+    }
+    .retrospective-action-button { flex-grow: 0; }
+}
+
+@media (max-width: 700px) {
+    .retrospective-modal {
+        /* max-width: 90vw; padding: 15px; */ /* Removido padding, pois as telas internas já têm */
+        width: 98vw; /* Mais próximo da borda */
+        height: 95vh; /* Mais alto */
+        max-width: none; /* Deixa vw controlar */
+        max-height: none; /* Deixa vh controlar */
+    }
+    /* .retrospective-screen padding já usa clamp */
+    .retrospective-stats-grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+    .retrospective-time-patterns-grid { grid-template-columns: 1fr; }
+    .retrospective-card-indigo { max-width: 100%; }
+}
+
+@media (max-width: 600px) {
+    .retrospective-modal { border-radius: 15px; }
+    /* .retrospective-screen padding e justify-content já usam clamp/space-around */
+    /* .retrospective-main-title font-size já usa clamp */
+    .retrospective-stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px;
+    }
+    .retrospective-stat-card {
+        padding: clamp(10px, 2vh, 12px) clamp(5px, 1.5vw, 8px); /* Mais compacto */
+        min-height: clamp(150px, 25vh, 170px); /* Mais compacto */
+    }
+    /* Todos os tamanhos de ícone, valor, label, badge já usam clamp */
+
+    /* Para a tela final, os clamps já devem cuidar da maioria dos ajustes. */
+    /* A max-width do .retrospective-final-content-wrapper (380px) */
+    /* em conjunto com width:100% fará com que ele encolha em telas menores. */
+    /* O aspect-ratio garantirá a proporção. */
+
+    .retrospective-action-buttons { flex-direction: column; }
+    .retrospective-action-button { max-width: 100%; }
+}
+
+/* Estilos duplicados/redundantes para a tela final foram removidos e integrados acima com clamp */

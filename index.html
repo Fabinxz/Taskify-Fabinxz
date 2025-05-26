@@ -1,283 +1,473 @@
 <!DOCTYPE html>
     <html lang="pt-BR">
-    
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Taskify</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-        <link rel="stylesheet" href="css/style.css">
-    
-        <script>
-            // Script inline essencial para aplicar tema/cor antes do DOM carregar completamente
-            (function () {
-                try {
-                    const savedPrimaryColor = localStorage.getItem('taskify-primary-color');
-                    const savedTheme = localStorage.getItem('taskify-theme');
-                    const docElement = document.documentElement;
-                    const faviconEl = document.getElementById('favicon'); // Será definido abaixo
-                    let initialFaviconColor = '#007AFF';
-    
-                    if (savedPrimaryColor) {
-                        docElement.style.setProperty('--primary-color-light', savedPrimaryColor);
-                        docElement.style.setProperty('--primary-color-dark', savedPrimaryColor);
-                        initialFaviconColor = savedPrimaryColor;
-                    }
-    
-                    if (savedTheme === 'light') {
-                        docElement.classList.add('light-theme-active');
-                    }
-    
-                } catch (e) {
-                    console.warn('Error applying initial theme/color from inline script:', e);
-                }
-            })();
-        </script>
-    
-        <link id="favicon" rel="icon"
-            href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23007AFF' class='bi bi-check2-square' viewBox='0 0 16 16'><path d='M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8A1.5 1.5 0 0 1 12.5 3v1.5a.5.5 0 0 1-1 0V3a.5.5 0 0 0-.5-.5H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 1 0 1H3z'/><path d='m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z'/></svg>"
-            type="image/svg+xml">
-    
-    </head>
-    
-    <body>
-        <canvas id="particle-canvas"></canvas>
-        <div class="loader-container" id="loader">
-            <span class="loader"></span>
-        </div>
-    
-        <div class="container">
-            <div class="header">
-                <div class="logo" title="Clique para mudar a cor primária">
-                    <div class="logo-icon">✓</div>
-                    <span class="logo-text logo-text-full">Taskify</span>
-                    <span class="logo-text logo-text-short">Taskify</span>
-                </div>
-                <input type="color" id="direct-color-input">
-    
-                <div class="question-counter">
-                    <button class="counter-btn" id="decrement-btn" onclick="decrementToday()">−</button>
-                    <input type="number" class="counter-display" id="questions-step-input" value="1" min="1">
-                    <button class="counter-btn" id="increment-btn" onclick="incrementToday()">+</button>
-                </div>
-    
-                <div class="header-controls">
-                    <button class="btn-icon-nav" id="btn-edit-goals-header" aria-label="Editar metas"
-                        onclick="openGoalsModal()">
-                        <i class="bi bi-pencil-square"></i>
-                    </button>
-                    <button class="btn-icon-nav" id="btn-open-guide" aria-label="Abrir guia rápido">
-                        <i class="bi bi-question-circle"></i>
-                    </button>
-                    <button class="theme-toggle-btn" id="theme-toggle" aria-label="Alternar tema" onclick="toggleTheme()">
-                        <i id="theme-icon" class="bi bi-moon-fill"></i>
-                    </button>
-                </div>
-            </div>
-    
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-title">Hoje</div>
-                    <div class="circular-progress">
-                        <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-                            <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
-                            <circle class="progress-ring-circle progress-ring-fill" id="today-progress" cx="60" cy="60"
-                                r="52" stroke-width="8"
-                                style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
-                        </svg>
-                        <div class="progress-number" id="today-count">0</div>
-                    </div>
-                    <div class="progress-target">Meta: <span id="today-target">20</span></div>
-                </div>
-    
-                <div class="stat-card">
-                    <div class="stat-title">Semana</div>
-                    <div class="circular-progress">
-                        <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-                            <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
-                            <circle class="progress-ring-circle progress-ring-fill" id="week-progress" cx="60" cy="60"
-                                r="52" stroke-width="8"
-                                style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
-                        </svg>
-                        <div class="progress-number" id="week-count">0</div>
-                    </div>
-                    <div class="progress-target">Meta: <span id="week-target">50</span></div>
-                </div>
-    
-                <div class="stat-card">
-                    <div class="stat-title">Mês</div>
-                    <div class="circular-progress">
-                        <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-                            <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
-                            <circle class="progress-ring-circle progress-ring-fill" id="month-progress" cx="60" cy="60"
-                                r="52" stroke-width="8"
-                                style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
-                        </svg>
-                        <div class="progress-number" id="month-count">0</div>
-                    </div>
-                    <div class="progress-target">Meta: <span id="month-target">1200</span></div>
-                </div>
-    
-                <div class="stat-card">
-                    <div class="stat-title">Ano</div>
-                    <div class="circular-progress">
-                        <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-                            <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
-                            <circle class="progress-ring-circle progress-ring-fill" id="year-progress" cx="60" cy="60"
-                                r="52" stroke-width="8"
-                                style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
-                        </svg>
-                        <div class="progress-number" id="year-count">0</div>
-                    </div>
-                    <div class="progress-target">Meta: <span id="year-target">20000</span></div>
-                </div>
-            </div>
-    
-            <div class="bottom-cards">
-                <div class="info-card">
-                    <div class="card-title">
-                        <span>Recorde Diário</span>
-                        <i class="bi bi-trophy card-title-icon"></i>
-                    </div>
-                    <div class="card-value" id="daily-record-value">0</div>
-                    <div class="card-subtitle" id="daily-record-date">-</div>
-                </div>
 
-                <div class="info-card">
-                    <div class="card-title">
-                        <span>Streak Atual</span>
-                        <i class="bi bi-fire card-title-icon"></i>
-                    </div>
-                    <!-- Novo contêiner para valor e meta -->
-                    <div class="streak-value-meta-container">
-                        <div class="card-value" id="current-streak-value">0 dias</div>
-                        <div class="card-streak-target">Meta: <span id="streak-target-value">30</span></div>
-                    </div>
-                    <!-- Fim do novo contêiner -->
-                    <div class="progress-bar-horizontal">
-                        <div class="progress-fill" id="streak-progress-fill" style="width: 0%;"></div>
-                    </div>
-                </div>
-    
-                <div class="info-card">
-                    <div class="card-title">
-                        <span>Pico de Atividade Semanal</span>
-                        <i class="bi bi-graph-up-arrow card-title-icon"></i>
-                    </div>
-                    <div class="card-value" id="peak-activity-day">-</div>
-                    <div class="card-subtitle" id="peak-activity-questions">0 questões</div>
-                </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskify</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/retrospective.css">
+
+
+    <script>
+        
+        (function () {
+            try {
+                const savedPrimaryColor = localStorage.getItem('taskify-primary-color');
+                const savedTheme = localStorage.getItem('taskify-theme');
+                const docElement = document.documentElement;
+                
+                if (savedPrimaryColor) {
+                    docElement.style.setProperty('--primary-color-light', savedPrimaryColor);
+                    docElement.style.setProperty('--primary-color-dark', savedPrimaryColor);
+                }
+
+                if (savedTheme === 'light') {
+                    docElement.classList.add('light-theme-active'); 
+                }
+
+            } catch (e) {
+                console.warn('Error applying initial theme/color from inline script:', e);
+            }
+        })();
+    </script>
+
+    <link id="favicon" rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%230A7CFF' class='bi bi-check2-square' viewBox='0 0 16 16'><path d='M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8A1.5 1.5 0 0 1 12.5 3v1.5a.5.5 0 0 1-1 0V3a.5.5 0 0 0-.5-.5H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 1 0 1H3z'/><path d='m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z'/></svg>"
+        type="image/svg+xml">
+
+</head>
+
+<body>
+    <canvas id="particle-canvas"></canvas>
+    <div class="loader-container" id="loader">
+        <span class="loader"></span>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <div class="logo" title="Taskify - Seu Gerenciador de Tarefas e Foco">
+                <div class="logo-icon">✓</div>
+                <span class="logo-text logo-text-full">Taskify</span>
+                <span class="logo-text logo-text-short">Taskify</span>
             </div>
-    
-            <div class="activity-section">
-                <div class="activity-header">
-                    <div class="activity-title">Atividade Semanal</div>
-                    <div class="activity-controls">
-                        <span style="font-size:0.9em; color: #888;" id="weekly-activity-period">Últimos 7 dias</span>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="weeklyActivityChart"></canvas>
-                </div>
-            </div> 
-            <footer style="border-top: none;">
-                Criado por <a href="https://x.com/fabinxz" target="_blank" class="footer-link">@fabinxz</a>
-                <span class="footer-separator">•</span> © <span id="current-year">2025</span>
-            </footer>
-        </div> 
-    
-        <div class="modal-overlay" id="goals-modal-overlay"></div>
-        <div class="modal" id="goals-modal">
-            <div class="modal-content">
-                <button class="modal-close-btn" aria-label="Fechar" onclick="closeGoalsModal()">
-                    <i class="bi bi-x-lg"></i>
+
+            <div class="question-counter">
+                <button class="counter-btn" id="decrement-btn" onclick="decrementToday()">−</button>
+                <input type="number" class="counter-display" id="questions-step-input" value="1" min="1">
+                <button class="counter-btn" id="increment-btn" onclick="incrementToday()">+</button>
+            </div>
+
+            <div class="header-controls">
+                <button class="btn-icon-nav" id="btn-edit-goals-header" aria-label="Editar metas"
+                    onclick="openGoalsModal()">
+                    <i class="bi bi-pencil-square"></i>
                 </button>
-                <h2 class="modal-title">Editar Metas</h2>
-                <form id="goals-form">
-                    <div class="form-group">
-                        <label class="form-label" for="daily-goal-input">Meta Diária</label>
-                        <input type="number" class="form-input" id="daily-goal-input" value="20" min="1">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="weekly-goal-input">Meta Semanal</label>
-                        <input type="number" class="form-input" id="weekly-goal-input" value="50" min="1">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="monthly-goal-input">Meta Mensal</label>
-                        <input type="number" class="form-input" id="monthly-goal-input" value="1200" min="1">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="yearly-goal-input">Meta Anual</label>
-                        <input type="number" class="form-input" id="yearly-goal-input" value="20000" min="1">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="streak-goal-input">Meta de Streak (dias)</label>
-                        <input type="number" class="form-input" id="streak-goal-input" value="30" min="1">
-                    </div>
-                    <div class="modal-buttons">
-                        <button type="button" class="btn btn-reset-app" id="btn-reset-app-data">Resetar App</button>
-                        <button type="button" class="btn btn-secondary" onclick="closeGoalsModal()">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Salvar</button>
-                    </div>
-                </form>
+                <button class="btn-icon-nav" id="btn-open-themes" aria-label="Personalizar Aparência" onclick="openThemesModal()">
+                    <i class="bi bi-palette-fill"></i>
+                </button>
+                <!-- <button class="btn-icon-nav" id="btn-open-guide" aria-label="Abrir guia rápido">
+                    <i class="bi bi-question-circle"></i>
+                </button> -->
+                <button class="theme-toggle-btn" id="theme-toggle" aria-label="Alternar tema" onclick="toggleTheme()">
+                    <i id="theme-icon" class="bi bi-moon-fill"></i>
+                </button>
             </div>
+        </header>
+
+        
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Hoje</div>
+                <div class="circular-progress">
+                    <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                        <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                        <circle class="progress-ring-circle progress-ring-fill" id="today-progress" cx="60" cy="60"
+                            r="52" stroke-width="8"
+                            style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                    </svg>
+                    <div class="progress-number" id="today-count">0</div>
+                </div>
+                <div class="progress-target">Meta: <span id="today-target">20</span></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-title">Semana</div>
+                <div class="circular-progress">
+                    <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                        <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                        <circle class="progress-ring-circle progress-ring-fill" id="week-progress" cx="60" cy="60"
+                            r="52" stroke-width="8"
+                            style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                    </svg>
+                    <div class="progress-number" id="week-count">0</div>
+                </div>
+                <div class="progress-target">Meta: <span id="week-target">50</span></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-title">Mês</div>
+                <div class="circular-progress">
+                    <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                        <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                        <circle class="progress-ring-circle progress-ring-fill" id="month-progress" cx="60" cy="60"
+                            r="52" stroke-width="8"
+                            style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                    </svg>
+                    <div class="progress-number" id="month-count">0</div>
+                </div>
+                <div class="progress-target">Meta: <span id="month-target">1200</span></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-title">Ano</div>
+                <div class="circular-progress">
+                    <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                        <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                        <circle class="progress-ring-circle progress-ring-fill" id="year-progress" cx="60" cy="60"
+                            r="52" stroke-width="8"
+                            style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                    </svg>
+                    <div class="progress-number" id="year-count">0</div>
+                </div>
+                <div class="progress-target">Meta: <span id="year-target">20000</span></div>
+            </div>
+        </section>
+
+        <section class="bottom-cards">
+            <div class="info-card">
+                <div class="card-title">
+                    <span>Recorde Diário</span>
+                    <i class="bi bi-trophy card-title-icon"></i>
+                </div>
+                <div class="card-value" id="daily-record-value">0 questões</div>
+                <div class="card-subtitle" id="daily-record-date">-</div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-title">
+                    <span>Streak Atual</span>
+                    <i class="bi bi-fire card-title-icon"></i>
+                </div>
+                
+                <div class="streak-value-meta-container">
+                    <div class="card-value" id="current-streak-value">0 dias</div>
+                    <div class="card-streak-target">Meta: <span id="streak-target-value">30</span></div>
+                </div>
+                
+                <div class="progress-bar-horizontal">
+                    <div class="progress-fill" id="streak-progress-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-title">
+                    <span>Pico de Atividade Semanal</span>
+                    <i class="bi bi-graph-up-arrow card-title-icon"></i>
+                </div>
+                <div class="card-value" id="peak-activity-day">-</div>
+                <div class="card-subtitle" id="peak-activity-questions">0 questões</div>
+            </div>
+        </section>
+
+        <section class="activity-section">
+            <div class="activity-header">
+                <div class="activity-title">Atividade Semanal (Questões)</div>
+                <div class="activity-controls">
+                    <span style="font-size:0.9em; color: #888;" id="weekly-activity-period">Últimos 7 dias</span>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="weeklyActivityChart"></canvas>
+            </div>
+        </section>
+
+        <div class="scroll-indicator" id="scroll-indicator">
+            <i class="bi bi-chevron-down"></i>
         </div>
-    
-        <div class="modal-overlay" id="confirm-reset-modal-overlay"></div>
-        <div class="modal" id="confirm-reset-modal">
-            <div class="modal-content">
-                <button class="modal-close-btn" id="confirm-reset-modal-close-btn" aria-label="Fechar">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-                <h2 class="modal-title">Confirmar Reset de Dados</h2>
-                <div class="modal-body-text">
-                    <p>Você tem certeza que deseja resetar todos os dados do Taskify?</p>
-                    <p><strong>Esta ação não pode ser desfeita e removerá:</strong></p>
-                    <ul>
-                        <li>Todo o seu progresso (diário, semanal, mensal, anual)</li>
-                        <li>Seu recorde diário</li>
-                        <li>Seu streak atual e histórico de streak</li>
-                        <li>Suas metas personalizadas (serão revertidas para o padrão)</li>
-                        <li>Sua preferência de tema e cor primária (serão revertidas para o padrão)</li>
+        
+        <section class="productivity-focus-area">
+            <div class="pomodoro-section-wrapper">
+                <div class="pomodoro-section">
+                    <div class="pomodoro-header">
+                        <h3 class="pomodoro-title">Timer Pomodoro</h3>
+                        <button class="pomodoro-settings-btn" id="btn-pomodoro-settings" aria-label="Configurar Pomodoro" onclick="openPomodoroSettingsModal()">
+                            <i class="bi bi-gear-fill"></i>
+                        </button>
+                    </div>
+                    <div class="pomodoro-timer-display" id="pomodoro-timer-display">25:00</div>
+                    <div class="pomodoro-status" id="pomodoro-status">Pronto para focar?</div>
+                    <div class="pomodoro-controls">
+                        <button class="btn-start" id="pomodoro-start-btn" onclick="startPomodoro()">Iniciar</button>
+                        <button class="btn-pause" id="pomodoro-pause-btn" onclick="pausePomodoro()" style="display: none;">Pausar</button>
+                        <button class="btn-reset" id="pomodoro-reset-btn" onclick="resetPomodoro()">Resetar</button>
+                    </div>
+                    <div class="pomodoro-cycles" id="pomodoro-cycles-display-container">
+                        <i class="bi bi-arrow-repeat"></i>
+                        <span class="pomodoro-cycles-text-label">Ciclos: </span>
+                        <span id="pomodoro-cycles-count-value">0</span>
+                    </div>
+                </div>
+                <div class="chart-section pomodoro-chart-section"> 
+                    <div class="chart-header">
+                        <h4 class="chart-title">Tempo de Foco Semanal</h4>
+                        <span class="chart-period-label" id="pomodoro-weekly-period">Últimos 7 dias</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="weeklyPomodoroFocusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tasks-section-wrapper">
+                <div class="tasks-section">
+                    <div class="tasks-header">
+                        <h3 class="tasks-title">Tarefas do Dia</h3>
+                        <span class="tasks-counter" id="tasks-counter">0/0</span>
+                    </div>
+                    <form id="task-form">
+                        <input type="text" id="task-input" placeholder="Adicione nova tarefa...">
+                        <button type="submit" id="add-task-btn" class="btn-primary">Adicionar</button>
+                    </form>
+                    <ul id="task-list">
+                        <!-- Tarefas serão adicionadas aqui pelo JS -->
+                        <!-- Exemplo de item para visualização (será controlado pelo JS):
+                        <li class="task-item">
+                            <input type="checkbox" class="task-item-checkbox">
+                            <span class="task-item-text">Exemplo de tarefa</span>
+                            <button class="task-item-delete-btn"><i class="bi bi-trash3-fill"></i></button>
+                        </li>
+                        -->
                     </ul>
-                    <p>A página será recarregada com as configurações de fábrica.</p>
+                </div>
+                <div class="chart-section tasks-chart-section"> 
+                    <div class="chart-header">
+                        <h4 class="chart-title">Tarefas Concluídas</h4>
+                        <span class="chart-period-label" id="tasks-weekly-period">Últimos 7 dias</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="weeklyTasksCompletedChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        
+        <footer class="main-footer"> 
+            Criado por <a href="https://x.com/fabinxz" target="_blank" class="footer-link">@fabinxz</a>
+            <span class="footer-separator">•</span> © <span id="current-year">2025</span> 
+        </footer>
+    </div> <!-- Fim .container -->
+
+    <!-- Modal de Edição de Metas -->
+    <div class="modal-overlay" id="goals-modal-overlay"></div>
+    <div class="modal" id="goals-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" aria-label="Fechar" onclick="closeGoalsModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Editar Metas</h2>
+            <form id="goals-form">
+                <div class="form-group">
+                    <label class="form-label" for="daily-goal-input">Meta Diária</label>
+                    <input type="number" class="form-input" id="daily-goal-input" value="20" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="weekly-goal-input">Meta Semanal</label>
+                    <input type="number" class="form-input" id="weekly-goal-input" value="50" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="monthly-goal-input">Meta Mensal</label>
+                    <input type="number" class="form-input" id="monthly-goal-input" value="1200" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="yearly-goal-input">Meta Anual</label>
+                    <input type="number" class="form-input" id="yearly-goal-input" value="20000" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="streak-goal-input">Meta de Streak (dias)</label>
+                    <input type="number" class="form-input" id="streak-goal-input" value="30" min="1">
                 </div>
                 <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" id="btn-cancel-reset-confirmation">Cancelar</button>
-                    <button type="button" class="btn btn-reset-app" id="btn-confirm-reset-action">Confirmar Reset</button> 
+                    <button type="button" class="btn btn-reset-app" id="btn-reset-app-data">Resetar App</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeGoalsModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
                 </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Reset -->
+    <div class="modal-overlay" id="confirm-reset-modal-overlay"></div>
+    <div class="modal" id="confirm-reset-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="confirm-reset-modal-close-btn" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Confirmar Reset de Dados</h2>
+            <div class="modal-body-text">
+                <p>Você tem certeza que deseja resetar todos os dados do Taskify?</p>
+                <p><strong>Esta ação não pode ser desfeita e removerá:</strong></p>
+                <ul>
+                    <li>Todo o seu progresso (diário, semanal, mensal, anual)</li>
+                    <li>Seu recorde diário</li>
+                    <li>Seu streak atual e histórico de streak</li>
+                    <li>Suas metas personalizadas (serão revertidas para o padrão)</li>
+                    <li>Sua preferência de tema e cor primária (serão revertidas para o padrão)</li>
+                    <li>Suas configurações, histórico do Pomodoro e lista de tarefas</li>
+                </ul>
+                <p>A página será recarregada com as configurações de fábrica.</p>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-reset-confirmation">Cancelar</button>
+                <button type="button" class="btn btn-reset-app" id="btn-confirm-reset-action">Confirmar Reset</button> 
             </div>
         </div>
+    </div>
 
-        <div class="modal-overlay" id="welcome-guide-modal-overlay"></div>
-        <div class="modal" id="welcome-guide-modal">
-            <div class="modal-content">
-                <button class="modal-close-btn" id="welcome-guide-modal-close-btn" aria-label="Fechar">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-                <h2 class="modal-title">Bem-vindo ao Taskify!</h2>
-                <div class="modal-body-text guide-text">
-                    <p>Este é um guia rápido para te ajudar a começar:</p>
-                    <ul>
-                        <li><strong>Contador Principal (<span class="guide-highlight">no centro do cabeçalho</span>):</strong> Use os botões <span class="guide-highlight guide-btn-example">+</span> e <span class="guide-highlight guide-btn-example">−</span> para adicionar ou remover questões resolvidas hoje. O número entre eles define quantas questões são adicionadas/removidas por clique.</li>
-                        <li><strong>Editar Metas:</strong> Clique no ícone <i class="bi bi-pencil-square guide-icon-example"></i> no cabeçalho para definir suas metas diárias, semanais, mensais, anuais e de streak.</li>
-                        <li><strong>Mudar Cor Principal:</strong> Clique no logo <span class="guide-highlight">"Taskify"</span> no cabeçalho para abrir o seletor de cores e personalizar a cor principal do site.</li>
-                        <li><strong>Alternar Tema:</strong> Use o ícone <i class="bi bi-moon-fill guide-icon-example"></i> / <i class="bi bi-sun-fill guide-icon-example"></i> no cabeçalho para trocar entre o tema escuro e claro.</li>
-                        <li><strong>Resetar Dados:</strong> No modal de "Editar Metas" (<i class="bi bi-pencil-square guide-icon-example"></i>), você encontrará um botão <span class="guide-highlight guide-btn-example" style="background-color: #dc3545; color: white; padding: 2px 4px;">Resetar App</span> para limpar todos os seus dados e começar do zero. Use com cuidado!</li>
-                    </ul>
-                    <div class="form-group-checkbox">
-                        <input type="checkbox" id="dont-show-guide-again-checkbox">
-                        <label for="dont-show-guide-again-checkbox">Não mostrar esta mensagem novamente</label>
-                    </div>
-                </div>
-                <div class="modal-buttons" style="justify-content: flex-end;">
-                    <button type="button" class="btn btn-primary" id="btn-close-welcome-guide">Entendi!</button>
+    <!-- Modal de Guia de Boas-vindas -->
+    <div class="modal-overlay" id="welcome-guide-modal-overlay"></div>
+    <div class="modal" id="welcome-guide-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="welcome-guide-modal-close-btn" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Bem-vindo ao Taskify!</h2>
+            <div class="modal-body-text guide-text">
+                <p>Este é um guia rápido para te ajudar a começar:</p>
+                <ul>
+                    <li><strong>Contador Principal (<span class="guide-highlight">no centro do cabeçalho</span>):</strong> Use os botões <span class="guide-highlight guide-btn-example">+</span> e <span class="guide-highlight guide-btn-example">−</span> para adicionar ou remover questões resolvidas hoje. O número entre eles define quantas questões são adicionadas/removidas por clique.</li>
+                    <li><strong>Editar Metas:</strong> Clique no ícone <i class="bi bi-pencil-square guide-icon-example"></i> no cabeçalho para definir suas metas diárias, semanais, mensais, anuais e de streak.</li>
+                    <li><strong>Alternar Tema:</strong> Use o ícone <i class="bi bi-moon-fill guide-icon-example"></i> / <i class="bi bi-sun-fill guide-icon-example"></i> no cabeçalho para trocar entre o tema escuro e claro.</li>
+                    <li><strong>Personalizar Aparência:</strong> Clique no ícone <i class="bi bi-palette-fill guide-icon-example"></i> no cabeçalho para escolher paletas de cores e modos visuais.</li>
+                    <li><strong>Timer Pomodoro & Tarefas:</strong> Role a página para baixo para encontrar o Timer Pomodoro, a Lista de Tarefas e seus respectivos gráficos de atividade semanal.</li>
+                    <li><strong>Retrospectiva Mensal:</strong> Clique no ícone <i class="bi bi-calendar-heart-fill guide-icon-example"></i> no canto inferior direito para ver sua retrospectiva do mês.</li>
+                    <li><strong>Resetar Dados:</strong> No modal de "Editar Metas" (<i class="bi bi-pencil-square guide-icon-example"></i>), você encontrará um botão <span class="guide-highlight guide-btn-example" style="background-color: #dc3545; color: white; padding: 2px 4px;">Resetar App</span> para limpar todos os seus dados e começar do zero. Use com cuidado!</li>
+                </ul>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="dont-show-guide-again-checkbox">
+                    <label for="dont-show-guide-again-checkbox">Não mostrar esta mensagem novamente</label>
                 </div>
             </div>
+            <div class="modal-buttons" style="justify-content: flex-end;">
+                <button type="button" class="btn btn-primary" id="btn-close-welcome-guide">Entendi!</button>
+            </div>
         </div>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="js/script.js" defer></script>
-    </body>
     
-    </html>
+    <!-- Modal de Configurações do Pomodoro -->
+    <div class="modal-overlay" id="pomodoro-settings-modal-overlay"></div>
+    <div class="modal" id="pomodoro-settings-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="pomodoro-settings-modal-close-btn" aria-label="Fechar" onclick="closePomodoroSettingsModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Configurações do Pomodoro</h2>
+            <form id="pomodoro-settings-form">
+                <div class="form-group">
+                    <label class="form-label" for="pomodoro-focus-duration-input">Duração do Foco (minutos)</label>
+                    <input type="number" class="form-input" id="pomodoro-focus-duration-input" value="25" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="pomodoro-short-break-duration-input">Duração da Pausa Curta (minutos)</label>
+                    <input type="number" class="form-input" id="pomodoro-short-break-duration-input" value="5" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="pomodoro-long-break-duration-input">Duração da Pausa Longa (minutos)</label>
+                    <input type="number" class="form-input" id="pomodoro-long-break-duration-input" value="15" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="pomodoro-cycles-before-long-break-input">Ciclos de Foco antes da Pausa Longa</label>
+                    <input type="number" class="form-input" id="pomodoro-cycles-before-long-break-input" value="4" min="1">
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="pomodoro-auto-start-breaks-checkbox">
+                    <label for="pomodoro-auto-start-breaks-checkbox">Iniciar pausas automaticamente?</label>
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="pomodoro-auto-start-focus-checkbox">
+                    <label for="pomodoro-auto-start-focus-checkbox">Iniciar foco automaticamente após pausas?</label>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closePomodoroSettingsModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Temas e Aparência -->
+    <div class="modal-overlay" id="themes-modal-overlay"></div>
+    <div class="modal" id="themes-modal"> 
+        <div class="themes-modal-content">
+            <button class="modal-close-btn" id="themes-modal-close-btn" aria-label="Fechar" onclick="closeThemesModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">
+                <i class="bi bi-palette-fill themes-modal-title-icon"></i>
+                Personalizar Aparência
+            </h2>
+    
+            <div class="themes-modal-section">
+                <h3 class="themes-modal-section-title">
+                    <i class="bi bi-paint-bucket"></i>
+                    Paleta de Cores
+                </h3>
+                <p class="themes-modal-section-subtitle">Escolha sua vibe de cor perfeita.</p>
+                <div class="palette-buttons" id="palette-buttons-container">
+                    <!-- Botões de paleta serão gerados pelo JS -->
+                </div>
+            </div>
+    
+            <div class="themes-modal-section">
+                <h3 class="themes-modal-section-title">
+                    <i class="bi bi-eye-fill"></i>
+                    Modo Visual
+                </h3>
+                <p class="themes-modal-section-subtitle">Selecione sua preferência de visualização.</p>
+                <div class="mode-buttons" id="mode-buttons-container">
+                    <!-- Botões de modo visual serão gerados pelo JS -->
+                </div>
+            </div>
+    
+            <div class="modal-buttons themes-modal-actions"> 
+                <button type="button" class="btn btn-secondary themes-btn-cancel" onclick="closeThemesModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary themes-btn-apply" onclick="closeThemesModal()"> 
+                     Aplicar Mudanças
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alerta Personalizado -->
+    <div class="custom-alert-overlay" id="custom-alert-overlay"></div>
+    <div class="custom-alert-modal" id="custom-alert-modal">
+        <h3 class="custom-alert-title" id="custom-alert-title">Alerta</h3>
+        <p class="custom-alert-message" id="custom-alert-message"></p>
+        <button class="custom-alert-ok-btn" id="custom-alert-ok-btn">OK</button> 
+    </div>
+
+    <!-- Botão Flutuante e Modal da Retrospectiva -->
+    <button class="btn-icon-nav" id="btn-open-retrospective" aria-label="Abrir Retrospectiva" 
+        style="position: fixed; bottom: 20px; right: 20px; z-index: 1001;
+               background-color: var(--primary-color-dark); color: white; 
+               width: 50px; height: 50px; border-radius: 50%;
+               box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 1.5rem;
+               display: flex; align-items: center; justify-content: center;">
+        <i class="bi bi-calendar-heart-fill"></i>
+    </button>
+    
+    <div class="retrospective-modal-overlay" id="retrospective-modal-overlay"></div>
+    <div class="retrospective-modal" id="retrospective-modal">
+        <!-- O conteúdo da retrospectiva será carregado aqui pelo JS (de retrospective.html) -->
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="js/script.js" defer></script>
+    <script src="js/retrospective.js" defer></script> 
+</body>
+</html>
