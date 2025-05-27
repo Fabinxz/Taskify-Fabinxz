@@ -13,14 +13,61 @@
     <script>
         
         (function () {
+            // Função auxiliar para converter HEX para RGB, similar à do script.js
+            // Colocada aqui para ser autossuficiente, pois o script.js principal pode não ter sido carregado ainda.
+            function hexToRgbArrayInline(hex) {
+                if (!hex || typeof hex !== 'string') return null;
+                let c = hex.startsWith('#') ? hex.substring(1) : hex.trim(); // Remove '#' e espaços
+                if (c.length === 3) {
+                    c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+                }
+                if (c.length !== 6) {
+                    return null;
+                }
+                try {
+                    const bigint = parseInt(c, 16);
+                    if (isNaN(bigint)) return null;
+                    const r = (bigint >> 16) & 255;
+                    const g = (bigint >> 8) & 255;
+                    const b = bigint & 255;
+                    return [r, g, b];
+                } catch (e) {
+                    console.warn('Error in hexToRgbArrayInline:', e);
+                    return null;
+                }
+            }
+
             try {
                 const savedPrimaryColor = localStorage.getItem('taskify-primary-color');
                 const savedTheme = localStorage.getItem('taskify-theme');
                 const docElement = document.documentElement;
+                const defaultPrimaryColor = '#0A7CFF'; // Cor primária padrão do sistema
                 
-                if (savedPrimaryColor) {
-                    docElement.style.setProperty('--primary-color-light', savedPrimaryColor);
-                    docElement.style.setProperty('--primary-color-dark', savedPrimaryColor);
+                let colorToApply = savedPrimaryColor || defaultPrimaryColor;
+
+                // Garante que colorToApply é um HEX válido antes de tentar converter
+                if (!/^#[0-9A-F]{6}$/i.test(colorToApply) && !/^#[0-9A-F]{3}$/i.test(colorToApply)) {
+                    console.warn(`Cor primária salva inválida ('${savedPrimaryColor}'), usando padrão.`);
+                    colorToApply = defaultPrimaryColor;
+                }
+
+                docElement.style.setProperty('--primary-color-light', colorToApply);
+                docElement.style.setProperty('--primary-color-dark', colorToApply);
+                
+                const rgbArray = hexToRgbArrayInline(colorToApply);
+                if (rgbArray) {
+                    const rgbString = rgbArray.join(', ');
+                    docElement.style.setProperty('--primary-color-light-rgb', rgbString);
+                    docElement.style.setProperty('--primary-color-dark-rgb', rgbString);
+                } else {
+                    // Fallback para RGB da cor padrão se a conversão falhar
+                    console.warn(`Falha ao converter '${colorToApply}' para RGB, usando RGB padrão.`);
+                    const defaultRgbArray = hexToRgbArrayInline(defaultPrimaryColor);
+                    if (defaultRgbArray) {
+                        const defaultRgbString = defaultRgbArray.join(', ');
+                        docElement.style.setProperty('--primary-color-light-rgb', defaultRgbString);
+                        docElement.style.setProperty('--primary-color-dark-rgb', defaultRgbString);
+                    }
                 }
 
                 if (savedTheme === 'light') {
@@ -232,13 +279,6 @@
                     </form>
                     <ul id="task-list">
                         <!-- Tarefas serão adicionadas aqui pelo JS -->
-                        <!-- Exemplo de item para visualização (será controlado pelo JS):
-                        <li class="task-item">
-                            <input type="checkbox" class="task-item-checkbox">
-                            <span class="task-item-text">Exemplo de tarefa</span>
-                            <button class="task-item-delete-btn"><i class="bi bi-trash3-fill"></i></button>
-                        </li>
-                        -->
                     </ul>
                 </div>
                 <div class="chart-section tasks-chart-section"> 
@@ -390,6 +430,10 @@
                     <input type="checkbox" id="pomodoro-auto-start-focus-checkbox">
                     <label for="pomodoro-auto-start-focus-checkbox">Iniciar foco automaticamente após pausas?</label>
                 </div>
+                <div class="form-group-checkbox"> <!-- NOVA OPÇÃO -->
+                    <input type="checkbox" id="pomodoro-enable-sound-checkbox">
+                    <label for="pomodoro-enable-sound-checkbox">Ativar sons de notificação?</label>
+                </div>
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-secondary" onclick="closePomodoroSettingsModal()">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Salvar</button>
@@ -463,6 +507,10 @@
     <div class="retrospective-modal" id="retrospective-modal">
         <!-- O conteúdo da retrospectiva será carregado aqui pelo JS (de retrospective.html) -->
     </div>
+
+    <!-- Elementos de Áudio para Notificações do Pomodoro -->
+    <audio id="focus-end-sound" src="sounds/focus_end.mp3" preload="auto"></audio>
+    <audio id="break-end-sound" src="sounds/break_end.mp3" preload="auto"></audio>
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
