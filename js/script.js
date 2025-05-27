@@ -1,3 +1,4 @@
+// js/script.js
 // Variáveis globais e estado inicial
 let weeklyChartInstance = null;
 let pomodoroChartInstance = null;
@@ -5,6 +6,11 @@ let tasksChartInstance = null;
 let pomodoroInterval = null;
 let retrospectiveModalEl; // Será definido em loadAndSetupRetrospective
 let retrospectiveModalOverlayEl; // Será definido em loadAndSetupRetrospective
+
+// Elementos de áudio
+let focusEndSound = null;
+let breakEndSound = null;
+
 
 window.showCustomAlert = showCustomAlert; // Expondo para uso global, se necessário
 
@@ -70,6 +76,7 @@ const initialDefaultState = {
         sessions: [], 
         autoStartBreaks: false,
         autoStartFocus: false,
+        enableSound: true, 
         lastModeEnded: null, 
         dailyFocusData: [0, 0, 0, 0, 0, 0, 0] 
     },
@@ -219,6 +226,7 @@ function loadState() {
             ...initialDefaultState.pomodoro, 
             ...pomodoroLoadedState, 
             timerRunning: false, 
+            enableSound: typeof pomodoroLoadedState.enableSound === 'boolean' ? pomodoroLoadedState.enableSound : initialDefaultState.pomodoro.enableSound,
             dailyFocusData: (pomodoroLoadedState.dailyFocusData && Array.isArray(pomodoroLoadedState.dailyFocusData) && pomodoroLoadedState.dailyFocusData.length === 7)
                 ? pomodoroLoadedState.dailyFocusData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0)) 
                 : [...initialDefaultState.pomodoro.dailyFocusData]
@@ -324,19 +332,22 @@ function checkAndResetDailyCounters(todayStr) {
         state.weeklyActivityData = shiftArray(state.weeklyActivityData);
         updatePeakActivity();
         
-        state.pomodoro.dailyFocusData = Array(7).fill(0);
+        const newDailyFocusData = Array(7).fill(0);
         const todayDate = new Date();
         for (let d = 0; d < 7; d++) {
             const dateToCheck = new Date(todayDate);
-            dateToCheck.setDate(todayDate.getDate() - (6 - d));
+            dateToCheck.setDate(todayDate.getDate() - (6 - d)); 
             const dateToCheckISO = dateToCheck.toISOString().split('T')[0];
             
+            let focusForThisDay = 0;
             state.pomodoro.sessions.forEach(session => {
                 if (session.type === 'focus' && new Date(session.startTime).toISOString().split('T')[0] === dateToCheckISO) {
-                    state.pomodoro.dailyFocusData[d] += Math.round((session.duration || 0) / 60);
+                    focusForThisDay += Math.round((session.duration || 0) / 60); 
                 }
             });
+            newDailyFocusData[d] = focusForThisDay;
         }
+        state.pomodoro.dailyFocusData = newDailyFocusData;
         
         state.dailyTaskCompletionData = shiftArray(state.dailyTaskCompletionData);
     }
@@ -425,8 +436,8 @@ function updateUI() {
     updatePomodoroChartDataOnly();
     updateTasksChartDataOnly();
 
-    updatePomodoroUI();
-    renderTasks();
+    updatePomodoroUI(); // Esta função agora também atualiza o título da aba
+    renderTasks(); 
     updateScrollIndicator();
 }
 
@@ -467,7 +478,7 @@ function incrementToday() {
     updatePeakActivity();
     updateStreak();
     saveState();
-    updateUI();
+    updateUI(); // updateUI() já chama updatePomodoroUI() que atualiza o título
 }
 
 function decrementToday() {
@@ -491,7 +502,7 @@ function decrementToday() {
     updatePeakActivity();
     updateStreak();
     saveState();
-    updateUI();
+    updateUI(); // updateUI() já chama updatePomodoroUI() que atualiza o título
 }
 
 // Lógica de Pico de Atividade e Streak
@@ -738,7 +749,7 @@ function applyCurrentThemeAndMode() {
     setupTasksChart(false);
 
     updatePomodoroUI();
-    renderTasks();
+    renderTasks(); 
     updateThemeModalButtons();
 }
 
@@ -796,8 +807,13 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
                 y: {
                     beginAtZero: true,
                     grid: { color: gridColor, drawBorder: false },
-                    ticks: { color: textColor, precision: 0, maxTicksLimit: 5, callback: dataFormatter },
-                    title: { display: true, text: yAxisLabel, color: textColor, font: { size: 10 } }
+                    ticks: { color: textColor, precision: 0, callback: dataFormatter }, 
+                    title: { display: true, text: yAxisLabel, color: textColor, font: { size: 10 } },
+                    afterDataLimits: (axis) => { 
+                        if (axis.max === 0 && axis.min === 0) {
+                            axis.max = (yAxisLabel.toLowerCase().includes("minutos")) ? 10 : 1; 
+                        }
+                    }
                 },
                 x: {
                     grid: { display: false },
@@ -827,8 +843,8 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
 function setupChart(animateInitialRender = true) {
     if (weeklyChartInstance) weeklyChartInstance.destroy();
     const data = (window.state && Array.isArray(window.state.weeklyActivityData) && window.state.weeklyActivityData.length === 7) 
-                 ? window.state.weeklyActivityData 
-                 : [0,0,0,0,0,0,0];
+                ? window.state.weeklyActivityData 
+                : [0,0,0,0,0,0,0];
 
     weeklyChartInstance = createChartConfig('weeklyActivityChart', data, 'Questões', 'Nº de Questões', 'Questões');
     if(weeklyChartInstance) weeklyChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
@@ -850,11 +866,11 @@ function updateWeeklyChartDataOnly() {
 function setupPomodoroChart(animateInitialRender = true) {
     if (pomodoroChartInstance) pomodoroChartInstance.destroy();
      const data = (state.pomodoro && Array.isArray(state.pomodoro.dailyFocusData) && state.pomodoro.dailyFocusData.length === 7) 
-                 ? state.pomodoro.dailyFocusData 
-                 : [0,0,0,0,0,0,0];
+                ? state.pomodoro.dailyFocusData 
+                : [0,0,0,0,0,0,0]; 
     pomodoroChartInstance = createChartConfig(
-        'weeklyPomodoroFocusChart', data, 'Tempo de Foco (min)', 'Horas de Foco', 'Foco',
-        (value) => (value / 60).toFixed(1) + 'h'
+        'weeklyPomodoroFocusChart', data, 'Tempo de Foco', 'Minutos de Foco', 'Foco',
+        (value) => value.toFixed(0) + ' min' 
     );
     if(pomodoroChartInstance) pomodoroChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
 }
@@ -875,8 +891,8 @@ function updatePomodoroChartDataOnly() {
 function setupTasksChart(animateInitialRender = true) {
     if (tasksChartInstance) tasksChartInstance.destroy();
     const data = (Array.isArray(state.dailyTaskCompletionData) && state.dailyTaskCompletionData.length === 7) 
-                 ? state.dailyTaskCompletionData 
-                 : [0,0,0,0,0,0,0];
+                ? state.dailyTaskCompletionData 
+                : [0,0,0,0,0,0,0];
     tasksChartInstance = createChartConfig('weeklyTasksCompletedChart', data, 'Tarefas Concluídas', 'Nº de Tarefas', 'Tarefas');
     if(tasksChartInstance) tasksChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
 }
@@ -979,100 +995,168 @@ function updatePomodoroUI() {
         if (!pomodoro.timerRunning) {
             const isAtFullDurationForCurrentMode = pomodoro.currentTime === 
                 (pomodoro.mode === 'focus' ? pomodoro.focusDuration :
-                 (pomodoro.mode === 'shortBreak' ? pomodoro.shortBreakDuration :
-                  pomodoro.longBreakDuration));
+                (pomodoro.mode === 'shortBreak' ? pomodoro.shortBreakDuration :
+                 pomodoro.longBreakDuration));
             startBtn.textContent = isAtFullDurationForCurrentMode ? 'Iniciar' : 'Continuar';
         }
     }
     
+    // Atualização do título da aba
     if (pomodoro.timerRunning) {
         document.title = `${formatTime(pomodoro.currentTime)} - ${pomodoro.mode === 'focus' ? 'Foco' : 'Pausa'} | Taskify`;
-    } else if (document.title.includes('| Taskify')) {
+    } else {
         const dailyGoalPercentage = state.goals.daily > 0 ? Math.round((state.todayCount / state.goals.daily) * 100) : 0;
         document.title = `(${dailyGoalPercentage}%) Taskify`;
     }
 }
 
+function playSound(soundElement) {
+    if (!soundElement) { 
+        console.warn("playSound: soundElement é nulo ou indefinido.");
+        return;
+    }
+    if (typeof soundElement.play === 'function') {
+        soundElement.currentTime = 0;
+        console.log(`TASKIFY_SOUND: Tentando tocar: ${soundElement.id}`);
+        soundElement.play()
+            .then(() => {
+                console.log(`TASKIFY_SOUND: Som ${soundElement.id} tocado com sucesso.`);
+            })
+            .catch(error => {
+                console.warn(`TASKIFY_SOUND: Erro ao tocar som ${soundElement.id}:`, error);
+                // Não mostra alerta aqui para não ser intrusivo a cada tentativa de play que falha
+                // O usuário pode precisar interagir com a página primeiro para habilitar sons.
+            });
+    } else {
+        console.warn(`playSound: ${soundElement.id} não tem uma função play.`);
+    }
+}
+
 function handlePomodoroTick() {
+    // console.log("TASKIFY_POMO: Tick! CurrentTime:", state.pomodoro.currentTime, "Running:", state.pomodoro.timerRunning);
     if (!state.pomodoro.timerRunning) return;
+
     state.pomodoro.currentTime--;
+
     if (state.pomodoro.currentTime < 0) {
+        console.log("TASKIFY_POMO: Fim do ciclo detectado em handlePomodoroTick.");
         handlePomodoroCycleEnd();
     } else {
-        updatePomodoroUI();
+        updatePomodoroUI(); // Atualiza o título da aba com o tempo
     }
 }
 
 function handlePomodoroCycleEnd() {
+    console.log("TASKIFY_POMO: handlePomodoroCycleEnd iniciado. Modo encerrado:", state.pomodoro.mode);
     const endedMode = state.pomodoro.mode;
-    let actualDurationSeconds = 0;
-    if (endedMode === 'focus') actualDurationSeconds = state.pomodoro.focusDuration - state.pomodoro.currentTime;
-    else if (endedMode === 'shortBreak') actualDurationSeconds = state.pomodoro.shortBreakDuration - state.pomodoro.currentTime;
-    else actualDurationSeconds = state.pomodoro.longBreakDuration - state.pomodoro.currentTime;
-    actualDurationSeconds = Math.max(0, actualDurationSeconds);
+    let actualDurationSeconds = 0; 
+
+    if (endedMode === 'focus') {
+        actualDurationSeconds = state.pomodoro.focusDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime); 
+    } else if (endedMode === 'shortBreak') {
+        actualDurationSeconds = state.pomodoro.shortBreakDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime);
+    } else { // longBreak
+        actualDurationSeconds = state.pomodoro.longBreakDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime);
+    }
+    actualDurationSeconds = Math.max(0, actualDurationSeconds); 
+    console.log(`TASKIFY_POMO: Duração real do ciclo de ${endedMode}: ${actualDurationSeconds}s`);
+
 
     if (endedMode === 'focus' && actualDurationSeconds > 0) {
         if(state.pomodoro.dailyFocusData && state.pomodoro.dailyFocusData.length === 7) {
-            state.pomodoro.dailyFocusData[6] += Math.round(actualDurationSeconds / 60);
+            state.pomodoro.dailyFocusData[6] += Math.round(actualDurationSeconds / 60); 
+            console.log("TASKIFY_POMO: dailyFocusData[6] atualizado para:", state.pomodoro.dailyFocusData[6]);
         }
         logPomodoroSession(endedMode, actualDurationSeconds);
         updatePomodoroChartDataOnly();
     }
 
     state.pomodoro.timerRunning = false;
-    clearInterval(pomodoroInterval);
-    pomodoroInterval = null;
+    if (pomodoroInterval) { // Limpa o intervalo ANTES de qualquer lógica que possa reiniciá-lo
+        clearInterval(pomodoroInterval);
+        pomodoroInterval = null;
+        console.log("TASKIFY_POMO: Timer parado e intervalo limpo em handlePomodoroCycleEnd.");
+    }
+    
     let nextModeMessage = "";
 
     if (endedMode === 'focus') {
         state.pomodoro.totalPomodorosToday++;
         state.pomodoro.currentCycleInSet++;
+        console.log("TASKIFY_POMO: Ciclo de foco terminado. Total hoje:", state.pomodoro.totalPomodorosToday, "Ciclo no set:", state.pomodoro.currentCycleInSet);
+        if (state.pomodoro.enableSound && focusEndSound) {
+            console.log("TASKIFY_POMO: Tentando tocar focusEndSound.");
+            playSound(focusEndSound);
+        }
         if (state.pomodoro.currentCycleInSet >= state.pomodoro.cyclesBeforeLongBreak) {
             state.pomodoro.mode = 'longBreak';
             state.pomodoro.currentTime = state.pomodoro.longBreakDuration;
             state.pomodoro.currentCycleInSet = 0;
             nextModeMessage = "Hora da pausa longa!";
+            console.log("TASKIFY_POMO: Próximo modo: longBreak");
         } else {
             state.pomodoro.mode = 'shortBreak';
             state.pomodoro.currentTime = state.pomodoro.shortBreakDuration;
             nextModeMessage = "Hora da pausa curta!";
+            console.log("TASKIFY_POMO: Próximo modo: shortBreak");
         }
-    } else {
+    } else { // break ended
+        console.log("TASKIFY_POMO: Ciclo de pausa terminado.");
+        if (state.pomodoro.enableSound && breakEndSound) {
+            console.log("TASKIFY_POMO: Tentando tocar breakEndSound.");
+            playSound(breakEndSound);
+        }
         state.pomodoro.mode = 'focus';
         state.pomodoro.currentTime = state.pomodoro.focusDuration;
         nextModeMessage = "Hora de focar!";
+        console.log("TASKIFY_POMO: Próximo modo: focus");
     }
-    state.pomodoro.lastModeEnded = endedMode;
+    state.pomodoro.lastModeEnded = endedMode; // Define o modo que acabou de terminar
 
-    updateUI();
+    updatePomodoroUI(); // Atualiza a UI, incluindo o título da aba
     saveState();
 
     showCustomAlert(
         `Ciclo de ${endedMode === 'focus' ? 'Foco' : (endedMode === 'shortBreak' ? 'Pausa Curta' : 'Pausa Longa')} terminado! ${nextModeMessage}`,
         "Pomodoro",
         () => {
+            console.log("TASKIFY_POMO: Callback do alerta executado.");
             const pomodoroSectionEl = document.querySelector('.pomodoro-section');
             if(pomodoroSectionEl) {
                 setTimeout(() => {
                     pomodoroSectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 100);
             }
-            if ((endedMode === 'focus' && state.pomodoro.autoStartBreaks) ||
-                ((endedMode === 'shortBreak' || endedMode === 'longBreak') && state.pomodoro.autoStartFocus)) {
+            
+            const currentEndedMode = state.pomodoro.lastModeEnded; // Usa o estado mais recente
+            if ((currentEndedMode === 'focus' && state.pomodoro.autoStartBreaks) ||
+                ((currentEndedMode === 'shortBreak' || currentEndedMode === 'longBreak') && state.pomodoro.autoStartFocus)) {
+                console.log("TASKIFY_POMO: Iniciando próximo ciclo automaticamente após alerta.");
                 startPomodoro();
+            } else {
+                console.log("TASKIFY_POMO: Não iniciando próximo ciclo automaticamente após alerta. lastModeEnded:", currentEndedMode, "autoStartBreaks:", state.pomodoro.autoStartBreaks, "autoStartFocus:", state.pomodoro.autoStartFocus);
             }
         }
     );
 }
 
-function startPomodoro() {
-    if (state.pomodoro.timerRunning) return;
-    checkAllResets();
-    state.pomodoro.timerRunning = true;
-    state.pomodoro.lastModeEnded = null;
 
-    if (pomodoroInterval) clearInterval(pomodoroInterval);
+function startPomodoro() {
+    console.log("TASKIFY_POMO: startPomodoro chamado. Timer rodando?", state.pomodoro.timerRunning);
+    if (state.pomodoro.timerRunning) {
+        console.log("TASKIFY_POMO: Timer já rodando, retornando.");
+        return;
+    }
+    checkAllResets(); 
+    state.pomodoro.timerRunning = true;
+    state.pomodoro.lastModeEnded = null; 
+
+    if (pomodoroInterval) {
+        console.log("TASKIFY_POMO: Limpando intervalo existente em startPomodoro. ID:", pomodoroInterval);
+        clearInterval(pomodoroInterval);
+    }
     pomodoroInterval = setInterval(handlePomodoroTick, 1000);
+    console.log("TASKIFY_POMO: Novo intervalo definido. ID:", pomodoroInterval);
     
     updatePomodoroUI();
     saveState();
@@ -1083,7 +1167,7 @@ function pausePomodoro() {
     state.pomodoro.timerRunning = false;
     clearInterval(pomodoroInterval);
     pomodoroInterval = null;
-    updatePomodoroUI();
+    updatePomodoroUI(); // Atualiza o título da aba para mostrar a porcentagem
     saveState();
 }
 
@@ -1098,7 +1182,7 @@ function resetPomodoro() {
         
         if (timeSpentSeconds > 0) {
             if(state.pomodoro.dailyFocusData && state.pomodoro.dailyFocusData.length === 7) {
-                state.pomodoro.dailyFocusData[6] += Math.round(timeSpentSeconds / 60);
+                state.pomodoro.dailyFocusData[6] += Math.round(timeSpentSeconds / 60); 
             }
             logPomodoroSession(endedMode, timeSpentSeconds);
         }
@@ -1109,11 +1193,12 @@ function resetPomodoro() {
     pomodoroInterval = null;
     state.pomodoro.lastModeEnded = null;
 
+    // Reseta currentTime para a duração do modo atual, não necessariamente foco
     if (state.pomodoro.mode === 'focus') state.pomodoro.currentTime = state.pomodoro.focusDuration;
     else if (state.pomodoro.mode === 'shortBreak') state.pomodoro.currentTime = state.pomodoro.shortBreakDuration;
     else if (state.pomodoro.mode === 'longBreak') state.pomodoro.currentTime = state.pomodoro.longBreakDuration;
     
-    updatePomodoroUI();
+    updatePomodoroUI(); // Atualiza a UI, incluindo o título da aba
     updatePomodoroChartDataOnly();
     saveState();
 }
@@ -1128,6 +1213,7 @@ function openPomodoroSettingsModal() {
         document.getElementById('pomodoro-cycles-before-long-break-input').value = state.pomodoro.cyclesBeforeLongBreak;
         document.getElementById('pomodoro-auto-start-breaks-checkbox').checked = state.pomodoro.autoStartBreaks;
         document.getElementById('pomodoro-auto-start-focus-checkbox').checked = state.pomodoro.autoStartFocus;
+        document.getElementById('pomodoro-enable-sound-checkbox').checked = state.pomodoro.enableSound; 
         
         overlay.classList.add('show');
         modal.classList.add('show');
@@ -1152,6 +1238,7 @@ function savePomodoroSettings() {
     const cyclesBeforeLongBreak = parseInt(document.getElementById('pomodoro-cycles-before-long-break-input').value);
     const autoStartBreaks = document.getElementById('pomodoro-auto-start-breaks-checkbox').checked;
     const autoStartFocus = document.getElementById('pomodoro-auto-start-focus-checkbox').checked;
+    const enableSound = document.getElementById('pomodoro-enable-sound-checkbox').checked; 
 
     if (isNaN(focusDuration) || focusDuration < 60 || 
         isNaN(shortBreakDuration) || shortBreakDuration < 60 ||
@@ -1167,6 +1254,7 @@ function savePomodoroSettings() {
     state.pomodoro.cyclesBeforeLongBreak = cyclesBeforeLongBreak;
     state.pomodoro.autoStartBreaks = autoStartBreaks;
     state.pomodoro.autoStartFocus = autoStartFocus;
+    state.pomodoro.enableSound = enableSound; 
 
     if (!state.pomodoro.timerRunning) {
         if (state.pomodoro.mode === 'focus') state.pomodoro.currentTime = state.pomodoro.focusDuration;
@@ -1185,13 +1273,19 @@ function logPomodoroSession(type, durationInSeconds) {
     const session = {
         startTime: new Date(Date.now() - durationInSeconds * 1000).toISOString(),
         endTime: new Date().toISOString(),
-        duration: durationInSeconds,
+        duration: durationInSeconds, 
         type: type
     };
     state.pomodoro.sessions.push(session);
 }
 
 function initPomodoro() {
+    focusEndSound = document.getElementById('focus-end-sound');
+    breakEndSound = document.getElementById('break-end-sound');
+    console.log("TASKIFY_POMO: focusEndSound element:", focusEndSound);
+    console.log("TASKIFY_POMO: breakEndSound element:", breakEndSound);
+
+
     const pomodoroSettingsForm = document.getElementById('pomodoro-settings-form');
     if (pomodoroSettingsForm) {
         pomodoroSettingsForm.addEventListener('submit', (e) => {
@@ -1209,54 +1303,59 @@ function initPomodoro() {
 // --- Funções de Tarefas ---
 function renderTasks() {
     const taskList = document.getElementById('task-list');
-    const tasksCounter = document.getElementById('tasks-counter');
-    if (!taskList || !tasksCounter) return;
+    if (!taskList) return;
 
-    taskList.innerHTML = '';
-    const completedTasks = state.tasks.filter(task => task.completed).length;
-    const totalTasks = state.tasks.length;
-    tasksCounter.textContent = `${completedTasks}/${totalTasks}`;
+    taskList.innerHTML = ''; 
 
     if (state.tasks.length === 0) {
         const emptyTaskMessage = document.createElement('li');
         emptyTaskMessage.className = 'task-list-empty-message';
         emptyTaskMessage.textContent = 'Nenhuma tarefa por enquanto. Adicione algumas!';
         taskList.appendChild(emptyTaskMessage);
-        return;
+    } else {
+        state.tasks.forEach(task => {
+            const li = document.createElement('li');
+            li.className = 'task-item';
+            if (task.completed) li.classList.add('completed');
+            li.dataset.taskId = task.id;
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'task-item-checkbox';
+            checkbox.checked = task.completed;
+            checkbox.addEventListener('change', () => toggleTaskComplete(task.id));
+
+            const textSpan = document.createElement('span');
+            textSpan.className = 'task-item-text';
+            textSpan.textContent = task.text;
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'task-item-delete-btn';
+            deleteBtn.innerHTML = '<i class="bi bi-trash3-fill"></i>';
+            deleteBtn.setAttribute('aria-label', 'Deletar tarefa');
+            deleteBtn.addEventListener('click', () => deleteTask(task.id));
+
+            li.appendChild(checkbox);
+            li.appendChild(textSpan);
+            li.appendChild(deleteBtn);
+            taskList.appendChild(li);
+        });
     }
-
-    state.tasks.forEach(task => {
-        const li = document.createElement('li');
-        li.className = 'task-item';
-        if (task.completed) li.classList.add('completed');
-        li.dataset.taskId = task.id;
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'task-item-checkbox';
-        checkbox.checked = task.completed;
-        checkbox.addEventListener('change', () => toggleTaskComplete(task.id));
-
-        const textSpan = document.createElement('span');
-        textSpan.className = 'task-item-text';
-        textSpan.textContent = task.text;
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'task-item-delete-btn';
-        deleteBtn.innerHTML = '<i class="bi bi-trash3-fill"></i>';
-        deleteBtn.setAttribute('aria-label', 'Deletar tarefa');
-        deleteBtn.addEventListener('click', () => deleteTask(task.id));
-
-        li.appendChild(checkbox);
-        li.appendChild(textSpan);
-        li.appendChild(deleteBtn);
-        taskList.appendChild(li);
-    });
+    updateTasksCounter();
 }
+
+function updateTasksCounter() {
+    const tasksCounter = document.getElementById('tasks-counter');
+    if (!tasksCounter) return;
+    const completedTasks = state.tasks.filter(task => task.completed).length;
+    const totalTasks = state.tasks.length;
+    tasksCounter.textContent = `${completedTasks}/${totalTasks}`;
+}
+
 
 function addTask(event) {
     event.preventDefault();
-    checkAllResets();
+    checkAllResets(); 
     const taskInput = document.getElementById('task-input');
     const taskText = taskInput.value.trim();
 
@@ -1265,31 +1364,40 @@ function addTask(event) {
         return;
     }
     const newTask = {
-        id: Date.now().toString(),
+        id: Date.now().toString(), 
         text: taskText,
         completed: false,
         createdAt: new Date().toISOString(),
         completionDate: null
     };
     state.tasks.push(newTask);
-    taskInput.value = '';
-    renderTasks();
+    taskInput.value = ''; 
+    renderTasks(); 
     saveState();
 }
 
 function toggleTaskComplete(taskId) {
     checkAllResets();
-    const task = state.tasks.find(t => t.id === taskId);
-    if (task) {
+    const taskIndex = state.tasks.findIndex(t => t.id === taskId);
+    if (taskIndex > -1) {
+        const task = state.tasks[taskIndex];
         const wasCompleted = task.completed;
         task.completed = !task.completed;
         task.completionDate = task.completed ? new Date().toISOString() : null;
+
+        const taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
+        if (taskElement) {
+            taskElement.classList.toggle('completed', task.completed);
+            const checkbox = taskElement.querySelector('.task-item-checkbox');
+            if (checkbox) checkbox.checked = task.completed;
+        }
+        
+        updateTasksCounter(); 
 
         if(state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7) {
             if (task.completed && !wasCompleted) state.dailyTaskCompletionData[6]++;
             else if (!task.completed && wasCompleted) state.dailyTaskCompletionData[6] = Math.max(0, state.dailyTaskCompletionData[6] - 1);
         }
-        renderTasks();
         saveState();
         updateTasksChartDataOnly();
     }
@@ -1302,6 +1410,15 @@ function deleteTask(taskId) {
         const deletedTask = state.tasks[taskIndex];
         const todayStr = new Date().toDateString();
         
+        state.tasks.splice(taskIndex, 1); 
+
+        const taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
+        if (taskElement) {
+            taskElement.remove();
+        }
+        
+        updateTasksCounter(); 
+
         if (deletedTask.completed && deletedTask.completionDate) {
             try {
                 if (new Date(deletedTask.completionDate).toDateString() === todayStr) {
@@ -1311,17 +1428,21 @@ function deleteTask(taskId) {
                 }
             } catch(e) { console.error("Erro ao processar data de conclusão da tarefa deletada:", e); }
         }
-        state.tasks.splice(taskIndex, 1);
-        renderTasks();
+        
+        if (state.tasks.length === 0) { 
+            renderTasks();
+        }
+
         saveState();
         updateTasksChartDataOnly();
     }
 }
 
+
 function initTasks() {
     const taskForm = document.getElementById('task-form');
     if (taskForm) taskForm.addEventListener('submit', addTask);
-    renderTasks();
+    renderTasks(); 
 }
 
 // --- Funções de Temas e Aparência ---
@@ -1603,7 +1724,7 @@ async function init() {
     initThemes();
     checkAllResets();
     initStreak();
-    initPomodoro();
+    initPomodoro(); 
     initTasks();
 
     await loadAndSetupRetrospective();
@@ -1726,7 +1847,7 @@ if (particleCanvas) {
 
     function handleParticles(timestamp) {
         const isMouseInsideWindow = currentMouseX >= 0 && currentMouseX <= window.innerWidth &&
-                                  currentMouseY >= 0 && currentMouseY <= window.innerHeight;
+                                    currentMouseY >= 0 && currentMouseY <= window.innerHeight;
         let particleEnabled = true;
         if (typeof state !== 'undefined' && state.visuals && state.visuals.currentVisualMode === 'focus') {
             particleEnabled = false;
