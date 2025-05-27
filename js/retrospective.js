@@ -49,7 +49,7 @@ const motivationalPhrases = {
     ],
     focus: [
         "Seu foco é sua superpotência! 🔥",
-        "Horas de foco = horas de crescimento! ⏰",
+        "Minutos de foco = momentos de crescimento! ⏰", // Atualizado
         "Você dominou a arte da concentração! 🎭",
     ],
 };
@@ -71,14 +71,10 @@ function hexToRgbArray(hex) {
     } catch (e) { console.error("Erro ao converter hex para RGB:", hex, e); return null; }
 }
 
-// Função auxiliar para formatar horas de foco
-function formatFocusHours(hours) {
-    const h = parseFloat(hours) || 0;
-    if (h % 1 === 0) { // Verifica se é um número inteiro
-        return `${h.toFixed(0)}h`;
-    } else {
-        return `${h.toFixed(1)}h`;
-    }
+// Função auxiliar para formatar minutos de foco
+function formatFocusMinutes(minutes) {
+    const m = Math.round(parseFloat(minutes) || 0); // Arredonda para o inteiro mais próximo
+    return `${m} min`;
 }
 
 function initializeRetrospectiveInternals() {
@@ -341,7 +337,7 @@ function shouldShowComparisonScreen() {
     return selectedMetrics.some(metric => {
         if (metric === "questions") return (previousMonth.questionsResolved || 0) > 0;
         if (metric === "tasks") return (previousMonth.tasksCompleted || 0) > 0;
-        if (metric === "focus") return (previousMonth.focusTimeHours || 0) > 0.05; // Pequena margem para foco
+        if (metric === "focus") return (previousMonth.focusTimeMinutes || 0) > 0; 
         return false;
     });
 }
@@ -379,7 +375,7 @@ function processDataForRetrospectiveDirectly(appStateProvided) {
     if (!appStateProvided || typeof appStateProvided !== 'object' || Object.keys(appStateProvided).length === 0) {
         console.warn("TASKIFY_RETRO: appStateProvided é nulo ou vazio em processDataForRetrospectiveDirectly. Retornando dados de fallback.");
         const today = new Date();
-        const defaultMonthData = { year: today.getFullYear(), monthIndex: today.getMonth(), questionsResolved: 0, tasksCompleted: 0, focusTimeHours: 0, mostProductiveDayOverall: { date: null, totalScore: 0, questions: 0, tasks: 0, focusMinutes: 0 }, peakFocusHour: null, longestStreakInMonth: 0, weeklyDistribution: Array(7).fill(0) };
+        const defaultMonthData = { year: today.getFullYear(), monthIndex: today.getMonth(), questionsResolved: 0, tasksCompleted: 0, focusTimeMinutes: 0, mostProductiveDayOverall: { date: null, totalScore: 0, questions: 0, tasks: 0, focusMinutes: 0 }, peakFocusHour: null, longestStreakInMonth: 0, weeklyDistribution: Array(7).fill(0) };
         return { currentMonth: defaultMonthData, previousMonth: { ...defaultMonthData } };
     }
 
@@ -402,7 +398,7 @@ function processDataForRetrospectiveDirectly(appStateProvided) {
 function getMonthlyAggregatedData(year, monthIndex, appState) {
     if (!appState || typeof appState !== 'object') { // Proteção adicional
         console.warn(`TASKIFY_RETRO: appState inválido em getMonthlyAggregatedData para ${year}-${monthIndex + 1}.`);
-        return { year, monthIndex, questionsResolved: 0, tasksCompleted: 0, focusTimeHours: 0, mostProductiveDayOverall: { date: null, totalScore: 0, questions: 0, tasks: 0, focusMinutes: 0 }, peakFocusHour: null, longestStreakInMonth: 0, weeklyDistribution: Array(7).fill(0) };
+        return { year, monthIndex, questionsResolved: 0, tasksCompleted: 0, focusTimeMinutes: 0, mostProductiveDayOverall: { date: null, totalScore: 0, questions: 0, tasks: 0, focusMinutes: 0 }, peakFocusHour: null, longestStreakInMonth: 0, weeklyDistribution: Array(7).fill(0) };
     }
 
     const startDate = new Date(year, monthIndex, 1);
@@ -448,12 +444,13 @@ function getMonthlyAggregatedData(year, monthIndex, appState) {
             try {
                 const sessionStartDate = new Date(session.startTime);
                 if (sessionStartDate >= startDate && sessionStartDate <= endDate) {
-                    focusTimeSeconds += (session.duration || 0);
+                    focusTimeSeconds += (session.duration || 0); // duration é em segundos
                 }
             } catch (e) { /* Ignora sessões com datas inválidas */ }
         });
     }
-    const focusTimeHours = focusTimeSeconds / 3600;
+    const focusTimeMinutes = Math.round(focusTimeSeconds / 60);
+
 
     // Dados Diários para Dia Mais Produtivo e Pico de Foco
     const dailyData = Array(daysInMonth).fill(null).map((_, i) => ({
@@ -495,7 +492,7 @@ function getMonthlyAggregatedData(year, monthIndex, appState) {
                 const sessionStartDate = new Date(session.startTime);
                 if (sessionStartDate.getFullYear() === year && sessionStartDate.getMonth() === monthIndex) {
                     const dayOfMonthIndex = sessionStartDate.getDate() - 1;
-                    const sessionMinutes = (session.duration || 0) / 60;
+                    const sessionMinutes = Math.round((session.duration || 0) / 60);
                     if (dailyData[dayOfMonthIndex]) {
                         dailyData[dayOfMonthIndex].focusMinutes += sessionMinutes;
                         dailyData[dayOfMonthIndex].totalScore += sessionMinutes * 0.05; // Ponderação
@@ -559,7 +556,7 @@ function getMonthlyAggregatedData(year, monthIndex, appState) {
         year, monthIndex,
         questionsResolved: questionsResolvedThisMonth,
         tasksCompleted,
-        focusTimeHours,
+        focusTimeMinutes, // Alterado de focusTimeHours
         mostProductiveDayOverall: mostProductiveDayOverall.date ? mostProductiveDayOverall : { date: null, totalScore: 0, questions: 0, tasks: 0, focusMinutes: 0 },
         peakFocusHour,
         longestStreakInMonth,
@@ -588,7 +585,7 @@ function populateMainStatsScreen() {
     const cardsData = [
         { metric: "questions", el: questionsResolvedEl, value: currentMonth.questionsResolved || 0, phraseEl: phraseQuestionsEl, cardSel: '[data-metric-card="questions"]' },
         { metric: "tasks", el: tasksCompletedEl, value: currentMonth.tasksCompleted || 0, phraseEl: phraseTasksEl, cardSel: '[data-metric-card="tasks"]' },
-        { metric: "focus", el: focusTimeEl, value: formatFocusHours(currentMonth.focusTimeHours), phraseEl: phraseFocusEl, cardSel: '[data-metric-card="focus"]' }
+        { metric: "focus", el: focusTimeEl, value: formatFocusMinutes(currentMonth.focusTimeMinutes), phraseEl: phraseFocusEl, cardSel: '[data-metric-card="focus"]' }
     ];
 
     let visibleCards = 0;
@@ -636,14 +633,16 @@ function populateProductiveDayScreen() {
 
 function populateTimePatternsScreen() {
     if (!retrospectiveDataStore.currentMonth) {
-        if(peakFocusHourEl) peakFocusHourEl.textContent = "N/A";
+        if(peakFocusHourEl) peakFocusHourEl.textContent = "-"; // Alterado de N/A para -
         if(longestStreakEl) longestStreakEl.textContent = "0";
         if(weekdayChartContainer) weekdayChartContainer.innerHTML = '<p style="text-align:center; color: var(--text-muted-dark);">Dados não disponíveis.</p>';
         return;
     }
     const { peakFocusHour, longestStreakInMonth, weeklyDistribution } = retrospectiveDataStore.currentMonth;
 
-    if (peakFocusHourEl) peakFocusHourEl.textContent = peakFocusHour !== null ? `${String(peakFocusHour).padStart(2, '0')}:00` : "N/A";
+    if (peakFocusHourEl) {
+        peakFocusHourEl.textContent = peakFocusHour !== null ? `${String(peakFocusHour).padStart(2, '0')}:00` : "-"; // Alterado de N/A para -
+    }
     if (longestStreakEl) longestStreakEl.textContent = longestStreakInMonth || 0;
 
     if (weekdayChartContainer && weeklyDistribution && weeklyDistribution.length === 7) {
@@ -683,46 +682,42 @@ function populateComparisonScreen() {
     const { currentMonth, previousMonth } = retrospectiveDataStore;
     let comparisonMetricsShown = 0;
 
-    const setTextAndPercentage = (valueEl, percentageEl, iconContainer, currentValue, previousValue, unit = "", isFocusMetric = false) => {
+    const setTextAndPercentage = (valueEl, percentageEl, iconContainer, currentValue, previousValue, formatterFunc = (val) => `${val}`) => {
         let metricDisplayed = false;
         if (valueEl) {
-            if (isFocusMetric) {
-                valueEl.textContent = formatFocusHours(currentValue);
-            } else {
-                valueEl.textContent = `${currentValue}${unit}`;
-            }
+            valueEl.textContent = formatterFunc(currentValue);
         }
     
         if (percentageEl && iconContainer) {
             const icon = iconContainer.querySelector('.retrospective-icon-small');
-            if (!icon) { percentageEl.textContent = "N/A"; return metricDisplayed; }
+            if (!icon) { percentageEl.textContent = "-"; return metricDisplayed; } // Alterado de N/A para -
     
             const currentNum = parseFloat(currentValue) || 0;
             const prevNum = parseFloat(previousValue) || 0;
     
-            if (previousValue !== null && previousValue !== undefined && typeof previousValue === 'number') {
+            if (previousValue !== null && previousValue !== undefined ) { 
                 if (prevNum > 0) {
                     const percentageChange = ((currentNum - prevNum) / prevNum) * 100;
                     percentageEl.textContent = `${percentageChange >= 0 ? '+' : ''}${percentageChange.toFixed(0)}%`;
                     icon.className = `bi ${percentageChange >= 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right'} retrospective-icon-small ${percentageChange >= 0 ? 'retrospective-icon-green' : 'retrospective-icon-red'}`;
                     metricDisplayed = true;
-                } else if (currentNum > 0) {
+                } else if (currentNum > 0) { 
                     percentageEl.textContent = "NOVO!";
                     icon.className = 'bi bi-stars retrospective-icon-small retrospective-icon-green';
                     metricDisplayed = true;
-                } else {
+                } else { 
                     percentageEl.textContent = "0%";
                     icon.className = 'bi bi-dash retrospective-icon-small';
                 }
-            } else { percentageEl.textContent = "N/A"; icon.className = 'bi bi-dash retrospective-icon-small'; }
-        } else if (percentageEl) { percentageEl.textContent = "N/A"; }
+            } else { percentageEl.textContent = "-"; icon.className = 'bi bi-dash retrospective-icon-small'; } // Alterado de N/A para -
+        } else if (percentageEl) { percentageEl.textContent = "-"; } // Alterado de N/A para -
         return metricDisplayed;
     };
 
     const comparisonCardsData = [
-        { metric: "questions", valueElId: "retrospective-comparison-questions-resolved", percentageElId: "retrospective-questions-percentage", current: currentMonth.questionsResolved || 0, prev: previousMonth.questionsResolved || 0, cardSel: '[data-metric-comparison-card="questions"]' },
-        { metric: "tasks", valueElId: "retrospective-comparison-tasks-completed", percentageElId: "retrospective-tasks-percentage", current: currentMonth.tasksCompleted || 0, prev: previousMonth.tasksCompleted || 0, cardSel: '[data-metric-comparison-card="tasks"]' },
-        { metric: "focus", valueElId: "retrospective-comparison-focus-time", percentageElId: "retrospective-focus-percentage", current: currentMonth.focusTimeHours || 0, prev: previousMonth.focusTimeHours || 0, unit: "h", cardSel: '[data-metric-comparison-card="focus"]', isFocusMetric: true }
+        { metric: "questions", valueElId: "retrospective-comparison-questions-resolved", percentageElId: "retrospective-questions-percentage", current: currentMonth.questionsResolved || 0, prev: previousMonth.questionsResolved, cardSel: '[data-metric-comparison-card="questions"]', formatter: (val) => `${val}` },
+        { metric: "tasks", valueElId: "retrospective-comparison-tasks-completed", percentageElId: "retrospective-tasks-percentage", current: currentMonth.tasksCompleted || 0, prev: previousMonth.tasksCompleted, cardSel: '[data-metric-comparison-card="tasks"]', formatter: (val) => `${val}` },
+        { metric: "focus", valueElId: "retrospective-comparison-focus-time", percentageElId: "retrospective-focus-percentage", current: currentMonth.focusTimeMinutes || 0, prev: previousMonth.focusTimeMinutes, cardSel: '[data-metric-comparison-card="focus"]', formatter: formatFocusMinutes }
     ];
 
     comparisonCardsData.forEach(item => {
@@ -736,8 +731,7 @@ function populateComparisonScreen() {
                     document.getElementById(item.percentageElId)?.parentElement, 
                     item.current, 
                     item.prev, 
-                    item.unit,
-                    item.isFocusMetric
+                    item.formatter
                 )) {
                     comparisonMetricsShown++;
                 }
@@ -761,36 +755,59 @@ function populateFinalScreen() {
     const { currentMonth } = retrospectiveDataStore;
     finalMonthYearEl.textContent = getMonthYearString(new Date(currentMonth.year, currentMonth.monthIndex));
 
-    [finalQuestionsHighlightItem, finalTasksHighlightItem, finalFocusHighlightItem,
-     finalPeakFocusStatItem, finalLongestStreakStatItem, finalProductiveDayStatItem,
+    const highlightsGrid = finalScreenImageableContent.querySelector('.retrospective-final-highlights');
+    let visibleHighlightCount = 0;
+
+    [finalQuestionsHighlightItem, finalTasksHighlightItem, finalFocusHighlightItem].forEach(item => {
+        if (item) item.style.display = 'none';
+    });
+    [finalPeakFocusStatItem, finalLongestStreakStatItem, finalProductiveDayStatItem,
      finalAchievementsContainer].forEach(el => { if (el) el.style.display = 'none'; });
+
 
     if (finalQuestionsHighlightItem && selectedMetrics.includes("questions")) {
         finalQuestionsHighlightItem.style.display = 'flex';
         if(finalQuestionsValueEl) finalQuestionsValueEl.textContent = currentMonth.questionsResolved || 0;
+        visibleHighlightCount++;
     }
     if (finalTasksHighlightItem && selectedMetrics.includes("tasks")) {
         finalTasksHighlightItem.style.display = 'flex';
         if(finalTasksValueEl) finalTasksValueEl.textContent = currentMonth.tasksCompleted || 0;
+        visibleHighlightCount++;
     }
     if (finalFocusHighlightItem && selectedMetrics.includes("focus")) {
         finalFocusHighlightItem.style.display = 'flex';
-        if(finalFocusValueEl) finalFocusValueEl.textContent = formatFocusHours(currentMonth.focusTimeHours);
+        if(finalFocusValueEl) finalFocusValueEl.textContent = formatFocusMinutes(currentMonth.focusTimeMinutes);
+        visibleHighlightCount++;
     }
+
+    if (highlightsGrid) {
+        highlightsGrid.dataset.itemCount = visibleHighlightCount;
+    }
+
 
     if (finalPeakFocusStatItem && currentMonth.peakFocusHour !== null) {
         finalPeakFocusStatItem.style.display = 'flex';
         if(finalPeakFocusHourEl) finalPeakFocusHourEl.textContent = `${String(currentMonth.peakFocusHour).padStart(2, '0')}:00`;
+    } else if (finalPeakFocusStatItem && currentMonth.peakFocusHour === null) {
+        finalPeakFocusStatItem.style.display = 'flex';
+        if(finalPeakFocusHourEl) finalPeakFocusHourEl.textContent = "-"; // Alterado de N/A
     }
-    if (finalLongestStreakStatItem && (currentMonth.longestStreakInMonth || 0) > 0) {
+
+    if (finalLongestStreakStatItem && (currentMonth.longestStreakInMonth || 0) >= 0) { // Alterado para >=0 para mostrar mesmo se for 0
         finalLongestStreakStatItem.style.display = 'flex';
         if(finalLongestStreakEl) finalLongestStreakEl.textContent = currentMonth.longestStreakInMonth || 0;
     }
+
     if (finalProductiveDayStatItem && currentMonth.mostProductiveDayOverall && currentMonth.mostProductiveDayOverall.date) {
         finalProductiveDayStatItem.style.display = 'flex';
         const prodDate = new Date(currentMonth.mostProductiveDayOverall.date);
-        if(finalMostProductiveDayShortEl) finalMostProductiveDayShortEl.textContent = prodDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+        if(finalMostProductiveDayShortEl) finalMostProductiveDayShortEl.textContent = prodDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
+    } else if (finalProductiveDayStatItem) {
+        finalProductiveDayStatItem.style.display = 'flex';
+        if(finalMostProductiveDayShortEl) finalMostProductiveDayShortEl.textContent = "-"; // Alterado de N/A
     }
+
 
     achievementsListEl.innerHTML = '';
     const achievements = determineAchievements(currentMonth, selectedMetrics);
@@ -812,7 +829,9 @@ function determineAchievements(monthData, metrics) {
 
     const monthlyQuestionsGoal = appGoals.monthly || 300;
     const monthlyTasksGoal = Math.max(15, Math.round((appGoals.weekly || 50) * 0.75 * 4));
-    const monthlyFocusGoalHours = Math.max(10, Math.round((appGoals.monthly || 300) * 0.025));
+    // Exemplo: 1.5 min de foco por questão da meta mensal, ou um mínimo de 10h (600 min)
+    const monthlyFocusGoalMinutes = Math.max(600, Math.round((appGoals.monthly || 300) * 1.5));
+
 
     if (metrics.includes("questions") && (monthData.questionsResolved || 0) >= monthlyQuestionsGoal && monthlyQuestionsGoal > 0) {
         achievements.push("<i class='bi bi-award-fill'></i> Meta de Questões Superada!");
@@ -826,9 +845,9 @@ function determineAchievements(monthData, metrics) {
         achievements.push("<i class='bi bi-check-circle-fill'></i> Executor Nato");
     }
 
-    if (metrics.includes("focus") && (monthData.focusTimeHours || 0) >= monthlyFocusGoalHours && monthlyFocusGoalHours > 0) {
+    if (metrics.includes("focus") && (monthData.focusTimeMinutes || 0) >= monthlyFocusGoalMinutes && monthlyFocusGoalMinutes > 0) {
         achievements.push("<i class='bi bi-stopwatch-fill'></i> Lorde do Tempo");
-    } else if (metrics.includes("focus") && (monthData.focusTimeHours || 0) > (monthlyFocusGoalHours / 2) && monthlyFocusGoalHours > 0) {
+    } else if (metrics.includes("focus") && (monthData.focusTimeMinutes || 0) > (monthlyFocusGoalMinutes / 2) && monthlyFocusGoalMinutes > 0) {
         achievements.push("<i class='bi bi-hourglass-split'></i> Foco Inabalável");
     }
 
@@ -857,19 +876,19 @@ function generateRetrospectiveShareText() {
     if (!retrospectiveDataStore.currentMonth || Object.keys(retrospectiveDataStore.currentMonth).length === 0) {
         return "Confira meu progresso no Taskify! #TaskifyApp https://taskify-fabinxz.vercel.app";
     }
-    const { questionsResolved, tasksCompleted, focusTimeHours, mostProductiveDayOverall, longestStreakInMonth } = retrospectiveDataStore.currentMonth;
+    const { questionsResolved, tasksCompleted, focusTimeMinutes, mostProductiveDayOverall, longestStreakInMonth } = retrospectiveDataStore.currentMonth;
     const monthName = getMonthYearString(new Date(retrospectiveDataStore.currentMonth.year, retrospectiveDataStore.currentMonth.monthIndex));
     let text = `Minha retrospectiva de ${monthName} no Taskify! 🚀\n\n`;
     let detailsAdded = 0;
 
     if (selectedMetrics.includes("questions") && (questionsResolved || 0) > 0) { text += `✅ ${questionsResolved} questões resolvidas\n`; detailsAdded++; }
     if (selectedMetrics.includes("tasks") && (tasksCompleted || 0) > 0) { text += `🎯 ${tasksCompleted} tarefas concluídas\n`; detailsAdded++; }
-    if (selectedMetrics.includes("focus") && (focusTimeHours || 0) > 0.05) { text += `⏰ ${formatFocusHours(focusTimeHours)} de foco total\n`; detailsAdded++; } // Usa formatFocusHours
+    if (selectedMetrics.includes("focus") && (focusTimeMinutes || 0) > 0) { text += `⏰ ${formatFocusMinutes(focusTimeMinutes)} de foco total\n`; detailsAdded++; }
     if (detailsAdded > 0) text += "\n";
 
     if (mostProductiveDayOverall && mostProductiveDayOverall.date && (mostProductiveDayOverall.totalScore || 0) > 0) {
          const prodDate = new Date(mostProductiveDayOverall.date);
-         text += `🌟 Dia Mais Produtivo: ${prodDate.toLocaleDateString('pt-BR', {day: '2-digit', month: 'short'})}\n`;
+         text += `🌟 Dia Mais Produtivo: ${prodDate.toLocaleDateString('pt-BR', {day: '2-digit', month: 'long'})}\n`;
     }
     if ((longestStreakInMonth || 0) >= 3) { text += `🔥 Maior Streak: ${longestStreakInMonth} dias\n`; }
 
@@ -900,13 +919,15 @@ async function generateAndCopyRetrospectiveImageInternal(forSharingNotification 
     const primaryRgbArray = hexToRgbArray(currentPrimaryColorHex);
     let primaryRgbStringForCssVar = primaryRgbArray ? primaryRgbArray.join(', ') : "10, 124, 255";
     
-    let solidFallbackBackgroundColor = isLightTheme ? '#FFFFFF' : '#0a0a0a';
-    if(!isLightTheme && primaryRgbArray) {
-         const r = Math.max(5, Math.round(primaryRgbArray[0] * 0.03));
-         const g = Math.max(5, Math.round(primaryRgbArray[1] * 0.03));
-         const b = Math.max(8, Math.round(primaryRgbArray[2] * 0.05));
-         solidFallbackBackgroundColor = `rgb(${r},${g},${b})`;
+    let solidFallbackBackgroundColor = isLightTheme ? '#FFFFFF' : '#0a0a0a'; 
+    let cardBackgroundColorForClone; 
+
+    if (isLightTheme) {
+        cardBackgroundColorForClone = `linear-gradient(160deg, rgba(${primaryRgbStringForCssVar}, 0.15) 0%, rgba(${primaryRgbStringForCssVar}, 0.05) 40%, #f8f8f8 100%)`;
+    } else {
+        cardBackgroundColorForClone = `linear-gradient(160deg, rgba(${primaryRgbStringForCssVar}, 0.25) 0%, rgba(${primaryRgbStringForCssVar}, 0.1) 40%, #101012 100%)`;
     }
+
 
     console.log("TASKIFY_RETRO: Gerando imagem. Tema claro:", isLightTheme, "Cor primária HEX:", currentPrimaryColorHex, "RGB string:", primaryRgbStringForCssVar, "Fallback Sólido:", solidFallbackBackgroundColor);
 
@@ -936,16 +957,9 @@ async function generateAndCopyRetrospectiveImageInternal(forSharingNotification 
 
             const clonedContentWrapper = documentCloned.querySelector('.retrospective-final-content-wrapper');
             if (clonedContentWrapper) {
-                let gradientString;
-                 if (isLightTheme) {
-                    gradientString = `linear-gradient(160deg, rgba(${primaryRgbStringForCssVar}, 0.2) 0%, rgba(${primaryRgbStringForCssVar}, 0.05) 40%, #ffffff 100%)`;
-                    clonedContentWrapper.style.color = getComputedStyle(document.documentElement).getPropertyValue('--text-color-light').trim();
-                } else {
-                    gradientString = `linear-gradient(160deg, rgba(${primaryRgbStringForCssVar}, 0.3) 0%, rgba(${primaryRgbStringForCssVar}, 0.1) 40%, #0a0a0a 100%)`;
-                    clonedContentWrapper.style.color = '#FFFFFF';
-                }
-                clonedContentWrapper.style.background = gradientString;
-                console.log("TASKIFY_RETRO: Gradiente aplicado ao clone:", gradientString);
+                clonedContentWrapper.style.background = cardBackgroundColorForClone; 
+                clonedContentWrapper.style.color = isLightTheme ? getComputedStyle(document.documentElement).getPropertyValue('--text-color-light').trim() : '#FFFFFF';
+                console.log("TASKIFY_RETRO: Gradiente do card aplicado ao clone:", cardBackgroundColorForClone);
 
                 clonedContentWrapper.querySelector('.retrospective-final-logo .logo-text').style.color = isLightTheme ? getComputedStyle(document.documentElement).getPropertyValue('--text-color-light').trim() : '#FFFFFF';
                 clonedContentWrapper.querySelector('.retrospective-final-date').style.color = isLightTheme ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.7)';
@@ -958,10 +972,38 @@ async function generateAndCopyRetrospectiveImageInternal(forSharingNotification 
                 clonedContentWrapper.querySelector('.retrospective-final-achievements-title').style.color = isLightTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.8)';
                 clonedContentWrapper.querySelector('.retrospective-final-footer').style.color = isLightTheme ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.6)';
 
-                clonedContentWrapper.querySelectorAll('.retrospective-badge-achievement').forEach(badge => {
-                    badge.style.color = isLightTheme ? getComputedStyle(document.documentElement).getPropertyValue('--card-bg-light').trim() : 'white';
+                // Aplica uma cor de fundo sólida para o badge na imagem gerada
+                const clonedBadges = documentCloned.querySelectorAll('.retrospective-badge-achievement');
+                clonedBadges.forEach(badge => {
+                    let badgeSolidBgColor;
+                    let badgeTextColor;
+                    const primaryColorForBadge = clonedHtml.style.getPropertyValue('--primary-color-dark');
+
+                    if (isLightTheme) {
+                        const rgb = hexToRgbArray(primaryColorForBadge);
+                        if (rgb) {
+                            badgeSolidBgColor = `rgba(${Math.max(0, rgb[0]-20)}, ${Math.max(0, rgb[1]-20)}, ${Math.max(0, rgb[2]-20)}, 0.8)`;
+                        } else {
+                            badgeSolidBgColor = 'rgba(0,0,0,0.1)'; // Fallback
+                        }
+                        badgeTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color-light').trim();
+                    } else {
+                         const rgb = hexToRgbArray(primaryColorForBadge);
+                        if (rgb) {
+                             badgeSolidBgColor = `rgba(${Math.min(255, rgb[0]+30)}, ${Math.min(255, rgb[1]+30)}, ${Math.min(255, rgb[2]+30)}, 0.7)`;
+                        } else {
+                            badgeSolidBgColor = 'rgba(255,255,255,0.2)'; // Fallback
+                        }
+                        badgeTextColor = 'white';
+                    }
+                    badge.style.background = badgeSolidBgColor;
+                    badge.style.color = badgeTextColor;
+                    badge.style.textShadow = 'none'; 
+                    badge.style.boxShadow = 'none'; 
+                    badge.style.animation = 'none'; 
                 });
-                console.log("TASKIFY_RETRO: html2canvas onclone - Estilos de fundo e cores reaplicados/forçados no wrapper.");
+
+                console.log("TASKIFY_RETRO: html2canvas onclone - Estilos (card e badge sólidos) aplicados.");
             } else {
                  console.warn("TASKIFY_RETRO: html2canvas onclone - .retrospective-final-content-wrapper não encontrado no clone.");
             }
