@@ -92,7 +92,7 @@ body.light .retrospective-modal {
     opacity: 0;
     visibility: hidden;
     transform-origin: center center;
-    overflow-y: auto; /* Permite scroll vertical DENTRO da tela se o conteúdo exceder */
+    overflow-y: hidden; /* Permite scroll vertical DENTRO da tela se o conteúdo exceder */
     -webkit-overflow-scrolling: touch; /* Melhora a experiência de scroll em iOS */
 }
 
