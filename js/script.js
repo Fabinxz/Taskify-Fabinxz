@@ -11,6 +11,9 @@ let retrospectiveModalOverlayEl; // Será definido em loadAndSetupRetrospective
 let focusEndSound = null;
 let breakEndSound = null;
 
+// Variáveis para Drag and Drop
+let draggedItem = null;
+
 
 window.showCustomAlert = showCustomAlert; // Expondo para uso global, se necessário
 
@@ -42,15 +45,15 @@ const initialDefaultState = {
         yearly: 20000,
         streak: 30
     },
-    weeklyProgress: 0, 
+    weeklyProgress: 0,
     monthlyProgress: 0,
     yearlyProgress: 0,
-    weeklyActivityData: [0, 0, 0, 0, 0, 0, 0], 
+    weeklyActivityData: [0, 0, 0, 0, 0, 0, 0],
     dailyRecord: {
         value: 0,
         date: "-"
     },
-    currentStreak: { 
+    currentStreak: {
         days: 0,
         lastCompletionDate: null,
         history: {}
@@ -66,35 +69,35 @@ const initialDefaultState = {
     pomodoro: {
         timerRunning: false,
         currentTime: 25 * 60,
-        mode: 'focus', 
+        mode: 'focus',
         focusDuration: 25 * 60,
         shortBreakDuration: 5 * 60,
         longBreakDuration: 15 * 60,
         cyclesBeforeLongBreak: 4,
         currentCycleInSet: 0,
-        totalPomodorosToday: 0, 
-        sessions: [], 
+        totalPomodorosToday: 0,
+        sessions: [],
         autoStartBreaks: false,
         autoStartFocus: false,
-        enableSound: true, 
-        lastModeEnded: null, 
-        dailyFocusData: [0, 0, 0, 0, 0, 0, 0] 
+        enableSound: true,
+        lastModeEnded: null,
+        dailyFocusData: [0, 0, 0, 0, 0, 0, 0]
     },
-    tasks: [], 
-    dailyTaskCompletionData: [0, 0, 0, 0, 0, 0, 0], 
+    tasks: [],
+    dailyTaskCompletionData: [0, 0, 0, 0, 0, 0, 0],
     visuals: {
         currentPalette: 'electricBlue',
         currentVisualMode: 'default'
     }
 };
 
-let state = JSON.parse(JSON.stringify(initialDefaultState)); 
+let state = JSON.parse(JSON.stringify(initialDefaultState));
 
 // Funções Utilitárias de Data, Cor e Formatação
 function getStartOfWeek(date) {
     const d = new Date(date);
-    const day = d.getDay(); 
-    const diff = d.getDate() - day; 
+    const day = d.getDay();
+    const diff = d.getDate() - day;
     return new Date(d.setDate(diff));
 }
 
@@ -164,14 +167,14 @@ function loadState() {
     if (savedPaletteName && PREDEFINED_PALETTES[savedPaletteName]) {
         currentPaletteName = savedPaletteName;
         primaryColorToApply = PREDEFINED_PALETTES[currentPaletteName].primary;
-    } else if (savedPaletteName === 'custom' && savedPrimaryColor) { 
-        currentPaletteName = 'custom'; 
+    } else if (savedPaletteName === 'custom' && savedPrimaryColor) {
+        currentPaletteName = 'custom';
         primaryColorToApply = savedPrimaryColor;
-    } else { 
+    } else {
         currentPaletteName = initialDefaultState.visuals.currentPalette;
         primaryColorToApply = PREDEFINED_PALETTES[currentPaletteName].primary;
     }
-    
+
     const savedVisualMode = localStorage.getItem('taskify-visual-mode');
     if (savedVisualMode && VISUAL_MODES[savedVisualMode]) {
         currentVisualModeName = savedVisualMode;
@@ -179,7 +182,7 @@ function loadState() {
 
     document.documentElement.style.setProperty('--primary-color-light', primaryColorToApply);
     document.documentElement.style.setProperty('--primary-color-dark', primaryColorToApply);
-    
+
     let loadedState = null;
     try {
         const savedStateString = localStorage.getItem('taskify-state');
@@ -188,18 +191,18 @@ function loadState() {
         }
     } catch (e) {
         console.error("Error parsing 'taskify-state' from localStorage:", e);
-        localStorage.removeItem('taskify-state'); 
+        localStorage.removeItem('taskify-state');
     }
 
     if (loadedState) {
         state = {
-            ...JSON.parse(JSON.stringify(initialDefaultState)), 
-            ...loadedState, 
+            ...JSON.parse(JSON.stringify(initialDefaultState)),
+            ...loadedState,
             goals: { ...initialDefaultState.goals, ...(loadedState.goals || {}) },
             dailyRecord: { ...initialDefaultState.dailyRecord, ...(loadedState.dailyRecord || {}) },
             peakActivity: { ...initialDefaultState.peakActivity, ...(loadedState.peakActivity || {}) },
-            weeklyActivityData: (loadedState.weeklyActivityData && Array.isArray(loadedState.weeklyActivityData) && loadedState.weeklyActivityData.length === 7) 
-                ? loadedState.weeklyActivityData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0)) 
+            weeklyActivityData: (loadedState.weeklyActivityData && Array.isArray(loadedState.weeklyActivityData) && loadedState.weeklyActivityData.length === 7)
+                ? loadedState.weeklyActivityData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0))
                 : [...initialDefaultState.weeklyActivityData],
             tasks: (loadedState.tasks && Array.isArray(loadedState.tasks)) ? loadedState.tasks : [...initialDefaultState.tasks],
             dailyTaskCompletionData: (loadedState.dailyTaskCompletionData && Array.isArray(loadedState.dailyTaskCompletionData) && loadedState.dailyTaskCompletionData.length === 7)
@@ -212,7 +215,7 @@ function loadState() {
         numericKeys.forEach(key => {
             if (typeof state[key] !== 'number' || isNaN(state[key])) {
                 console.warn(`Sanitizing state.${key}: was ${state[key]}, setting to ${initialDefaultState[key]}`);
-                state[key] = initialDefaultState[key]; 
+                state[key] = initialDefaultState[key];
             }
         });
 
@@ -223,12 +226,12 @@ function loadState() {
 
         const pomodoroLoadedState = loadedState.pomodoro || {};
         state.pomodoro = {
-            ...initialDefaultState.pomodoro, 
-            ...pomodoroLoadedState, 
-            timerRunning: false, 
+            ...initialDefaultState.pomodoro,
+            ...pomodoroLoadedState,
+            timerRunning: false,
             enableSound: typeof pomodoroLoadedState.enableSound === 'boolean' ? pomodoroLoadedState.enableSound : initialDefaultState.pomodoro.enableSound,
             dailyFocusData: (pomodoroLoadedState.dailyFocusData && Array.isArray(pomodoroLoadedState.dailyFocusData) && pomodoroLoadedState.dailyFocusData.length === 7)
-                ? pomodoroLoadedState.dailyFocusData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0)) 
+                ? pomodoroLoadedState.dailyFocusData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0))
                 : [...initialDefaultState.pomodoro.dailyFocusData]
         };
         if (!(pomodoroLoadedState.timerRunning && pomodoroLoadedState.currentTime > 0)) {
@@ -249,16 +252,16 @@ function loadState() {
 function saveState() {
     try {
         const stateToSave = { ...state };
-        delete stateToSave.currentStreak; 
-        
+        delete stateToSave.currentStreak;
+
         localStorage.setItem('taskify-state', JSON.stringify(stateToSave));
         localStorage.setItem('taskify-theme', state.isDarkMode ? 'dark' : 'light');
-        
+
         if (state.visuals.currentPalette === 'custom') {
              localStorage.setItem('taskify-primary-color', getComputedStyle(document.documentElement).getPropertyValue('--primary-color-dark').trim());
         } else if (PREDEFINED_PALETTES[state.visuals.currentPalette]) {
             localStorage.setItem('taskify-primary-color', PREDEFINED_PALETTES[state.visuals.currentPalette].primary);
-        } else { 
+        } else {
             localStorage.setItem('taskify-primary-color', PREDEFINED_PALETTES.electricBlue.primary);
         }
         localStorage.setItem('taskify-palette', state.visuals.currentPalette);
@@ -286,11 +289,14 @@ function checkAllResets() {
         state.pomodoro.sessions = state.pomodoro.sessions.filter(session => {
             try {
                 const sessionDate = new Date(session.startTime);
-                return sessionDate.toDateString() === todayStr; 
+                return sessionDate.toDateString() === todayStr;
             } catch (e) { return false; }
         });
     }
-    
+
+    // REMOVIDO: Bloco que filtrava state.tasks por data.
+    // As tarefas agora persistem até serem deletadas manualmente.
+    /*
     if (state.lastAccessDate !== todayStr) {
         state.tasks = state.tasks.filter(task => {
             if (task.completed && task.completionDate) {
@@ -301,14 +307,15 @@ function checkAllResets() {
             return true;
         });
     }
+    */
 
     if (state.lastAccessDate !== prevLastAccessDate) {
-        updateUI(); 
+        updateUI();
         updatePomodoroChartDataOnly();
         updateTasksChartDataOnly();
         updateWeeklyChartDataOnly();
     }
-    
+
     if (state.lastAccessDate !== todayStr) {
       state.lastAccessDate = todayStr;
     }
@@ -321,7 +328,7 @@ function checkAndResetDailyCounters(todayStr) {
 
         const shiftArray = (arr) => {
             if (arr && Array.isArray(arr) && arr.length === 7) {
-                arr.shift(); 
+                arr.shift();
                 arr.push(0);
             } else {
                 return [0,0,0,0,0,0,0];
@@ -331,24 +338,24 @@ function checkAndResetDailyCounters(todayStr) {
 
         state.weeklyActivityData = shiftArray(state.weeklyActivityData);
         updatePeakActivity();
-        
+
         const newDailyFocusData = Array(7).fill(0);
         const todayDate = new Date();
         for (let d = 0; d < 7; d++) {
             const dateToCheck = new Date(todayDate);
-            dateToCheck.setDate(todayDate.getDate() - (6 - d)); 
+            dateToCheck.setDate(todayDate.getDate() - (6 - d));
             const dateToCheckISO = dateToCheck.toISOString().split('T')[0];
-            
+
             let focusForThisDay = 0;
             state.pomodoro.sessions.forEach(session => {
                 if (session.type === 'focus' && new Date(session.startTime).toISOString().split('T')[0] === dateToCheckISO) {
-                    focusForThisDay += Math.round((session.duration || 0) / 60); 
+                    focusForThisDay += Math.round((session.duration || 0) / 60);
                 }
             });
             newDailyFocusData[d] = focusForThisDay;
         }
         state.pomodoro.dailyFocusData = newDailyFocusData;
-        
+
         state.dailyTaskCompletionData = shiftArray(state.dailyTaskCompletionData);
     }
 }
@@ -403,7 +410,7 @@ function updateUI() {
     setText('today-target', state.goals.daily);
     updateCircularProgress('today-progress', state.todayCount, state.goals.daily);
 
-    setText('week-count', state.weeklyProgress); 
+    setText('week-count', state.weeklyProgress);
     setText('week-target', state.goals.weekly);
     updateCircularProgress('week-progress', state.weeklyProgress, state.goals.weekly);
 
@@ -437,7 +444,7 @@ function updateUI() {
     updateTasksChartDataOnly();
 
     updatePomodoroUI(); // Esta função agora também atualiza o título da aba
-    renderTasks(); 
+    renderTasks();
     updateScrollIndicator();
 }
 
@@ -447,6 +454,8 @@ function updateDailyRecord() {
         state.dailyRecord.value = state.todayCount;
         state.dailyRecord.date = todayLocaleDate;
     } else if (state.dailyRecord.date === todayLocaleDate && state.todayCount < state.dailyRecord.value) {
+        // Se a data do recorde é hoje, mas o contador atual é menor, atualiza o recorde para o valor atual.
+        // Isso acontece se o usuário diminuir o contador no mesmo dia após ter atingido um recorde.
         state.dailyRecord.value = state.todayCount;
     }
 }
@@ -466,10 +475,10 @@ function incrementToday() {
     checkAllResets();
     const step = getStepValue();
     state.todayCount += step;
-    state.weeklyProgress += step; 
+    state.weeklyProgress += step;
     state.monthlyProgress += step;
     state.yearlyProgress += step;
-    
+
     if(state.weeklyActivityData && state.weeklyActivityData.length === 7) {
         state.weeklyActivityData[6] += step;
     }
@@ -493,7 +502,7 @@ function decrementToday() {
         state.weeklyProgress = Math.max(0, state.weeklyProgress - actualDecrementAmount);
         state.monthlyProgress = Math.max(0, state.monthlyProgress - actualDecrementAmount);
         state.yearlyProgress = Math.max(0, state.yearlyProgress - actualDecrementAmount);
-        
+
         if(state.weeklyActivityData && state.weeklyActivityData.length === 7) {
              state.weeklyActivityData[6] = Math.max(0, state.weeklyActivityData[6] - actualDecrementAmount);
         }
@@ -514,9 +523,9 @@ function updatePeakActivity() {
         state.peakActivity = { dayName: "-", questions: 0 };
         return;
     }
-    
+
     state.weeklyActivityData.forEach((count, index) => {
-        const numCount = Number(count); 
+        const numCount = Number(count);
         if (!isNaN(numCount) && numCount >= maxQuestions) {
             maxQuestions = numCount;
             peakDayOriginalIndex = index;
@@ -547,13 +556,13 @@ function updateStreak() {
     let streakData;
     try {
         streakData = streakDataString ? JSON.parse(streakDataString) : { current: 0, lastValidDate: null, history: {} };
-        if (typeof streakData.current !== 'number' || isNaN(streakData.current) || streakData.current < 0) streakData.current = 0; 
+        if (typeof streakData.current !== 'number' || isNaN(streakData.current) || streakData.current < 0) streakData.current = 0;
         if (typeof streakData.history !== 'object' || streakData.history === null) streakData.history = {};
     } catch (e) {
         console.error("Error parsing streak data from localStorage:", e);
         streakData = { current: 0, lastValidDate: null, history: {} };
     }
-    
+
     const goalMetToday = todayQuestions >= dailyGoal && dailyGoal > 0;
     const wasGoalMetForTodayInHistory = streakData.history[todayISO] !== undefined && Number(streakData.history[todayISO]) >= dailyGoal;
 
@@ -561,7 +570,7 @@ function updateStreak() {
         if (!wasGoalMetForTodayInHistory) {
             addDayToStreak(streakData, todayISO, todayQuestions);
         }
-        streakData.history[todayISO] = todayQuestions; 
+        streakData.history[todayISO] = todayQuestions;
     } else {
         if (wasGoalMetForTodayInHistory) {
             removeDayFromStreak(streakData, todayISO);
@@ -584,7 +593,7 @@ function updateStreak() {
         streakData.current = 1;
         streakData.lastValidDate = todayISO;
     }
-    
+
     state.currentStreak.days = streakData.current;
     state.currentStreak.lastCompletionDate = streakData.lastValidDate;
     state.currentStreak.history = streakData.history;
@@ -620,10 +629,13 @@ function removeDayFromStreak(streakData, dateISO) {
             const yesterday = new Date(dateISO);
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayISO = yesterday.toISOString().split('T')[0];
-            if (streakData.history[yesterdayISO] && Number(streakData.history[yesterdayISO]) >= state.goals.daily) { 
+            if (streakData.history[yesterdayISO] && Number(streakData.history[yesterdayISO]) >= state.goals.daily) {
                  streakData.lastValidDate = yesterdayISO;
             } else {
-                 streakData.lastValidDate = yesterdayISO; 
+                 // Se o dia anterior não cumpriu a meta, precisamos recalcular o streak
+                 // Esta parte pode ficar complexa, por simplicidade, vamos resetar se o dia anterior não cumpriu
+                 // Ou, melhor, apenas definir lastValidDate para o dia anterior e deixar a próxima chamada de updateStreak resolver
+                 streakData.lastValidDate = yesterdayISO;
             }
         }
     }
@@ -749,7 +761,7 @@ function applyCurrentThemeAndMode() {
     setupTasksChart(false);
 
     updatePomodoroUI();
-    renderTasks(); 
+    renderTasks();
     updateThemeModalButtons();
 }
 
@@ -775,7 +787,7 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
         gradient.addColorStop(1, 'rgba(0,122,255,0)');
         console.warn("Chart gradient color fallback used for:", canvasId, e);
     }
-    
+
     const dayLabels = getLast7DayLabels();
 
     return new Chart(ctx, {
@@ -807,11 +819,11 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
                 y: {
                     beginAtZero: true,
                     grid: { color: gridColor, drawBorder: false },
-                    ticks: { color: textColor, precision: 0, callback: dataFormatter }, 
+                    ticks: { color: textColor, precision: 0, callback: dataFormatter },
                     title: { display: true, text: yAxisLabel, color: textColor, font: { size: 10 } },
-                    afterDataLimits: (axis) => { 
+                    afterDataLimits: (axis) => {
                         if (axis.max === 0 && axis.min === 0) {
-                            axis.max = (yAxisLabel.toLowerCase().includes("minutos")) ? 10 : 1; 
+                            axis.max = (yAxisLabel.toLowerCase().includes("minutos")) ? 10 : 1;
                         }
                     }
                 },
@@ -842,8 +854,8 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
 // Funções específicas de setup de gráficos
 function setupChart(animateInitialRender = true) {
     if (weeklyChartInstance) weeklyChartInstance.destroy();
-    const data = (window.state && Array.isArray(window.state.weeklyActivityData) && window.state.weeklyActivityData.length === 7) 
-                ? window.state.weeklyActivityData 
+    const data = (window.state && Array.isArray(window.state.weeklyActivityData) && window.state.weeklyActivityData.length === 7)
+                ? window.state.weeklyActivityData
                 : [0,0,0,0,0,0,0];
 
     weeklyChartInstance = createChartConfig('weeklyActivityChart', data, 'Questões', 'Nº de Questões', 'Questões');
@@ -865,12 +877,12 @@ function updateWeeklyChartDataOnly() {
 
 function setupPomodoroChart(animateInitialRender = true) {
     if (pomodoroChartInstance) pomodoroChartInstance.destroy();
-     const data = (state.pomodoro && Array.isArray(state.pomodoro.dailyFocusData) && state.pomodoro.dailyFocusData.length === 7) 
-                ? state.pomodoro.dailyFocusData 
-                : [0,0,0,0,0,0,0]; 
+     const data = (state.pomodoro && Array.isArray(state.pomodoro.dailyFocusData) && state.pomodoro.dailyFocusData.length === 7)
+                ? state.pomodoro.dailyFocusData
+                : [0,0,0,0,0,0,0];
     pomodoroChartInstance = createChartConfig(
         'weeklyPomodoroFocusChart', data, 'Tempo de Foco', 'Minutos de Foco', 'Foco',
-        (value) => value.toFixed(0) + ' min' 
+        (value) => value.toFixed(0) + ' min'
     );
     if(pomodoroChartInstance) pomodoroChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
 }
@@ -890,8 +902,8 @@ function updatePomodoroChartDataOnly() {
 
 function setupTasksChart(animateInitialRender = true) {
     if (tasksChartInstance) tasksChartInstance.destroy();
-    const data = (Array.isArray(state.dailyTaskCompletionData) && state.dailyTaskCompletionData.length === 7) 
-                ? state.dailyTaskCompletionData 
+    const data = (Array.isArray(state.dailyTaskCompletionData) && state.dailyTaskCompletionData.length === 7)
+                ? state.dailyTaskCompletionData
                 : [0,0,0,0,0,0,0];
     tasksChartInstance = createChartConfig('weeklyTasksCompletedChart', data, 'Tarefas Concluídas', 'Nº de Tarefas', 'Tarefas');
     if(tasksChartInstance) tasksChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
@@ -932,7 +944,7 @@ function initStreak() {
             localStorage.removeItem('taskify-streak');
         }
     }
-    
+
     state.currentStreak.days = initialStreakDays;
     state.currentStreak.lastCompletionDate = initialLastCompletionDate;
     state.currentStreak.history = initialHistory;
@@ -943,7 +955,7 @@ function initStreak() {
         history: state.currentStreak.history
     };
     localStorage.setItem('taskify-streak', JSON.stringify(currentStreakDataToStore));
-    
+
     updateStreak();
     updateStreakUI();
 }
@@ -991,16 +1003,16 @@ function updatePomodoroUI() {
             startBtn.classList.add('break-mode');
             if(timerDisplay) timerDisplay.classList.add('break-mode');
         }
-        
+
         if (!pomodoro.timerRunning) {
-            const isAtFullDurationForCurrentMode = pomodoro.currentTime === 
+            const isAtFullDurationForCurrentMode = pomodoro.currentTime ===
                 (pomodoro.mode === 'focus' ? pomodoro.focusDuration :
                 (pomodoro.mode === 'shortBreak' ? pomodoro.shortBreakDuration :
                  pomodoro.longBreakDuration));
             startBtn.textContent = isAtFullDurationForCurrentMode ? 'Iniciar' : 'Continuar';
         }
     }
-    
+
     // Atualização do título da aba
     if (pomodoro.timerRunning) {
         document.title = `${formatTime(pomodoro.currentTime)} - ${pomodoro.mode === 'focus' ? 'Foco' : 'Pausa'} | Taskify`;
@@ -1011,7 +1023,7 @@ function updatePomodoroUI() {
 }
 
 function playSound(soundElement) {
-    if (!soundElement) { 
+    if (!soundElement) {
         console.warn("playSound: soundElement é nulo ou indefinido.");
         return;
     }
@@ -1024,8 +1036,6 @@ function playSound(soundElement) {
             })
             .catch(error => {
                 console.warn(`TASKIFY_SOUND: Erro ao tocar som ${soundElement.id}:`, error);
-                // Não mostra alerta aqui para não ser intrusivo a cada tentativa de play que falha
-                // O usuário pode precisar interagir com a página primeiro para habilitar sons.
             });
     } else {
         console.warn(`playSound: ${soundElement.id} não tem uma função play.`);
@@ -1033,7 +1043,6 @@ function playSound(soundElement) {
 }
 
 function handlePomodoroTick() {
-    // console.log("TASKIFY_POMO: Tick! CurrentTime:", state.pomodoro.currentTime, "Running:", state.pomodoro.timerRunning);
     if (!state.pomodoro.timerRunning) return;
 
     state.pomodoro.currentTime--;
@@ -1042,29 +1051,29 @@ function handlePomodoroTick() {
         console.log("TASKIFY_POMO: Fim do ciclo detectado em handlePomodoroTick.");
         handlePomodoroCycleEnd();
     } else {
-        updatePomodoroUI(); // Atualiza o título da aba com o tempo
+        updatePomodoroUI();
     }
 }
 
 function handlePomodoroCycleEnd() {
     console.log("TASKIFY_POMO: handlePomodoroCycleEnd iniciado. Modo encerrado:", state.pomodoro.mode);
     const endedMode = state.pomodoro.mode;
-    let actualDurationSeconds = 0; 
+    let actualDurationSeconds = 0;
 
     if (endedMode === 'focus') {
-        actualDurationSeconds = state.pomodoro.focusDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime); 
+        actualDurationSeconds = state.pomodoro.focusDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime);
     } else if (endedMode === 'shortBreak') {
         actualDurationSeconds = state.pomodoro.shortBreakDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime);
     } else { // longBreak
         actualDurationSeconds = state.pomodoro.longBreakDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime);
     }
-    actualDurationSeconds = Math.max(0, actualDurationSeconds); 
+    actualDurationSeconds = Math.max(0, actualDurationSeconds);
     console.log(`TASKIFY_POMO: Duração real do ciclo de ${endedMode}: ${actualDurationSeconds}s`);
 
 
     if (endedMode === 'focus' && actualDurationSeconds > 0) {
         if(state.pomodoro.dailyFocusData && state.pomodoro.dailyFocusData.length === 7) {
-            state.pomodoro.dailyFocusData[6] += Math.round(actualDurationSeconds / 60); 
+            state.pomodoro.dailyFocusData[6] += Math.round(actualDurationSeconds / 60);
             console.log("TASKIFY_POMO: dailyFocusData[6] atualizado para:", state.pomodoro.dailyFocusData[6]);
         }
         logPomodoroSession(endedMode, actualDurationSeconds);
@@ -1072,12 +1081,12 @@ function handlePomodoroCycleEnd() {
     }
 
     state.pomodoro.timerRunning = false;
-    if (pomodoroInterval) { // Limpa o intervalo ANTES de qualquer lógica que possa reiniciá-lo
+    if (pomodoroInterval) {
         clearInterval(pomodoroInterval);
         pomodoroInterval = null;
         console.log("TASKIFY_POMO: Timer parado e intervalo limpo em handlePomodoroCycleEnd.");
     }
-    
+
     let nextModeMessage = "";
 
     if (endedMode === 'focus') {
@@ -1111,9 +1120,9 @@ function handlePomodoroCycleEnd() {
         nextModeMessage = "Hora de focar!";
         console.log("TASKIFY_POMO: Próximo modo: focus");
     }
-    state.pomodoro.lastModeEnded = endedMode; // Define o modo que acabou de terminar
+    state.pomodoro.lastModeEnded = endedMode;
 
-    updatePomodoroUI(); // Atualiza a UI, incluindo o título da aba
+    updatePomodoroUI();
     saveState();
 
     showCustomAlert(
@@ -1127,8 +1136,8 @@ function handlePomodoroCycleEnd() {
                     pomodoroSectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 100);
             }
-            
-            const currentEndedMode = state.pomodoro.lastModeEnded; // Usa o estado mais recente
+
+            const currentEndedMode = state.pomodoro.lastModeEnded;
             if ((currentEndedMode === 'focus' && state.pomodoro.autoStartBreaks) ||
                 ((currentEndedMode === 'shortBreak' || currentEndedMode === 'longBreak') && state.pomodoro.autoStartFocus)) {
                 console.log("TASKIFY_POMO: Iniciando próximo ciclo automaticamente após alerta.");
@@ -1147,9 +1156,9 @@ function startPomodoro() {
         console.log("TASKIFY_POMO: Timer já rodando, retornando.");
         return;
     }
-    checkAllResets(); 
+    checkAllResets();
     state.pomodoro.timerRunning = true;
-    state.pomodoro.lastModeEnded = null; 
+    state.pomodoro.lastModeEnded = null;
 
     if (pomodoroInterval) {
         console.log("TASKIFY_POMO: Limpando intervalo existente em startPomodoro. ID:", pomodoroInterval);
@@ -1157,7 +1166,7 @@ function startPomodoro() {
     }
     pomodoroInterval = setInterval(handlePomodoroTick, 1000);
     console.log("TASKIFY_POMO: Novo intervalo definido. ID:", pomodoroInterval);
-    
+
     updatePomodoroUI();
     saveState();
 }
@@ -1167,7 +1176,7 @@ function pausePomodoro() {
     state.pomodoro.timerRunning = false;
     clearInterval(pomodoroInterval);
     pomodoroInterval = null;
-    updatePomodoroUI(); // Atualiza o título da aba para mostrar a porcentagem
+    updatePomodoroUI();
     saveState();
 }
 
@@ -1179,10 +1188,10 @@ function resetPomodoro() {
     if (wasRunning && endedMode === 'focus') {
         let timeSpentSeconds = 0;
         if(state.pomodoro.mode === 'focus') timeSpentSeconds = state.pomodoro.focusDuration - timeRemaining;
-        
+
         if (timeSpentSeconds > 0) {
             if(state.pomodoro.dailyFocusData && state.pomodoro.dailyFocusData.length === 7) {
-                state.pomodoro.dailyFocusData[6] += Math.round(timeSpentSeconds / 60); 
+                state.pomodoro.dailyFocusData[6] += Math.round(timeSpentSeconds / 60);
             }
             logPomodoroSession(endedMode, timeSpentSeconds);
         }
@@ -1193,12 +1202,11 @@ function resetPomodoro() {
     pomodoroInterval = null;
     state.pomodoro.lastModeEnded = null;
 
-    // Reseta currentTime para a duração do modo atual, não necessariamente foco
     if (state.pomodoro.mode === 'focus') state.pomodoro.currentTime = state.pomodoro.focusDuration;
     else if (state.pomodoro.mode === 'shortBreak') state.pomodoro.currentTime = state.pomodoro.shortBreakDuration;
     else if (state.pomodoro.mode === 'longBreak') state.pomodoro.currentTime = state.pomodoro.longBreakDuration;
-    
-    updatePomodoroUI(); // Atualiza a UI, incluindo o título da aba
+
+    updatePomodoroUI();
     updatePomodoroChartDataOnly();
     saveState();
 }
@@ -1213,8 +1221,8 @@ function openPomodoroSettingsModal() {
         document.getElementById('pomodoro-cycles-before-long-break-input').value = state.pomodoro.cyclesBeforeLongBreak;
         document.getElementById('pomodoro-auto-start-breaks-checkbox').checked = state.pomodoro.autoStartBreaks;
         document.getElementById('pomodoro-auto-start-focus-checkbox').checked = state.pomodoro.autoStartFocus;
-        document.getElementById('pomodoro-enable-sound-checkbox').checked = state.pomodoro.enableSound; 
-        
+        document.getElementById('pomodoro-enable-sound-checkbox').checked = state.pomodoro.enableSound;
+
         overlay.classList.add('show');
         modal.classList.add('show');
         document.body.classList.add('modal-open');
@@ -1238,9 +1246,9 @@ function savePomodoroSettings() {
     const cyclesBeforeLongBreak = parseInt(document.getElementById('pomodoro-cycles-before-long-break-input').value);
     const autoStartBreaks = document.getElementById('pomodoro-auto-start-breaks-checkbox').checked;
     const autoStartFocus = document.getElementById('pomodoro-auto-start-focus-checkbox').checked;
-    const enableSound = document.getElementById('pomodoro-enable-sound-checkbox').checked; 
+    const enableSound = document.getElementById('pomodoro-enable-sound-checkbox').checked;
 
-    if (isNaN(focusDuration) || focusDuration < 60 || 
+    if (isNaN(focusDuration) || focusDuration < 60 ||
         isNaN(shortBreakDuration) || shortBreakDuration < 60 ||
         isNaN(longBreakDuration) || longBreakDuration < 60 ||
         isNaN(cyclesBeforeLongBreak) || cyclesBeforeLongBreak < 1) {
@@ -1254,7 +1262,7 @@ function savePomodoroSettings() {
     state.pomodoro.cyclesBeforeLongBreak = cyclesBeforeLongBreak;
     state.pomodoro.autoStartBreaks = autoStartBreaks;
     state.pomodoro.autoStartFocus = autoStartFocus;
-    state.pomodoro.enableSound = enableSound; 
+    state.pomodoro.enableSound = enableSound;
 
     if (!state.pomodoro.timerRunning) {
         if (state.pomodoro.mode === 'focus') state.pomodoro.currentTime = state.pomodoro.focusDuration;
@@ -1273,7 +1281,7 @@ function logPomodoroSession(type, durationInSeconds) {
     const session = {
         startTime: new Date(Date.now() - durationInSeconds * 1000).toISOString(),
         endTime: new Date().toISOString(),
-        duration: durationInSeconds, 
+        duration: durationInSeconds,
         type: type
     };
     state.pomodoro.sessions.push(session);
@@ -1305,7 +1313,7 @@ function renderTasks() {
     const taskList = document.getElementById('task-list');
     if (!taskList) return;
 
-    taskList.innerHTML = ''; 
+    taskList.innerHTML = '';
 
     if (state.tasks.length === 0) {
         const emptyTaskMessage = document.createElement('li');
@@ -1318,6 +1326,12 @@ function renderTasks() {
             li.className = 'task-item';
             if (task.completed) li.classList.add('completed');
             li.dataset.taskId = task.id;
+            li.setAttribute('draggable', 'true'); // Habilita arrastar
+
+            // Adiciona listeners de drag para cada item
+            li.addEventListener('dragstart', handleDragStart);
+            li.addEventListener('dragend', handleDragEnd);
+
 
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
@@ -1355,7 +1369,7 @@ function updateTasksCounter() {
 
 function addTask(event) {
     event.preventDefault();
-    checkAllResets(); 
+    checkAllResets();
     const taskInput = document.getElementById('task-input');
     const taskText = taskInput.value.trim();
 
@@ -1364,15 +1378,15 @@ function addTask(event) {
         return;
     }
     const newTask = {
-        id: Date.now().toString(), 
+        id: Date.now().toString(),
         text: taskText,
         completed: false,
         createdAt: new Date().toISOString(),
         completionDate: null
     };
     state.tasks.push(newTask);
-    taskInput.value = ''; 
-    renderTasks(); 
+    taskInput.value = '';
+    renderTasks();
     saveState();
 }
 
@@ -1391,8 +1405,8 @@ function toggleTaskComplete(taskId) {
             const checkbox = taskElement.querySelector('.task-item-checkbox');
             if (checkbox) checkbox.checked = task.completed;
         }
-        
-        updateTasksCounter(); 
+
+        updateTasksCounter();
 
         if(state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7) {
             if (task.completed && !wasCompleted) state.dailyTaskCompletionData[6]++;
@@ -1409,15 +1423,15 @@ function deleteTask(taskId) {
     if (taskIndex > -1) {
         const deletedTask = state.tasks[taskIndex];
         const todayStr = new Date().toDateString();
-        
-        state.tasks.splice(taskIndex, 1); 
+
+        state.tasks.splice(taskIndex, 1);
 
         const taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
         if (taskElement) {
             taskElement.remove();
         }
-        
-        updateTasksCounter(); 
+
+        updateTasksCounter();
 
         if (deletedTask.completed && deletedTask.completionDate) {
             try {
@@ -1428,8 +1442,8 @@ function deleteTask(taskId) {
                 }
             } catch(e) { console.error("Erro ao processar data de conclusão da tarefa deletada:", e); }
         }
-        
-        if (state.tasks.length === 0) { 
+
+        if (state.tasks.length === 0) {
             renderTasks();
         }
 
@@ -1438,11 +1452,119 @@ function deleteTask(taskId) {
     }
 }
 
+// --- Funções de Drag and Drop para Tarefas ---
+function handleDragStart(e) {
+    draggedItem = e.target;
+    e.dataTransfer.effectAllowed = 'move';
+    // Não precisa de setData se a referência ao 'draggedItem' for suficiente
+    // e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
+    setTimeout(() => { // Dá tempo para o navegador renderizar o "fantasma" antes de aplicar a classe
+        if (draggedItem) draggedItem.classList.add('dragging');
+    }, 0);
+}
+
+function handleDragEnd(e) {
+    if (draggedItem) {
+        draggedItem.classList.remove('dragging');
+    }
+    draggedItem = null;
+    // Remover placeholders, se usados
+    document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
+}
+
+function handleDragOver(e) {
+    e.preventDefault(); // Necessário para permitir o drop
+    const taskList = document.getElementById('task-list');
+    const afterElement = getDragAfterElement(taskList, e.clientY);
+
+    // Remover placeholder antigo (se existir)
+    const existingPlaceholder = taskList.querySelector('.drag-over-placeholder');
+    if (existingPlaceholder) {
+        existingPlaceholder.remove();
+    }
+
+    // Adicionar novo placeholder visual (opcional, mas bom para UX)
+    const placeholder = document.createElement('li');
+    placeholder.classList.add('drag-over-placeholder');
+    if (afterElement == null) {
+        taskList.appendChild(placeholder);
+    } else {
+        taskList.insertBefore(placeholder, afterElement);
+    }
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    if (!draggedItem) return;
+
+    const taskList = document.getElementById('task-list');
+    const draggedItemId = draggedItem.dataset.taskId;
+
+    // Encontra o índice original do item arrastado
+    const originalIndex = state.tasks.findIndex(task => task.id === draggedItemId);
+    if (originalIndex === -1) {
+        console.error("Tarefa arrastada não encontrada no estado.");
+        draggedItem.classList.remove('dragging'); // Limpeza
+        draggedItem = null;
+        document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
+        return;
+    }
+
+    // Remove o item do array state.tasks
+    const [movedTask] = state.tasks.splice(originalIndex, 1);
+
+    // Determina a nova posição
+    const afterElement = getDragAfterElement(taskList, e.clientY);
+    let newIndex;
+
+    if (afterElement) {
+        const afterElementId = afterElement.dataset.taskId;
+        newIndex = state.tasks.findIndex(task => task.id === afterElementId);
+    } else {
+        // Se não houver 'afterElement', significa que deve ser adicionado ao final
+        newIndex = state.tasks.length;
+    }
+
+    // Insere o item na nova posição
+    state.tasks.splice(newIndex, 0, movedTask);
+
+    // Limpeza e re-renderização
+    draggedItem.classList.remove('dragging');
+    draggedItem = null;
+    document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
+
+    renderTasks(); // Re-renderiza a lista com a nova ordem
+    saveState();
+}
+
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.task-item:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
 
 function initTasks() {
     const taskForm = document.getElementById('task-form');
     if (taskForm) taskForm.addEventListener('submit', addTask);
-    renderTasks(); 
+
+    const taskList = document.getElementById('task-list');
+    if (taskList) {
+        taskList.addEventListener('dragover', handleDragOver);
+        taskList.addEventListener('drop', handleDrop);
+        // Listeners 'dragstart' e 'dragend' são adicionados aos 'li' em renderTasks()
+    }
+
+    renderTasks();
 }
 
 // --- Funções de Temas e Aparência ---
@@ -1580,7 +1702,7 @@ function showCustomAlert(message, title = 'Alerta', onConfirmCallback = null) {
             onConfirmCallback();
         }
     };
-    
+
     const closeAlertOnOverlay = (event) => {
         if (event.target === alertOverlay) {
             closeAlert();
@@ -1686,7 +1808,7 @@ function updateScrollIndicator() {
     if (statsGrid) firstPageContentHeight += statsGrid.offsetHeight + parseInt(getComputedStyle(statsGrid).marginBottom || '0');
     if (bottomCards) firstPageContentHeight += bottomCards.offsetHeight + parseInt(getComputedStyle(bottomCards).marginBottom || '0');
     if (activitySection) firstPageContentHeight += activitySection.offsetHeight + parseInt(getComputedStyle(activitySection).marginBottom || '0');
-    
+
     const hasSecondPageContent = productivityArea.offsetHeight > 50;
     const contentEntryThreshold = firstPageContentHeight * 0.20;
     const indicatorHideThreshold = firstPageContentHeight * 0.60;
@@ -1724,27 +1846,27 @@ async function init() {
     initThemes();
     checkAllResets();
     initStreak();
-    initPomodoro(); 
-    initTasks();
+    initPomodoro();
+    initTasks(); // Agora inicializa os listeners de drag and drop para a lista de tarefas
 
     await loadAndSetupRetrospective();
 
     updateFooterYear();
 
     if (weeklyChartInstance) weeklyChartInstance.destroy();
-    setupChart(true); 
+    setupChart(true);
     if (pomodoroChartInstance) pomodoroChartInstance.destroy();
     setupPomodoroChart(true);
     if (tasksChartInstance) tasksChartInstance.destroy();
     setupTasksChart(true);
-    
+
     updateUI();
 
     const goalsForm = document.getElementById('goals-form');
     if (goalsForm) goalsForm.addEventListener('submit', (e) => { e.preventDefault(); saveGoals(); });
     const goalsOverlay = document.getElementById('goals-modal-overlay');
     if (goalsOverlay) goalsOverlay.addEventListener('click', closeGoalsModal);
-    
+
     const btnResetAppData = document.getElementById('btn-reset-app-data');
     if (btnResetAppData) btnResetAppData.addEventListener('click', handleResetAppData);
 
@@ -1774,7 +1896,7 @@ async function init() {
 
     window.taskifyStateReady = true;
     console.log("TASKIFY_MAIN: Disparando evento 'taskifyStateReady'. Estado enviado:", JSON.parse(JSON.stringify(window.state || {})));
-    document.dispatchEvent(new CustomEvent('taskifyStateReady', { 
+    document.dispatchEvent(new CustomEvent('taskifyStateReady', {
         detail: { taskifyAppState: JSON.parse(JSON.stringify(window.state || {})) }
     }));
     console.log("TASKIFY_MAIN: Evento 'taskifyStateReady' disparado.");
@@ -1956,7 +2078,7 @@ async function loadAndSetupRetrospective() {
             const htmlContent = await response.text();
             retrospectiveModalEl.innerHTML = htmlContent;
             console.log("TASKIFY_MAIN: retrospective.html carregado e injetado.");
-            
+
             if (typeof window.initializeRetrospectiveInternals === 'function') {
                 window.initializeRetrospectiveInternals();
                 console.log("TASKIFY_MAIN: window.initializeRetrospectiveInternals() chamada com sucesso.");
