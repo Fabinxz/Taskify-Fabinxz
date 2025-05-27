@@ -28,7 +28,7 @@
     width: 95vw;
     max-width: 700px;
     height: 90vh;
-    max-height: 780px;
+    max-height: 780px; /* Limite máximo de altura para desktops maiores */
     background: #121212;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
@@ -36,13 +36,13 @@
     z-index: 2000;
     opacity: 0;
     transition: opacity 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-    overflow: hidden;
+    overflow: hidden; /* Importante: o scroll deve ser no .retrospective-screen */
     color: #FFFFFF;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 .retrospective-modal.show {
-    display: flex; /* Alterado para flex para consistência, já que .retrospective-screen é flex */
+    display: flex; 
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
 }
@@ -79,11 +79,11 @@ body.light .retrospective-modal {
 
 .retrospective-screen {
     width: 100%;
-    height: 100%;
+    height: 100%; /* Ocupa toda a altura do modal */
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: space-around; /* Pode ser 'center' se o wrapper + botões devem ser um bloco centralizado */
+    align-items: center; /* Centraliza horizontalmente o conteúdo se ele for mais estreito */
+    justify-content: center; /* Padrão: centraliza verticalmente o conteúdo */
     padding: 30px 40px;
     box-sizing: border-box;
     position: absolute;
@@ -92,11 +92,14 @@ body.light .retrospective-modal {
     opacity: 0;
     visibility: hidden;
     transform-origin: center center;
+    overflow-y: auto; /* Permite scroll vertical DENTRO da tela se o conteúdo exceder */
+    -webkit-overflow-scrolling: touch; /* Melhora a experiência de scroll em iOS */
 }
 
 #retrospective-final-screen.retrospective-screen {
-    overflow-y: auto;
-    justify-content: flex-start; /* Final screen é para scroll */
+    justify-content: flex-start; /* Para a tela final, o conteúdo começa do topo para permitir scroll */
+    /* align-items: center; herdado */
+    /* overflow-y: auto; herdado */
 }
 
 
@@ -128,15 +131,15 @@ body.light .retrospective-modal {
 
 .retrospective-content-wrapper {
     width: 100%;
-    max-width: 100%;
+    max-width: 100%; 
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Padrão para centralizar conteúdo interno */
-    flex-grow: 1; /* Para ocupar espaço vertical */
-    padding: 10px 0;
-    overflow: visible;
+    justify-content: center; 
+    flex-grow: 1; /* Ocupa o espaço vertical disponível na tela */
+    padding: 10px 0; /* Pequeno respiro vertical */
+    flex-shrink: 0; /* Não permite que o wrapper encolha se o conteúdo for pequeno demais */
 }
 .retrospective-text-center {
     text-align: center;
@@ -151,11 +154,11 @@ body.light .retrospective-modal {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Para melhor centralização do conteúdo do card */
+    justify-content: center;
     gap: 25px;
     width: 100%;
     max-width: 450px;
-    flex-grow: 1; /* Para que o card também possa usar o espaço */
+    flex-grow: 1; 
 }
 body.light .retrospective-selection-card {
     background: transparent;
@@ -359,13 +362,13 @@ body.light .retrospective-start-button:disabled {
 
 
 /* Tela de Introdução */
-.retrospective-intro-content { /* Este já está no .retrospective-content-wrapper que tem justify-content: center */
+.retrospective-intro-content { 
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Redundante se o wrapper pai já faz, mas não prejudica */
-    height: 100%; /* Garante que o conteúdo interno possa ser centralizado se o wrapper tiver altura */
+    justify-content: center; 
+    height: 100%; 
 }
 
 @keyframes pulseStar {
@@ -443,14 +446,13 @@ body.light .retrospective-intro-button:hover {
 
 /* Tela de Estatísticas Principais ("Brilharam!") */
 #retrospective-main-stats-screen .retrospective-content-wrapper {
-    justify-content: center; /* AJUSTADO de space-around para melhor centralização vertical */
-    /* flex-grow: 1; é herdado da classe base .retrospective-content-wrapper */
+    justify-content: center;
 }
 
 .retrospective-screen-title {
     font-size: 38px;
     font-weight: 700;
-    margin-bottom: 20px; /* Pode precisar ajustar se o conteúdo ficar muito próximo ao topo/baixo */
+    margin-bottom: 20px; 
     text-align: center;
     display: flex;
     align-items: center;
@@ -474,7 +476,7 @@ body.light .retrospective-screen-title {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
-    margin-bottom: 20px; /* Espaço antes do botão de navegação */
+    margin-bottom: 20px; 
     width: 100%;
     max-width: 600px;
     justify-content: center;
@@ -574,7 +576,7 @@ body.light .retrospective-stat-label { color: var(--text-muted-light); }
     background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
     color: white;
     margin-top: 25px;
-    margin-bottom: 10px;
+    margin-bottom: 10px; /* Espaço para o final da tela, se for o último elemento */
 }
 body.light .retrospective-navigation-button {
     background: linear-gradient(135deg, var(--primary-color-light) 0%, var(--primary-color-light) 100%);
@@ -586,7 +588,7 @@ body.light .retrospective-navigation-button {
 
 /* Tela Dia Mais Produtivo */
 #retrospective-productive-day-screen .retrospective-content-wrapper {
-    justify-content: center; /* AJUSTADO de space-around para melhor centralização vertical */
+    justify-content: center; 
 }
 .retrospective-title-yellow {
     background: linear-gradient(135deg, #FCE205, #ffab00);
@@ -637,11 +639,7 @@ body.light .retrospective-motivational-text { color: var(--text-muted-light); }
 
 /* Tela Padrões de Tempo */
 #retrospective-time-patterns-screen .retrospective-content-wrapper {
-    /* Este usa space-between e é um grid em telas maiores,
-       'center' pode não ser o ideal para o wrapper dependendo do design.
-       Manterei 'center' como sugestão, mas pode precisar de ajustes finos
-       para o layout dos seus filhos (grid, chart, button). */
-    justify-content: center; /* AJUSTADO de space-between para tentativa de centralização */
+    justify-content: center; 
     gap: 20px;
     width: 100%;
     max-width: 600px;
@@ -654,7 +652,7 @@ body.light .retrospective-motivational-text { color: var(--text-muted-light); }
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
-    margin-bottom: 0; /* Ajustado já que o wrapper agora tem gap */
+    margin-bottom: 0; 
     width: 100%;
     align-items: stretch;
 }
@@ -676,7 +674,7 @@ body.light .retrospective-card-title { color: var(--text-color-light); }
     box-shadow: 0 0 15px rgba(37, 117, 252, 0.15);
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 0; /* Ajustado já que o wrapper agora tem gap */
+    margin-bottom: 0; 
     display: flex;
     flex-direction: column;
     min-height: 240px;
@@ -727,7 +725,7 @@ body.light .retrospective-weekday-bar:hover { filter: brightness(1.1) drop-shado
 body.light .retrospective-weekday-label { color: var(--text-muted-light); }
 
 #retrospective-time-patterns-next-button.retrospective-button-cyan {
-    margin-top: 25px !important; /* Mantido pois pode ser específico para este botão */
+    margin-top: 25px !important; 
     align-self: center;
     background: linear-gradient(135deg, #05F4F0, #00A9FF);
     box-shadow: 0 4px 15px rgba(5, 244, 240, 0.4);
@@ -739,7 +737,7 @@ body.light .retrospective-weekday-label { color: var(--text-muted-light); }
 
 /* Tela Comparação */
 #retrospective-comparison-screen .retrospective-content-wrapper {
-    justify-content: center; /* AJUSTADO de space-around para melhor centralização vertical */
+    justify-content: center; 
 }
 .retrospective-title-green {
     background: linear-gradient(135deg, #39FF14, #8EFF7B);
@@ -763,13 +761,13 @@ body.light .retrospective-comparison-percentage .retrospective-icon-red { color:
 
 
 /* --- ESTILOS DA TELA FINAL (SPOTIFY WRAPPED STYLE) --- */
-.retrospective-final-screen-spotify-style { /* Este é o .retrospective-screen */
-    padding: 20px;
+.retrospective-final-screen-spotify-style { 
+    padding: 20px; 
     background-color: var(--body-bg-dark); 
     color: var(--text-color-dark);
-    overflow-y: auto; 
-    position: relative;
-    justify-content: flex-start; 
+    /* justify-content: flex-start;  herdado de #retrospective-final-screen */
+    /* overflow-y: auto; herdado de .retrospective-screen */
+    /* align-items: center; herdado de .retrospective-screen */
 }
 body.light .retrospective-final-screen-spotify-style {
     background-color: var(--body-bg-light);
@@ -783,8 +781,7 @@ body.light .retrospective-final-screen-spotify-style {
     justify-content: space-between; 
     width: 100%;
     max-width: 380px;
-    height: auto; 
-    min-height: 580px; 
+    min-height: auto; /* Deixa o conteúdo ditar a altura */
     background: linear-gradient(160deg,
         rgba(var(--primary-color-dark-rgb), 0.3) 0%,
         rgba(var(--primary-color-dark-rgb), 0.1) 40%,
@@ -796,7 +793,8 @@ body.light .retrospective-final-screen-spotify-style {
     overflow: hidden; 
     box-sizing: border-box;
     position: relative; 
-    margin: auto 0; 
+    flex-shrink: 0; /* Para que não encolha se os botões de ação precisarem de espaço */
+    margin-bottom: 15px; /* Espaço antes dos botões de ação */
 }
 body.light .retrospective-final-content-wrapper {
     background: linear-gradient(160deg,
@@ -862,23 +860,19 @@ body.light .retrospective-final-main-title { text-shadow: 0 1px 3px rgba(0,0,0,0
 
 .retrospective-final-highlights {
     display: grid;
-    /* Se houver 3 itens, usarão 1fr cada. Se 2, 1fr 1fr. Se 1, 1fr. */
-    /* Para forçar a centralização quando menos de 3, usaremos justify-content no grid */
     grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-    /* Quando há poucos itens, para que não fiquem muito grandes: */
-    grid-auto-flow: column; /* Tenta preencher colunas primeiro */
-    justify-content: center; /* Centraliza os itens do grid se eles não preencherem todo o espaço */
+    grid-auto-flow: column; 
+    justify-content: center; 
     gap: clamp(8px, 1.5vw, 15px); 
     width: 100%;
     margin-bottom: clamp(20px, 4vh, 30px);
 }
 .retrospective-final-highlights[data-item-count="1"] {
-    grid-template-columns: minmax(120px, 0.6fr); /* Um item pode ser maior */
+    grid-template-columns: minmax(120px, 0.6fr); 
 }
 .retrospective-final-highlights[data-item-count="2"] {
-    grid-template-columns: repeat(2, minmax(100px, 1fr)); /* Dois itens podem ser um pouco maiores */
+    grid-template-columns: repeat(2, minmax(100px, 1fr)); 
 }
-/* Para 3 ou mais, o auto-fit com minmax deve funcionar bem, mas podemos forçar 3 */
 .retrospective-final-highlights[data-item-count="3"] {
     grid-template-columns: repeat(3, 1fr);
 }
@@ -1013,19 +1007,20 @@ body.light .retrospective-badge-achievement {
     color: rgba(255,255,255,0.6);
     padding-top: clamp(10px, 2vh, 18px);
     border-top: 1px solid rgba(255,255,255,0.1);
-    margin-top: auto; /* Garante que o footer fique na parte inferior se houver espaço */
+    margin-top: auto; 
 }
 body.light .retrospective-final-footer { color: rgba(0,0,0,0.5); border-top-color: rgba(0,0,0,0.08); }
 
-.retrospective-action-buttons-container { /* Container fora do card capturável */
+.retrospective-action-buttons-container { 
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 15px;
     width: 100%;
-    max-width: 350px;
-    margin-top: 20px; /* Espaço entre o card da retrospectiva e os botões */
-    padding-bottom: 10px;
+    max-width: 380px; /* Mantém a largura do card para consistência */
+    margin-top: 15px; 
+    padding-bottom: 20px; /* Mais espaço no final para scroll */
+    flex-shrink: 0; /* Não encolhe */
 }
 .retrospective-action-buttons {
     display: flex;
@@ -1099,7 +1094,7 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
 }
 
 
-.retrospective-final-close-x-btn { /* Botão X dentro do .retrospective-final-content-wrapper */
+.retrospective-final-close-x-btn { 
     position: absolute;
     top: 15px;
     right: 15px;
@@ -1115,7 +1110,7 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s;
-    z-index: 10; /* Acima do conteúdo do card */
+    z-index: 10; 
 }
 .retrospective-final-close-x-btn:hover {
     background: rgba(0,0,0,0.5);
@@ -1155,9 +1150,8 @@ body.light .retrospective-final-close-x-btn:hover {
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto auto 1fr auto;
         gap: 20px;
-        align-items: start; /* Mantido, pois 'center' no wrapper pode não ser ideal para um grid */
+        align-items: start; 
         height: 100%;
-        /* justify-content: center; /* Removido daqui pois o grid tem seu próprio alinhamento */
     }
     #retrospective-time-patterns-screen .retrospective-screen-title { grid-area: title; margin-bottom: 0;}
     #retrospective-time-patterns-screen .retrospective-time-patterns-grid { grid-area: grid; margin-bottom: 0; align-self: stretch; }
@@ -1178,34 +1172,44 @@ body.light .retrospective-final-close-x-btn:hover {
 
 @media (max-width: 700px) {
     .retrospective-modal {
-        max-width: 90vw;
-        padding: 15px; /* Reduzido padding do modal */
+        max-width: 95vw; 
+        padding: 10px; 
     }
     .retrospective-screen {
-        padding: 20px 15px; /* Reduzido padding das telas */
+        padding: 20px 10px; 
     }
     .retrospective-stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     }
     .retrospective-time-patterns-grid {
-        grid-template-columns: 1fr; /* Muda para coluna única */
+        grid-template-columns: 1fr; 
     }
     .retrospective-card-indigo {
         max-width: 100%;
+    }
+     .retrospective-final-content-wrapper {
+        /* min-height: 540px;  REMOVIDO - agora é auto */
+        padding: 20px 15px clamp(15px, 3vh, 20px) 15px; 
     }
 }
 
 @media (max-width: 600px) {
     .retrospective-modal {
-        height: 95vh;
-        max-height: none;
-        border-radius: 15px;
+        height: auto; /* Deixa o conteúdo interno ditar a altura */
+        min-height: 85vh; /* Garante uma altura mínima razoável */
+        max-height: 95vh; /* Limita para não cobrir tudo o notch/barra de status */
+        overflow-y: auto; /* Permite scroll no modal se o .retrospective-screen não conseguir conter */
+        border-radius: 12px; 
     }
     .retrospective-screen {
-        padding: 20px 15px;
-        justify-content: space-around; /* Mantém ou muda para 'center' se preferir */
+        padding: 15px 10px;
+        height: auto; /* Permite que a tela cresça com o conteúdo */
+        min-height: 100%; /* Tenta ocupar o espaço do modal */
     }
-    .retrospective-main-title { font-size: 28px; }
+   
+    .retrospective-main-title { font-size: 26px; } 
+    .retrospective-screen-title { font-size: 28px; margin-bottom: 15px; }
+
     .retrospective-stats-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
     .retrospective-stat-card { padding: 12px 8px; min-height: 170px; }
     .retrospective-icon-large { font-size: 36px; }
@@ -1214,22 +1218,21 @@ body.light .retrospective-final-close-x-btn:hover {
     .retrospective-badge { font-size: 11px; padding: 5px 8px; }
 
     .retrospective-final-screen-spotify-style {
-        padding: 10px;
+        padding: 10px 5px; /* Padding da tela final bem reduzido */
     }
     .retrospective-final-content-wrapper {
-        padding: 20px 15px clamp(15px, 3vh, 25px) 15px;
-        min-height: 540px;
+        /* min-height: 540px; REMOVIDO */
+        padding: 15px 10px clamp(10px, 2.5vh, 15px) 10px; 
+        border-radius: 12px;
     }
-    .retrospective-final-main-title { font-size: 24px; margin-bottom: 15px; }
-    /* A regra para .retrospective-final-highlights abaixo já lida com 1, 2 ou 3 itens */
+    .retrospective-final-main-title { font-size: 22px; margin-bottom: 12px; }
     .retrospective-final-highlights {
-        gap: 8px; 
-        margin-bottom: 15px;
-        /* grid-template-columns: repeat(3, 1fr);  Removido para dar prioridade às regras de data-item-count */
+        gap: 6px; 
+        margin-bottom: 12px;
     }
     .retrospective-final-highlight-item {
-        min-height: 85px; 
-        padding: clamp(8px, 1.5vh, 12px) clamp(5px, 1vw, 8px);
+        /* min-height: 85px; REMOVIDO */
+        padding: clamp(6px, 1.2vh, 10px) clamp(4px, 1vw, 6px);
     }
     .retrospective-final-highlight-value { font-size: clamp(16px, 3vh, 20px); }
     .retrospective-final-highlight-label { font-size: clamp(9px, 1.5vh, 11px); }
@@ -1238,15 +1241,60 @@ body.light .retrospective-final-close-x-btn:hover {
     .retrospective-final-other-stats { font-size: 12px; margin-bottom: 12px;}
     .retrospective-final-other-stat-item i { font-size: 15px; }
     .retrospective-badge-achievement { font-size: 10px; padding: 5px 10px; }
-    .retrospective-action-buttons-container { margin-top: 15px; gap: 10px;}
-    .retrospective-action-buttons { flex-direction: column; }
-    .retrospective-action-button { max-width: 100%; }
+    
+    .retrospective-action-buttons-container { 
+        margin-top: 10px; 
+        padding-bottom: 15px; /* Espaço para scroll */
+    }
+    .retrospective-action-buttons { 
+        flex-direction: column; 
+        gap: 10px;
+    }
+    .retrospective-action-button { 
+        max-width: 100%; 
+        font-size: 15px;
+    }
 
     .retrospective-final-close-x-btn {
-        top: 10px;
-        right: 10px;
-        width: 32px;
-        height: 32px;
-        font-size: 18px;
+        top: 8px;
+        right: 8px;
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
     }
+}
+
+/* Ajuste para telas muito pequenas (ex: iPhone SE) */
+@media (max-width: 380px) {
+    .retrospective-modal {
+        padding: 5px;
+        border-radius: 10px;
+    }
+    .retrospective-screen {
+        padding: 10px 5px;
+    }
+    .retrospective-main-title { font-size: 22px; }
+    .retrospective-screen-title { font-size: 24px; }
+    .retrospective-intro-title { font-size: 38px; }
+    .retrospective-intro-subtitle { font-size: 18px; margin-bottom: 30px; }
+    .retrospective-intro-icon-wrapper { width: 100px; height: 100px; margin-bottom: 25px; }
+    .retrospective-intro-icon-wrapper .retrospective-icon-large { font-size: 50px; }
+
+
+    .retrospective-final-screen-spotify-style {
+        padding: 5px 3px;
+    }
+    .retrospective-final-content-wrapper {
+        padding: 10px 8px clamp(8px, 2vh, 12px) 8px;
+        border-radius: 10px;
+    }
+    .retrospective-final-main-title { font-size: 20px; }
+    .retrospective-final-highlights { gap: 5px; }
+    .retrospective-final-highlight-value { font-size: clamp(14px, 2.8vh, 18px); }
+    .retrospective-final-highlight-label { font-size: clamp(8px, 1.3vh, 10px); }
+    .final-highlight-icon { font-size: clamp(12px, 2.2vh, 16px); }
+    .retrospective-final-other-stats { font-size: 11px; }
+    .retrospective-final-other-stat-item i { font-size: 14px; }
+    .retrospective-badge-achievement { font-size: 9px; padding: 4px 8px; }
+    .retrospective-action-button { font-size: 14px; }
 }
