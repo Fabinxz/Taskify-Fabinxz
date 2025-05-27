@@ -145,6 +145,23 @@ function formatUnit(value, singularUnit, pluralUnit) {
     return `${val} ${val === 1 ? singularUnit : pluralUnit}`;
 }
 
+function getTodayISO() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function formatDateToDDMMYYYY(isoDateString) {
+    if (!isoDateString) return '';
+    const dateParts = isoDateString.split('-'); // YYYY-MM-DD
+    if (dateParts.length === 3) {
+        return `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+    }
+    return isoDateString; // Retorna original se não estiver no formato esperado
+}
+
 
 // Gerenciamento de Estado (LocalStorage)
 function loadState() {
@@ -204,7 +221,12 @@ function loadState() {
             weeklyActivityData: (loadedState.weeklyActivityData && Array.isArray(loadedState.weeklyActivityData) && loadedState.weeklyActivityData.length === 7)
                 ? loadedState.weeklyActivityData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0))
                 : [...initialDefaultState.weeklyActivityData],
-            tasks: (loadedState.tasks && Array.isArray(loadedState.tasks)) ? loadedState.tasks : [...initialDefaultState.tasks],
+            tasks: (loadedState.tasks && Array.isArray(loadedState.tasks))
+                 ? loadedState.tasks.map(task => ({ 
+                    ...task,
+                    assignedDate: task.assignedDate || null
+                   }))
+                : [...initialDefaultState.tasks],
             dailyTaskCompletionData: (loadedState.dailyTaskCompletionData && Array.isArray(loadedState.dailyTaskCompletionData) && loadedState.dailyTaskCompletionData.length === 7)
                 ? loadedState.dailyTaskCompletionData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0))
                 : [...initialDefaultState.dailyTaskCompletionData],
@@ -293,21 +315,6 @@ function checkAllResets() {
             } catch (e) { return false; }
         });
     }
-
-    // REMOVIDO: Bloco que filtrava state.tasks por data.
-    // As tarefas agora persistem até serem deletadas manualmente.
-    /*
-    if (state.lastAccessDate !== todayStr) {
-        state.tasks = state.tasks.filter(task => {
-            if (task.completed && task.completionDate) {
-                try {
-                    return new Date(task.completionDate).toDateString() === todayStr;
-                } catch (e) { return false; }
-            }
-            return true;
-        });
-    }
-    */
 
     if (state.lastAccessDate !== prevLastAccessDate) {
         updateUI();
@@ -443,7 +450,7 @@ function updateUI() {
     updatePomodoroChartDataOnly();
     updateTasksChartDataOnly();
 
-    updatePomodoroUI(); // Esta função agora também atualiza o título da aba
+    updatePomodoroUI();
     renderTasks();
     updateScrollIndicator();
 }
@@ -454,8 +461,6 @@ function updateDailyRecord() {
         state.dailyRecord.value = state.todayCount;
         state.dailyRecord.date = todayLocaleDate;
     } else if (state.dailyRecord.date === todayLocaleDate && state.todayCount < state.dailyRecord.value) {
-        // Se a data do recorde é hoje, mas o contador atual é menor, atualiza o recorde para o valor atual.
-        // Isso acontece se o usuário diminuir o contador no mesmo dia após ter atingido um recorde.
         state.dailyRecord.value = state.todayCount;
     }
 }
@@ -487,7 +492,7 @@ function incrementToday() {
     updatePeakActivity();
     updateStreak();
     saveState();
-    updateUI(); // updateUI() já chama updatePomodoroUI() que atualiza o título
+    updateUI();
 }
 
 function decrementToday() {
@@ -511,7 +516,7 @@ function decrementToday() {
     updatePeakActivity();
     updateStreak();
     saveState();
-    updateUI(); // updateUI() já chama updatePomodoroUI() que atualiza o título
+    updateUI();
 }
 
 // Lógica de Pico de Atividade e Streak
@@ -632,9 +637,6 @@ function removeDayFromStreak(streakData, dateISO) {
             if (streakData.history[yesterdayISO] && Number(streakData.history[yesterdayISO]) >= state.goals.daily) {
                  streakData.lastValidDate = yesterdayISO;
             } else {
-                 // Se o dia anterior não cumpriu a meta, precisamos recalcular o streak
-                 // Esta parte pode ficar complexa, por simplicidade, vamos resetar se o dia anterior não cumpriu
-                 // Ou, melhor, apenas definir lastValidDate para o dia anterior e deixar a próxima chamada de updateStreak resolver
                  streakData.lastValidDate = yesterdayISO;
             }
         }
@@ -1013,7 +1015,6 @@ function updatePomodoroUI() {
         }
     }
 
-    // Atualização do título da aba
     if (pomodoro.timerRunning) {
         document.title = `${formatTime(pomodoro.currentTime)} - ${pomodoro.mode === 'focus' ? 'Foco' : 'Pausa'} | Taskify`;
     } else {
@@ -1314,24 +1315,60 @@ function renderTasks() {
     if (!taskList) return;
 
     taskList.innerHTML = '';
+    const todayISO = getTodayISO();
 
-    if (state.tasks.length === 0) {
+    const sortedTasks = [...state.tasks].sort((a, b) => {
+        const aAssignedOrCreated = a.assignedDate || a.createdAt.split('T')[0];
+        const bAssignedOrCreated = b.assignedDate || b.createdAt.split('T')[0];
+
+        // Prioridade 1: Tarefas de hoje (assignedDate é hoje OU assignedDate é null)
+        const aIsTodayStrict = a.assignedDate === todayISO;
+        const bIsTodayStrict = b.assignedDate === todayISO;
+        const aIsNullDate = a.assignedDate === null;
+        const bIsNullDate = b.assignedDate === null;
+
+        if ((aIsTodayStrict || aIsNullDate) && !(bIsTodayStrict || bIsNullDate)) return -1;
+        if (!(aIsTodayStrict || aIsNullDate) && (bIsTodayStrict || bIsNullDate)) return 1;
+
+        // Se ambas são "de hoje" (ou null), ordena por criação
+        if ((aIsTodayStrict || aIsNullDate) && (bIsTodayStrict || bIsNullDate)) {
+            return new Date(a.createdAt) - new Date(b.createdAt);
+        }
+        
+        // Prioridade 2: Tarefas passadas (da mais recente para a mais antiga)
+        const aIsPassed = aAssignedOrCreated < todayISO;
+        const bIsPassed = bAssignedOrCreated < todayISO;
+
+        if (aIsPassed && !bIsPassed) return -1;
+        if (!aIsPassed && bIsPassed) return 1;
+        if (aIsPassed && bIsPassed) {
+            return new Date(bAssignedOrCreated) - new Date(aAssignedOrCreated); // Mais recente primeiro
+        }
+
+        // Prioridade 3: Tarefas futuras (da mais próxima para a mais distante)
+        // (aAssignedOrCreated > todayISO)
+        if (aAssignedOrCreated < bAssignedOrCreated) return -1; // Mais próxima primeiro
+        if (aAssignedOrCreated > bAssignedOrCreated) return 1;
+
+        return new Date(a.createdAt) - new Date(b.createdAt); // Fallback por data de criação
+    });
+
+
+    if (sortedTasks.length === 0) {
         const emptyTaskMessage = document.createElement('li');
         emptyTaskMessage.className = 'task-list-empty-message';
         emptyTaskMessage.textContent = 'Nenhuma tarefa por enquanto. Adicione algumas!';
         taskList.appendChild(emptyTaskMessage);
     } else {
-        state.tasks.forEach(task => {
+        sortedTasks.forEach(task => {
             const li = document.createElement('li');
             li.className = 'task-item';
             if (task.completed) li.classList.add('completed');
             li.dataset.taskId = task.id;
-            li.setAttribute('draggable', 'true'); // Habilita arrastar
+            li.setAttribute('draggable', 'true');
 
-            // Adiciona listeners de drag para cada item
             li.addEventListener('dragstart', handleDragStart);
             li.addEventListener('dragend', handleDragEnd);
-
 
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
@@ -1342,6 +1379,35 @@ function renderTasks() {
             const textSpan = document.createElement('span');
             textSpan.className = 'task-item-text';
             textSpan.textContent = task.text;
+
+            // ALTERAÇÃO: Lógica do indicador de data
+            const dateIndicator = document.createElement('span');
+            dateIndicator.className = 'task-assigned-date-indicator';
+            
+            const effectiveDate = task.assignedDate || todayISO; // Usa hoje se assignedDate for null
+            
+            if (effectiveDate === todayISO) {
+                dateIndicator.textContent = 'Hoje';
+            } else {
+                const assigned = new Date(effectiveDate + "T00:00:00");
+                const today = new Date(todayISO + "T00:00:00");
+                
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+                
+                const yesterday = new Date(today);
+                yesterday.setDate(today.getDate() - 1);
+
+                if (assigned.toDateString() === yesterday.toDateString()) {
+                    dateIndicator.textContent = 'Ontem';
+                } else if (assigned.toDateString() === tomorrow.toDateString()) {
+                    dateIndicator.textContent = 'Amanhã';
+                } else {
+                    dateIndicator.textContent = formatDateToDDMMYYYY(effectiveDate);
+                }
+            }
+            textSpan.appendChild(dateIndicator);
+
 
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'task-item-delete-btn';
@@ -1371,7 +1437,9 @@ function addTask(event) {
     event.preventDefault();
     checkAllResets();
     const taskInput = document.getElementById('task-input');
+    const taskDateInput = document.getElementById('task-assigned-date');
     const taskText = taskInput.value.trim();
+    const assignedDateValue = taskDateInput.value;
 
     if (taskText === '') {
         showCustomAlert('Por favor, insira o texto da tarefa.', 'Tarefa Inválida');
@@ -1382,10 +1450,13 @@ function addTask(event) {
         text: taskText,
         completed: false,
         createdAt: new Date().toISOString(),
-        completionDate: null
+        completionDate: null,
+        assignedDate: (assignedDateValue && assignedDateValue !== getTodayISO()) ? assignedDateValue : null 
+        // Salva null se for hoje ou vazio, caso contrário salva a data YYYY-MM-DD
     };
     state.tasks.push(newTask);
     taskInput.value = '';
+    taskDateInput.value = getTodayISO(); // Reseta para hoje
     renderTasks();
     saveState();
 }
@@ -1408,42 +1479,66 @@ function toggleTaskComplete(taskId) {
 
         updateTasksCounter();
 
-        if(state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7) {
-            if (task.completed && !wasCompleted) state.dailyTaskCompletionData[6]++;
-            else if (!task.completed && wasCompleted) state.dailyTaskCompletionData[6] = Math.max(0, state.dailyTaskCompletionData[6] - 1);
+        const effectiveTaskDateString = task.assignedDate || task.createdAt.split('T')[0];
+        const effectiveTaskDate = new Date(effectiveTaskDateString + "T00:00:00");
+
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        const oneDay = 24 * 60 * 60 * 1000;
+        const diffDays = Math.round((today.getTime() - effectiveTaskDate.getTime()) / oneDay);
+
+        if (diffDays >= 0 && diffDays < 7) {
+            const dayIndexInChart = 6 - diffDays;
+            if (state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7 && dayIndexInChart >= 0 && dayIndexInChart < 7) {
+                if (task.completed && !wasCompleted) {
+                    state.dailyTaskCompletionData[dayIndexInChart]++;
+                } else if (!task.completed && wasCompleted) {
+                    state.dailyTaskCompletionData[dayIndexInChart] = Math.max(0, state.dailyTaskCompletionData[dayIndexInChart] - 1);
+                }
+            }
         }
+
         saveState();
         updateTasksChartDataOnly();
     }
 }
+
 
 function deleteTask(taskId) {
     checkAllResets();
     const taskIndex = state.tasks.findIndex(t => t.id === taskId);
     if (taskIndex > -1) {
         const deletedTask = state.tasks[taskIndex];
-        const todayStr = new Date().toDateString();
-
+        
         state.tasks.splice(taskIndex, 1);
 
         const taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
         if (taskElement) {
             taskElement.remove();
         }
-
+        
         updateTasksCounter();
 
         if (deletedTask.completed && deletedTask.completionDate) {
-            try {
-                if (new Date(deletedTask.completionDate).toDateString() === todayStr) {
-                    if(state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7) {
-                        state.dailyTaskCompletionData[6] = Math.max(0, state.dailyTaskCompletionData[6] - 1);
-                    }
-                }
-            } catch(e) { console.error("Erro ao processar data de conclusão da tarefa deletada:", e); }
-        }
+            const effectiveTaskDateString = deletedTask.assignedDate || deletedTask.createdAt.split('T')[0];
+            const effectiveTaskDate = new Date(effectiveTaskDateString + "T00:00:00");
+            const today = new Date();
+            today.setHours(0,0,0,0);
 
-        if (state.tasks.length === 0) {
+            const oneDay = 24 * 60 * 60 * 1000;
+            const diffDays = Math.round((today.getTime() - effectiveTaskDate.getTime()) / oneDay);
+
+
+            if (diffDays >= 0 && diffDays < 7) {
+                const dayIndexInChart = 6 - diffDays;
+                 if(state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7 && dayIndexInChart >= 0 && dayIndexInChart < 7) {
+                    state.dailyTaskCompletionData[dayIndexInChart] = Math.max(0, state.dailyTaskCompletionData[dayIndexInChart] - 1);
+                }
+            }
+        }
+        
+        if (state.tasks.length === 0) { 
             renderTasks();
         }
 
@@ -1452,13 +1547,12 @@ function deleteTask(taskId) {
     }
 }
 
+
 // --- Funções de Drag and Drop para Tarefas ---
 function handleDragStart(e) {
     draggedItem = e.target;
     e.dataTransfer.effectAllowed = 'move';
-    // Não precisa de setData se a referência ao 'draggedItem' for suficiente
-    // e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
-    setTimeout(() => { // Dá tempo para o navegador renderizar o "fantasma" antes de aplicar a classe
+    setTimeout(() => {
         if (draggedItem) draggedItem.classList.add('dragging');
     }, 0);
 }
@@ -1468,22 +1562,19 @@ function handleDragEnd(e) {
         draggedItem.classList.remove('dragging');
     }
     draggedItem = null;
-    // Remover placeholders, se usados
     document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
 }
 
 function handleDragOver(e) {
-    e.preventDefault(); // Necessário para permitir o drop
+    e.preventDefault();
     const taskList = document.getElementById('task-list');
     const afterElement = getDragAfterElement(taskList, e.clientY);
 
-    // Remover placeholder antigo (se existir)
     const existingPlaceholder = taskList.querySelector('.drag-over-placeholder');
     if (existingPlaceholder) {
         existingPlaceholder.remove();
     }
 
-    // Adicionar novo placeholder visual (opcional, mas bom para UX)
     const placeholder = document.createElement('li');
     placeholder.classList.add('drag-over-placeholder');
     if (afterElement == null) {
@@ -1500,40 +1591,51 @@ function handleDrop(e) {
     const taskList = document.getElementById('task-list');
     const draggedItemId = draggedItem.dataset.taskId;
 
-    // Encontra o índice original do item arrastado
     const originalIndex = state.tasks.findIndex(task => task.id === draggedItemId);
     if (originalIndex === -1) {
         console.error("Tarefa arrastada não encontrada no estado.");
-        draggedItem.classList.remove('dragging'); // Limpeza
+        draggedItem.classList.remove('dragging');
         draggedItem = null;
         document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
         return;
     }
 
-    // Remove o item do array state.tasks
     const [movedTask] = state.tasks.splice(originalIndex, 1);
 
-    // Determina a nova posição
     const afterElement = getDragAfterElement(taskList, e.clientY);
     let newIndex;
 
     if (afterElement) {
         const afterElementId = afterElement.dataset.taskId;
-        newIndex = state.tasks.findIndex(task => task.id === afterElementId);
+        const targetIndexInState = state.tasks.findIndex(task => task.id === afterElementId);
+        if (targetIndexInState !== -1) {
+            newIndex = targetIndexInState;
+        } else {
+             // Se o afterElement não for encontrado no estado (improvável se o DOM estiver sincronizado),
+            // adiciona ao final ou antes do item que está visualmente depois.
+            // Esta lógica pode ser simplificada se a ordem no DOM sempre refletir a ordem no state ANTES da renderização.
+            // Por agora, vamos usar uma abordagem mais direta baseada na posição visual.
+            const children = Array.from(taskList.children);
+            const afterElementDOMIndex = children.indexOf(afterElement);
+            let countVisibleTasksBefore = 0;
+            for(let i=0; i < afterElementDOMIndex; i++){
+                if(children[i].classList.contains('task-item') && !children[i].classList.contains('dragging')){
+                    countVisibleTasksBefore++;
+                }
+            }
+            newIndex = countVisibleTasksBefore;
+        }
     } else {
-        // Se não houver 'afterElement', significa que deve ser adicionado ao final
         newIndex = state.tasks.length;
     }
-
-    // Insere o item na nova posição
+    
     state.tasks.splice(newIndex, 0, movedTask);
 
-    // Limpeza e re-renderização
     draggedItem.classList.remove('dragging');
     draggedItem = null;
     document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
 
-    renderTasks(); // Re-renderiza a lista com a nova ordem
+    renderTasks();
     saveState();
 }
 
@@ -1561,7 +1663,10 @@ function initTasks() {
     if (taskList) {
         taskList.addEventListener('dragover', handleDragOver);
         taskList.addEventListener('drop', handleDrop);
-        // Listeners 'dragstart' e 'dragend' são adicionados aos 'li' em renderTasks()
+    }
+    const taskDateInput = document.getElementById('task-assigned-date');
+    if (taskDateInput) {
+        taskDateInput.value = getTodayISO(); // Define a data de hoje como padrão
     }
 
     renderTasks();
@@ -1847,7 +1952,7 @@ async function init() {
     checkAllResets();
     initStreak();
     initPomodoro();
-    initTasks(); // Agora inicializa os listeners de drag and drop para a lista de tarefas
+    initTasks();
 
     await loadAndSetupRetrospective();
 
