@@ -782,7 +782,6 @@ body.light .counter-display {
     flex-direction: column;
     width: 100%;
     box-sizing: border-box;
-    /* overflow: hidden; REMOVED */
 }
 
 body.light .pomodoro-section,
@@ -1000,12 +999,16 @@ body.light .tasks-section .tasks-counter {
 
 #task-form {
     display: flex;
+    flex-wrap: wrap; /* Permite que os itens quebrem linha */
     gap: 10px;
     margin-bottom: 15px;
+    align-items: center;
 }
 
 #task-input {
     flex-grow: 1;
+    flex-basis: 200px; /* Base para o input de texto, permite encolher/crescer */
+    min-width: 150px; /* Largura mínima para o input de texto */
     padding: 10px 12px;
     border: 1px solid var(--card-border-dark);
     border-radius: 8px;
@@ -1043,9 +1046,59 @@ body.light #task-input:focus {
     background: var(--card-bg-light);
 }
 
+.task-date-input {
+    padding: 9px 10px; /* Ajuste para alinhar com #task-input e #add-task-btn */
+    border: 1px solid var(--card-border-dark);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--text-muted-dark);
+    font-size: 0.9rem; /* Um pouco menor para economizar espaço */
+    line-height: normal; /* Reset para evitar problemas de altura */
+    height: auto; /* Permite que o padding dite a altura */
+    flex-shrink: 0;
+    flex-basis: 130px; /* Base para o input de data */
+    min-width: 120px; /* Largura mínima */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    color-scheme: dark;
+    font-family: inherit; /* Usa a mesma fonte do corpo */
+    box-sizing: border-box; /* Garante que padding e border não aumentem a largura total */
+}
+.task-date-input:focus,
+.task-date-input:valid {
+    color: var(--text-color-dark);
+}
+
+body.light .task-date-input {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: var(--card-border-light);
+    color: var(--text-muted-light);
+    color-scheme: light;
+}
+body.light .task-date-input:focus,
+body.light .task-date-input:valid {
+    color: var(--text-color-light);
+}
+
+.task-date-input::-webkit-calendar-picker-indicator {
+    filter: invert(0.7) brightness(0.9); /* Mais escuro para melhor contraste no tema escuro */
+    cursor: pointer;
+    padding-left: 4px; /* Pequeno espaçamento */
+}
+body.light .task-date-input::-webkit-calendar-picker-indicator {
+    filter: invert(0.15); /* Levemente mais escuro no tema claro */
+}
+/* Tenta uniformizar a altura dos inputs e botão */
+#task-input, .task-date-input, #add-task-btn {
+    height: 38px; /* Altura consistente */
+}
+
 
 #add-task-btn {
-    padding: 10px 18px;
+    padding: 0 18px; /* Removido padding vertical para confiar na altura explícita */
+    line-height: 38px; /* Alinha texto verticalmente com a altura */
     background: var(--primary-color-dark);
     color: white;
     border: none;
@@ -1053,6 +1106,7 @@ body.light #task-input:focus {
     font-size: 0.9rem;
     font-weight: 600;
     transition: opacity 0.2s ease, transform 0.15s ease;
+    flex-shrink: 0;
 }
 
 body.light #add-task-btn {
@@ -1075,9 +1129,9 @@ body.light #add-task-btn {
     margin: 0;
     flex-grow: 1;
     overflow-y: auto;
-    padding-right: 5px; /* Espaço para a barra de rolagem, se necessário */
-    min-height: 50px;   /* Altura mínima para mostrar a mensagem de lista vazia */
-    height: 0;          /* Deixa o conteúdo ditar a altura, limitado por max-height em media queries */
+    padding-right: 5px;
+    min-height: 50px;
+    height: 0;
 }
 
 .task-item {
@@ -1085,12 +1139,12 @@ body.light #add-task-btn {
     align-items: center;
     padding: 12px 5px 12px 0;
     border-bottom: 1px solid var(--card-border-dark);
-    transition: background-color 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease; /* Adicionado box-shadow e opacity */
-    cursor: grab; /* Indica que o item é arrastável */
+    transition: background-color 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+    cursor: grab;
 }
 
 .task-item:active {
-    cursor: grabbing; /* Feedback visual ao segurar o item */
+    cursor: grabbing;
 }
 
 body.light .tasks-section .task-item {
@@ -1109,10 +1163,9 @@ body.light .tasks-section .task-item:hover {
     background-color: rgba(0, 0, 0, 0.02);
 }
 
-/* Estilos para Drag and Drop */
 .task-item.dragging {
     opacity: 0.5;
-    background-color: var(--primary-color-dark) !important; /* Destaque forte ao arrastar */
+    background-color: var(--primary-color-dark) !important;
     color: white !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
@@ -1122,23 +1175,23 @@ body.light .task-item.dragging {
 .task-item.dragging .task-item-text,
 .task-item.dragging .task-item-delete-btn,
 .task-item.dragging .task-item-checkbox {
-    color: white !important; /* Garante que o texto e ícones fiquem visíveis */
-    border-color: white !important; /* Para o checkbox */
+    color: white !important;
+    border-color: white !important;
 }
 .task-item.dragging .task-item-checkbox:checked::before {
-    color: var(--primary-color-dark); /* Cor do checkmark quando arrastado e dark mode */
+    color: var(--primary-color-dark);
 }
 body.light .task-item.dragging .task-item-checkbox:checked::before {
-    color: var(--primary-color-light); /* Cor do checkmark quando arrastado e light mode */
+    color: var(--primary-color-light);
 }
 
 
 .drag-over-placeholder {
-    height: 2px; /* Altura da linha que indica onde soltar */
+    height: 2px;
     background-color: var(--primary-color-dark);
     opacity: 0.7;
-    margin: 6px 0; /* Espaçamento vertical */
-    list-style: none; /* Remove marcador de lista */
+    margin: 6px 0;
+    list-style: none;
     border-radius: 1px;
 }
 body.light .drag-over-placeholder {
@@ -1205,7 +1258,25 @@ body.light .tasks-section .task-item-checkbox:checked {
     word-break: break-word;
     line-height: 1.4;
     position: relative;
+    display: flex;
+    align-items: center;
 }
+
+.task-assigned-date-indicator {
+    font-size: 0.75em;
+    color: var(--text-muted-dark);
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-left: 8px;
+    font-style: italic;
+    white-space: nowrap;
+}
+body.light .task-assigned-date-indicator {
+    color: var(--text-muted-light);
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
 
 body.light .tasks-section .task-item-text {
     color: var(--text-color-light);
@@ -1352,7 +1423,6 @@ body.light .chart-section .chart-period-label {
 
 .chart-section .chart-container {
     height: 170px;
-    /* Base height, specific overrides in media queries */
     flex-grow: 1;
     position: relative;
     overflow: hidden;
@@ -1896,10 +1966,10 @@ body.light .form-input:focus {
     font-size: 14px;
     font-weight: 600;
     transition: all 0.2s ease, background-color 0.3s ease, color 0.3s ease, padding 0.2s ease, font-size 0.2s ease;
-    display: inline-flex; /* Added for icon alignment */
-    align-items: center;   /* Added for icon alignment */
-    justify-content: center; /* Added for icon alignment */
-    gap: 6px;              /* Added for space between icon and text */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
 .btn-primary {
@@ -2116,10 +2186,6 @@ body.theme-mode-motivational {
         gap: 10px;
     }
 
-    /* .productivity-focus-area {
-            align-items: flex-start; /* REMOVIDO: Volta para o 'stretch' do estilo base */
-    /* } */
-
     .stats-grid {
         gap: 15px;
         margin-bottom: 20px;
@@ -2271,19 +2337,28 @@ body.theme-mode-motivational {
         font-size: 0.8rem;
     }
 
+    #task-form {
+        flex-wrap: nowrap; /* Evita quebra de linha em telas médias */
+    }
     #task-input {
         padding: 9px;
         font-size: 0.95rem;
+        flex-basis: auto; /* Reseta para comportamento padrão */
     }
-
+    .task-date-input {
+         padding: 9px 10px;
+         font-size: 0.9rem;
+         flex-basis: 140px;
+         height: 36px; /* Altura do #task-input neste breakpoint */
+    }
     #add-task-btn {
-        padding: 9px 18px;
+        padding: 0 18px;
         font-size: 0.9rem;
+        line-height: 36px; /* Altura do #task-input neste breakpoint */
     }
 
     #task-list {
         max-height: 220px;
-        /* AJUSTADO: Limita a altura da lista de tarefas */
     }
 
     .task-item-text {
@@ -2344,13 +2419,11 @@ body.theme-mode-motivational {
     }
 
     .productivity-focus-area {
-        /* align-items: flex-start;  Mantido como stretch (base) */
         margin-bottom: 20px;
     }
 
     .pomodoro-section-wrapper,
     .tasks-section-wrapper {
-        /* gap is 20px from general rule */
     }
 }
 
@@ -2521,7 +2594,42 @@ body.theme-mode-motivational {
         display: none !important;
     }
 
+     #task-form {
+        flex-wrap: wrap; /* Permite quebra em telas menores */
+    }
+    #task-input {
+        flex-basis: calc(100% - 130px - 10px); /* Input de texto tenta ocupar o espaço restante na primeira linha */
+        min-width: 120px; /* Garante um mínimo */
+    }
+    .task-date-input {
+        flex-basis: 130px; /* Largura fixa para data */
+    }
+     #add-task-btn {
+        flex-basis: auto; /* Botão com largura natural */
+    }
 }
+
+@media (max-width: 520px) { /* Ajuste para telas menores onde o form pode quebrar */
+    #task-form {
+        flex-direction: column;
+        align-items: stretch; /* Inputs ocupam largura total */
+    }
+    #task-input,
+    .task-date-input,
+    #add-task-btn {
+        width: 100%;
+        max-width: none; /* Remove max-width para ocupar tudo */
+        flex-basis: auto;
+        margin-bottom: 8px; /* Espaço entre os itens empilhados */
+    }
+    #add-task-btn {
+        margin-bottom: 0; /* Último item não precisa de margem inferior */
+    }
+    .task-date-input {
+        height: 38px; /* Mantém altura consistente */
+    }
+}
+
 
 @media (max-width: 480px) {
     .container {
@@ -2757,22 +2865,26 @@ body.theme-mode-motivational {
         font-size: 0.8rem;
     }
 
-    #task-form {
-        flex-direction: column;
-        gap: 8px;
+    /* #task-form já está flex-direction: column; de @media (max-width: 520px) */
+    #task-input, .task-date-input, #add-task-btn {
+        font-size: 0.9rem; /* Consistência */
     }
-
-    #task-input {
-        font-size: 0.9rem;
+    .task-date-input {
+        padding: 9px 10px; /* Ajuste padding para consistência */
     }
-
     #add-task-btn {
-        padding: 9px 15px;
-        font-size: 0.9rem;
+        padding: 10px 15px; /* Padding ajustado */
+        line-height: normal; /* Reset line-height */
     }
+
 
     .task-item-text {
         font-size: 0.9rem;
+    }
+    .task-assigned-date-indicator {
+        font-size: 0.7em;
+        margin-left: 6px;
+        padding: 1px 4px;
     }
 
     .task-item-checkbox {
