@@ -36,13 +36,13 @@
     z-index: 2000;
     opacity: 0;
     transition: opacity 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-    overflow: hidden; /* Mantido, pois as telas internas devem gerenciar seu próprio scroll */
+    overflow: hidden;
     color: #FFFFFF;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 .retrospective-modal.show {
-    display: flex;
+    display: flex; /* Alterado para flex para consistência, já que .retrospective-screen é flex */
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
 }
@@ -83,11 +83,8 @@ body.light .retrospective-modal {
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* ALTERADO: de space-around para flex-start para permitir rolagem de conteúdo longo */
-    justify-content: flex-start; 
+    justify-content: space-around; /* Pode ser 'center' se o wrapper + botões devem ser um bloco centralizado */
     padding: 30px 40px;
-    /* ADICIONADO: padding-bottom para dar espaço ao final do conteúdo rolável */
-    padding-bottom: 40px; 
     box-sizing: border-box;
     position: absolute;
     top: 0;
@@ -95,23 +92,11 @@ body.light .retrospective-modal {
     opacity: 0;
     visibility: hidden;
     transform-origin: center center;
-    /* ADICIONADO: overflow-y para telas intermediárias */
-    overflow-y: auto; 
 }
 
-/* Tela de Seleção não precisa de scroll normalmente, mantém justify-content original */
-#retrospective-selection-screen.retrospective-screen {
-    justify-content: space-around;
-    overflow-y: visible; /* Ou hidden, se preferir, já que não deve rolar */
-    padding-bottom: 30px; /* Reset se necessário */
-}
-
-
-/* Tela final já tem overflow-y: auto e justify-content: flex-start específicos */
 #retrospective-final-screen.retrospective-screen {
     overflow-y: auto;
-    justify-content: flex-start;
-    /* padding-bottom já é gerenciado em sua media query específica */
+    justify-content: flex-start; /* Final screen é para scroll */
 }
 
 
@@ -148,13 +133,11 @@ body.light .retrospective-modal {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Mantido como center para wrappers, a tela pai controla o alinhamento geral */
-    flex-grow: 1;
+    justify-content: center; /* Padrão para centralizar conteúdo interno */
+    flex-grow: 1; /* Para ocupar espaço vertical */
     padding: 10px 0;
-    overflow-y: auto;
-	overflow-x: hidden;
+    overflow: visible;
 }
-
 .retrospective-text-center {
     text-align: center;
 }
@@ -168,9 +151,11 @@ body.light .retrospective-modal {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center; /* Para melhor centralização do conteúdo do card */
     gap: 25px;
     width: 100%;
     max-width: 450px;
+    flex-grow: 1; /* Para que o card também possa usar o espaço */
 }
 body.light .retrospective-selection-card {
     background: transparent;
@@ -208,7 +193,7 @@ body.light .retrospective-selection-card {
 }
 body.light .retrospective-main-title {
     color: var(--text-color-light);
-     text-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.15);
 }
 
 .retrospective-month {
@@ -296,7 +281,7 @@ body.light .retrospective-metric-button:hover .retrospective-icon {
     background-color: var(--primary-color-dark);
     color: white;
     border-color: var(--primary-color-dark);
-    box-shadow: 0 0 15px rgba(var(--primary-color-dark-rgb), 0.5); /* Simplificado */
+    box-shadow: 0 0 15px rgba(var(--primary-color-dark-rgb), 0.5);
 }
 .retrospective-metric-button.selected .retrospective-icon {
     color: white;
@@ -305,7 +290,7 @@ body.light .retrospective-metric-button:hover .retrospective-icon {
 body.light .retrospective-metric-button.selected {
     background-color: var(--primary-color-light);
     border-color: var(--primary-color-light);
-    box-shadow: 0 0 15px rgba(var(--primary-color-light-rgb), 0.5); /* Simplificado */
+    box-shadow: 0 0 15px rgba(var(--primary-color-light-rgb), 0.5);
 }
 body.light .retrospective-metric-button.selected .retrospective-icon {
     color: white;
@@ -321,7 +306,7 @@ body.light .retrospective-metric-button.selected .retrospective-icon {
     transition: transform 0.2s ease;
 }
 .retrospective-metric-button.selected .retrospective-checkmark-placeholder::before {
-    content: "\F26E";
+    content: "\F26E"; /* Bootstrap checkmark */
     font-family: 'bootstrap-icons';
     font-size: 22px;
     color: white;
@@ -368,19 +353,19 @@ body.light .retrospective-start-button {
     transform: scale(1);
 }
 body.light .retrospective-start-button:disabled {
-     background-color: var(--text-muted-light);
-     opacity: 0.6;
+    background-color: var(--text-muted-light);
+    opacity: 0.6;
 }
 
 
 /* Tela de Introdução */
-.retrospective-intro-content {
+.retrospective-intro-content { /* Este já está no .retrospective-content-wrapper que tem justify-content: center */
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100%;
+    justify-content: center; /* Redundante se o wrapper pai já faz, mas não prejudica */
+    height: 100%; /* Garante que o conteúdo interno possa ser centralizado se o wrapper tiver altura */
 }
 
 @keyframes pulseStar {
@@ -430,7 +415,7 @@ body.light .retrospective-intro-title{
     font-weight: 300;
 }
 body.light .retrospective-intro-subtitle {
-     color: rgba(0,0,0,0.65);
+    color: rgba(0,0,0,0.65);
 }
 
 .retrospective-intro-button {
@@ -458,14 +443,14 @@ body.light .retrospective-intro-button:hover {
 
 /* Tela de Estatísticas Principais ("Brilharam!") */
 #retrospective-main-stats-screen .retrospective-content-wrapper {
-     /* Ajustado para que comece do topo e role se necessário */
-    justify-content: flex-start;
+    justify-content: center; /* AJUSTADO de space-around para melhor centralização vertical */
+    /* flex-grow: 1; é herdado da classe base .retrospective-content-wrapper */
 }
 
 .retrospective-screen-title {
     font-size: 38px;
     font-weight: 700;
-    margin-bottom: 20px;
+    margin-bottom: 20px; /* Pode precisar ajustar se o conteúdo ficar muito próximo ao topo/baixo */
     text-align: center;
     display: flex;
     align-items: center;
@@ -473,7 +458,6 @@ body.light .retrospective-intro-button:hover {
     gap: 12px;
     color: #FFFFFF;
     text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    flex-shrink: 0; /* Para não encolher com o scroll */
 }
 body.light .retrospective-screen-title {
     color: var(--text-color-light);
@@ -490,17 +474,16 @@ body.light .retrospective-screen-title {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 20px; /* Espaço antes do botão de navegação */
     width: 100%;
     max-width: 600px;
     justify-content: center;
-    flex-shrink: 0; /* Para não encolher com o scroll */
 }
 .retrospective-stats-grid:has(:nth-child(1):not(:nth-child(2))) {
     grid-template-columns: minmax(180px, 300px);
 }
 .retrospective-stats-grid:has(:nth-child(2):not(:nth-child(3))) {
-     grid-template-columns: repeat(2, minmax(180px, 1fr));
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
 }
 
 
@@ -591,8 +574,7 @@ body.light .retrospective-stat-label { color: var(--text-muted-light); }
     background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
     color: white;
     margin-top: 25px;
-    margin-bottom: 10px; /* Ajustado para garantir visibilidade se a tela rolar */
-    flex-shrink: 0; /* Para não encolher com o scroll */
+    margin-bottom: 10px;
 }
 body.light .retrospective-navigation-button {
     background: linear-gradient(135deg, var(--primary-color-light) 0%, var(--primary-color-light) 100%);
@@ -604,7 +586,7 @@ body.light .retrospective-navigation-button {
 
 /* Tela Dia Mais Produtivo */
 #retrospective-productive-day-screen .retrospective-content-wrapper {
-     justify-content: flex-start; /* Ajustado */
+    justify-content: center; /* AJUSTADO de space-around para melhor centralização vertical */
 }
 .retrospective-title-yellow {
     background: linear-gradient(135deg, #FCE205, #ffab00);
@@ -619,7 +601,6 @@ body.light .retrospective-navigation-button {
     box-shadow: 0 0 25px rgba(252, 226, 5, 0.2);
     width: 100%;
     max-width: 450px;
-    flex-shrink: 0; /* Para não encolher com o scroll */
 }
 .retrospective-productive-day-date {
     font-size: 60px;
@@ -641,14 +622,13 @@ body.light .retrospective-navigation-button {
     color: rgba(255,255,255,0.75);
     margin-bottom: 25px;
     font-weight: 300;
-    flex-shrink: 0; /* Para não encolher com o scroll */
 }
 body.light .retrospective-motivational-text { color: var(--text-muted-light); }
 .retrospective-highlight-yellow { color: #FCE205; font-weight: 600; text-shadow: 0 0 5px #FCE205;}
 .retrospective-button-yellow {
     background: linear-gradient(135deg, #FCE205, #ffab00);
     color: #333;
-    box-shadow: 0 4px 15px rgba(252, 226, 5, 0.4); 
+    box-shadow: 0 4px 15px rgba(252, 226, 5, 0.4);
 }
 .retrospective-button-yellow:hover {
     opacity: 1; transform: scale(1.03);
@@ -657,7 +637,11 @@ body.light .retrospective-motivational-text { color: var(--text-muted-light); }
 
 /* Tela Padrões de Tempo */
 #retrospective-time-patterns-screen .retrospective-content-wrapper {
-    justify-content: flex-start; /* Ajustado */
+    /* Este usa space-between e é um grid em telas maiores,
+       'center' pode não ser o ideal para o wrapper dependendo do design.
+       Manterei 'center' como sugestão, mas pode precisar de ajustes finos
+       para o layout dos seus filhos (grid, chart, button). */
+    justify-content: center; /* AJUSTADO de space-between para tentativa de centralização */
     gap: 20px;
     width: 100%;
     max-width: 600px;
@@ -670,10 +654,9 @@ body.light .retrospective-motivational-text { color: var(--text-muted-light); }
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
-    margin-bottom: 0;
+    margin-bottom: 0; /* Ajustado já que o wrapper agora tem gap */
     width: 100%;
     align-items: stretch;
-    flex-shrink: 0; /* Para não encolher com o scroll */
 }
 .retrospective-card-header .retrospective-icon-large { font-size: 38px; }
 .retrospective-card-title { font-size: 20px; font-weight: 600; color: #FFFFFF; }
@@ -693,11 +676,10 @@ body.light .retrospective-card-title { color: var(--text-color-light); }
     box-shadow: 0 0 15px rgba(37, 117, 252, 0.15);
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 0;
+    margin-bottom: 0; /* Ajustado já que o wrapper agora tem gap */
     display: flex;
     flex-direction: column;
     min-height: 240px;
-    flex-shrink: 0; /* Para não encolher com o scroll */
 }
 .retrospective-card-indigo .retrospective-card-header {
     margin-bottom: 10px;
@@ -745,7 +727,7 @@ body.light .retrospective-weekday-bar:hover { filter: brightness(1.1) drop-shado
 body.light .retrospective-weekday-label { color: var(--text-muted-light); }
 
 #retrospective-time-patterns-next-button.retrospective-button-cyan {
-    margin-top: 25px !important;
+    margin-top: 25px !important; /* Mantido pois pode ser específico para este botão */
     align-self: center;
     background: linear-gradient(135deg, #05F4F0, #00A9FF);
     box-shadow: 0 4px 15px rgba(5, 244, 240, 0.4);
@@ -757,10 +739,10 @@ body.light .retrospective-weekday-label { color: var(--text-muted-light); }
 
 /* Tela Comparação */
 #retrospective-comparison-screen .retrospective-content-wrapper {
-    justify-content: flex-start; /* Ajustado */
+    justify-content: center; /* AJUSTADO de space-around para melhor centralização vertical */
 }
 .retrospective-title-green {
-     background: linear-gradient(135deg, #39FF14, #8EFF7B);
+    background: linear-gradient(135deg, #39FF14, #8EFF7B);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;
 }
 .retrospective-comparison-percentage { display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 1.2em; margin-top: 8px; }
@@ -781,45 +763,40 @@ body.light .retrospective-comparison-percentage .retrospective-icon-red { color:
 
 
 /* --- ESTILOS DA TELA FINAL (SPOTIFY WRAPPED STYLE) --- */
-.retrospective-final-screen-spotify-style {
-    padding: 20px; /* Padding geral da tela */
-    /* justify-content: center; Removido para usar flex-start padrão da .retrospective-screen */
-    background-color: var(--body-bg-dark);
+.retrospective-final-screen-spotify-style { /* Este é o .retrospective-screen */
+    padding: 20px;
+    background-color: var(--body-bg-dark); 
     color: var(--text-color-dark);
-    overflow-y: auto; /* Já estava aqui, mantido */
+    overflow-y: auto; 
     position: relative;
-    /* Adicionado para garantir que o padding-bottom da tela funcione */
-    display: flex; 
-    flex-direction: column;
-    align-items: center;
+    justify-content: flex-start; 
 }
 body.light .retrospective-final-screen-spotify-style {
     background-color: var(--body-bg-light);
     color: var(--text-color-light);
 }
 
-.retrospective-final-content-wrapper {
+.retrospective-final-content-wrapper { 
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between; /* Mantido para o conteúdo interno do card */
+    justify-content: space-between; 
     width: 100%;
     max-width: 380px;
-    height: auto; /* Altura automática para permitir crescimento */
-    aspect-ratio: 9 / 15.5; /* Mantido, mas min-height pode ser mais importante */
-    min-height: 600px;
+    height: auto; 
+    min-height: 580px; 
     background: linear-gradient(160deg,
-        rgba(var(--primary-color-dark-rgb), 0.3) 0%, 
+        rgba(var(--primary-color-dark-rgb), 0.3) 0%,
         rgba(var(--primary-color-dark-rgb), 0.1) 40%,
         #0a0a0a 100%);
     color: #FFFFFF;
-    padding: 30px 25px;
+    padding: 30px 25px clamp(20px, 4vh, 30px) 25px; 
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    /* overflow: hidden; Removido para não interferir com o scroll da tela pai, se necessário */
+    overflow: hidden; 
     box-sizing: border-box;
-    position: relative;
-    margin-bottom: 20px; /* Espaço antes dos botões de ação, se a tela rolar */
+    position: relative; 
+    margin: auto 0; 
 }
 body.light .retrospective-final-content-wrapper {
     background: linear-gradient(160deg,
@@ -837,7 +814,6 @@ body.light .retrospective-final-content-wrapper {
     align-items: center;
     width: 100%;
     margin-bottom: clamp(15px, 4vh, 25px);
-    flex-shrink: 0;
 }
 .retrospective-final-logo {
     display: flex;
@@ -881,51 +857,68 @@ body.light .retrospective-final-date { color: rgba(0,0,0,0.6); }
     margin-bottom: clamp(20px, 4vh, 30px);
     line-height: 1.2;
     text-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    flex-shrink: 0;
 }
 body.light .retrospective-final-main-title { text-shadow: 0 1px 3px rgba(0,0,0,0.15); }
 
 .retrospective-final-highlights {
     display: grid;
+    /* Se houver 3 itens, usarão 1fr cada. Se 2, 1fr 1fr. Se 1, 1fr. */
+    /* Para forçar a centralização quando menos de 3, usaremos justify-content no grid */
     grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-    gap: clamp(10px, 2vw, 18px);
+    /* Quando há poucos itens, para que não fiquem muito grandes: */
+    grid-auto-flow: column; /* Tenta preencher colunas primeiro */
+    justify-content: center; /* Centraliza os itens do grid se eles não preencherem todo o espaço */
+    gap: clamp(8px, 1.5vw, 15px); 
     width: 100%;
     margin-bottom: clamp(20px, 4vh, 30px);
-    flex-shrink: 0;
 }
+.retrospective-final-highlights[data-item-count="1"] {
+    grid-template-columns: minmax(120px, 0.6fr); /* Um item pode ser maior */
+}
+.retrospective-final-highlights[data-item-count="2"] {
+    grid-template-columns: repeat(2, minmax(100px, 1fr)); /* Dois itens podem ser um pouco maiores */
+}
+/* Para 3 ou mais, o auto-fit com minmax deve funcionar bem, mas podemos forçar 3 */
+.retrospective-final-highlights[data-item-count="3"] {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+
 .retrospective-final-highlight-item {
     background: rgba(255,255,255,0.08);
     border-radius: 10px;
-    padding: clamp(12px, 2.5vh, 18px) clamp(10px, 2vw, 15px);
+    padding: clamp(10px, 2vh, 15px) clamp(8px, 1.5vw, 12px); 
     text-align: center;
     border: 1px solid rgba(255,255,255,0.15);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 100px;
+    min-height: 90px; 
 }
 body.light .retrospective-final-highlight-item {
     background: rgba(0,0,0,0.04);
     border-color: rgba(0,0,0,0.1);
 }
 .retrospective-final-highlight-value {
-    font-size: clamp(22px, 4vh, 28px);
+    font-size: clamp(18px, 3.5vh, 24px); 
     font-weight: 700;
     margin-bottom: 4px;
     color: var(--primary-color-dark);
+    white-space: nowrap; 
 }
 body.light .retrospective-final-highlight-value { color: var(--primary-color-light); }
 
 .retrospective-final-highlight-label {
-    font-size: clamp(11px, 2vh, 14px);
+    font-size: clamp(10px, 1.8vh, 13px); 
     color: rgba(255,255,255,0.7);
-    margin-bottom: 8px;
+    margin-bottom: 6px; 
     flex-grow: 1;
+    line-height: 1.2; 
 }
 body.light .retrospective-final-highlight-label { color: rgba(0,0,0,0.6); }
 
 .final-highlight-icon {
-    font-size: clamp(18px, 3vh, 24px);
+    font-size: clamp(16px, 2.8vh, 22px); 
     color: rgba(255,255,255,0.5);
     margin-top: auto;
 }
@@ -935,9 +928,6 @@ body.light .final-highlight-icon { color: rgba(0,0,0,0.4); }
     width: 100%;
     margin-bottom: clamp(15px, 3vh, 25px);
     font-size: clamp(13px, 2.5vh, 16px);
-    flex-grow: 1; /* Permite que esta seção cresça para preencher espaço se necessário */
-    overflow-y: auto; /* Se as estatísticas forem muitas, permite scroll interno aqui */
-    flex-shrink: 1; /* Pode encolher se necessário */
 }
 .retrospective-final-other-stat-item {
     display: flex;
@@ -962,7 +952,6 @@ body.light .retrospective-final-other-stat-item i { color: var(--primary-color-l
     margin-top: auto;
     margin-bottom: clamp(10px, 2vh, 15px);
     text-align: center;
-    flex-shrink: 0;
 }
 .retrospective-final-achievements-title {
     font-size: clamp(14px, 2.8vh, 17px);
@@ -980,9 +969,9 @@ body.light .retrospective-final-achievements-title { color: rgba(0,0,0,0.7); }
 .retrospective-badge-achievement {
     background: linear-gradient(45deg,
         var(--primary-color-dark),
-        #4e4376, 
+        #4e4376,
         var(--primary-color-dark),
-        #1c1629, 
+        #1c1629,
         var(--primary-color-dark)
     );
     background-size: 400% 400%;
@@ -992,7 +981,7 @@ body.light .retrospective-final-achievements-title { color: rgba(0,0,0,0.7); }
     font-size: clamp(11px, 2vh, 14px);
     border-radius: 20px;
     border: none;
-    box-shadow: 0 0 8px rgba(var(--primary-color-dark-rgb), 0.5), 
+    box-shadow: 0 0 8px rgba(var(--primary-color-dark-rgb), 0.5),
                 0 0 12px rgba(255,255,255,0.15) inset;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
     font-weight: 600;
@@ -1000,9 +989,9 @@ body.light .retrospective-final-achievements-title { color: rgba(0,0,0,0.7); }
 body.light .retrospective-badge-achievement {
     background: linear-gradient(45deg,
         var(--primary-color-light),
-        #877cb0, 
+        #877cb0,
         var(--primary-color-light),
-        #e0d9f0, 
+        #e0d9f0,
         var(--primary-color-light)
     );
     background-size: 400% 400%;
@@ -1012,9 +1001,9 @@ body.light .retrospective-badge-achievement {
 }
 
 @keyframes achievementGradient {
-	0% {background-position: 0% 50%;}
-	50% {background-position: 100% 50%;}
-	100% {background-position: 0% 50%;}
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
 }
 
 .retrospective-final-footer {
@@ -1024,21 +1013,19 @@ body.light .retrospective-badge-achievement {
     color: rgba(255,255,255,0.6);
     padding-top: clamp(10px, 2vh, 18px);
     border-top: 1px solid rgba(255,255,255,0.1);
-    margin-top: auto;
-    flex-shrink: 0;
+    margin-top: auto; /* Garante que o footer fique na parte inferior se houver espaço */
 }
 body.light .retrospective-final-footer { color: rgba(0,0,0,0.5); border-top-color: rgba(0,0,0,0.08); }
 
-.retrospective-action-buttons-container {
+.retrospective-action-buttons-container { /* Container fora do card capturável */
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 15px;
     width: 100%;
     max-width: 350px;
-    margin-top: 20px; /* Margem entre o card e os botões */
-    padding-bottom: 10px; /* Garante espaço na parte inferior da tela se rolar */
-    flex-shrink: 0; /* Para não encolher se a tela pai for flex */
+    margin-top: 20px; /* Espaço entre o card da retrospectiva e os botões */
+    padding-bottom: 10px;
 }
 .retrospective-action-buttons {
     display: flex;
@@ -1053,7 +1040,6 @@ body.light .retrospective-final-footer { color: rgba(0,0,0,0.5); border-top-colo
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     padding: 12px 20px;
     font-size: 16px;
-    
 }
 
 .retrospective-action-button#retrospective-share-button {
@@ -1066,15 +1052,15 @@ body.light .retrospective-final-footer { color: rgba(0,0,0,0.5); border-top-colo
     color: var(--primary-color-dark);
 }
 .retrospective-action-button#retrospective-share-button:hover {
-    background: rgba(var(--primary-color-dark-rgb), 0.2); 
-    border-color: var(--primary-color-dark); 
+    background: rgba(var(--primary-color-dark-rgb), 0.2);
+    border-color: var(--primary-color-dark);
 }
 body.light .retrospective-action-button#retrospective-share-button {
     border-color: var(--primary-color-light);
     color: var(--primary-color-light);
 }
 body.light .retrospective-action-button#retrospective-share-button:hover {
-    background: rgba(var(--primary-color-light-rgb), 0.2); 
+    background: rgba(var(--primary-color-light-rgb), 0.2);
     border-color: var(--primary-color-light);
 }
 
@@ -1099,11 +1085,11 @@ body.light .retrospective-action-button#retrospective-download-button {
     color: var(--primary-color-light);
 }
 .retrospective-action-button#retrospective-download-button:hover {
-    background: rgba(var(--primary-color-dark-rgb), 0.2); 
-    border-color: var(--primary-color-dark); 
+    background: rgba(var(--primary-color-dark-rgb), 0.2);
+    border-color: var(--primary-color-dark);
 }
 body.light .retrospective-action-button#retrospective-download-button:hover {
-    background: rgba(var(--primary-color-light-rgb), 0.2); 
+    background: rgba(var(--primary-color-light-rgb), 0.2);
     border-color: var(--primary-color-light);
 }
 
@@ -1113,7 +1099,7 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
 }
 
 
-.retrospective-final-close-x-btn {
+.retrospective-final-close-x-btn { /* Botão X dentro do .retrospective-final-content-wrapper */
     position: absolute;
     top: 15px;
     right: 15px;
@@ -1129,7 +1115,7 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s;
-    z-index: 10; /* Z-index para ficar acima do conteúdo do card, mas abaixo do overlay do modal */
+    z-index: 10; /* Acima do conteúdo do card */
 }
 .retrospective-final-close-x-btn:hover {
     background: rgba(0,0,0,0.5);
@@ -1169,8 +1155,9 @@ body.light .retrospective-final-close-x-btn:hover {
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto auto 1fr auto;
         gap: 20px;
-        align-items: start;
+        align-items: start; /* Mantido, pois 'center' no wrapper pode não ser ideal para um grid */
         height: 100%;
+        /* justify-content: center; /* Removido daqui pois o grid tem seu próprio alinhamento */
     }
     #retrospective-time-patterns-screen .retrospective-screen-title { grid-area: title; margin-bottom: 0;}
     #retrospective-time-patterns-screen .retrospective-time-patterns-grid { grid-area: grid; margin-bottom: 0; align-self: stretch; }
@@ -1192,24 +1179,18 @@ body.light .retrospective-final-close-x-btn:hover {
 @media (max-width: 700px) {
     .retrospective-modal {
         max-width: 90vw;
-        padding: 15px; /* Padding do modal em si */
+        padding: 15px; /* Reduzido padding do modal */
     }
-     .retrospective-screen {
-        padding: 20px 15px; /* Padding das telas internas */
-        padding-bottom: 30px; /* Garante espaço no final da rolagem para telas intermediárias */
+    .retrospective-screen {
+        padding: 20px 15px; /* Reduzido padding das telas */
     }
-    /* Tela de Seleção não precisa de tanto padding-bottom */
-    #retrospective-selection-screen.retrospective-screen {
-        padding-bottom: 20px;
-    }
-
     .retrospective-stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     }
-     .retrospective-time-patterns-grid {
-        grid-template-columns: 1fr;
+    .retrospective-time-patterns-grid {
+        grid-template-columns: 1fr; /* Muda para coluna única */
     }
-     .retrospective-card-indigo {
+    .retrospective-card-indigo {
         max-width: 100%;
     }
 }
@@ -1222,15 +1203,8 @@ body.light .retrospective-final-close-x-btn:hover {
     }
     .retrospective-screen {
         padding: 20px 15px;
-        padding-bottom: 25px; /* Espaço extra no final para rolagem */
-        /* justify-content: space-around; REMOVIDO - agora é flex-start por padrão */
+        justify-content: space-around; /* Mantém ou muda para 'center' se preferir */
     }
-     /* Tela de Seleção não precisa de tanto padding-bottom */
-    #retrospective-selection-screen.retrospective-screen {
-        justify-content: space-around; /* Mantém para a tela de seleção */
-        padding-bottom: 20px; 
-    }
-
     .retrospective-main-title { font-size: 28px; }
     .retrospective-stats-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
     .retrospective-stat-card { padding: 12px 8px; min-height: 170px; }
@@ -1240,31 +1214,33 @@ body.light .retrospective-final-close-x-btn:hover {
     .retrospective-badge { font-size: 11px; padding: 5px 8px; }
 
     .retrospective-final-screen-spotify-style {
-        /* Padding da tela final em si. Original era 10px. */
-        padding: 15px; 
-        padding-bottom: 25px; /* AUMENTADO: Mais espaço na parte inferior para os botões serem roláveis */
+        padding: 10px;
     }
     .retrospective-final-content-wrapper {
-        padding: 20px 15px;
-        min-height: 550px;
-        aspect-ratio: 9 / 16;
-        margin-bottom: 15px; /* Espaço entre o card e os botões de ação */
+        padding: 20px 15px clamp(15px, 3vh, 25px) 15px;
+        min-height: 540px;
     }
     .retrospective-final-main-title { font-size: 24px; margin-bottom: 15px; }
-    .retrospective-final-highlights { gap: 10px; margin-bottom: 15px; }
-    .retrospective-final-highlight-value { font-size: 22px; }
-    .retrospective-final-highlight-label { font-size: 11px; }
-    .final-highlight-icon { font-size: 18px; }
+    /* A regra para .retrospective-final-highlights abaixo já lida com 1, 2 ou 3 itens */
+    .retrospective-final-highlights {
+        gap: 8px; 
+        margin-bottom: 15px;
+        /* grid-template-columns: repeat(3, 1fr);  Removido para dar prioridade às regras de data-item-count */
+    }
+    .retrospective-final-highlight-item {
+        min-height: 85px; 
+        padding: clamp(8px, 1.5vh, 12px) clamp(5px, 1vw, 8px);
+    }
+    .retrospective-final-highlight-value { font-size: clamp(16px, 3vh, 20px); }
+    .retrospective-final-highlight-label { font-size: clamp(9px, 1.5vh, 11px); }
+    .final-highlight-icon { font-size: clamp(14px, 2.5vh, 18px); }
+
     .retrospective-final-other-stats { font-size: 12px; margin-bottom: 12px;}
     .retrospective-final-other-stat-item i { font-size: 15px; }
-     .retrospective-badge-achievement { font-size: 10px; padding: 5px 10px; }
-     .retrospective-action-buttons-container { 
-        margin-top: 15px; 
-        gap: 10px;
-        padding-bottom: 5px; /* Pequeno padding para não colar na borda */
-    }
-     .retrospective-action-buttons { flex-direction: column; }
-     .retrospective-action-button { max-width: 100%; }
+    .retrospective-badge-achievement { font-size: 10px; padding: 5px 10px; }
+    .retrospective-action-buttons-container { margin-top: 15px; gap: 10px;}
+    .retrospective-action-buttons { flex-direction: column; }
+    .retrospective-action-button { max-width: 100%; }
 
     .retrospective-final-close-x-btn {
         top: 10px;
@@ -1273,23 +1249,4 @@ body.light .retrospective-final-close-x-btn:hover {
         height: 32px;
         font-size: 18px;
     }
-}
-
-.retrospective-content-wrapper::-webkit-scrollbar {
-    width: 8px; /* largura da barra lateral */
-}
-
-.retrospective-content-wrapper::-webkit-scrollbar-track {
-    background: transparent; /* fundo da barra */
-}
-
-.retrospective-content-wrapper::-webkit-scrollbar-thumb {
-    background-color: #03C6CB !important; /* cor do scroll */
-    border-radius: 10px;
-    border: 2px solid transparent; /* opcional: efeito de "margem" */
-}
-
-.retrospective-content-wrapper {
-    scrollbar-color: #00b3ff transparent;
-    scrollbar-width: thin;
 }
