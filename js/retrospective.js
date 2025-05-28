@@ -100,7 +100,6 @@ function hexToRgbArray(hex) {
     } catch (e) { console.error("Erro ao converter hex para RGB:", hex, e); return null; }
 }
 
-// MODIFICADO: Retorna apenas o número total de minutos, arredondado.
 function formatFocusMinutes(minutes) {
     const m = parseFloat(minutes) || 0;
     return Math.round(m);
@@ -205,9 +204,10 @@ function initializeRetrospectiveInternals() {
     timePatternsNextButton = document.getElementById('retrospective-time-patterns-next-button');
     comparisonNextButton = document.getElementById('retrospective-comparison-next-button');
     shareButton = document.getElementById('retrospective-share-button');
-    downloadButton = document.getElementById('retrospective-download-button');
+    downloadButton = document.getElementById('retrospective-download-button'); // Botão que agora fará download
     finalCloseXButton = finalScreenContainer ? finalScreenContainer.querySelector('.retrospective-final-close-x-btn') : null;
 
+    // ... (restante das atribuições de elementos DOM)
     introUserNameEl = document.getElementById('retrospective-intro-user-name');
     introMonth = document.getElementById('retrospective-intro-month');
     questionsResolvedEl = document.getElementById('retrospective-questions-resolved');
@@ -247,6 +247,7 @@ function initializeRetrospectiveInternals() {
     finalProductiveDayStatItem = finalScreenContainer ? finalScreenContainer.querySelector('[data-final-metric="productiveDay"]') : null;
     finalAchievementsContainer = finalScreenContainer ? finalScreenContainer.querySelector('.retrospective-final-achievements-container') : null;
 
+
     metricButtons.forEach(button => button.addEventListener('click', toggleMetric));
     if (startRetrospectiveButton) startRetrospectiveButton.addEventListener('click', startRetrospectiveFlow);
     if (introNextButton) introNextButton.addEventListener('click', () => { populateMainStatsScreen(); showScreen(getScreenIndexById('retrospective-main-stats-screen')); });
@@ -262,7 +263,9 @@ function initializeRetrospectiveInternals() {
     if (comparisonNextButton) comparisonNextButton.addEventListener('click', () => { populateFinalScreen(); showScreen(getScreenIndexById('retrospective-final-screen')); });
     if (finalCloseXButton) finalCloseXButton.addEventListener('click', closeRetrospectiveView);
     if (shareButton) shareButton.addEventListener('click', shareRetrospectiveOnTwitterWithImage);
-    if (downloadButton) downloadButton.addEventListener('click', copyRetrospectiveImageToClipboard);
+    // MODIFICADO: O botão de download agora chama downloadRetrospectiveImageAction
+    if (downloadButton) downloadButton.addEventListener('click', downloadRetrospectiveImageAction);
+
 
     if (monthSelectionText && retrospectiveDataStore.currentMonth && Object.keys(retrospectiveDataStore.currentMonth).length > 0) {
         monthSelectionText.textContent = getMonthYearString(new Date(retrospectiveDataStore.currentMonth.year, retrospectiveDataStore.currentMonth.monthIndex));
@@ -279,9 +282,7 @@ function getScreenIndexById(screenId) {
 function applyDynamicScreenBackground(screenElement, screenIndex) {
     if (!screenElement) return;
 
-    // Para a tela de padrões de produtividade, não aplica o gradiente dinâmico, pois ela tem seu próprio tema
     if (screenElement.id === 'retrospective-time-patterns-screen') {
-        // O CSS já cuida do fundo desta tela
         return;
     }
 
@@ -643,7 +644,7 @@ function getMonthlyAggregatedData(year, monthIndex, appState) {
         mostProductiveDayOverall: mostProductiveDayOverall.date ? mostProductiveDayOverall : { date: null, totalScore: 0, questions: 0, tasks: 0, focusMinutes: 0 },
         peakFocusHour,
         longestStreakInMonth,
-        weeklyDistribution // Retorna a distribuição
+        weeklyDistribution
     };
 }
 
@@ -669,7 +670,6 @@ function populateMainStatsScreen() {
     const cardsData = [
         { metric: "questions", el: questionsResolvedEl, value: currentMonth.questionsResolved || 0, phraseEl: phraseQuestionsEl, cardSel: '[data-metric-card="questions"]', formatter: val => Math.round(val) },
         { metric: "tasks", el: tasksCompletedEl, value: currentMonth.tasksCompleted || 0, phraseEl: phraseTasksEl, cardSel: '[data-metric-card="tasks"]', formatter: val => Math.round(val) },
-        // MODIFICADO: Formatter para tempo de foco
         { metric: "focus", el: focusTimeEl, value: currentMonth.focusTimeMinutes || 0, phraseEl: phraseFocusEl, cardSel: '[data-metric-card="focus"]', formatter: val => `${Math.round(val)} min` }
     ];
     let visibleCards = 0;
@@ -679,7 +679,6 @@ function populateMainStatsScreen() {
         if (card) {
             if (selectedMetrics.includes(item.metric)) {
                 card.style.display = ''; card.classList.add('animated-metric-card');
-                // MODIFICADO: Passa item.value diretamente para animateValue (é o número de minutos)
                 if (item.el) animateValue(item.el, 0, item.value, animationDuration, item.formatter); else if (item.el) item.el.textContent = item.formatter(item.value);
                 if (item.phraseEl) item.phraseEl.textContent = getRandomPhrase(item.metric);
                 visibleCards++;
@@ -710,7 +709,7 @@ function populateProductiveDayScreen() {
         let achievementsText = [];
         if (mostProductiveDayOverall.questions > 0) achievementsText.push(`${mostProductiveDayOverall.questions} questões`);
         if (mostProductiveDayOverall.tasks > 0) achievementsText.push(`${mostProductiveDayOverall.tasks} tarefas`);
-        if (mostProductiveDayOverall.focusMinutes > 0) achievementsText.push(`${Math.round(mostProductiveDayOverall.focusMinutes)} min de foco`); // MODIFICADO: Adiciona " min"
+        if (mostProductiveDayOverall.focusMinutes > 0) achievementsText.push(`${formatFocusMinutes(mostProductiveDayOverall.focusMinutes)} min de foco`);
         mostProductiveValueEl.textContent = achievementsText.length > 0 ? achievementsText.join(' + ') + "!" : "Um dia de grande esforço!";
         if (motivationalTextEl) motivationalTextEl.innerHTML = `Você estava em <span class="retrospective-highlight-primary">modo máquina</span> neste dia! 🔥`;
     } else {
@@ -738,9 +737,9 @@ function populateTimePatternsScreen() {
     }
 
     if (weekdayChartContainer && weeklyDistribution && Array.isArray(weeklyDistribution) && weeklyDistribution.length === 7) {
-        weekdayChartContainer.innerHTML = ''; // Limpa antes de desenhar
+        weekdayChartContainer.innerHTML = '';
         const dayLabels = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-        const maxValue = Math.max(...weeklyDistribution, 1); // Evita divisão por zero, garante altura mínima se tudo for 0
+        const maxValue = Math.max(...weeklyDistribution, 1);
 
         weeklyDistribution.forEach((value, index) => {
             const barContainer = document.createElement('div');
@@ -748,17 +747,15 @@ function populateTimePatternsScreen() {
 
             const bar = document.createElement('div');
             bar.className = 'retrospective-weekday-bar';
-            // A cor da barra será definida pelo CSS usando var(--primary-color-dark/light)
 
-            const finalHeight = maxValue > 0 ? (value / maxValue) * 100 : 0; // Se maxValue é 0, altura é 0
-            bar.style.height = `0%`; // Começa com 0 para animar
+            const finalHeight = maxValue > 0 ? (value / maxValue) * 100 : 0;
+            bar.style.height = `0%`;
 
-            // Força reflow para garantir que a transição CSS funcione
             void bar.offsetWidth;
 
             setTimeout(() => {
                 bar.style.height = `${finalHeight}%`;
-            }, 100 + index * 50); // Delay para animação escalonada
+            }, 100 + index * 50);
 
             const label = document.createElement('span');
             label.className = 'retrospective-weekday-label';
@@ -786,7 +783,6 @@ function populateComparisonScreen() {
     let comparisonMetricsShown = 0;
     const animationDuration = 1000;
 
-    // MODIFICADO: formatterFunc agora pode ser uma função que recebe o valor e retorna a string formatada.
     const setTextAndPercentage = (valueEl, percentageEl, iconContainer, currentValue, previousValue, formatterFunc = (val) => `${Math.round(val)}`) => {
         let metricDisplayed = false;
         if (valueEl) animateValue(valueEl, 0, parseFloat(currentValue) || 0, animationDuration, formatterFunc);
@@ -811,7 +807,6 @@ function populateComparisonScreen() {
     const comparisonCardsData = [
         { metric: "questions", valueElId: "retrospective-comparison-questions-resolved", percentageElId: "retrospective-questions-percentage", current: currentMonth.questionsResolved || 0, prev: previousMonth.questionsResolved, cardSel: '[data-metric-comparison-card="questions"]', formatter: (val) => `${Math.round(val)}` },
         { metric: "tasks", valueElId: "retrospective-comparison-tasks-completed", percentageElId: "retrospective-tasks-percentage", current: currentMonth.tasksCompleted || 0, prev: previousMonth.tasksCompleted, cardSel: '[data-metric-comparison-card="tasks"]', formatter: (val) => `${Math.round(val)}` },
-        // MODIFICADO: Formatter para tempo de foco na tela de comparação
         { metric: "focus", valueElId: "retrospective-comparison-focus-time", percentageElId: "retrospective-focus-percentage", current: currentMonth.focusTimeMinutes || 0, prev: previousMonth.focusTimeMinutes, cardSel: '[data-metric-comparison-card="focus"]', formatter: val => `${Math.round(val)} min` }
     ];
     comparisonCardsData.forEach(item => {
@@ -819,7 +814,6 @@ function populateComparisonScreen() {
         if (card) {
             if (selectedMetrics.includes(item.metric)) {
                 card.style.display = '';
-                // MODIFICADO: Passa item.formatter como o formatterFunc
                 if (setTextAndPercentage(document.getElementById(item.valueElId), document.getElementById(item.percentageElId), document.getElementById(item.percentageElId)?.parentElement, item.current, item.prev, item.formatter)) {
                     comparisonMetricsShown++;
                 }
@@ -851,7 +845,6 @@ function populateFinalScreen() {
     [finalPeakFocusStatItem, finalLongestStreakStatItem, finalProductiveDayStatItem, finalAchievementsContainer].forEach(el => { if (el) el.style.display = 'none'; });
     if (finalQuestionsHighlightItem && selectedMetrics.includes("questions")) { finalQuestionsHighlightItem.style.display = 'flex'; if (finalQuestionsValueEl) finalQuestionsValueEl.textContent = currentMonth.questionsResolved || 0; visibleHighlightCount++; }
     if (finalTasksHighlightItem && selectedMetrics.includes("tasks")) { finalTasksHighlightItem.style.display = 'flex'; if (finalTasksValueEl) finalTasksValueEl.textContent = currentMonth.tasksCompleted || 0; visibleHighlightCount++; }
-    // MODIFICADO: Formatação do tempo de foco na tela final
     if (finalFocusHighlightItem && selectedMetrics.includes("focus")) { finalFocusHighlightItem.style.display = 'flex'; if (finalFocusValueEl) finalFocusValueEl.textContent = `${formatFocusMinutes(currentMonth.focusTimeMinutes)} min`; visibleHighlightCount++; }
     if (highlightsGrid) highlightsGrid.dataset.itemCount = visibleHighlightCount;
     if (finalPeakFocusStatItem && currentMonth.peakFocusHour !== null) { finalPeakFocusStatItem.style.display = 'flex'; if (finalPeakFocusHourEl) finalPeakFocusHourEl.textContent = `${String(currentMonth.peakFocusHour).padStart(2, '0')}:00`; } else if (finalPeakFocusStatItem && currentMonth.peakFocusHour === null) { finalPeakFocusStatItem.style.display = 'flex'; if (finalPeakFocusHourEl) finalPeakFocusHourEl.textContent = "-"; }
@@ -895,7 +888,6 @@ function generateRetrospectiveShareText() {
     let detailsAdded = 0;
     if (selectedMetrics.includes("questions") && (questionsResolved || 0) > 0) { text += `✅ ${questionsResolved} questões\n`; detailsAdded++; }
     if (selectedMetrics.includes("tasks") && (tasksCompleted || 0) > 0) { text += `🎯 ${tasksCompleted} tarefas\n`; detailsAdded++; }
-    // MODIFICADO: Formatação do tempo de foco no texto de compartilhamento
     if (selectedMetrics.includes("focus") && (focusTimeMinutes || 0) > 0) { text += `⏰ ${formatFocusMinutes(focusTimeMinutes)} min de foco\n`; detailsAdded++; }
     if (detailsAdded > 0 && ((mostProductiveDayOverall && mostProductiveDayOverall.date) || (longestStreakInMonth || 0) >= 3)) text += "\n";
     if (mostProductiveDayOverall && mostProductiveDayOverall.date && (mostProductiveDayOverall.totalScore || 0) > 0) { const prodDate = new Date(mostProductiveDayOverall.date); text += `🌟 Dia Mais Produtivo: ${prodDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }).replace('.', '')}\n`; }
@@ -904,7 +896,9 @@ function generateRetrospectiveShareText() {
     return text;
 }
 
-async function generateAndCopyRetrospectiveImageInternal(forSharingNotification = false) {
+// MODIFICADO: `generateAndCopyRetrospectiveImageInternal` agora é `generateRetrospectiveImageInternal`
+// e aceita um parâmetro `tryClipboard`
+async function generateRetrospectiveImageInternal(forSharingNotification = false, tryClipboard = true) {
     if (!finalScreenImageableContent) {
         if (typeof window.showCustomAlert === 'function') window.showCustomAlert("Erro: A área da retrospectiva não pôde ser encontrada para gerar a imagem.", "Falha ao Gerar Imagem");
         return null;
@@ -917,9 +911,10 @@ async function generateAndCopyRetrospectiveImageInternal(forSharingNotification 
     const currentPrimaryColorHex = getComputedStyle(document.documentElement).getPropertyValue(isLightTheme ? '--primary-color-light' : '--primary-color-dark').trim();
     const currentFontFamily = getComputedStyle(document.body).fontFamily;
     const primaryRgbArray = hexToRgbArray(currentPrimaryColorHex);
-    let primaryRgbStringForCssVar = primaryRgbArray ? primaryRgbArray.join(', ') : "10, 124, 255";
+    let primaryRgbStringForCssVar = primaryRgbArray ? primaryRgbArray.join(', ') : "10, 124, 255"; // Fallback
     let solidFallbackBackgroundColor = isLightTheme ? '#FFFFFF' : '#000000';
     let cardBackgroundColorForClone = isLightTheme ? `linear-gradient(160deg, rgba(${primaryRgbStringForCssVar}, 0.2) 0%, rgba(${primaryRgbStringForCssVar}, 0.08) 40%, #f8f8f8 100%)` : `linear-gradient(160deg, rgba(${primaryRgbStringForCssVar}, 0.2) 0%, rgba(${primaryRgbStringForCssVar}, 0.08) 40%, #050505 100%)`;
+
     const options = {
         backgroundColor: solidFallbackBackgroundColor, scale: 2, useCORS: true, logging: false,
         onclone: (documentCloned) => {
@@ -950,36 +945,113 @@ async function generateAndCopyRetrospectiveImageInternal(forSharingNotification 
                 clonedBadges.forEach(badge => { let badgeSolidBgColor = isLightTheme ? `rgba(${primaryRgbArray[0]}, ${primaryRgbArray[1]}, ${primaryRgbArray[2]}, 0.8)` : `rgba(${primaryRgbArray[0]}, ${primaryRgbArray[1]}, ${primaryRgbArray[2]}, 0.9)`; let badgeTextColor = isLightTheme ? (getComputedStyle(document.documentElement).getPropertyValue('--card-bg-light').trim() || '#FFFFFF') : '#FFFFFF'; badge.style.background = badgeSolidBgColor; badge.style.color = badgeTextColor; badge.style.textShadow = 'none'; badge.style.boxShadow = 'none'; badge.style.animation = 'none'; });
             }
             Array.from(document.styleSheets).forEach(styleSheet => { try { if (styleSheet.href && (styleSheet.href.includes('bootstrap-icons') || styleSheet.href.includes('retrospective.css') || styleSheet.href.includes('style.css'))) { const link = documentCloned.createElement('link'); link.rel = 'stylesheet'; link.href = styleSheet.href; documentCloned.head.appendChild(link); } else if (styleSheet.cssRules) { const style = documentCloned.createElement('style'); Array.from(styleSheet.cssRules).forEach(rule => style.appendChild(documentCloned.createTextNode(rule.cssText))); documentCloned.head.appendChild(style); } } catch (e) { if (!(e instanceof DOMException && e.name === 'SecurityError')) { console.warn("TASKIFY_RETRO: html2canvas onclone - Não foi possível clonar stylesheet:", styleSheet.href || "inline", e); } } });
-            return new Promise(resolve => setTimeout(resolve, 500));
+            return new Promise(resolve => setTimeout(resolve, 600)); // Aumentei um pouco o timeout para fontes
         }
     };
     try {
         const canvas = await html2canvas(finalScreenImageableContent, options);
-        if (navigator.clipboard && navigator.clipboard.write) {
-            return new Promise((resolvePromise, rejectPromise) => {
-                canvas.toBlob(async function (blob) {
-                    if (blob) { try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); const alertTitle = forSharingNotification ? 'Compartilhar' : 'Copiado!'; const alertMsg = forSharingNotification ? 'Imagem copiada! Cole no seu tweet.' : 'Imagem da retrospectiva copiada para a área de transferência!'; if (typeof window.showCustomAlert === 'function') window.showCustomAlert(alertMsg, alertTitle); else alert(alertMsg); resolvePromise(canvas); } catch (err) { if (typeof window.showCustomAlert === 'function') window.showCustomAlert("Não foi possível copiar a imagem automaticamente. Tente novamente ou use um print screen.", "Cópia Falhou"); else alert("Não foi possível copiar a imagem automaticamente. Tente novamente ou use um print screen."); rejectPromise(err); } }
-                    else { if (typeof window.showCustomAlert === 'function') window.showCustomAlert("Erro ao processar a imagem para cópia.", "Falha na Imagem"); else alert("Erro ao processar a imagem para cópia."); rejectPromise(new Error("Falha ao criar blob")); }
-                }, 'image/png');
-            });
-        } else { if (typeof window.showCustomAlert === 'function') window.showCustomAlert("Seu navegador não suporta a cópia automática de imagens ou a página não é segura (HTTPS).", "Aviso"); else alert("Seu navegador não suporta a cópia automática de imagens ou a página não é segura (HTTPS)."); return canvas; }
-    } catch (err) { const userMessage = `Erro ao gerar imagem da retrospectiva. Detalhes: ${err.message}.`; if (typeof window.showCustomAlert === 'function') window.showCustomAlert(userMessage, "Falha na Imagem"); else alert(userMessage); return null; }
+
+        if (tryClipboard) { // Tenta copiar para o clipboard
+            if (navigator.clipboard && navigator.clipboard.write && typeof ClipboardItem !== 'undefined') {
+                return new Promise((resolvePromise, rejectPromise) => {
+                    canvas.toBlob(async function (blob) {
+                        if (blob) {
+                            try {
+                                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                                const alertTitle = forSharingNotification ? 'Compartilhar' : 'Copiado!';
+                                const alertMsg = forSharingNotification ? 'Imagem copiada! Cole no seu tweet.' : 'Imagem da retrospectiva copiada para a área de transferência!';
+                                if (typeof window.showCustomAlert === 'function') window.showCustomAlert(alertMsg, alertTitle);
+                                else alert(alertMsg);
+                                resolvePromise(canvas);
+                            } catch (clipboardError) {
+                                console.error("TASKIFY_RETRO: Falha ao escrever no clipboard:", clipboardError);
+                                const errorMsg = `Não foi possível copiar a imagem automaticamente (${clipboardError.name || 'Erro Desconhecido'}). Tente um print screen.`;
+                                if (typeof window.showCustomAlert === 'function') window.showCustomAlert(errorMsg, "Cópia Falhou");
+                                else alert(errorMsg);
+                                rejectPromise(clipboardError);
+                            }
+                        } else {
+                            const errorMsg = "Erro ao processar a imagem (blob nulo).";
+                            if (typeof window.showCustomAlert === 'function') window.showCustomAlert(errorMsg, "Falha na Imagem"); else alert(errorMsg);
+                            rejectPromise(new Error("Falha ao criar blob"));
+                        }
+                    }, 'image/png');
+                });
+            } else {
+                // Se tryClipboard era true, mas a API não está disponível, cai aqui.
+                // Não mostra alerta aqui, pois a função chamadora (downloadRetrospectiveImageAction)
+                // já lidará com o fallback de download. Retorna null para indicar falha na cópia.
+                console.warn("TASKIFY_RETRO: API de Clipboard não disponível para cópia. A função de download deve ser usada como fallback.");
+                return null; // Indica que a cópia não foi possível
+            }
+        } else { // Se tryClipboard é false, apenas retorna o canvas (para download)
+            return canvas;
+        }
+    } catch (err) {
+        const userMessage = `Erro ao gerar imagem da retrospectiva. Detalhes: ${err.message}.`;
+        if (typeof window.showCustomAlert === 'function') window.showCustomAlert(userMessage, "Falha na Imagem");
+        else alert(userMessage);
+        return null;
+    }
+}
+
+// NOVA FUNÇÃO para download direto do canvas
+function downloadCanvasAsImageFile(canvas, filename = 'retrospectiva_taskify.png') {
+    if (!canvas) {
+        console.error("TASKIFY_RETRO: Tentativa de download com canvas nulo.");
+        return;
+    }
+    try {
+        const dataURL = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        if (typeof window.showCustomAlert === 'function') {
+            window.showCustomAlert("Download da imagem iniciado!", "Download Concluído");
+        } else {
+            alert("Download da imagem iniciado!");
+        }
+    } catch (e) {
+        console.error("TASKIFY_RETRO: Erro ao tentar baixar a imagem:", e);
+        if (typeof window.showCustomAlert === 'function') {
+            window.showCustomAlert("Ocorreu um erro ao tentar baixar a imagem.", "Falha no Download");
+        } else {
+            alert("Ocorreu um erro ao tentar baixar a imagem.");
+        }
+    }
 }
 
 async function shareRetrospectiveOnTwitterWithImage() {
     const textToShare = generateRetrospectiveShareText();
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(textToShare)}`;
-    const canvas = await generateAndCopyRetrospectiveImageInternal(true);
-    if (!canvas) {
-        if (typeof window.showCustomAlert === 'function') window.showCustomAlert('Não foi possível gerar/copiar a imagem. Compartilhando apenas texto. Abrindo Twitter...', 'Compartilhar Texto');
-        else alert('Não foi possível gerar/copiar a imagem. Compartilhando apenas texto. Abrindo Twitter...');
+    console.log("TASKIFY_RETRO: Tentando gerar e copiar imagem para o Twitter.");
+    try {
+        await generateRetrospectiveImageInternal(true, true); // Tenta copiar, forSharingNotification = true
+    } catch (error) {
+        console.warn("TASKIFY_RETRO: Cópia para clipboard falhou ao compartilhar no Twitter (erro capturado pela promise). Prosseguindo.", error);
     }
-    setTimeout(() => { window.open(twitterUrl, '_blank'); }, 1500);
+    setTimeout(() => { window.open(twitterUrl, '_blank'); }, 500);
 }
 
-async function copyRetrospectiveImageToClipboard() {
-    await generateAndCopyRetrospectiveImageInternal(false);
+// MODIFICADO: Esta função agora SEMPRE tenta o download.
+async function downloadRetrospectiveImageAction() {
+    console.log("TASKIFY_RETRO: Gerando imagem para download direto.");
+    const canvas = await generateRetrospectiveImageInternal(false, false); // tryClipboard = false
+    if (canvas) {
+        downloadCanvasAsImageFile(canvas, 'retrospectiva_taskify.png');
+    } else {
+        // O alerta de falha na geração da imagem já é mostrado dentro de generateRetrospectiveImageInternal
+        // Podemos adicionar um mais genérico aqui se necessário, mas pode ser redundante.
+        console.error("TASKIFY_RETRO: Canvas não foi gerado para download.");
+        if (typeof window.showCustomAlert === 'function' && !canvas) { // Só mostra se o canvas for realmente nulo
+             window.showCustomAlert("Não foi possível gerar a imagem para download. Tente um print screen.", "Falha no Download");
+        }
+    }
 }
+
 
 window.initializeRetrospectiveInternals = initializeRetrospectiveInternals;
 window.openRetrospectiveView = openRetrospectiveView;
