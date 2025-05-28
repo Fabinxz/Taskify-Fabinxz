@@ -151,7 +151,7 @@ body.light .retrospective-final-close-x-btn:hover {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px clamp(15px, 4vw, 25px); /* MODIFICADO: Padding superior e inferior geral reduzido de 30px para 20px */
+    padding: 20px clamp(15px, 4vw, 25px); 
     box-sizing: border-box;
     position: absolute;
     top: 0;
@@ -219,7 +219,7 @@ body.light .retrospective-screen {
     flex-direction: column;
     align-items: center;
     flex-grow: 1;
-    padding: 5px 0; /* MODIFICADO: Padding vertical interno do wrapper reduzido de 10px para 5px */
+    padding: 5px 0; 
     flex-shrink: 0;
 }
 
@@ -956,8 +956,8 @@ body.light #retrospective-productive-day-next-button.retrospective-button:hover 
 #retrospective-time-patterns-screen .retrospective-content-wrapper {
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Mantido para alinhar cards e botão, mas o conteúdo interno definirá o espaço principal */
-    gap: clamp(10px, 1.8vh, 15px); /* MODIFICADO: Gap reduzido */
+    justify-content: space-between; 
+    gap: clamp(10px, 1.8vh, 15px); 
     width: 100%;
     flex-grow: 1;
     align-items: center;
@@ -965,7 +965,7 @@ body.light #retrospective-productive-day-next-button.retrospective-button:hover 
 
 #retrospective-time-patterns-screen .retrospective-screen-title {
     color: var(--text-color-dark, #FFFFFF);
-    margin-bottom: clamp(8px, 1.5vh, 12px); /* MODIFICADO: Margem inferior reduzida */
+    margin-bottom: clamp(8px, 1.5vh, 12px); 
     flex-shrink: 0;
 }
 
@@ -976,16 +976,16 @@ body.light #retrospective-time-patterns-screen .retrospective-screen-title {
 #retrospective-time-patterns-screen .retrospective-time-patterns-main-content {
     display: flex;
     flex-direction: column;
-    gap: clamp(8px, 1.5vh, 12px); /* MODIFICADO: Gap reduzido */
+    gap: clamp(8px, 1.5vh, 12px); 
     width: 100%;
-    flex-grow: 1; /* Permite que este container cresça e preencha o espaço */
+    flex-grow: 1; 
     justify-content: flex-start;
 }
 
 #retrospective-time-patterns-screen .retrospective-time-patterns-grid {
     display: grid;
-    grid-template-columns: 1fr; /* Empilhado por padrão (mobile) */
-    gap: clamp(8px, 1.5vh, 12px); /* MODIFICADO: Gap reduzido entre os cards superiores */
+    grid-template-columns: 1fr; 
+    gap: clamp(8px, 1.5vh, 12px); 
     width: 100%;
     flex-shrink: 0;
 }
@@ -996,7 +996,7 @@ body.light #retrospective-time-patterns-screen .retrospective-screen-title {
     border: 1px solid var(--card-border-dark);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     color: var(--text-color-dark);
-    padding: clamp(10px, 1.8vh, 15px); /* MODIFICADO: Padding reduzido */
+    padding: clamp(10px, 1.8vh, 15px); 
     border-radius: 10px;
     display: flex;
     flex-direction: column;
@@ -1012,9 +1012,9 @@ body.light #retrospective-time-patterns-screen .retrospective-card-indigo {
 }
 
 #retrospective-time-patterns-screen .retrospective-time-patterns-grid .retrospective-stat-card {
-    min-height: clamp(110px, 18vh, 130px); /* MODIFICADO: Altura dos cards superiores reduzida */
-    flex-grow: 0; /* MODIFICADO: Impede que cresçam demais se houver muito espaço vertical */
-    flex-shrink: 1; /* Permite encolher se necessário */
+    min-height: clamp(110px, 18vh, 130px); 
+    flex-grow: 0; 
+    flex-shrink: 1; 
 }
 
 #retrospective-time-patterns-screen .retrospective-time-patterns-grid .retrospective-stat-card:hover {
@@ -1026,13 +1026,13 @@ body.light #retrospective-time-patterns-screen .retrospective-card-indigo {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: clamp(5px, 1vh, 8px); /* MODIFICADO: Margem inferior reduzida */
+    margin-bottom: clamp(5px, 1vh, 8px); 
 }
 
 #retrospective-time-patterns-screen .retrospective-card-header .retrospective-icon-large {
     color: var(--primary-color-dark);
-    font-size: clamp(24px, 4.5vw, 28px); /* MODIFICADO: Tamanho do ícone reduzido */
-    margin-bottom: 5px; /* MODIFICADO: Margem inferior reduzida */
+    font-size: clamp(24px, 4.5vw, 28px); 
+    margin-bottom: 5px; 
 }
 
 body.light #retrospective-time-patterns-screen .retrospective-card-header .retrospective-icon-large {
@@ -1041,9 +1041,9 @@ body.light #retrospective-time-patterns-screen .retrospective-card-header .retro
 
 #retrospective-time-patterns-screen .retrospective-card-title {
     color: var(--text-color-dark);
-    font-size: clamp(14px, 3vw, 16px); /* MODIFICADO: Tamanho do título reduzido */
+    font-size: clamp(14px, 3vw, 16px); 
     font-weight: 600;
-    margin-bottom: 3px; /* MODIFICADO: Margem inferior reduzida */
+    margin-bottom: 3px; 
 }
 
 body.light #retrospective-time-patterns-screen .retrospective-card-title {
@@ -1052,9 +1052,9 @@ body.light #retrospective-time-patterns-screen .retrospective-card-title {
 
 #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-stat-value {
     color: var(--text-color-dark);
-    font-size: clamp(26px, 6.5vw, 34px); /* MODIFICADO: Valor principal reduzido */
+    font-size: clamp(26px, 6.5vw, 34px); 
     font-weight: 700;
-    margin-bottom: 2px; /* MODIFICADO: Margem inferior reduzida */
+    margin-bottom: 2px; 
     line-height: 1.1;
 }
 
@@ -1065,8 +1065,8 @@ body.light #retrospective-time-patterns-screen .retrospective-stat-card .retrosp
 #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-card-subtitle,
 #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-stat-label {
     color: var(--text-muted-dark);
-    font-size: clamp(11px, 2.5vw, 13px); /* MODIFICADO: Tamanho do subtítulo/label reduzido */
-    line-height: 1.2; /* MODIFICADO: Line-height ajustado */
+    font-size: clamp(11px, 2.5vw, 13px); 
+    line-height: 1.2; 
 }
 
 body.light #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-card-subtitle,
@@ -1076,24 +1076,24 @@ body.light #retrospective-time-patterns-screen .retrospective-stat-card .retrosp
 
 /* Card de Distribuição Semanal */
 #retrospective-time-patterns-screen .retrospective-card-indigo {
-    min-height: clamp(150px, 25vh, 200px); /* MODIFICADO: Altura do card de distribuição reduzida */
+    min-height: clamp(150px, 25vh, 200px); 
     width: 100%;
     justify-content: space-between;
-    flex-grow: 1; /* Mantido para usar espaço se disponível */
+    flex-grow: 1; 
     display: flex;
     flex-direction: column;
 }
 
 #retrospective-time-patterns-screen .retrospective-weekday-chart {
-    min-height: 70px; /* MODIFICADO: Altura mínima para as barras reduzida */
-    height: clamp(70px, 13vh, 100px); /* MODIFICADO: Altura flexível para o gráfico reduzida */
+    min-height: 70px; 
+    height: clamp(70px, 13vh, 100px); 
     width: 100%;
     display: flex;
     justify-content: space-around;
     align-items: flex-end;
     margin-top: auto;
     flex-grow: 1;
-    padding-bottom: 3px; /* MODIFICADO: Pequena redução no padding inferior */
+    padding-bottom: 3px; 
 }
 
 .retrospective-weekday-bar-container {
@@ -1103,15 +1103,15 @@ body.light #retrospective-time-patterns-screen .retrospective-stat-card .retrosp
     height: 100%;
     justify-content: flex-end;
     flex-basis: 12%;
-    max-width: 35px; /* MODIFICADO: Largura máxima da barra individual reduzida */
+    max-width: 35px; 
 }
 
 .retrospective-weekday-bar {
-    width: clamp(15px, 3.5vw, 24px); /* MODIFICADO: Largura da barra reduzida */
+    width: clamp(15px, 3.5vw, 24px); 
     background: var(--primary-color-dark);
-    border-radius: 4px 4px 0 0; /* MODIFICADO: Bordas arredondadas levemente reduzidas */
+    border-radius: 4px 4px 0 0; 
     transition: height 0.5s ease-out, background-color 0.3s ease, filter 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); /* MODIFICADO: Sombra mais sutil */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); 
 }
 
 body.light .retrospective-weekday-bar {
@@ -1119,12 +1119,12 @@ body.light .retrospective-weekday-bar {
 }
 
 .retrospective-weekday-bar:hover {
-    filter: brightness(1.2); /* MODIFICADO: Efeito de hover levemente ajustado */
+    filter: brightness(1.2); 
 }
 
 .retrospective-weekday-label {
-    margin-top: 6px; /* MODIFICADO: Espaço reduzido */
-    font-size: clamp(10px, 2vw, 12px); /* MODIFICADO: Tamanho do label reduzido */
+    margin-top: 6px; 
+    font-size: clamp(10px, 2vw, 12px); 
     color: var(--text-muted-dark);
     text-align: center;
 }
@@ -1137,7 +1137,7 @@ body.light .retrospective-weekday-label {
     background: var(--primary-color-dark);
     color: white;
     box-shadow: 0 4px 15px rgba(var(--primary-color-dark-rgb), 0.3);
-    margin-top: clamp(15px, 2vh, 20px); /* MODIFICADO: Margem superior reduzida */
+    margin-top: clamp(15px, 2vh, 20px); 
     align-self: center;
     flex-shrink: 0;
 }
@@ -1157,7 +1157,11 @@ body.light #retrospective-time-patterns-screen #retrospective-time-patterns-next
 }
 
 
-/* Tela Comparação */
+/* === Tela Comparação === */
+#retrospective-comparison-screen .retrospective-content-wrapper {
+    gap: clamp(15px, 2.5vh, 20px); /* Espaçamento entre título, grid e botão */
+}
+
 #retrospective-comparison-screen .retrospective-screen-title {
     background: linear-gradient(135deg, var(--primary-color-dark), color-mix(in srgb, var(--primary-color-dark) 60%, #fff 40%));
     -webkit-background-clip: text;
@@ -1165,6 +1169,7 @@ body.light #retrospective-time-patterns-screen #retrospective-time-patterns-next
     -webkit-text-fill-color: transparent;
     color: transparent;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .2));
+    margin-bottom: clamp(15px, 2.5vh, 20px); /* MODIFICADO: Margem inferior reduzida */
 }
 
 body.light #retrospective-comparison-screen .retrospective-screen-title {
@@ -1175,8 +1180,22 @@ body.light #retrospective-comparison-screen .retrospective-screen-title {
     color: transparent;
 }
 
+#retrospective-comparison-screen .retrospective-stats-grid {
+    margin-bottom: clamp(15px, 2.5vh, 20px); /* MODIFICADO: Margem inferior reduzida */
+    gap: clamp(10px, 2vw, 15px); /* Espaçamento entre os cards */
+}
+
 #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card {
-    min-height: clamp(160px, 38vw, 190px);
+    min-height: clamp(130px, 30vh, 160px); /* MODIFICADO: Altura mínima reduzida */
+    padding: clamp(10px, 2vh, 15px);    /* MODIFICADO: Padding reduzido */
+    justify-content: center; /* MODIFICADO: Centraliza o conteúdo verticalmente */
+}
+
+/* Ajuste específico para o label dentro dos cards de comparação */
+#retrospective-comparison-screen .retrospective-stat-label {
+    margin-bottom: 4px; /* MODIFICADO: Margem inferior bem reduzida */
+    flex-grow: 0; /* MODIFICADO: Impede que o label expanda e crie espaço extra */
+    line-height: 1.2;
 }
 
 .retrospective-comparison-percentage {
@@ -1184,8 +1203,8 @@ body.light #retrospective-comparison-screen .retrospective-screen-title {
     align-items: center;
     justify-content: center;
     gap: 5px;
-    font-size: clamp(1.1em, 3vw, 1.2em);
-    margin-top: 6px;
+    font-size: clamp(1em, 2.8vw, 1.15em); /* MODIFICADO: Tamanho da fonte levemente ajustado */
+    margin-top: 4px; /* MODIFICADO: Margem superior reduzida */
     font-weight: 600;
 }
 
@@ -1201,10 +1220,17 @@ body.light .retrospective-comparison-percentage .retrospective-icon-small.retros
     color: #FF3B30;
 }
 
+#retrospective-comparison-screen .retrospective-motivational-text {
+    margin-bottom: clamp(15px, 2.5vh, 20px); /* MODIFICADO: Margem inferior reduzida */
+    font-size: clamp(16px, 4vw, 18px); /* Tamanho da fonte ajustado */
+}
+
+
 #retrospective-comparison-next-button.retrospective-button {
     background: var(--primary-color-dark);
     color: #fff;
     box-shadow: 0 4px 15px rgba(var(--primary-color-dark-rgb), .4);
+    margin-top: 0; /* A margem virá do gap do content-wrapper */
 }
 
 body.light #retrospective-comparison-next-button.retrospective-button {
@@ -1636,7 +1662,7 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
     }
 
     .retrospective-screen {
-        padding: 20px clamp(15px, 4vw, 20px); /* MODIFICADO: Padding geral um pouco reduzido */
+        padding: 20px clamp(15px, 4vw, 20px); 
     }
 
     .retrospective-music-control-button,
@@ -1683,7 +1709,7 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
     }
 
     .retrospective-screen {
-        padding: 15px clamp(10px, 3vw, 15px); /* MODIFICADO: Padding geral ainda mais reduzido */
+        padding: 15px clamp(10px, 3vw, 15px); 
     }
 
     .retrospective-main-title {
@@ -1692,7 +1718,7 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
 
     .retrospective-screen-title {
         font-size: clamp(22px, 6vw, 30px);
-        margin-bottom: 15px; /* MODIFICADO: Margem inferior do título reduzida */
+        margin-bottom: 15px; 
     }
 
     .retrospective-stats-grid {
@@ -1788,7 +1814,7 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
     }
 
     .retrospective-screen {
-        padding: 10px 5px; /* MODIFICADO: Padding geral bem reduzido */
+        padding: 10px 5px; 
     }
 
     .retrospective-music-control-button,
@@ -1813,7 +1839,7 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
 
     .retrospective-screen-title {
         font-size: clamp(20px, 5.5vw, 26px);
-        margin-bottom: 10px; /* MODIFICADO: Margem inferior do título mais reduzida */
+        margin-bottom: 10px; 
     }
 
     .retrospective-intro-title {
@@ -1841,60 +1867,94 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
 
     /* Ajustes específicos para #retrospective-time-patterns-screen em telas muito pequenas */
     #retrospective-time-patterns-screen .retrospective-content-wrapper {
-        gap: clamp(8px, 1.5vh, 12px); /* MODIFICADO: Gap ainda menor */
+        gap: clamp(8px, 1.5vh, 12px); 
     }
      #retrospective-time-patterns-screen .retrospective-screen-title {
-        margin-bottom: clamp(5px, 1vh, 8px); /* MODIFICADO: Margem ainda menor */
-        font-size: clamp(18px, 5vw, 22px); /* MODIFICADO: Título da tela menor */
+        margin-bottom: clamp(5px, 1vh, 8px); 
+        font-size: clamp(18px, 5vw, 22px); 
     }
     #retrospective-time-patterns-screen .retrospective-time-patterns-main-content {
-        gap: clamp(6px, 1vh, 10px); /* MODIFICADO: Gap ainda menor */
+        gap: clamp(6px, 1vh, 10px); 
     }
     #retrospective-time-patterns-screen .retrospective-time-patterns-grid {
-        gap: clamp(6px, 1vh, 10px); /* MODIFICADO: Gap ainda menor */
+        gap: clamp(6px, 1vh, 10px); 
     }
 
     #retrospective-time-patterns-screen .retrospective-time-patterns-grid .retrospective-stat-card {
-        min-height: clamp(100px, 16vh, 120px); /* MODIFICADO: Altura dos cards superiores bem reduzida */
-        padding: clamp(8px, 1.5vh, 12px); /* MODIFICADO: Padding reduzido */
+        min-height: clamp(100px, 16vh, 120px); 
+        padding: clamp(8px, 1.5vh, 12px); 
     }
     #retrospective-time-patterns-screen .retrospective-card-header .retrospective-icon-large {
-        font-size: clamp(20px, 4vw, 24px); /* MODIFICADO: Ícone menor */
+        font-size: clamp(20px, 4vw, 24px); 
         margin-bottom: 3px;
     }
      #retrospective-time-patterns-screen .retrospective-card-title {
-        font-size: clamp(12px, 2.8vw, 14px); /* MODIFICADO: Título do card menor */
+        font-size: clamp(12px, 2.8vw, 14px); 
         margin-bottom: 2px;
     }
     #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-stat-value {
-        font-size: clamp(22px, 6vw, 28px); /* MODIFICADO: Valor principal menor */
+        font-size: clamp(22px, 6vw, 28px); 
     }
      #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-card-subtitle,
      #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-stat-label {
-        font-size: clamp(10px, 2.2vw, 12px); /* MODIFICADO: Subtítulo/label menor */
+        font-size: clamp(10px, 2.2vw, 12px); 
     }
 
     #retrospective-time-patterns-screen .retrospective-card-indigo {
-        min-height: clamp(130px, 22vh, 170px); /* MODIFICADO: Altura do card de distribuição bem reduzida */
-        padding: clamp(8px, 1.5vh, 12px); /* MODIFICADO: Padding reduzido */
+        min-height: clamp(130px, 22vh, 170px); 
+        padding: clamp(8px, 1.5vh, 12px); 
     }
 
     #retrospective-time-patterns-screen .retrospective-weekday-chart {
-        min-height: 60px; /* MODIFICADO: Altura mínima do gráfico bem reduzida */
-        height: clamp(60px, 10vh, 80px); /* MODIFICADO: Altura flexível do gráfico bem reduzida */
+        min-height: 60px; 
+        height: clamp(60px, 10vh, 80px); 
     }
      .retrospective-weekday-bar {
-        width: clamp(12px, 3vw, 20px); /* MODIFICADO: Largura da barra menor */
+        width: clamp(12px, 3vw, 20px); 
     }
     .retrospective-weekday-label {
-        margin-top: 4px; /* MODIFICADO: Espaço acima do label menor */
-        font-size: clamp(9px, 1.8vw, 11px); /* MODIFICADO: Label menor */
+        margin-top: 4px; 
+        font-size: clamp(9px, 1.8vw, 11px); 
     }
     #retrospective-time-patterns-screen #retrospective-time-patterns-next-button.retrospective-button {
-        margin-top: clamp(10px, 1.5vh, 15px); /* MODIFICADO: Margem do botão menor */
-        padding: 10px 24px; /* MODIFICADO: Padding do botão ajustado */
+        margin-top: clamp(10px, 1.5vh, 15px); 
+        padding: 10px 24px; 
         font-size: clamp(13px, 3vw, 14px);
     }
+
+    /* Ajustes específicos para #retrospective-comparison-screen em telas muito pequenas */
+    #retrospective-comparison-screen .retrospective-screen-title {
+        font-size: clamp(18px, 5vw, 22px);
+        margin-bottom: clamp(10px, 2vh, 15px);
+    }
+    #retrospective-comparison-screen .retrospective-stats-grid {
+        gap: clamp(8px, 1.5vw, 12px);
+        margin-bottom: clamp(10px, 2vh, 15px);
+    }
+    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card {
+        min-height: clamp(110px, 28vh, 140px);
+        padding: clamp(8px, 1.5vh, 12px);
+    }
+    #retrospective-comparison-screen .retrospective-stat-value {
+        font-size: clamp(22px, 6vw, 28px);
+    }
+    #retrospective-comparison-screen .retrospective-stat-label {
+        font-size: clamp(10px, 2.2vw, 12px);
+        margin-bottom: 2px; /* Ainda menor para comparação */
+    }
+    #retrospective-comparison-screen .retrospective-comparison-percentage {
+        font-size: clamp(0.9em, 2.5vw, 1em);
+        margin-top: 2px; /* Ainda menor para comparação */
+    }
+    #retrospective-comparison-screen .retrospective-motivational-text {
+        font-size: clamp(13px, 3.5vw, 15px);
+        margin-bottom: clamp(10px, 2vh, 15px);
+    }
+     #retrospective-comparison-screen #retrospective-comparison-next-button.retrospective-button {
+        padding: 10px 24px;
+        font-size: clamp(13px, 3vw, 14px);
+    }
+
 
     .retrospective-final-screen-spotify-style {
         padding: 10px 3px;
