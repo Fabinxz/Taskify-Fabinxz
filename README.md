@@ -65,7 +65,7 @@ Taskify é um dashboard responsivo e personalizável para acompanhamento de meta
 *   **Bootstrap Icons** (para ícones)
 *   **html2canvas** (para gerar imagem da retrospectiva)
 
-## ✨ Como Usar
+## ⚡ Como Usar
 
 1.  Clone o repositório:
     ```bash
