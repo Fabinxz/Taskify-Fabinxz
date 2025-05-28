@@ -73,6 +73,11 @@ const motivationalPhrases = {
     ]
 };
 
+// --- Funções de Detecção de Mobile (simples) ---
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 // FUNÇÕES UTILITÁRIAS E DE LÓGICA INTERNA DA RETROSPECTIVA
 function getMonthYearString(date = new Date()) {
     if (!(date instanceof Date) || isNaN(date.valueOf())) {
@@ -204,10 +209,9 @@ function initializeRetrospectiveInternals() {
     timePatternsNextButton = document.getElementById('retrospective-time-patterns-next-button');
     comparisonNextButton = document.getElementById('retrospective-comparison-next-button');
     shareButton = document.getElementById('retrospective-share-button');
-    downloadButton = document.getElementById('retrospective-download-button'); // Botão que agora fará download
+    downloadButton = document.getElementById('retrospective-download-button');
     finalCloseXButton = finalScreenContainer ? finalScreenContainer.querySelector('.retrospective-final-close-x-btn') : null;
 
-    // ... (restante das atribuições de elementos DOM)
     introUserNameEl = document.getElementById('retrospective-intro-user-name');
     introMonth = document.getElementById('retrospective-intro-month');
     questionsResolvedEl = document.getElementById('retrospective-questions-resolved');
@@ -247,7 +251,6 @@ function initializeRetrospectiveInternals() {
     finalProductiveDayStatItem = finalScreenContainer ? finalScreenContainer.querySelector('[data-final-metric="productiveDay"]') : null;
     finalAchievementsContainer = finalScreenContainer ? finalScreenContainer.querySelector('.retrospective-final-achievements-container') : null;
 
-
     metricButtons.forEach(button => button.addEventListener('click', toggleMetric));
     if (startRetrospectiveButton) startRetrospectiveButton.addEventListener('click', startRetrospectiveFlow);
     if (introNextButton) introNextButton.addEventListener('click', () => { populateMainStatsScreen(); showScreen(getScreenIndexById('retrospective-main-stats-screen')); });
@@ -263,9 +266,7 @@ function initializeRetrospectiveInternals() {
     if (comparisonNextButton) comparisonNextButton.addEventListener('click', () => { populateFinalScreen(); showScreen(getScreenIndexById('retrospective-final-screen')); });
     if (finalCloseXButton) finalCloseXButton.addEventListener('click', closeRetrospectiveView);
     if (shareButton) shareButton.addEventListener('click', shareRetrospectiveOnTwitterWithImage);
-    // MODIFICADO: O botão de download agora chama downloadRetrospectiveImageAction
     if (downloadButton) downloadButton.addEventListener('click', downloadRetrospectiveImageAction);
-
 
     if (monthSelectionText && retrospectiveDataStore.currentMonth && Object.keys(retrospectiveDataStore.currentMonth).length > 0) {
         monthSelectionText.textContent = getMonthYearString(new Date(retrospectiveDataStore.currentMonth.year, retrospectiveDataStore.currentMonth.monthIndex));
@@ -896,22 +897,21 @@ function generateRetrospectiveShareText() {
     return text;
 }
 
-// MODIFICADO: `generateAndCopyRetrospectiveImageInternal` agora é `generateRetrospectiveImageInternal`
-// e aceita um parâmetro `tryClipboard`
 async function generateRetrospectiveImageInternal(forSharingNotification = false, tryClipboard = true) {
     if (!finalScreenImageableContent) {
         if (typeof window.showCustomAlert === 'function') window.showCustomAlert("Erro: A área da retrospectiva não pôde ser encontrada para gerar a imagem.", "Falha ao Gerar Imagem");
-        return null;
+        return { success: false, canvas: null, error: "Conteúdo da tela final não encontrado." };
     }
     if (typeof html2canvas !== 'function') {
         if (typeof window.showCustomAlert === 'function') window.showCustomAlert("Erro: A funcionalidade de imagem (html2canvas) não está disponível.", "Funcionalidade Indisponível");
-        return null;
+        return { success: false, canvas: null, error: "html2canvas não disponível." };
     }
+
     const isLightTheme = document.body.classList.contains('light');
     const currentPrimaryColorHex = getComputedStyle(document.documentElement).getPropertyValue(isLightTheme ? '--primary-color-light' : '--primary-color-dark').trim();
     const currentFontFamily = getComputedStyle(document.body).fontFamily;
     const primaryRgbArray = hexToRgbArray(currentPrimaryColorHex);
-    let primaryRgbStringForCssVar = primaryRgbArray ? primaryRgbArray.join(', ') : "10, 124, 255"; // Fallback
+    let primaryRgbStringForCssVar = primaryRgbArray ? primaryRgbArray.join(', ') : "10, 124, 255";
     let solidFallbackBackgroundColor = isLightTheme ? '#FFFFFF' : '#000000';
     let cardBackgroundColorForClone = isLightTheme ? `linear-gradient(160deg, rgba(${primaryRgbStringForCssVar}, 0.2) 0%, rgba(${primaryRgbStringForCssVar}, 0.08) 40%, #f8f8f8 100%)` : `linear-gradient(160deg, rgba(${primaryRgbStringForCssVar}, 0.2) 0%, rgba(${primaryRgbStringForCssVar}, 0.08) 40%, #050505 100%)`;
 
@@ -940,20 +940,21 @@ async function generateRetrospectiveImageInternal(forSharingNotification = false
                 clonedContentWrapper.querySelectorAll('.retrospective-final-other-stat-item i').forEach(el => el.style.color = currentPrimaryColorHex);
                 clonedContentWrapper.querySelectorAll('.retrospective-final-other-stat-item span, .retrospective-final-other-stat-item strong').forEach(el => el.style.color = textColorForClone);
                 clonedContentWrapper.querySelector('.retrospective-final-achievements-title').style.color = isLightTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.8)';
-                const clonedFooter = clonedContentWrapper.querySelector('.retrospective-final-footer'); if (clonedFooter) { clonedFooter.textContent = "#TaskifyWrapped"; clonedFooter.style.color = isLightTheme ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.6)'; }
+                const clonedFooter = clonedContentWrapper.querySelector('.retrospective-final-footer'); if (clonedFooter) { clonedFooter.textContent = "#TaskifyWrapped"; clonedFooter.style.color = isLightTheme ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.6)';}
                 const clonedBadges = documentCloned.querySelectorAll('.retrospective-badge-achievement');
                 clonedBadges.forEach(badge => { let badgeSolidBgColor = isLightTheme ? `rgba(${primaryRgbArray[0]}, ${primaryRgbArray[1]}, ${primaryRgbArray[2]}, 0.8)` : `rgba(${primaryRgbArray[0]}, ${primaryRgbArray[1]}, ${primaryRgbArray[2]}, 0.9)`; let badgeTextColor = isLightTheme ? (getComputedStyle(document.documentElement).getPropertyValue('--card-bg-light').trim() || '#FFFFFF') : '#FFFFFF'; badge.style.background = badgeSolidBgColor; badge.style.color = badgeTextColor; badge.style.textShadow = 'none'; badge.style.boxShadow = 'none'; badge.style.animation = 'none'; });
             }
             Array.from(document.styleSheets).forEach(styleSheet => { try { if (styleSheet.href && (styleSheet.href.includes('bootstrap-icons') || styleSheet.href.includes('retrospective.css') || styleSheet.href.includes('style.css'))) { const link = documentCloned.createElement('link'); link.rel = 'stylesheet'; link.href = styleSheet.href; documentCloned.head.appendChild(link); } else if (styleSheet.cssRules) { const style = documentCloned.createElement('style'); Array.from(styleSheet.cssRules).forEach(rule => style.appendChild(documentCloned.createTextNode(rule.cssText))); documentCloned.head.appendChild(style); } } catch (e) { if (!(e instanceof DOMException && e.name === 'SecurityError')) { console.warn("TASKIFY_RETRO: html2canvas onclone - Não foi possível clonar stylesheet:", styleSheet.href || "inline", e); } } });
-            return new Promise(resolve => setTimeout(resolve, 600)); // Aumentei um pouco o timeout para fontes
+            return new Promise(resolve => setTimeout(resolve, 600));
         }
     };
+
     try {
         const canvas = await html2canvas(finalScreenImageableContent, options);
 
-        if (tryClipboard) { // Tenta copiar para o clipboard
+        if (tryClipboard) {
             if (navigator.clipboard && navigator.clipboard.write && typeof ClipboardItem !== 'undefined') {
-                return new Promise((resolvePromise, rejectPromise) => {
+                await new Promise((resolvePromise, rejectPromise) => {
                     canvas.toBlob(async function (blob) {
                         if (blob) {
                             try {
@@ -961,41 +962,41 @@ async function generateRetrospectiveImageInternal(forSharingNotification = false
                                 const alertTitle = forSharingNotification ? 'Compartilhar' : 'Copiado!';
                                 const alertMsg = forSharingNotification ? 'Imagem copiada! Cole no seu tweet.' : 'Imagem da retrospectiva copiada para a área de transferência!';
                                 if (typeof window.showCustomAlert === 'function') window.showCustomAlert(alertMsg, alertTitle);
-                                else alert(alertMsg);
-                                resolvePromise(canvas);
+                                resolvePromise();
                             } catch (clipboardError) {
                                 console.error("TASKIFY_RETRO: Falha ao escrever no clipboard:", clipboardError);
-                                const errorMsg = `Não foi possível copiar a imagem automaticamente (${clipboardError.name || 'Erro Desconhecido'}). Tente um print screen.`;
+                                const errorMsg = `Não foi possível copiar a imagem automaticamente (${clipboardError.name || 'Erro Desconhecido'}). ${isMobileDevice() ? 'Você pode baixar a imagem usando o outro botão e anexá-la manualmente.' : 'Tente um print screen.'}`;
                                 if (typeof window.showCustomAlert === 'function') window.showCustomAlert(errorMsg, "Cópia Falhou");
-                                else alert(errorMsg);
                                 rejectPromise(clipboardError);
                             }
                         } else {
                             const errorMsg = "Erro ao processar a imagem (blob nulo).";
-                            if (typeof window.showCustomAlert === 'function') window.showCustomAlert(errorMsg, "Falha na Imagem"); else alert(errorMsg);
+                            if (typeof window.showCustomAlert === 'function') window.showCustomAlert(errorMsg, "Falha na Imagem");
                             rejectPromise(new Error("Falha ao criar blob"));
                         }
                     }, 'image/png');
                 });
+                return { success: true, canvas: canvas, error: null }; // Cópia bem-sucedida
             } else {
-                // Se tryClipboard era true, mas a API não está disponível, cai aqui.
-                // Não mostra alerta aqui, pois a função chamadora (downloadRetrospectiveImageAction)
-                // já lidará com o fallback de download. Retorna null para indicar falha na cópia.
-                console.warn("TASKIFY_RETRO: API de Clipboard não disponível para cópia. A função de download deve ser usada como fallback.");
-                return null; // Indica que a cópia não foi possível
+                console.warn("TASKIFY_RETRO: API de Clipboard não disponível para cópia.");
+                 if (forSharingNotification && isMobileDevice()) {
+                    // Se for para compartilhar e é mobile, não mostre erro aqui, o fluxo de fallback (download) será ativado
+                } else if (forSharingNotification) { // Desktop e API não disponível
+                    if (typeof window.showCustomAlert === 'function') window.showCustomAlert("Seu navegador não suporta copiar imagens para a área de transferência. Tente baixar a imagem.", "Aviso");
+                }
+                return { success: false, canvas: canvas, error: "API de Clipboard indisponível." }; // Retorna o canvas para fallback
             }
         } else { // Se tryClipboard é false, apenas retorna o canvas (para download)
-            return canvas;
+            return { success: true, canvas: canvas, error: null };
         }
     } catch (err) {
         const userMessage = `Erro ao gerar imagem da retrospectiva. Detalhes: ${err.message}.`;
         if (typeof window.showCustomAlert === 'function') window.showCustomAlert(userMessage, "Falha na Imagem");
-        else alert(userMessage);
-        return null;
+        return { success: false, canvas: null, error: err.message };
     }
 }
 
-// NOVA FUNÇÃO para download direto do canvas
+
 function downloadCanvasAsImageFile(canvas, filename = 'retrospectiva_taskify.png') {
     if (!canvas) {
         console.error("TASKIFY_RETRO: Tentativa de download com canvas nulo.");
@@ -1027,27 +1028,54 @@ function downloadCanvasAsImageFile(canvas, filename = 'retrospectiva_taskify.png
 async function shareRetrospectiveOnTwitterWithImage() {
     const textToShare = generateRetrospectiveShareText();
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(textToShare)}`;
-    console.log("TASKIFY_RETRO: Tentando gerar e copiar imagem para o Twitter.");
-    try {
-        await generateRetrospectiveImageInternal(true, true); // Tenta copiar, forSharingNotification = true
-    } catch (error) {
-        console.warn("TASKIFY_RETRO: Cópia para clipboard falhou ao compartilhar no Twitter (erro capturado pela promise). Prosseguindo.", error);
+    let imageGeneratedAndHandled = false;
+
+    if (isMobileDevice()) {
+        console.log("TASKIFY_RETRO: Modo mobile para compartilhar. Tentando download da imagem.");
+        const result = await generateRetrospectiveImageInternal(true, false); // forSharingNotification = true, tryClipboard = false
+        if (result.success && result.canvas) {
+            downloadCanvasAsImageFile(result.canvas, 'retrospectiva_taskify_twitter.png');
+            if (typeof window.showCustomAlert === 'function') {
+                window.showCustomAlert("Imagem baixada! Agora, anexe-a ao seu tweet.", "Compartilhar no Twitter");
+            }
+            imageGeneratedAndHandled = true;
+        } else {
+            if (typeof window.showCustomAlert === 'function') {
+                 window.showCustomAlert("Não foi possível preparar a imagem para o Twitter. Você pode tentar baixá-la com o outro botão ou compartilhar apenas o texto.", "Falha na Imagem");
+            }
+        }
+    } else {
+        console.log("TASKIFY_RETRO: Modo desktop para compartilhar. Tentando copiar imagem para o clipboard.");
+        const result = await generateRetrospectiveImageInternal(true, true); // forSharingNotification = true, tryClipboard = true
+        if (result.success && result.canvas) { // Se success for true, a cópia ocorreu (ou o alerta de falha na cópia já foi dado)
+            imageGeneratedAndHandled = true;
+        } else if (!result.success && result.canvas) { // Falha na cópia (API indisponível), mas canvas existe
+            if (typeof window.showCustomAlert === 'function') {
+                 window.showCustomAlert("Não foi possível copiar a imagem. Tente baixá-la com o outro botão e anexar ao tweet, ou compartilhe apenas o texto.", "Falha na Cópia");
+            }
+        } else { // Falha completa na geração da imagem (result.canvas é null)
+             if (typeof window.showCustomAlert === 'function') {
+                window.showCustomAlert("Não foi possível gerar a imagem para o Twitter. Compartilhando apenas o texto.", "Falha na Imagem");
+            }
+        }
     }
-    setTimeout(() => { window.open(twitterUrl, '_blank'); }, 500);
+
+    setTimeout(() => {
+        window.open(twitterUrl, '_blank');
+    }, imageGeneratedAndHandled ? 1500 : 500);
 }
 
-// MODIFICADO: Esta função agora SEMPRE tenta o download.
 async function downloadRetrospectiveImageAction() {
     console.log("TASKIFY_RETRO: Gerando imagem para download direto.");
-    const canvas = await generateRetrospectiveImageInternal(false, false); // tryClipboard = false
-    if (canvas) {
-        downloadCanvasAsImageFile(canvas, 'retrospectiva_taskify.png');
+    const result = await generateRetrospectiveImageInternal(false, false);
+    if (result.success && result.canvas) {
+        downloadCanvasAsImageFile(result.canvas, 'retrospectiva_taskify.png');
     } else {
-        // O alerta de falha na geração da imagem já é mostrado dentro de generateRetrospectiveImageInternal
-        // Podemos adicionar um mais genérico aqui se necessário, mas pode ser redundante.
-        console.error("TASKIFY_RETRO: Canvas não foi gerado para download.");
-        if (typeof window.showCustomAlert === 'function' && !canvas) { // Só mostra se o canvas for realmente nulo
+        console.error("TASKIFY_RETRO: Canvas não foi gerado para download ou houve erro.");
+        if (typeof window.showCustomAlert === 'function' && !result.canvas) {
              window.showCustomAlert("Não foi possível gerar a imagem para download. Tente um print screen.", "Falha no Download");
+        } else if (typeof window.showCustomAlert === 'function' && result.canvas && !result.success) { // Canvas existe, mas success é false (ex: API clipboard falhou)
+            window.showCustomAlert("Houve um problema ao preparar a imagem para download (Canvas gerado, mas erro na operação).", "Falha");
         }
     }
 }
