@@ -100,13 +100,10 @@ function hexToRgbArray(hex) {
     } catch (e) { console.error("Erro ao converter hex para RGB:", hex, e); return null; }
 }
 
+// MODIFICADO: Retorna apenas o número total de minutos, arredondado.
 function formatFocusMinutes(minutes) {
-    const m = Math.round(parseFloat(minutes) || 0);
-    if (m < 60) return `${m} min`;
-    const hours = Math.floor(m / 60);
-    const remainingMinutes = m % 60;
-    if (remainingMinutes === 0) return `${hours}h`;
-    return `${hours}h ${remainingMinutes}min`;
+    const m = parseFloat(minutes) || 0;
+    return Math.round(m);
 }
 
 function animateValue(element, start, end, duration, formatter = val => Math.round(val)) {
@@ -313,9 +310,9 @@ function applyDynamicScreenBackground(screenElement, screenIndex) {
 function openRetrospectiveView() {
     if (!retrospectiveModal || !retrospectiveOverlay) return;
     if (!window.taskifyStateReady || !window.state) {
-         const msg = "Os dados do aplicativo principal ainda não estão prontos. Tente novamente em alguns instantes.";
-         if (typeof window.showCustomAlert === 'function') window.showCustomAlert(msg, "Dados Indisponíveis"); else alert(msg);
-         return;
+        const msg = "Os dados do aplicativo principal ainda não estão prontos. Tente novamente em alguns instantes.";
+        if (typeof window.showCustomAlert === 'function') window.showCustomAlert(msg, "Dados Indisponíveis"); else alert(msg);
+        return;
     }
 
     retrospectiveDataStore = processDataForRetrospectiveDirectly(window.state);
@@ -326,7 +323,7 @@ function openRetrospectiveView() {
     if (metricButtons && metricButtons.length > 0) updateMetricButtonsState();
     if (startRetrospectiveButton) startRetrospectiveButton.disabled = true;
 
-    if (monthSelectionText && retrospectiveDataStore.currentMonth && Object.keys(retrospectiveDataStore.currentMonth).length > 0 ) {
+    if (monthSelectionText && retrospectiveDataStore.currentMonth && Object.keys(retrospectiveDataStore.currentMonth).length > 0) {
         monthSelectionText.textContent = getMonthYearString(new Date(retrospectiveDataStore.currentMonth.year, retrospectiveDataStore.currentMonth.monthIndex));
     } else if (monthSelectionText) {
         monthSelectionText.textContent = getMonthYearString(new Date());
@@ -338,7 +335,7 @@ function openRetrospectiveView() {
 
     isMusicPlaying = false;
     userInteractedWithMusic = false;
-    if(musicToggleButton) musicToggleButton.style.display = 'none';
+    if (musicToggleButton) musicToggleButton.style.display = 'none';
 
     showScreen(0);
     updateMusicButtonIcon();
@@ -354,7 +351,7 @@ function closeRetrospectiveView() {
         retrospectiveMusicAudio.pause();
         retrospectiveMusicAudio.currentTime = 0;
         isMusicPlaying = false;
-        if(musicToggleButton) musicToggleButton.style.display = 'none';
+        if (musicToggleButton) musicToggleButton.style.display = 'none';
         updateMusicButtonIcon();
     }
 
@@ -398,7 +395,7 @@ function showScreen(screenIndex) {
             if (index !== screenIndex && !screen.classList.contains('active')) {
                 setTimeout(() => {
                     if (screen && !screen.classList.contains('active')) {
-                       screen.style.display = 'none';
+                        screen.style.display = 'none';
                     }
                 }, 700);
             }
@@ -412,10 +409,10 @@ function showScreen(screenIndex) {
         void targetScreen.offsetWidth;
 
         if (screenIndex > currentScreenIndex) {
-            if(previousActiveScreen) previousActiveScreen.classList.add('previous');
+            if (previousActiveScreen) previousActiveScreen.classList.add('previous');
             targetScreen.classList.add('active');
         } else if (screenIndex < currentScreenIndex) {
-            if(previousActiveScreen) previousActiveScreen.classList.add('next-out');
+            if (previousActiveScreen) previousActiveScreen.classList.add('next-out');
             targetScreen.classList.add('previous-in', 'active');
         } else {
             targetScreen.classList.add('active');
@@ -450,7 +447,7 @@ function startRetrospectiveFlow() {
 
     userInteractedWithMusic = true;
     if (retrospectiveMusicAudio && !isMusicPlaying) playRetrospectiveMusic();
-    if(musicToggleButton) musicToggleButton.style.display = 'flex';
+    if (musicToggleButton) musicToggleButton.style.display = 'flex';
     updateMusicButtonIcon();
 
     populateIntroScreen();
@@ -657,7 +654,7 @@ function populateIntroScreen() {
         return;
     }
     const { currentMonth } = retrospectiveDataStore;
-    if(introMonth) introMonth.textContent = `Sua Retrospectiva de ${getMonthYearString(new Date(currentMonth.year, currentMonth.monthIndex))}`;
+    if (introMonth) introMonth.textContent = `Sua Retrospectiva de ${getMonthYearString(new Date(currentMonth.year, currentMonth.monthIndex))}`;
 }
 
 function populateMainStatsScreen() {
@@ -670,9 +667,10 @@ function populateMainStatsScreen() {
     }
     const { currentMonth } = retrospectiveDataStore;
     const cardsData = [
-        { metric: "questions", el: questionsResolvedEl, value: currentMonth.questionsResolved || 0, phraseEl: phraseQuestionsEl, cardSel: '[data-metric-card="questions"]', formatter: val => Math.round(val) }, // MODIFICADO
-        { metric: "tasks", el: tasksCompletedEl, value: currentMonth.tasksCompleted || 0, phraseEl: phraseTasksEl, cardSel: '[data-metric-card="tasks"]', formatter: val => Math.round(val) },       // MODIFICADO
-        { metric: "focus", el: focusTimeEl, value: currentMonth.focusTimeMinutes || 0, phraseEl: phraseFocusEl, cardSel: '[data-metric-card="focus"]', formatter: formatFocusMinutes }
+        { metric: "questions", el: questionsResolvedEl, value: currentMonth.questionsResolved || 0, phraseEl: phraseQuestionsEl, cardSel: '[data-metric-card="questions"]', formatter: val => Math.round(val) },
+        { metric: "tasks", el: tasksCompletedEl, value: currentMonth.tasksCompleted || 0, phraseEl: phraseTasksEl, cardSel: '[data-metric-card="tasks"]', formatter: val => Math.round(val) },
+        // MODIFICADO: Formatter para tempo de foco
+        { metric: "focus", el: focusTimeEl, value: currentMonth.focusTimeMinutes || 0, phraseEl: phraseFocusEl, cardSel: '[data-metric-card="focus"]', formatter: val => `${Math.round(val)} min` }
     ];
     let visibleCards = 0;
     const animationDuration = 1000;
@@ -681,7 +679,8 @@ function populateMainStatsScreen() {
         if (card) {
             if (selectedMetrics.includes(item.metric)) {
                 card.style.display = ''; card.classList.add('animated-metric-card');
-                if (item.el) animateValue(item.el, 0, item.value, animationDuration, item.formatter); else if(item.el) item.el.textContent = item.formatter(item.value);
+                // MODIFICADO: Passa item.value diretamente para animateValue (é o número de minutos)
+                if (item.el) animateValue(item.el, 0, item.value, animationDuration, item.formatter); else if (item.el) item.el.textContent = item.formatter(item.value);
                 if (item.phraseEl) item.phraseEl.textContent = getRandomPhrase(item.metric);
                 visibleCards++;
             } else {
@@ -699,8 +698,8 @@ function populateMainStatsScreen() {
 
 function populateProductiveDayScreen() {
     if (!retrospectiveDataStore.currentMonth || !mostProductiveDateEl || !mostProductiveValueEl) {
-         if(mostProductiveDateEl) mostProductiveDateEl.textContent = "-";
-         if(mostProductiveValueEl) mostProductiveValueEl.textContent = "Dados indisponíveis.";
+        if (mostProductiveDateEl) mostProductiveDateEl.textContent = "-";
+        if (mostProductiveValueEl) mostProductiveValueEl.textContent = "Dados indisponíveis.";
         return;
     }
     const { mostProductiveDayOverall } = retrospectiveDataStore.currentMonth;
@@ -711,7 +710,7 @@ function populateProductiveDayScreen() {
         let achievementsText = [];
         if (mostProductiveDayOverall.questions > 0) achievementsText.push(`${mostProductiveDayOverall.questions} questões`);
         if (mostProductiveDayOverall.tasks > 0) achievementsText.push(`${mostProductiveDayOverall.tasks} tarefas`);
-        if (mostProductiveDayOverall.focusMinutes > 0) achievementsText.push(`${Math.round(mostProductiveDayOverall.focusMinutes)} min de foco`);
+        if (mostProductiveDayOverall.focusMinutes > 0) achievementsText.push(`${Math.round(mostProductiveDayOverall.focusMinutes)} min de foco`); // MODIFICADO: Adiciona " min"
         mostProductiveValueEl.textContent = achievementsText.length > 0 ? achievementsText.join(' + ') + "!" : "Um dia de grande esforço!";
         if (motivationalTextEl) motivationalTextEl.innerHTML = `Você estava em <span class="retrospective-highlight-primary">modo máquina</span> neste dia! 🔥`;
     } else {
@@ -723,9 +722,9 @@ function populateProductiveDayScreen() {
 
 function populateTimePatternsScreen() {
     if (!retrospectiveDataStore.currentMonth) {
-        if(peakFocusHourEl) peakFocusHourEl.textContent = "-";
-        if(longestStreakEl) longestStreakEl.textContent = "0";
-        if(weekdayChartContainer) weekdayChartContainer.innerHTML = '<p style="text-align:center; padding:20px 0; color: var(--text-muted-dark, #BCA8DD);">Dados de distribuição semanal indisponíveis.</p>';
+        if (peakFocusHourEl) peakFocusHourEl.textContent = "-";
+        if (longestStreakEl) longestStreakEl.textContent = "0";
+        if (weekdayChartContainer) weekdayChartContainer.innerHTML = '<p style="text-align:center; padding:20px 0; color: var(--text-muted-dark, #BCA8DD);">Dados de distribuição semanal indisponíveis.</p>';
         return;
     }
     const { peakFocusHour, longestStreakInMonth, weeklyDistribution } = retrospectiveDataStore.currentMonth;
@@ -753,9 +752,9 @@ function populateTimePatternsScreen() {
 
             const finalHeight = maxValue > 0 ? (value / maxValue) * 100 : 0; // Se maxValue é 0, altura é 0
             bar.style.height = `0%`; // Começa com 0 para animar
-            
+
             // Força reflow para garantir que a transição CSS funcione
-            void bar.offsetWidth; 
+            void bar.offsetWidth;
 
             setTimeout(() => {
                 bar.style.height = `${finalHeight}%`;
@@ -770,7 +769,7 @@ function populateTimePatternsScreen() {
             weekdayChartContainer.appendChild(barContainer);
         });
     } else if (weekdayChartContainer) {
-         weekdayChartContainer.innerHTML = '<p style="text-align:center; padding:20px 0; color: var(--text-muted-dark, #BCA8DD);">Dados de distribuição semanal indisponíveis.</p>';
+        weekdayChartContainer.innerHTML = '<p style="text-align:center; padding:20px 0; color: var(--text-muted-dark, #BCA8DD);">Dados de distribuição semanal indisponíveis.</p>';
     }
 }
 
@@ -786,7 +785,9 @@ function populateComparisonScreen() {
     const { currentMonth, previousMonth } = retrospectiveDataStore;
     let comparisonMetricsShown = 0;
     const animationDuration = 1000;
-    const setTextAndPercentage = (valueEl, percentageEl, iconContainer, currentValue, previousValue, formatterFunc = (val) => `${val}`) => {
+
+    // MODIFICADO: formatterFunc agora pode ser uma função que recebe o valor e retorna a string formatada.
+    const setTextAndPercentage = (valueEl, percentageEl, iconContainer, currentValue, previousValue, formatterFunc = (val) => `${Math.round(val)}`) => {
         let metricDisplayed = false;
         if (valueEl) animateValue(valueEl, 0, parseFloat(currentValue) || 0, animationDuration, formatterFunc);
         if (percentageEl && iconContainer) {
@@ -794,7 +795,7 @@ function populateComparisonScreen() {
             if (!icon) { percentageEl.textContent = "-"; return metricDisplayed; }
             const currentNum = parseFloat(currentValue) || 0;
             const prevNum = parseFloat(previousValue) || 0;
-            if (previousValue !== null && previousValue !== undefined ) {
+            if (previousValue !== null && previousValue !== undefined) {
                 if (prevNum > 0) {
                     const percentageChange = ((currentNum - prevNum) / prevNum) * 100;
                     percentageEl.textContent = `${percentageChange >= 0 ? '+' : ''}${percentageChange.toFixed(0)}%`;
@@ -810,13 +811,15 @@ function populateComparisonScreen() {
     const comparisonCardsData = [
         { metric: "questions", valueElId: "retrospective-comparison-questions-resolved", percentageElId: "retrospective-questions-percentage", current: currentMonth.questionsResolved || 0, prev: previousMonth.questionsResolved, cardSel: '[data-metric-comparison-card="questions"]', formatter: (val) => `${Math.round(val)}` },
         { metric: "tasks", valueElId: "retrospective-comparison-tasks-completed", percentageElId: "retrospective-tasks-percentage", current: currentMonth.tasksCompleted || 0, prev: previousMonth.tasksCompleted, cardSel: '[data-metric-comparison-card="tasks"]', formatter: (val) => `${Math.round(val)}` },
-        { metric: "focus", valueElId: "retrospective-comparison-focus-time", percentageElId: "retrospective-focus-percentage", current: currentMonth.focusTimeMinutes || 0, prev: previousMonth.focusTimeMinutes, cardSel: '[data-metric-comparison-card="focus"]', formatter: formatFocusMinutes }
+        // MODIFICADO: Formatter para tempo de foco na tela de comparação
+        { metric: "focus", valueElId: "retrospective-comparison-focus-time", percentageElId: "retrospective-focus-percentage", current: currentMonth.focusTimeMinutes || 0, prev: previousMonth.focusTimeMinutes, cardSel: '[data-metric-comparison-card="focus"]', formatter: val => `${Math.round(val)} min` }
     ];
     comparisonCardsData.forEach(item => {
         const card = comparisonScreen ? comparisonScreen.querySelector(item.cardSel) : null;
         if (card) {
             if (selectedMetrics.includes(item.metric)) {
                 card.style.display = '';
+                // MODIFICADO: Passa item.formatter como o formatterFunc
                 if (setTextAndPercentage(document.getElementById(item.valueElId), document.getElementById(item.percentageElId), document.getElementById(item.percentageElId)?.parentElement, item.current, item.prev, item.formatter)) {
                     comparisonMetricsShown++;
                 }
@@ -846,13 +849,14 @@ function populateFinalScreen() {
     let visibleHighlightCount = 0;
     [finalQuestionsHighlightItem, finalTasksHighlightItem, finalFocusHighlightItem].forEach(item => { if (item) item.style.display = 'none'; });
     [finalPeakFocusStatItem, finalLongestStreakStatItem, finalProductiveDayStatItem, finalAchievementsContainer].forEach(el => { if (el) el.style.display = 'none'; });
-    if (finalQuestionsHighlightItem && selectedMetrics.includes("questions")) { finalQuestionsHighlightItem.style.display = 'flex'; if(finalQuestionsValueEl) finalQuestionsValueEl.textContent = currentMonth.questionsResolved || 0; visibleHighlightCount++; }
-    if (finalTasksHighlightItem && selectedMetrics.includes("tasks")) { finalTasksHighlightItem.style.display = 'flex'; if(finalTasksValueEl) finalTasksValueEl.textContent = currentMonth.tasksCompleted || 0; visibleHighlightCount++; }
-    if (finalFocusHighlightItem && selectedMetrics.includes("focus")) { finalFocusHighlightItem.style.display = 'flex'; if(finalFocusValueEl) finalFocusValueEl.textContent = formatFocusMinutes(currentMonth.focusTimeMinutes); visibleHighlightCount++; }
+    if (finalQuestionsHighlightItem && selectedMetrics.includes("questions")) { finalQuestionsHighlightItem.style.display = 'flex'; if (finalQuestionsValueEl) finalQuestionsValueEl.textContent = currentMonth.questionsResolved || 0; visibleHighlightCount++; }
+    if (finalTasksHighlightItem && selectedMetrics.includes("tasks")) { finalTasksHighlightItem.style.display = 'flex'; if (finalTasksValueEl) finalTasksValueEl.textContent = currentMonth.tasksCompleted || 0; visibleHighlightCount++; }
+    // MODIFICADO: Formatação do tempo de foco na tela final
+    if (finalFocusHighlightItem && selectedMetrics.includes("focus")) { finalFocusHighlightItem.style.display = 'flex'; if (finalFocusValueEl) finalFocusValueEl.textContent = `${formatFocusMinutes(currentMonth.focusTimeMinutes)} min`; visibleHighlightCount++; }
     if (highlightsGrid) highlightsGrid.dataset.itemCount = visibleHighlightCount;
-    if (finalPeakFocusStatItem && currentMonth.peakFocusHour !== null) { finalPeakFocusStatItem.style.display = 'flex'; if(finalPeakFocusHourEl) finalPeakFocusHourEl.textContent = `${String(currentMonth.peakFocusHour).padStart(2, '0')}:00`; } else if (finalPeakFocusStatItem && currentMonth.peakFocusHour === null) { finalPeakFocusStatItem.style.display = 'flex'; if(finalPeakFocusHourEl) finalPeakFocusHourEl.textContent = "-"; }
-    if (finalLongestStreakStatItem && (currentMonth.longestStreakInMonth || 0) >= 0) { finalLongestStreakStatItem.style.display = 'flex'; if(finalLongestStreakEl) finalLongestStreakEl.textContent = currentMonth.longestStreakInMonth || 0; }
-    if (finalProductiveDayStatItem && currentMonth.mostProductiveDayOverall && currentMonth.mostProductiveDayOverall.date) { finalProductiveDayStatItem.style.display = 'flex'; const prodDate = new Date(currentMonth.mostProductiveDayOverall.date); if(finalMostProductiveDayShortEl) finalMostProductiveDayShortEl.textContent = prodDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }).replace('.', ''); } else if (finalProductiveDayStatItem) { finalProductiveDayStatItem.style.display = 'flex'; if(finalMostProductiveDayShortEl) finalMostProductiveDayShortEl.textContent = "-"; }
+    if (finalPeakFocusStatItem && currentMonth.peakFocusHour !== null) { finalPeakFocusStatItem.style.display = 'flex'; if (finalPeakFocusHourEl) finalPeakFocusHourEl.textContent = `${String(currentMonth.peakFocusHour).padStart(2, '0')}:00`; } else if (finalPeakFocusStatItem && currentMonth.peakFocusHour === null) { finalPeakFocusStatItem.style.display = 'flex'; if (finalPeakFocusHourEl) finalPeakFocusHourEl.textContent = "-"; }
+    if (finalLongestStreakStatItem && (currentMonth.longestStreakInMonth || 0) >= 0) { finalLongestStreakStatItem.style.display = 'flex'; if (finalLongestStreakEl) finalLongestStreakEl.textContent = currentMonth.longestStreakInMonth || 0; }
+    if (finalProductiveDayStatItem && currentMonth.mostProductiveDayOverall && currentMonth.mostProductiveDayOverall.date) { finalProductiveDayStatItem.style.display = 'flex'; const prodDate = new Date(currentMonth.mostProductiveDayOverall.date); if (finalMostProductiveDayShortEl) finalMostProductiveDayShortEl.textContent = prodDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }).replace('.', ''); } else if (finalProductiveDayStatItem) { finalProductiveDayStatItem.style.display = 'flex'; if (finalMostProductiveDayShortEl) finalMostProductiveDayShortEl.textContent = "-"; }
     achievementsListEl.innerHTML = '';
     const achievements = determineAchievements(currentMonth, selectedMetrics);
     if (achievements.length > 0) { if (finalAchievementsContainer) finalAchievementsContainer.style.display = ''; const badge = document.createElement('span'); badge.className = 'retrospective-badge-achievement'; badge.innerHTML = achievements[0]; achievementsListEl.appendChild(badge); }
@@ -866,7 +870,7 @@ function determineAchievements(monthData, metrics) {
     const monthlyTasksGoal = Math.max(15, Math.round((appGoals.weekly || 50) * 0.75 * 4));
     const monthlyFocusGoalMinutes = Math.max(600, Math.round((appGoals.monthly || 300) * 1.5));
     let bestAchievement = { score: -1, text: "" };
-    const updateBest = (score, text) => { if(score > bestAchievement.score) bestAchievement = {score, text}; };
+    const updateBest = (score, text) => { if (score > bestAchievement.score) bestAchievement = { score, text }; };
     if (metrics.includes("questions") && (monthData.questionsResolved || 0) >= monthlyQuestionsGoal && monthlyQuestionsGoal > 0) updateBest(5, "<i class='bi bi-award-fill'></i> Meta de Questões Batida!");
     else if (metrics.includes("questions") && (monthData.questionsResolved || 0) > (monthlyQuestionsGoal * 0.75) && monthlyQuestionsGoal > 0) updateBest(3, "<i class='bi bi-trophy-fill'></i> Mestre das Questões");
     if (metrics.includes("tasks") && (monthData.tasksCompleted || 0) >= monthlyTasksGoal && monthlyTasksGoal > 0) updateBest(5, "<i class='bi bi-check-all'></i> Produtividade em Alta!");
@@ -876,7 +880,7 @@ function determineAchievements(monthData, metrics) {
     if ((monthData.longestStreakInMonth || 0) >= 20) updateBest(6, `<i class='bi bi-gem'></i> Streak de ${monthData.longestStreakInMonth} Dias!`);
     else if ((monthData.longestStreakInMonth || 0) >= 7) updateBest(4, `<i class='bi bi-fire'></i> Streak de ${monthData.longestStreakInMonth} Dias`);
     if (monthData.mostProductiveDayOverall && (monthData.mostProductiveDayOverall.totalScore || 0) > 15) updateBest(4.5, "<i class='bi bi-stars'></i> Dia Lendário!");
-    if(bestAchievement.score > -1) achievements.push(bestAchievement.text);
+    if (bestAchievement.score > -1) achievements.push(bestAchievement.text);
     else achievements.push("<i class='bi bi-emoji-sunglasses-fill'></i> Mês de Esforço!");
     return achievements.slice(0, 1);
 }
@@ -891,9 +895,10 @@ function generateRetrospectiveShareText() {
     let detailsAdded = 0;
     if (selectedMetrics.includes("questions") && (questionsResolved || 0) > 0) { text += `✅ ${questionsResolved} questões\n`; detailsAdded++; }
     if (selectedMetrics.includes("tasks") && (tasksCompleted || 0) > 0) { text += `🎯 ${tasksCompleted} tarefas\n`; detailsAdded++; }
-    if (selectedMetrics.includes("focus") && (focusTimeMinutes || 0) > 0) { text += `⏰ ${formatFocusMinutes(focusTimeMinutes)} de foco\n`; detailsAdded++; }
-    if (detailsAdded > 0 && ((mostProductiveDayOverall && mostProductiveDayOverall.date) || (longestStreakInMonth || 0) >= 3 )) text += "\n";
-    if (mostProductiveDayOverall && mostProductiveDayOverall.date && (mostProductiveDayOverall.totalScore || 0) > 0) { const prodDate = new Date(mostProductiveDayOverall.date); text += `🌟 Dia Mais Produtivo: ${prodDate.toLocaleDateString('pt-BR', {day: '2-digit', month: 'long'}).replace('.','')}\n`; }
+    // MODIFICADO: Formatação do tempo de foco no texto de compartilhamento
+    if (selectedMetrics.includes("focus") && (focusTimeMinutes || 0) > 0) { text += `⏰ ${formatFocusMinutes(focusTimeMinutes)} min de foco\n`; detailsAdded++; }
+    if (detailsAdded > 0 && ((mostProductiveDayOverall && mostProductiveDayOverall.date) || (longestStreakInMonth || 0) >= 3)) text += "\n";
+    if (mostProductiveDayOverall && mostProductiveDayOverall.date && (mostProductiveDayOverall.totalScore || 0) > 0) { const prodDate = new Date(mostProductiveDayOverall.date); text += `🌟 Dia Mais Produtivo: ${prodDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }).replace('.', '')}\n`; }
     if ((longestStreakInMonth || 0) >= 3) { text += `🔥 Maior Streak: ${longestStreakInMonth} dias\n`; }
     text += "Confira o Taskify e organize seu sucesso! 👉 taskify-fabinxz.vercel.app\n#TaskifyWrapped";
     return text;
@@ -915,7 +920,8 @@ async function generateAndCopyRetrospectiveImageInternal(forSharingNotification 
     let primaryRgbStringForCssVar = primaryRgbArray ? primaryRgbArray.join(', ') : "10, 124, 255";
     let solidFallbackBackgroundColor = isLightTheme ? '#FFFFFF' : '#000000';
     let cardBackgroundColorForClone = isLightTheme ? `linear-gradient(160deg, rgba(${primaryRgbStringForCssVar}, 0.2) 0%, rgba(${primaryRgbStringForCssVar}, 0.08) 40%, #f8f8f8 100%)` : `linear-gradient(160deg, rgba(${primaryRgbStringForCssVar}, 0.2) 0%, rgba(${primaryRgbStringForCssVar}, 0.08) 40%, #050505 100%)`;
-    const options = { backgroundColor: solidFallbackBackgroundColor, scale: 2, useCORS: true, logging: false,
+    const options = {
+        backgroundColor: solidFallbackBackgroundColor, scale: 2, useCORS: true, logging: false,
         onclone: (documentCloned) => {
             const clonedBody = documentCloned.body; const clonedHtml = documentCloned.documentElement;
             clonedHtml.style.setProperty('--primary-color-dark', currentPrimaryColorHex); clonedHtml.style.setProperty('--primary-color-light', currentPrimaryColorHex);
@@ -939,7 +945,7 @@ async function generateAndCopyRetrospectiveImageInternal(forSharingNotification 
                 clonedContentWrapper.querySelectorAll('.retrospective-final-other-stat-item i').forEach(el => el.style.color = currentPrimaryColorHex);
                 clonedContentWrapper.querySelectorAll('.retrospective-final-other-stat-item span, .retrospective-final-other-stat-item strong').forEach(el => el.style.color = textColorForClone);
                 clonedContentWrapper.querySelector('.retrospective-final-achievements-title').style.color = isLightTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.8)';
-                const clonedFooter = clonedContentWrapper.querySelector('.retrospective-final-footer'); if (clonedFooter) { clonedFooter.textContent = "#TaskifyWrapped"; clonedFooter.style.color = isLightTheme ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.6)';}
+                const clonedFooter = clonedContentWrapper.querySelector('.retrospective-final-footer'); if (clonedFooter) { clonedFooter.textContent = "#TaskifyWrapped"; clonedFooter.style.color = isLightTheme ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.6)'; }
                 const clonedBadges = documentCloned.querySelectorAll('.retrospective-badge-achievement');
                 clonedBadges.forEach(badge => { let badgeSolidBgColor = isLightTheme ? `rgba(${primaryRgbArray[0]}, ${primaryRgbArray[1]}, ${primaryRgbArray[2]}, 0.8)` : `rgba(${primaryRgbArray[0]}, ${primaryRgbArray[1]}, ${primaryRgbArray[2]}, 0.9)`; let badgeTextColor = isLightTheme ? (getComputedStyle(document.documentElement).getPropertyValue('--card-bg-light').trim() || '#FFFFFF') : '#FFFFFF'; badge.style.background = badgeSolidBgColor; badge.style.color = badgeTextColor; badge.style.textShadow = 'none'; badge.style.boxShadow = 'none'; badge.style.animation = 'none'; });
             }
@@ -951,7 +957,7 @@ async function generateAndCopyRetrospectiveImageInternal(forSharingNotification 
         const canvas = await html2canvas(finalScreenImageableContent, options);
         if (navigator.clipboard && navigator.clipboard.write) {
             return new Promise((resolvePromise, rejectPromise) => {
-                canvas.toBlob(async function(blob) {
+                canvas.toBlob(async function (blob) {
                     if (blob) { try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); const alertTitle = forSharingNotification ? 'Compartilhar' : 'Copiado!'; const alertMsg = forSharingNotification ? 'Imagem copiada! Cole no seu tweet.' : 'Imagem da retrospectiva copiada para a área de transferência!'; if (typeof window.showCustomAlert === 'function') window.showCustomAlert(alertMsg, alertTitle); else alert(alertMsg); resolvePromise(canvas); } catch (err) { if (typeof window.showCustomAlert === 'function') window.showCustomAlert("Não foi possível copiar a imagem automaticamente. Tente novamente ou use um print screen.", "Cópia Falhou"); else alert("Não foi possível copiar a imagem automaticamente. Tente novamente ou use um print screen."); rejectPromise(err); } }
                     else { if (typeof window.showCustomAlert === 'function') window.showCustomAlert("Erro ao processar a imagem para cópia.", "Falha na Imagem"); else alert("Erro ao processar a imagem para cópia."); rejectPromise(new Error("Falha ao criar blob")); }
                 }, 'image/png');
