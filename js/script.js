@@ -1,11 +1,9 @@
-// js/script.js
-// Variáveis globais e estado inicial
 let weeklyChartInstance = null;
 let pomodoroChartInstance = null;
 let tasksChartInstance = null;
 let pomodoroInterval = null;
-let retrospectiveModalEl; // Será definido em loadAndSetupRetrospective
-let retrospectiveModalOverlayEl; // Será definido em loadAndSetupRetrospective
+let retrospectiveModalEl; 
+let retrospectiveModalOverlayEl;
 
 // Elementos de áudio
 let focusEndSound = null;
@@ -15,17 +13,17 @@ let breakEndSound = null;
 let draggedItem = null;
 
 
-window.showCustomAlert = showCustomAlert; // Expondo para uso global, se necessário
+window.showCustomAlert = showCustomAlert; 
 
-window.taskifyStateReady = false; // Flag para indicar se o estado principal está pronto
+window.taskifyStateReady = false; 
 
 // Constantes de Temas e Paletas
 const PREDEFINED_PALETTES = {
-    electricBlue: { name: 'Azul Elétrico', primary: '#0A7CFF' }, // Cor padrão
+    electricBlue: { name: 'Azul Elétrico', primary: '#0A7CFF' },
     emeraldGreen: { name: 'Verde Esmeralda', primary: '#00DB4D' },
     fieryRed: { name: 'Vermelho Ígneo', primary: '#D51818' },
     royalPurple: { name: 'Roxo Real', primary: '#852DD8' },
-    sunnyOrange: { name: 'Laranja Solar', primary: '#d216cc' }
+    sunnyOrange: { name: 'Laranja Solar', primary: '#FF8C00' } // Alterado para Laranja Solar
 };
 
 const VISUAL_MODES = {
@@ -92,6 +90,7 @@ const initialDefaultState = {
 };
 
 let state = JSON.parse(JSON.stringify(initialDefaultState));
+window.state = state; // Tornando o estado globalmente acessível
 
 // Funções Utilitárias de Data, Cor e Formatação
 function getStartOfWeek(date) {
@@ -155,11 +154,11 @@ function getTodayISO() {
 
 function formatDateToDDMMYYYY(isoDateString) {
     if (!isoDateString) return '';
-    const dateParts = isoDateString.split('-'); // YYYY-MM-DD
+    const dateParts = isoDateString.split('-'); 
     if (dateParts.length === 3) {
         return `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
     }
-    return isoDateString; // Retorna original se não estiver no formato esperado
+    return isoDateString;
 }
 
 
@@ -199,6 +198,12 @@ function loadState() {
 
     document.documentElement.style.setProperty('--primary-color-light', primaryColorToApply);
     document.documentElement.style.setProperty('--primary-color-dark', primaryColorToApply);
+    const rgbArray = hexToRgbArray(primaryColorToApply); // Usando a função global
+    if (rgbArray) {
+        document.documentElement.style.setProperty('--primary-color-light-rgb', rgbArray.join(', '));
+        document.documentElement.style.setProperty('--primary-color-dark-rgb', rgbArray.join(', '));
+    }
+
 
     let loadedState = null;
     try {
@@ -269,12 +274,14 @@ function loadState() {
     state.isDarkMode = themeToApply;
     state.visuals.currentPalette = currentPaletteName;
     state.visuals.currentVisualMode = currentVisualModeName;
+
+    window.state = state; // Atualiza o estado global
 }
 
 function saveState() {
     try {
         const stateToSave = { ...state };
-        delete stateToSave.currentStreak;
+        // delete stateToSave.currentStreak; // Comentado, pois currentStreak é usado na retrospectiva
 
         localStorage.setItem('taskify-state', JSON.stringify(stateToSave));
         localStorage.setItem('taskify-theme', state.isDarkMode ? 'dark' : 'light');
@@ -637,7 +644,7 @@ function removeDayFromStreak(streakData, dateISO) {
             if (streakData.history[yesterdayISO] && Number(streakData.history[yesterdayISO]) >= state.goals.daily) {
                  streakData.lastValidDate = yesterdayISO;
             } else {
-                 streakData.lastValidDate = yesterdayISO;
+                 streakData.lastValidDate = yesterdayISO; // Mantém o dia anterior como válido mesmo que não tenha batido a meta, para recalcular o streak se necessário.
             }
         }
     }
@@ -701,7 +708,7 @@ function saveGoals() {
     state.goals = { daily, weekly, monthly, yearly, streak: streakGoal };
     saveState();
     updateUI();
-    updateStreak();
+    updateStreak(); // Atualiza o streak caso a meta diária tenha mudado
     closeGoalsModal();
 }
 
@@ -720,7 +727,7 @@ function applyPrimaryColor(color) {
         document.documentElement.style.setProperty('--primary-color-light-rgb', rgbArray.join(', '));
         document.documentElement.style.setProperty('--primary-color-dark-rgb', rgbArray.join(', '));
     }
-    applyCurrentThemeAndMode();
+    applyCurrentThemeAndMode(); // Reaplicar tema e modo para atualizar cores dependentes
 }
 
 function applyCurrentThemeAndMode() {
@@ -729,10 +736,12 @@ function applyCurrentThemeAndMode() {
     const faviconEl = document.getElementById('favicon');
     const docElement = document.documentElement;
 
+    // Limpa classes de modo visual anteriores
     Object.keys(VISUAL_MODES).forEach(modeKey => {
         body.classList.remove(`theme-mode-${modeKey}`);
     });
 
+    // Aplica o modo visual atual
     if (state.visuals.currentVisualMode && state.visuals.currentVisualMode !== 'default') {
         body.classList.add(`theme-mode-${state.visuals.currentVisualMode}`);
     }
@@ -744,7 +753,8 @@ function applyCurrentThemeAndMode() {
         themeIcon.className = state.isDarkMode ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
     }
 
-    let currentPrimaryColor = PREDEFINED_PALETTES.electricBlue.primary;
+    // Favicon dinâmico
+    let currentPrimaryColor = PREDEFINED_PALETTES.electricBlue.primary; // Cor padrão de fallback
     if (state.visuals.currentPalette === 'custom') {
         currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color-dark').trim() || PREDEFINED_PALETTES.electricBlue.primary;
     } else if (PREDEFINED_PALETTES[state.visuals.currentPalette]) {
@@ -755,16 +765,17 @@ function applyCurrentThemeAndMode() {
         faviconEl.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='${encodeURIComponent(currentPrimaryColor)}' class='bi bi-check2-square' viewBox='0 0 16 16'><path d='M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8A1.5 1.5 0 0 1 12.5 3v1.5a.5.5 0 0 1-1 0V3a.5.5 0 0 0-.5-.5H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 1 0 1H3z'/><path d='m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z'/></svg>`;
     }
 
+    // Recria gráficos para aplicar novas cores de tema/primária
     if (weeklyChartInstance) weeklyChartInstance.destroy();
-    setupChart(false);
+    setupChart(false); // Não animar na troca de tema
     if (pomodoroChartInstance) pomodoroChartInstance.destroy();
     setupPomodoroChart(false);
     if (tasksChartInstance) tasksChartInstance.destroy();
     setupTasksChart(false);
 
     updatePomodoroUI();
-    renderTasks();
-    updateThemeModalButtons();
+    renderTasks(); // Re-renderiza tarefas para aplicar estilos de tema (ex: cores de checkbox)
+    updateThemeModalButtons(); // Atualiza estado visual dos botões no modal de temas
 }
 
 // Configuração dos Gráficos (Genérica)
@@ -804,7 +815,7 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
                 fill: true,
                 tension: 0.4,
                 pointBackgroundColor: primaryColor,
-                pointBorderColor: bodyBgColor,
+                pointBorderColor: bodyBgColor, // Cor de fundo do body para o anel do ponto
                 pointBorderWidth: 1.5,
                 pointHoverBackgroundColor: primaryColor,
                 pointHoverBorderColor: bodyBgColor,
@@ -816,21 +827,21 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            animation: { duration: 0 },
+            animation: { duration: 0 }, // Desabilita animação inicial por padrão, controla via parâmetro
             scales: {
                 y: {
                     beginAtZero: true,
                     grid: { color: gridColor, drawBorder: false },
                     ticks: { color: textColor, precision: 0, callback: dataFormatter },
                     title: { display: true, text: yAxisLabel, color: textColor, font: { size: 10 } },
-                    afterDataLimits: (axis) => {
+                    afterDataLimits: (axis) => { // Garante que o eixo Y não fique achatado se todos os valores forem 0
                         if (axis.max === 0 && axis.min === 0) {
                             axis.max = (yAxisLabel.toLowerCase().includes("minutos")) ? 10 : 1;
                         }
                     }
                 },
                 x: {
-                    grid: { display: false },
+                    grid: { display: false }, // Remove grade vertical
                     ticks: { color: textColor }
                 }
             },
@@ -842,12 +853,12 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
                     bodyFont: { size: 12 }, padding: 10, cornerRadius: 6,
                     borderColor: primaryColor, borderWidth: 1, displayColors: false,
                     callbacks: {
-                        title: (items) => items[0].label,
+                        title: (items) => items[0].label, // Mostra o dia da semana como título
                         label: (item) => `${tooltipLabelPrefix}: ${dataFormatter(item.raw)}`
                     }
                 }
             },
-            interaction: { mode: 'index', intersect: false },
+            interaction: { mode: 'index', intersect: false }, // Tooltip aparece ao passar perto do ponto
             hover: { mode: 'nearest', intersect: true }
         }
     });
@@ -858,7 +869,7 @@ function setupChart(animateInitialRender = true) {
     if (weeklyChartInstance) weeklyChartInstance.destroy();
     const data = (window.state && Array.isArray(window.state.weeklyActivityData) && window.state.weeklyActivityData.length === 7)
                 ? window.state.weeklyActivityData
-                : [0,0,0,0,0,0,0];
+                : [0,0,0,0,0,0,0]; // Fallback seguro
 
     weeklyChartInstance = createChartConfig('weeklyActivityChart', data, 'Questões', 'Nº de Questões', 'Questões');
     if(weeklyChartInstance) weeklyChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
@@ -866,14 +877,14 @@ function setupChart(animateInitialRender = true) {
 function updateWeeklyChartDataOnly() {
     if (!window.state || !Array.isArray(window.state.weeklyActivityData) || window.state.weeklyActivityData.length !== 7) {
         console.warn("TASKIFY_CHART: weeklyActivityData inválido ou ausente. Recriando gráfico.");
-        setupChart(false);
+        setupChart(false); // Recria sem animação
         return;
     }
     if (weeklyChartInstance) {
         weeklyChartInstance.data.datasets[0].data = [...window.state.weeklyActivityData];
-        weeklyChartInstance.update('none');
+        weeklyChartInstance.update('none'); // Atualiza sem animação
     } else {
-        setupChart(false);
+        setupChart(false); // Se não existe, cria sem animação
     }
 }
 
@@ -884,7 +895,7 @@ function setupPomodoroChart(animateInitialRender = true) {
                 : [0,0,0,0,0,0,0];
     pomodoroChartInstance = createChartConfig(
         'weeklyPomodoroFocusChart', data, 'Tempo de Foco', 'Minutos de Foco', 'Foco',
-        (value) => value.toFixed(0) + ' min'
+        (value) => value.toFixed(0) + ' min' // Formata para mostrar 'X min'
     );
     if(pomodoroChartInstance) pomodoroChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
 }
@@ -939,11 +950,12 @@ function initStreak() {
                 initialLastCompletionDate = streakData.lastValidDate || null;
                 initialHistory = (typeof streakData.history === 'object' && streakData.history !== null) ? streakData.history : {};
             } else {
+                // Dados inválidos, remove para começar do zero na próxima vez
                 localStorage.removeItem('taskify-streak');
             }
         } catch (e) {
             console.error("Error parsing streak data in initStreak:", e);
-            localStorage.removeItem('taskify-streak');
+            localStorage.removeItem('taskify-streak'); // Remove dados corrompidos
         }
     }
 
@@ -951,6 +963,7 @@ function initStreak() {
     state.currentStreak.lastCompletionDate = initialLastCompletionDate;
     state.currentStreak.history = initialHistory;
 
+    // Garante que os dados de streak no localStorage estão sincronizados com o estado inicial
     const currentStreakDataToStore = {
         current: state.currentStreak.days,
         lastValidDate: state.currentStreak.lastCompletionDate,
@@ -958,8 +971,8 @@ function initStreak() {
     };
     localStorage.setItem('taskify-streak', JSON.stringify(currentStreakDataToStore));
 
-    updateStreak();
-    updateStreakUI();
+    updateStreak(); // Verifica e atualiza o streak baseado nos dados carregados e na data atual
+    updateStreakUI(); // Atualiza a interface
 }
 
 // --- Funções do Pomodoro ---
@@ -998,6 +1011,7 @@ function updatePomodoroUI() {
         startBtn.style.display = pomodoro.timerRunning ? 'none' : 'inline-block';
         pauseBtn.style.display = pomodoro.timerRunning ? 'inline-block' : 'none';
 
+        // Aplica classe 'break-mode' para estilização condicional
         if (pomodoro.mode === 'focus') {
             startBtn.classList.remove('break-mode');
             if(timerDisplay) timerDisplay.classList.remove('break-mode');
@@ -1006,6 +1020,7 @@ function updatePomodoroUI() {
             if(timerDisplay) timerDisplay.classList.add('break-mode');
         }
 
+        // Altera texto do botão Iniciar/Continuar
         if (!pomodoro.timerRunning) {
             const isAtFullDurationForCurrentMode = pomodoro.currentTime ===
                 (pomodoro.mode === 'focus' ? pomodoro.focusDuration :
@@ -1015,6 +1030,7 @@ function updatePomodoroUI() {
         }
     }
 
+    // Atualiza título da página
     if (pomodoro.timerRunning) {
         document.title = `${formatTime(pomodoro.currentTime)} - ${pomodoro.mode === 'focus' ? 'Foco' : 'Pausa'} | Taskify`;
     } else {
@@ -1029,13 +1045,14 @@ function playSound(soundElement) {
         return;
     }
     if (typeof soundElement.play === 'function') {
-        soundElement.currentTime = 0;
+        soundElement.currentTime = 0; // Reinicia o áudio caso já esteja tocando
         console.log(`TASKIFY_SOUND: Tentando tocar: ${soundElement.id}`);
         soundElement.play()
             .then(() => {
                 console.log(`TASKIFY_SOUND: Som ${soundElement.id} tocado com sucesso.`);
             })
             .catch(error => {
+                // Erros de autoplay são comuns, especialmente antes da interação do usuário
                 console.warn(`TASKIFY_SOUND: Erro ao tocar som ${soundElement.id}:`, error);
             });
     } else {
@@ -1061,24 +1078,26 @@ function handlePomodoroCycleEnd() {
     const endedMode = state.pomodoro.mode;
     let actualDurationSeconds = 0;
 
+    // Calcula a duração real do ciclo que acabou de terminar
     if (endedMode === 'focus') {
-        actualDurationSeconds = state.pomodoro.focusDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime);
+        actualDurationSeconds = state.pomodoro.focusDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime); // Se currentTime ficou negativo, significa que o ciclo completou.
     } else if (endedMode === 'shortBreak') {
         actualDurationSeconds = state.pomodoro.shortBreakDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime);
     } else { // longBreak
         actualDurationSeconds = state.pomodoro.longBreakDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime);
     }
-    actualDurationSeconds = Math.max(0, actualDurationSeconds);
+    actualDurationSeconds = Math.max(0, actualDurationSeconds); // Garante que não seja negativo
     console.log(`TASKIFY_POMO: Duração real do ciclo de ${endedMode}: ${actualDurationSeconds}s`);
 
 
+    // Loga a sessão e atualiza dados do gráfico apenas se foi um ciclo de foco e teve duração
     if (endedMode === 'focus' && actualDurationSeconds > 0) {
         if(state.pomodoro.dailyFocusData && state.pomodoro.dailyFocusData.length === 7) {
-            state.pomodoro.dailyFocusData[6] += Math.round(actualDurationSeconds / 60);
+            state.pomodoro.dailyFocusData[6] += Math.round(actualDurationSeconds / 60); // Adiciona minutos ao dia atual no gráfico
             console.log("TASKIFY_POMO: dailyFocusData[6] atualizado para:", state.pomodoro.dailyFocusData[6]);
         }
         logPomodoroSession(endedMode, actualDurationSeconds);
-        updatePomodoroChartDataOnly();
+        updatePomodoroChartDataOnly(); // Atualiza o gráfico de foco
     }
 
     state.pomodoro.timerRunning = false;
@@ -1101,7 +1120,7 @@ function handlePomodoroCycleEnd() {
         if (state.pomodoro.currentCycleInSet >= state.pomodoro.cyclesBeforeLongBreak) {
             state.pomodoro.mode = 'longBreak';
             state.pomodoro.currentTime = state.pomodoro.longBreakDuration;
-            state.pomodoro.currentCycleInSet = 0;
+            state.pomodoro.currentCycleInSet = 0; // Reseta o contador de ciclos para a pausa longa
             nextModeMessage = "Hora da pausa longa!";
             console.log("TASKIFY_POMO: Próximo modo: longBreak");
         } else {
@@ -1110,7 +1129,7 @@ function handlePomodoroCycleEnd() {
             nextModeMessage = "Hora da pausa curta!";
             console.log("TASKIFY_POMO: Próximo modo: shortBreak");
         }
-    } else { // break ended
+    } else { // Pausa (curta ou longa) terminou
         console.log("TASKIFY_POMO: Ciclo de pausa terminado.");
         if (state.pomodoro.enableSound && breakEndSound) {
             console.log("TASKIFY_POMO: Tentando tocar breakEndSound.");
@@ -1121,24 +1140,28 @@ function handlePomodoroCycleEnd() {
         nextModeMessage = "Hora de focar!";
         console.log("TASKIFY_POMO: Próximo modo: focus");
     }
-    state.pomodoro.lastModeEnded = endedMode;
+    state.pomodoro.lastModeEnded = endedMode; // Guarda qual modo acabou de terminar
 
     updatePomodoroUI();
     saveState();
 
+    // Alerta para o usuário sobre a mudança de ciclo
     showCustomAlert(
         `Ciclo de ${endedMode === 'focus' ? 'Foco' : (endedMode === 'shortBreak' ? 'Pausa Curta' : 'Pausa Longa')} terminado! ${nextModeMessage}`,
         "Pomodoro",
-        () => {
+        () => { // Callback após o usuário fechar o alerta
             console.log("TASKIFY_POMO: Callback do alerta executado.");
+            // Foca na seção do Pomodoro
             const pomodoroSectionEl = document.querySelector('.pomodoro-section');
             if(pomodoroSectionEl) {
+                // Pequeno delay para garantir que o alerta não interfira no scroll
                 setTimeout(() => {
                     pomodoroSectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 100);
             }
 
-            const currentEndedMode = state.pomodoro.lastModeEnded;
+            // Lógica de início automático do próximo ciclo
+            const currentEndedMode = state.pomodoro.lastModeEnded; // Pega o modo que acabou de terminar
             if ((currentEndedMode === 'focus' && state.pomodoro.autoStartBreaks) ||
                 ((currentEndedMode === 'shortBreak' || currentEndedMode === 'longBreak') && state.pomodoro.autoStartFocus)) {
                 console.log("TASKIFY_POMO: Iniciando próximo ciclo automaticamente após alerta.");
@@ -1157,10 +1180,11 @@ function startPomodoro() {
         console.log("TASKIFY_POMO: Timer já rodando, retornando.");
         return;
     }
-    checkAllResets();
+    checkAllResets(); // Garante que os contadores diários estejam corretos
     state.pomodoro.timerRunning = true;
-    state.pomodoro.lastModeEnded = null;
+    state.pomodoro.lastModeEnded = null; // Limpa o último modo terminado ao iniciar um novo
 
+    // Limpa qualquer intervalo anterior para evitar múltiplos timers
     if (pomodoroInterval) {
         console.log("TASKIFY_POMO: Limpando intervalo existente em startPomodoro. ID:", pomodoroInterval);
         clearInterval(pomodoroInterval);
@@ -1183,13 +1207,15 @@ function pausePomodoro() {
 
 function resetPomodoro() {
     const wasRunning = state.pomodoro.timerRunning;
-    const endedMode = state.pomodoro.mode;
+    const endedMode = state.pomodoro.mode; // Modo atual ANTES do reset
     const timeRemaining = state.pomodoro.currentTime;
 
+    // Se estava rodando e era um ciclo de foco, loga o tempo focado
     if (wasRunning && endedMode === 'focus') {
         let timeSpentSeconds = 0;
+        // Calcula o tempo que passou no ciclo de foco atual
         if(state.pomodoro.mode === 'focus') timeSpentSeconds = state.pomodoro.focusDuration - timeRemaining;
-
+        
         if (timeSpentSeconds > 0) {
             if(state.pomodoro.dailyFocusData && state.pomodoro.dailyFocusData.length === 7) {
                 state.pomodoro.dailyFocusData[6] += Math.round(timeSpentSeconds / 60);
@@ -1198,17 +1224,19 @@ function resetPomodoro() {
         }
     }
 
+    // Para o timer
     state.pomodoro.timerRunning = false;
     clearInterval(pomodoroInterval);
     pomodoroInterval = null;
-    state.pomodoro.lastModeEnded = null;
+    state.pomodoro.lastModeEnded = null; // Reseta o último modo terminado
 
+    // Reseta o tempo para a duração total do modo atual (antes de qualquer mudança pelo término do ciclo)
     if (state.pomodoro.mode === 'focus') state.pomodoro.currentTime = state.pomodoro.focusDuration;
     else if (state.pomodoro.mode === 'shortBreak') state.pomodoro.currentTime = state.pomodoro.shortBreakDuration;
     else if (state.pomodoro.mode === 'longBreak') state.pomodoro.currentTime = state.pomodoro.longBreakDuration;
 
     updatePomodoroUI();
-    updatePomodoroChartDataOnly();
+    updatePomodoroChartDataOnly(); // Atualiza o gráfico caso tempo de foco tenha sido logado
     saveState();
 }
 
@@ -1249,7 +1277,7 @@ function savePomodoroSettings() {
     const autoStartFocus = document.getElementById('pomodoro-auto-start-focus-checkbox').checked;
     const enableSound = document.getElementById('pomodoro-enable-sound-checkbox').checked;
 
-    if (isNaN(focusDuration) || focusDuration < 60 ||
+    if (isNaN(focusDuration) || focusDuration < 60 || // Mínimo 1 minuto
         isNaN(shortBreakDuration) || shortBreakDuration < 60 ||
         isNaN(longBreakDuration) || longBreakDuration < 60 ||
         isNaN(cyclesBeforeLongBreak) || cyclesBeforeLongBreak < 1) {
@@ -1265,11 +1293,12 @@ function savePomodoroSettings() {
     state.pomodoro.autoStartFocus = autoStartFocus;
     state.pomodoro.enableSound = enableSound;
 
+    // Se o timer não estiver rodando, atualiza o tempo atual para a nova duração do modo atual
     if (!state.pomodoro.timerRunning) {
         if (state.pomodoro.mode === 'focus') state.pomodoro.currentTime = state.pomodoro.focusDuration;
         else if (state.pomodoro.mode === 'shortBreak') state.pomodoro.currentTime = state.pomodoro.shortBreakDuration;
         else if (state.pomodoro.mode === 'longBreak') state.pomodoro.currentTime = state.pomodoro.longBreakDuration;
-        state.pomodoro.lastModeEnded = null;
+        state.pomodoro.lastModeEnded = null; // Limpa o último modo se o timer não está rodando e as configurações foram alteradas
     }
 
     saveState();
@@ -1278,17 +1307,20 @@ function savePomodoroSettings() {
 }
 
 function logPomodoroSession(type, durationInSeconds) {
-    if (durationInSeconds <= 0) return;
+    if (durationInSeconds <= 0) return; // Não loga sessões de duração zero
     const session = {
-        startTime: new Date(Date.now() - durationInSeconds * 1000).toISOString(),
+        startTime: new Date(Date.now() - durationInSeconds * 1000).toISOString(), // Calcula o início
         endTime: new Date().toISOString(),
-        duration: durationInSeconds,
+        duration: durationInSeconds, // Em segundos
         type: type
     };
     state.pomodoro.sessions.push(session);
+    // Opcional: Limitar o número de sessões guardadas para não sobrecarregar o localStorage
+    // if (state.pomodoro.sessions.length > 100) state.pomodoro.sessions.shift();
 }
 
 function initPomodoro() {
+    // Pega os elementos de áudio do DOM
     focusEndSound = document.getElementById('focus-end-sound');
     breakEndSound = document.getElementById('break-end-sound');
     console.log("TASKIFY_POMO: focusEndSound element:", focusEndSound);
@@ -1306,7 +1338,7 @@ function initPomodoro() {
     if(pomodoroSettingsModalOverlay) {
         pomodoroSettingsModalOverlay.addEventListener('click', closePomodoroSettingsModal);
     }
-    updatePomodoroUI();
+    updatePomodoroUI(); // Garante que a UI esteja correta ao carregar
 }
 
 // --- Funções de Tarefas ---
@@ -1314,43 +1346,36 @@ function renderTasks() {
     const taskList = document.getElementById('task-list');
     if (!taskList) return;
 
-    taskList.innerHTML = '';
+    taskList.innerHTML = ''; // Limpa a lista antes de renderizar
     const todayISO = getTodayISO();
 
+    // Ordena tarefas: pendentes primeiro, depois por data de atribuição (ou criação), e depois completas
     const sortedTasks = [...state.tasks].sort((a, b) => {
-        const aAssignedOrCreated = a.assignedDate || a.createdAt.split('T')[0];
-        const bAssignedOrCreated = b.assignedDate || b.createdAt.split('T')[0];
-
-        // Prioridade 1: Tarefas de hoje (assignedDate é hoje OU assignedDate é null)
-        const aIsTodayStrict = a.assignedDate === todayISO;
-        const bIsTodayStrict = b.assignedDate === todayISO;
-        const aIsNullDate = a.assignedDate === null;
-        const bIsNullDate = b.assignedDate === null;
-
-        if ((aIsTodayStrict || aIsNullDate) && !(bIsTodayStrict || bIsNullDate)) return -1;
-        if (!(aIsTodayStrict || aIsNullDate) && (bIsTodayStrict || bIsNullDate)) return 1;
-
-        // Se ambas são "de hoje" (ou null), ordena por criação
-        if ((aIsTodayStrict || aIsNullDate) && (bIsTodayStrict || bIsNullDate)) {
-            return new Date(a.createdAt) - new Date(b.createdAt);
-        }
-        
-        // Prioridade 2: Tarefas passadas (da mais recente para a mais antiga)
-        const aIsPassed = aAssignedOrCreated < todayISO;
-        const bIsPassed = bAssignedOrCreated < todayISO;
-
-        if (aIsPassed && !bIsPassed) return -1;
-        if (!aIsPassed && bIsPassed) return 1;
-        if (aIsPassed && bIsPassed) {
-            return new Date(bAssignedOrCreated) - new Date(aAssignedOrCreated); // Mais recente primeiro
+        // 1. Pendentes antes de completas
+        if (a.completed !== b.completed) {
+            return a.completed ? 1 : -1;
         }
 
-        // Prioridade 3: Tarefas futuras (da mais próxima para a mais distante)
-        // (aAssignedOrCreated > todayISO)
-        if (aAssignedOrCreated < bAssignedOrCreated) return -1; // Mais próxima primeiro
-        if (aAssignedOrCreated > bAssignedOrCreated) return 1;
+        // Se ambas têm o mesmo status de conclusão, ordena pela data efetiva
+        const aEffectiveDateStr = a.assignedDate || a.createdAt.split('T')[0];
+        const bEffectiveDateStr = b.assignedDate || b.createdAt.split('T')[0];
 
-        return new Date(a.createdAt) - new Date(b.createdAt); // Fallback por data de criação
+        // Se uma é "hoje" (assignedDate é hoje OU null) e a outra não, "hoje" vem primeiro
+        const aIsTodayOrNull = a.assignedDate === todayISO || a.assignedDate === null;
+        const bIsTodayOrNull = b.assignedDate === todayISO || b.assignedDate === null;
+
+        if (aIsTodayOrNull && !bIsTodayOrNull) return -1;
+        if (!aIsTodayOrNull && bIsTodayOrNull) return 1;
+
+        // Se ambas são "hoje" ou null, ou ambas têm datas específicas, ordena pela data
+        const aDate = new Date(aEffectiveDateStr + "T00:00:00");
+        const bDate = new Date(bEffectiveDateStr + "T00:00:00");
+
+        if (aDate < bDate) return -1; // Mais antigas/próximas primeiro
+        if (aDate > bDate) return 1;
+
+        // Se as datas são iguais, ordena pela data de criação (mais antigas primeiro)
+        return new Date(a.createdAt) - new Date(b.createdAt);
     });
 
 
@@ -1365,8 +1390,9 @@ function renderTasks() {
             li.className = 'task-item';
             if (task.completed) li.classList.add('completed');
             li.dataset.taskId = task.id;
-            li.setAttribute('draggable', 'true');
+            li.setAttribute('draggable', 'true'); // Habilita arrastar
 
+            // Adiciona listeners de drag and drop
             li.addEventListener('dragstart', handleDragStart);
             li.addEventListener('dragend', handleDragEnd);
 
@@ -1380,16 +1406,16 @@ function renderTasks() {
             textSpan.className = 'task-item-text';
             textSpan.textContent = task.text;
 
-            // ALTERAÇÃO: Lógica do indicador de data
+            // Indicador de data
             const dateIndicator = document.createElement('span');
             dateIndicator.className = 'task-assigned-date-indicator';
             
-            const effectiveDate = task.assignedDate || todayISO; // Usa hoje se assignedDate for null
+            const effectiveDateForDisplay = task.assignedDate || todayISO; // Usa hoje se assignedDate for null para fins de exibição
             
-            if (effectiveDate === todayISO) {
+            if (effectiveDateForDisplay === todayISO) {
                 dateIndicator.textContent = 'Hoje';
             } else {
-                const assigned = new Date(effectiveDate + "T00:00:00");
+                const assigned = new Date(effectiveDateForDisplay + "T00:00:00"); // Normaliza para meia-noite
                 const today = new Date(todayISO + "T00:00:00");
                 
                 const tomorrow = new Date(today);
@@ -1403,10 +1429,14 @@ function renderTasks() {
                 } else if (assigned.toDateString() === tomorrow.toDateString()) {
                     dateIndicator.textContent = 'Amanhã';
                 } else {
-                    dateIndicator.textContent = formatDateToDDMMYYYY(effectiveDate);
+                    dateIndicator.textContent = formatDateToDDMMYYYY(effectiveDateForDisplay);
                 }
             }
-            textSpan.appendChild(dateIndicator);
+            // Só adiciona o indicador se houver uma data atribuída (ou seja, não é nula)
+            // e a data não for "hoje" (para não poluir tarefas sem data ou de hoje)
+            if (task.assignedDate && task.assignedDate !== todayISO) {
+                 textSpan.appendChild(dateIndicator);
+            }
 
 
             const deleteBtn = document.createElement('button');
@@ -1437,9 +1467,9 @@ function addTask(event) {
     event.preventDefault();
     checkAllResets();
     const taskInput = document.getElementById('task-input');
-    const taskDateInput = document.getElementById('task-assigned-date');
+    const taskDateInput = document.getElementById('task-assigned-date'); // Pega o input de data
     const taskText = taskInput.value.trim();
-    const assignedDateValue = taskDateInput.value;
+    const assignedDateValue = taskDateInput.value; // Valor YYYY-MM-DD ou string vazia
 
     if (taskText === '') {
         showCustomAlert('Por favor, insira o texto da tarefa.', 'Tarefa Inválida');
@@ -1452,24 +1482,25 @@ function addTask(event) {
         createdAt: new Date().toISOString(),
         completionDate: null,
         assignedDate: (assignedDateValue && assignedDateValue !== getTodayISO()) ? assignedDateValue : null 
-        // Salva null se for hoje ou vazio, caso contrário salva a data YYYY-MM-DD
+        // Salva null se a data for hoje ou vazia, caso contrário salva a data específica
     };
     state.tasks.push(newTask);
     taskInput.value = '';
-    taskDateInput.value = getTodayISO(); // Reseta para hoje
+    taskDateInput.value = getTodayISO(); // Reseta para a data de hoje
     renderTasks();
     saveState();
 }
 
 function toggleTaskComplete(taskId) {
-    checkAllResets();
+    checkAllResets(); // Garante que os dados diários estejam corretos
     const taskIndex = state.tasks.findIndex(t => t.id === taskId);
     if (taskIndex > -1) {
         const task = state.tasks[taskIndex];
-        const wasCompleted = task.completed;
+        const wasCompleted = task.completed; // Estado anterior
         task.completed = !task.completed;
         task.completionDate = task.completed ? new Date().toISOString() : null;
 
+        // Atualiza a UI do item específico
         const taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
         if (taskElement) {
             taskElement.classList.toggle('completed', task.completed);
@@ -1477,30 +1508,33 @@ function toggleTaskComplete(taskId) {
             if (checkbox) checkbox.checked = task.completed;
         }
 
-        updateTasksCounter();
+        updateTasksCounter(); // Atualiza o contador geral
 
-        const effectiveTaskDateString = task.assignedDate || task.createdAt.split('T')[0];
-        const effectiveTaskDate = new Date(effectiveTaskDateString + "T00:00:00");
+        // Atualiza dados do gráfico de tarefas concluídas
+        // Considera a data em que a tarefa FOI COMPLETADA para o gráfico
+        const completionDateForChart = task.completed ? new Date(task.completionDate) : new Date(); // Usa hoje se desmarcada para subtrair
+        completionDateForChart.setHours(0,0,0,0);
 
         const today = new Date();
         today.setHours(0,0,0,0);
 
         const oneDay = 24 * 60 * 60 * 1000;
-        const diffDays = Math.round((today.getTime() - effectiveTaskDate.getTime()) / oneDay);
+        const diffDays = Math.round((today.getTime() - completionDateForChart.getTime()) / oneDay);
 
+        // Se a tarefa foi completada/descompletada nos últimos 7 dias
         if (diffDays >= 0 && diffDays < 7) {
-            const dayIndexInChart = 6 - diffDays;
+            const dayIndexInChart = 6 - diffDays; // 6 é hoje, 0 é 6 dias atrás
             if (state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7 && dayIndexInChart >= 0 && dayIndexInChart < 7) {
-                if (task.completed && !wasCompleted) {
+                if (task.completed && !wasCompleted) { // Se marcou como completa
                     state.dailyTaskCompletionData[dayIndexInChart]++;
-                } else if (!task.completed && wasCompleted) {
+                } else if (!task.completed && wasCompleted) { // Se desmarcou
                     state.dailyTaskCompletionData[dayIndexInChart] = Math.max(0, state.dailyTaskCompletionData[dayIndexInChart] - 1);
                 }
             }
         }
 
         saveState();
-        updateTasksChartDataOnly();
+        updateTasksChartDataOnly(); // Atualiza apenas os dados do gráfico
     }
 }
 
@@ -1509,25 +1543,28 @@ function deleteTask(taskId) {
     checkAllResets();
     const taskIndex = state.tasks.findIndex(t => t.id === taskId);
     if (taskIndex > -1) {
-        const deletedTask = state.tasks[taskIndex];
+        const deletedTask = state.tasks[taskIndex]; // Guarda a tarefa antes de remover
         
-        state.tasks.splice(taskIndex, 1);
+        state.tasks.splice(taskIndex, 1); // Remove do estado
 
+        // Remove da UI
         const taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
         if (taskElement) {
             taskElement.remove();
         }
         
-        updateTasksCounter();
+        updateTasksCounter(); // Atualiza o contador
 
+        // Se a tarefa deletada estava completa, ajusta o gráfico
         if (deletedTask.completed && deletedTask.completionDate) {
-            const effectiveTaskDateString = deletedTask.assignedDate || deletedTask.createdAt.split('T')[0];
-            const effectiveTaskDate = new Date(effectiveTaskDateString + "T00:00:00");
+            const completionDateForChart = new Date(deletedTask.completionDate);
+            completionDateForChart.setHours(0,0,0,0);
+
             const today = new Date();
             today.setHours(0,0,0,0);
 
             const oneDay = 24 * 60 * 60 * 1000;
-            const diffDays = Math.round((today.getTime() - effectiveTaskDate.getTime()) / oneDay);
+            const diffDays = Math.round((today.getTime() - completionDateForChart.getTime()) / oneDay);
 
 
             if (diffDays >= 0 && diffDays < 7) {
@@ -1538,38 +1575,44 @@ function deleteTask(taskId) {
             }
         }
         
+        // Se a lista ficou vazia, renderiza a mensagem de lista vazia
         if (state.tasks.length === 0) { 
             renderTasks();
         }
 
         saveState();
-        updateTasksChartDataOnly();
+        updateTasksChartDataOnly(); // Atualiza o gráfico
     }
 }
 
 
 // --- Funções de Drag and Drop para Tarefas ---
 function handleDragStart(e) {
-    draggedItem = e.target;
+    draggedItem = e.target; // O `li` que está sendo arrastado
     e.dataTransfer.effectAllowed = 'move';
+    // Adiciona uma classe para estilizar o item arrastado (ex: opacidade)
+    // Usar setTimeout para garantir que a classe seja adicionada após o evento dragstart
     setTimeout(() => {
         if (draggedItem) draggedItem.classList.add('dragging');
     }, 0);
 }
 
 function handleDragEnd(e) {
+    // Limpa a classe de arrasto
     if (draggedItem) {
         draggedItem.classList.remove('dragging');
     }
     draggedItem = null;
+    // Remove qualquer placeholder que possa ter ficado
     document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
 }
 
 function handleDragOver(e) {
-    e.preventDefault();
+    e.preventDefault(); // Necessário para permitir o drop
     const taskList = document.getElementById('task-list');
     const afterElement = getDragAfterElement(taskList, e.clientY);
 
+    // Remove placeholder existente antes de adicionar um novo
     const existingPlaceholder = taskList.querySelector('.drag-over-placeholder');
     if (existingPlaceholder) {
         existingPlaceholder.remove();
@@ -1591,50 +1634,49 @@ function handleDrop(e) {
     const taskList = document.getElementById('task-list');
     const draggedItemId = draggedItem.dataset.taskId;
 
+    // Encontra o índice original da tarefa no array 'state.tasks'
     const originalIndex = state.tasks.findIndex(task => task.id === draggedItemId);
     if (originalIndex === -1) {
         console.error("Tarefa arrastada não encontrada no estado.");
+        // Limpa o estado de arrasto
         draggedItem.classList.remove('dragging');
         draggedItem = null;
         document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
         return;
     }
 
+    // Remove a tarefa do array e a guarda
     const [movedTask] = state.tasks.splice(originalIndex, 1);
 
+    // Determina o novo índice baseado em onde o item foi solto
     const afterElement = getDragAfterElement(taskList, e.clientY);
     let newIndex;
 
     if (afterElement) {
         const afterElementId = afterElement.dataset.taskId;
+        // Encontra o índice do elemento 'depois de' no array de tarefas ATUALIZADO (sem o item movido)
         const targetIndexInState = state.tasks.findIndex(task => task.id === afterElementId);
         if (targetIndexInState !== -1) {
-            newIndex = targetIndexInState;
+            newIndex = targetIndexInState; // Insere ANTES do afterElement
         } else {
-             // Se o afterElement não for encontrado no estado (improvável se o DOM estiver sincronizado),
-            // adiciona ao final ou antes do item que está visualmente depois.
-            // Esta lógica pode ser simplificada se a ordem no DOM sempre refletir a ordem no state ANTES da renderização.
-            // Por agora, vamos usar uma abordagem mais direta baseada na posição visual.
-            const children = Array.from(taskList.children);
-            const afterElementDOMIndex = children.indexOf(afterElement);
-            let countVisibleTasksBefore = 0;
-            for(let i=0; i < afterElementDOMIndex; i++){
-                if(children[i].classList.contains('task-item') && !children[i].classList.contains('dragging')){
-                    countVisibleTasksBefore++;
-                }
-            }
-            newIndex = countVisibleTasksBefore;
+            // Fallback: se o afterElement não for encontrado no estado (improvável)
+            // Adiciona ao final da lista de tarefas (já que foi removido do estado original)
+            newIndex = state.tasks.length;
         }
     } else {
+        // Soltou no final da lista
         newIndex = state.tasks.length;
     }
     
+    // Insere a tarefa movida no novo índice
     state.tasks.splice(newIndex, 0, movedTask);
 
+    // Limpa o estado de arrasto
     draggedItem.classList.remove('dragging');
     draggedItem = null;
     document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
 
+    // Re-renderiza a lista de tarefas para refletir a nova ordem e salva o estado
     renderTasks();
     saveState();
 }
@@ -1645,13 +1687,14 @@ function getDragAfterElement(container, y) {
 
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
+        const offset = y - box.top - box.height / 2; // Distância do mouse para o centro do elemento filho
+        // Se o offset é negativo (mouse está acima do centro) e mais próximo que o anterior
         if (offset < 0 && offset > closest.offset) {
             return { offset: offset, element: child };
         } else {
             return closest;
         }
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }, { offset: Number.NEGATIVE_INFINITY }).element; // Retorna o elemento ou null se não houver mais próximo
 }
 
 
@@ -1664,12 +1707,13 @@ function initTasks() {
         taskList.addEventListener('dragover', handleDragOver);
         taskList.addEventListener('drop', handleDrop);
     }
+    // Define a data de hoje como padrão no input de data ao carregar
     const taskDateInput = document.getElementById('task-assigned-date');
     if (taskDateInput) {
-        taskDateInput.value = getTodayISO(); // Define a data de hoje como padrão
+        taskDateInput.value = getTodayISO();
     }
 
-    renderTasks();
+    renderTasks(); // Renderiza tarefas existentes ao carregar
 }
 
 // --- Funções de Temas e Aparência ---
@@ -1677,7 +1721,7 @@ function openThemesModal() {
     const modal = document.getElementById('themes-modal');
     const overlay = document.getElementById('themes-modal-overlay');
     if (modal && overlay) {
-        populateThemesModal();
+        populateThemesModal(); // Popula o modal com as opções atuais
         overlay.classList.add('show');
         modal.classList.add('show');
         document.body.classList.add('modal-open');
@@ -1699,7 +1743,7 @@ function populateThemesModal() {
     const modeContainer = document.getElementById('mode-buttons-container');
     if (!paletteContainer || !modeContainer) return;
 
-    paletteContainer.innerHTML = '';
+    paletteContainer.innerHTML = ''; // Limpa antes de popular
     Object.keys(PREDEFINED_PALETTES).forEach(key => {
         const palette = PREDEFINED_PALETTES[key];
         const btn = document.createElement('button');
@@ -1715,7 +1759,7 @@ function populateThemesModal() {
         paletteContainer.appendChild(btn);
     });
 
-    modeContainer.innerHTML = '';
+    modeContainer.innerHTML = ''; // Limpa antes de popular
     Object.keys(VISUAL_MODES).forEach(key => {
         const mode = VISUAL_MODES[key];
         const btn = document.createElement('button');
@@ -1743,9 +1787,11 @@ function populateThemesModal() {
 }
 
 function updateThemeModalButtons() {
+    // Atualiza a classe 'active' dos botões de paleta
     document.querySelectorAll('.palette-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.paletteKey === state.visuals.currentPalette);
     });
+    // Atualiza a classe 'active' dos botões de modo visual
     document.querySelectorAll('.mode-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.modeKey === state.visuals.currentVisualMode);
     });
@@ -1755,25 +1801,25 @@ function applyPalette(paletteName) {
     if (PREDEFINED_PALETTES[paletteName]) {
         const newPrimaryColor = PREDEFINED_PALETTES[paletteName].primary;
         state.visuals.currentPalette = paletteName;
-        applyPrimaryColor(newPrimaryColor);
+        applyPrimaryColor(newPrimaryColor); // Esta função já chama applyCurrentThemeAndMode
         saveState();
-        updateThemeModalButtons();
+        updateThemeModalButtons(); // Atualiza os botões no modal
     }
 }
 
 function applyVisualMode(modeName) {
     if (VISUAL_MODES[modeName]) {
         state.visuals.currentVisualMode = modeName;
-        applyCurrentThemeAndMode();
+        applyCurrentThemeAndMode(); // Aplica o modo e atualiza o tema
         saveState();
-        updateThemeModalButtons();
+        updateThemeModalButtons(); // Atualiza os botões no modal
     }
 }
 
 function initThemes() {
     const themesModalOverlay = document.getElementById('themes-modal-overlay');
     if (themesModalOverlay) themesModalOverlay.addEventListener('click', closeThemesModal);
-    applyCurrentThemeAndMode();
+    applyCurrentThemeAndMode(); // Aplica o tema e modo salvos ao carregar
 }
 
 // --- Custom Alert System ---
@@ -1794,34 +1840,35 @@ function showCustomAlert(message, title = 'Alerta', onConfirmCallback = null) {
     alertTitleEl.textContent = title;
     alertMessageEl.textContent = message;
 
+    // Recria o botão OK para remover listeners antigos
     const newOkBtn = alertOkBtn.cloneNode(true);
     alertOkBtn.parentNode.replaceChild(newOkBtn, alertOkBtn);
-    alertOkBtn = newOkBtn;
+    alertOkBtn = newOkBtn; // Atualiza a referência
 
     const closeAlert = () => {
         alertModal.classList.remove('show');
         alertOverlay.classList.remove('show');
         alertOkBtn.removeEventListener('click', closeAlert);
-        alertOverlay.removeEventListener('click', closeAlertOnOverlay);
+        alertOverlay.removeEventListener('click', closeAlertOnOverlay); // Remove o listener específico do overlay
         if (onConfirmCallback && typeof onConfirmCallback === 'function') {
             onConfirmCallback();
         }
     };
 
     const closeAlertOnOverlay = (event) => {
-        if (event.target === alertOverlay) {
+        if (event.target === alertOverlay) { // Garante que o clique foi no overlay e não no modal
             closeAlert();
         }
     };
 
     alertOkBtn.addEventListener('click', closeAlert);
-    alertOverlay.addEventListener('click', closeAlertOnOverlay);
+    alertOverlay.addEventListener('click', closeAlertOnOverlay); // Adiciona listener no overlay
 
     alertOverlay.classList.add('show');
     alertModal.classList.add('show');
-    alertOkBtn.focus();
+    alertOkBtn.focus(); // Foca no botão OK para acessibilidade
 }
-window.showCustomAlert = showCustomAlert;
+window.showCustomAlert = showCustomAlert; // Expondo para uso global, se necessário
 
 // --- Modal do Guia de Boas-Vindas ---
 function openWelcomeGuideModal() {
@@ -1829,7 +1876,7 @@ function openWelcomeGuideModal() {
     const overlay = document.getElementById('welcome-guide-modal-overlay');
     if (modal && overlay) {
         const checkbox = document.getElementById('dont-show-guide-again-checkbox');
-        if (checkbox) checkbox.checked = false;
+        if (checkbox) checkbox.checked = false; // Garante que não esteja pré-marcado
         overlay.classList.add('show');
         modal.classList.add('show');
         document.body.classList.add('modal-open');
@@ -1853,7 +1900,7 @@ function closeWelcomeGuideModal() {
 
 // --- Modal de Confirmação de Reset ---
 function openConfirmResetModal() {
-    closeGoalsModal();
+    closeGoalsModal(); // Fecha o modal de metas se estiver aberto
     const modal = document.getElementById('confirm-reset-modal');
     const overlay = document.getElementById('confirm-reset-modal-overlay');
     if (modal && overlay) {
@@ -1874,6 +1921,7 @@ function closeConfirmResetModal() {
 }
 
 function performFullReset() {
+    // Limpa todos os itens do localStorage relacionados ao Taskify
     localStorage.removeItem('taskify-state');
     localStorage.removeItem('taskify-theme');
     localStorage.removeItem('taskify-primary-color');
@@ -1881,6 +1929,9 @@ function performFullReset() {
     localStorage.removeItem('taskify-welcomeGuideDismissed');
     localStorage.removeItem('taskify-palette');
     localStorage.removeItem('taskify-visual-mode');
+    // Adicione aqui outros itens que possam ser salvos no futuro
+
+    // Recarrega a página para aplicar o estado padrão
     location.reload();
 }
 
@@ -1899,13 +1950,15 @@ function updateScrollIndicator() {
     const productivityArea = document.querySelector('.productivity-focus-area');
     if (!scrollIndicator || !productivityArea) return;
 
-    if (window.innerWidth < 769) {
+    // Se a tela for pequena (mobile/tablet vertical), o indicador não é necessário
+    if (window.innerWidth < 769) { // Corresponde ao breakpoint do CSS
         scrollIndicator.classList.remove('visible');
         scrollIndicator.classList.add('collapsed');
-        productivityArea.classList.add('visible');
+        productivityArea.classList.add('visible'); // Garante que a área de produtividade seja visível
         return;
     }
 
+    // Calcula a altura do conteúdo da "primeira página"
     const statsGrid = document.querySelector('.stats-grid');
     const bottomCards = document.querySelector('.bottom-cards');
     const activitySection = document.querySelector('.activity-section');
@@ -1914,11 +1967,12 @@ function updateScrollIndicator() {
     if (bottomCards) firstPageContentHeight += bottomCards.offsetHeight + parseInt(getComputedStyle(bottomCards).marginBottom || '0');
     if (activitySection) firstPageContentHeight += activitySection.offsetHeight + parseInt(getComputedStyle(activitySection).marginBottom || '0');
 
-    const hasSecondPageContent = productivityArea.offsetHeight > 50;
-    const contentEntryThreshold = firstPageContentHeight * 0.20;
-    const indicatorHideThreshold = firstPageContentHeight * 0.60;
+    const hasSecondPageContent = productivityArea.offsetHeight > 50; // Verifica se há conteúdo significativo na área de produtividade
+    const contentEntryThreshold = firstPageContentHeight * 0.20; // Quando a área de produtividade começa a aparecer
+    const indicatorHideThreshold = firstPageContentHeight * 0.60; // Quando o indicador deve sumir
 
-    if (hasSecondPageContent && document.documentElement.scrollHeight > (window.innerHeight + 50)) {
+    // Verifica se há scroll suficiente para justificar o indicador
+    if (hasSecondPageContent && document.documentElement.scrollHeight > (window.innerHeight + 50)) { // 50px de margem
         if (window.scrollY < indicatorHideThreshold) {
             scrollIndicator.classList.add('visible');
             scrollIndicator.classList.remove('collapsed');
@@ -1926,12 +1980,14 @@ function updateScrollIndicator() {
             scrollIndicator.classList.remove('visible');
             scrollIndicator.classList.add('collapsed');
         }
+        // Animação de entrada da área de produtividade
         if (window.scrollY > contentEntryThreshold) productivityArea.classList.add('visible');
         else productivityArea.classList.remove('visible');
-    } else {
+
+    } else { // Sem scroll suficiente ou sem conteúdo na segunda página
         scrollIndicator.classList.remove('visible');
         scrollIndicator.classList.add('collapsed');
-        productivityArea.classList.add('visible');
+        productivityArea.classList.add('visible'); // Garante visibilidade se não houver scroll
     }
 }
 
@@ -1942,22 +1998,24 @@ window.addEventListener('resize', updateScrollIndicator);
 // Inicialização Principal
 async function init() {
     const loaderElement = document.getElementById('loader');
-    if(loaderElement) loaderElement.style.display = 'flex';
+    if(loaderElement) loaderElement.style.display = 'flex'; // Mostra o loader
 
-    loadState();
-    window.state = state;
+    loadState(); // Carrega o estado, que também define window.state
+    // window.state já é definido dentro de loadState()
+
     console.log("TASKIFY_MAIN: window.state definido após loadState():", JSON.parse(JSON.stringify(window.state || {})));
 
     initThemes();
-    checkAllResets();
+    checkAllResets(); // Faz os resets diários, semanais etc.
     initStreak();
     initPomodoro();
     initTasks();
 
-    await loadAndSetupRetrospective();
+    await loadAndSetupRetrospective(); // Carrega e configura a retrospectiva
 
     updateFooterYear();
 
+    // Configura gráficos com animação inicial
     if (weeklyChartInstance) weeklyChartInstance.destroy();
     setupChart(true);
     if (pomodoroChartInstance) pomodoroChartInstance.destroy();
@@ -1965,8 +2023,9 @@ async function init() {
     if (tasksChartInstance) tasksChartInstance.destroy();
     setupTasksChart(true);
 
-    updateUI();
+    updateUI(); // Atualiza toda a UI com os dados carregados/resetados
 
+    // Listeners dos modais e formulários
     const goalsForm = document.getElementById('goals-form');
     if (goalsForm) goalsForm.addEventListener('submit', (e) => { e.preventDefault(); saveGoals(); });
     const goalsOverlay = document.getElementById('goals-modal-overlay');
@@ -1984,8 +2043,9 @@ async function init() {
     const btnConfirmResetAction = document.getElementById('btn-confirm-reset-action');
     if(btnConfirmResetAction) btnConfirmResetAction.addEventListener('click', performFullReset);
 
-    const btnOpenGuide = document.getElementById('btn-open-guide');
-    if(btnOpenGuide) btnOpenGuide.addEventListener('click', openWelcomeGuideModal);
+    // Guia de boas-vindas (removido o botão de abrir, pois não está no HTML fornecido)
+    // const btnOpenGuide = document.getElementById('btn-open-guide');
+    // if(btnOpenGuide) btnOpenGuide.addEventListener('click', openWelcomeGuideModal);
     const welcomeGuideModalOverlay = document.getElementById('welcome-guide-modal-overlay');
     if(welcomeGuideModalOverlay) welcomeGuideModalOverlay.addEventListener('click', closeWelcomeGuideModal);
     const welcomeGuideModalCloseBtn = document.getElementById('welcome-guide-modal-close-btn');
@@ -1997,37 +2057,41 @@ async function init() {
         openWelcomeGuideModal();
     }
 
+    // Verifica resets periodicamente (ex: a cada minuto)
     setInterval(checkAllResets, 60000);
 
+    // Sinaliza que o estado principal do Taskify está pronto
     window.taskifyStateReady = true;
     console.log("TASKIFY_MAIN: Disparando evento 'taskifyStateReady'. Estado enviado:", JSON.parse(JSON.stringify(window.state || {})));
     document.dispatchEvent(new CustomEvent('taskifyStateReady', {
-        detail: { taskifyAppState: JSON.parse(JSON.stringify(window.state || {})) }
+        detail: { taskifyAppState: JSON.parse(JSON.stringify(window.state || {})) } // Envia uma cópia do estado
     }));
     console.log("TASKIFY_MAIN: Evento 'taskifyStateReady' disparado.");
 
+
+    // Esconde o loader após um pequeno delay
     setTimeout(() => {
         if(loaderElement) {
             loaderElement.style.opacity = '0';
             setTimeout(() => {
                 loaderElement.style.display = 'none';
-            }, 500);
+            }, 500); // Tempo para a animação de fade out
         }
-    }, 250);
+    }, 250); // Delay mínimo para mostrar o loader
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
     await init();
 });
 
-// Animação de Partículas
+// Animação de Partículas (Opcional, pode ser removida se não desejada)
 const particleCanvas = document.getElementById('particle-canvas');
 if (particleCanvas) {
     const ctx = particleCanvas.getContext('2d');
     let particlesArray = [];
     let lastParticleTime = 0;
-    const particleCooldown = 30;
-    let currentMouseX = -1000, currentMouseY = -1000;
+    const particleCooldown = 30; // ms entre a criação de novas partículas
+    let currentMouseX = -1000, currentMouseY = -1000; // Fora da tela inicialmente
 
     function resizeCanvas() {
         particleCanvas.width = window.innerWidth;
@@ -2043,31 +2107,32 @@ if (particleCanvas) {
                 currentMouseY = e.touches[0].clientY;
             }
         });
+        // Reseta a posição do mouse quando ele sai da janela ou o toque termina
         document.addEventListener('mouseleave', () => { currentMouseX = -1000; currentMouseY = -1000; });
         document.addEventListener('touchend', () => { currentMouseX = -1000; currentMouseY = -1000; });
-        resizeCanvas();
+        resizeCanvas(); // Define o tamanho inicial
     }
 
     class Particle {
         constructor(x, y, color) {
-            this.x = x; this.y = y; this.size = Math.random() * 4 + 1.5;
+            this.x = x; this.y = y; this.size = Math.random() * 4 + 1.5; // Tamanho entre 1.5 e 5.5
             this.baseSize = this.size; this.color = color;
-            this.speedX = Math.random() * 2 - 1;
-            this.speedY = Math.random() * 2 - 1;
-            this.life = Math.random() * 60 + 30;
+            this.speedX = Math.random() * 2 - 1; // Velocidade X entre -1 e 1
+            this.speedY = Math.random() * 2 - 1; // Velocidade Y entre -1 e 1
+            this.life = Math.random() * 60 + 30; // Vida entre 30 e 90 frames
             this.initialLife = this.life;
         }
         update() {
             this.x += this.speedX; this.y += this.speedY; this.life--;
-            if (this.life > 0) this.size = this.baseSize * (this.life / this.initialLife);
-            if (this.size < 0.1) this.size = 0;
+            if (this.life > 0) this.size = this.baseSize * (this.life / this.initialLife); // Diminui com o tempo
+            if (this.size < 0.1) this.size = 0; // Garante que não seja negativo
         }
         draw() {
             if (this.size > 0) {
                 ctx.fillStyle = this.color;
-                ctx.globalAlpha = Math.max(0, this.life / this.initialLife * 0.7);
+                ctx.globalAlpha = Math.max(0, this.life / this.initialLife * 0.7); // Fade out
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
-                ctx.globalAlpha = 1;
+                ctx.globalAlpha = 1; // Reseta alpha global
             }
         }
     }
@@ -2075,25 +2140,31 @@ if (particleCanvas) {
     function handleParticles(timestamp) {
         const isMouseInsideWindow = currentMouseX >= 0 && currentMouseX <= window.innerWidth &&
                                     currentMouseY >= 0 && currentMouseY <= window.innerHeight;
+        
+        // Verifica se as partículas devem ser desabilitadas (ex: modo foco)
         let particleEnabled = true;
         if (typeof state !== 'undefined' && state.visuals && state.visuals.currentVisualMode === 'focus') {
             particleEnabled = false;
         }
+
         if (particleEnabled && isMouseInsideWindow && timestamp - lastParticleTime > particleCooldown) {
-            let primaryColor = '#0A7CFF';
+            let primaryColor = '#0A7CFF'; // Fallback
             try {
+                // Pega a cor primária atual (claro ou escuro)
                 if (typeof state !== 'undefined' && state.isDarkMode !== undefined) {
                     primaryColor = getComputedStyle(document.documentElement).getPropertyValue(state.isDarkMode ? '--primary-color-dark' : '--primary-color-light').trim();
                 } else {
+                    // Fallback se o estado não estiver pronto (raro aqui, mas seguro)
                     primaryColor = localStorage.getItem('taskify-primary-color') || '#0A7CFF';
                 }
             } catch (e) { console.warn("Erro ao obter cor primária para partículas:", e); }
 
-            for (let i = 0; i < 1; i++) {
+            for (let i = 0; i < 1; i++) { // Cria 1 partícula por vez para um efeito sutil
                 particlesArray.push(new Particle(currentMouseX + (Math.random() - 0.5) * 10, currentMouseY + (Math.random() - 0.5) * 10, primaryColor));
             }
             lastParticleTime = timestamp;
         }
+        // Atualiza e remove partículas mortas ou fora da tela
         for (let i = 0; i < particlesArray.length; i++) {
             particlesArray[i].update();
             if (particlesArray[i].life <= 0 ||
@@ -2110,6 +2181,7 @@ if (particleCanvas) {
         for (let i = 0; i < particlesArray.length; i++) particlesArray[i].draw();
         requestAnimationFrame(animateParticles);
     }
+    // Garante que os listeners e a animação só comecem após o DOM estar pronto
     if (document.readyState === 'complete' || (document.readyState !== 'loading' && !document.documentElement.doScroll)) {
         setupParticleListeners(); requestAnimationFrame(animateParticles);
     } else {
@@ -2121,19 +2193,19 @@ if (particleCanvas) {
     console.warn("Elemento #particle-canvas não encontrado. Animação de partículas desabilitada.");
 }
 
-// Função auxiliar para converter hex para array RGB
+// Função auxiliar para converter hex para array RGB (pode ser movida para um arquivo de utils se usada em múltiplos lugares)
 function hexToRgbArray(hex) {
     if (!hex || typeof hex !== 'string') return null;
-    let c = hex.substring(1);
-    if (c.length === 3) {
+    let c = hex.substring(1); // Remove #
+    if (c.length === 3) { // Converte de #RGB para #RRGGBB
         c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
     }
-    if (c.length !== 6) {
+    if (c.length !== 6) { // Formato inválido
         return null;
     }
     try {
         const bigint = parseInt(c, 16);
-        if (isNaN(bigint)) return null;
+        if (isNaN(bigint)) return null; // Não é um número hexadecimal válido
         const r = (bigint >> 16) & 255;
         const g = (bigint >> 8) & 255;
         const b = bigint & 255;
@@ -2152,10 +2224,11 @@ async function loadAndSetupRetrospective() {
 
     if (!retrospectiveModalEl || !retrospectiveModalOverlayEl || !btnOpenRetrospectiveMain) {
         console.error('TASKIFY_MAIN: Elementos base da retrospectiva não encontrados. A retrospectiva pode não funcionar.');
-        if(btnOpenRetrospectiveMain) btnOpenRetrospectiveMain.style.display = 'none';
+        if(btnOpenRetrospectiveMain) btnOpenRetrospectiveMain.style.display = 'none'; // Esconde o botão se o modal não existe
         return;
     }
 
+    // Listener para abrir a retrospectiva
     btnOpenRetrospectiveMain.addEventListener('click', () => {
         console.log("TASKIFY_MAIN: Botão 'btn-open-retrospective' clicado.");
         if (typeof window.openRetrospectiveView === 'function') {
@@ -2165,15 +2238,17 @@ async function loadAndSetupRetrospective() {
         }
     });
 
+    // Listener para fechar a retrospectiva clicando no overlay
     retrospectiveModalOverlayEl.addEventListener('click', (event) => {
-        if (event.target === retrospectiveModalOverlayEl) {
+        if (event.target === retrospectiveModalOverlayEl) { // Garante que o clique foi no overlay e não em um filho
             if (typeof window.closeRetrospectiveView === 'function') {
                 window.closeRetrospectiveView();
             }
         }
     });
 
-    if (!retrospectiveModalEl.querySelector('.retrospective-screen')) {
+    // Verifica se o conteúdo da retrospectiva já foi carregado (evita recarregar)
+    if (!retrospectiveModalEl.querySelector('.retrospective-screen')) { // Se não houver telas, carrega
         console.log("TASKIFY_MAIN: Carregando retrospective.html...");
         try {
             const response = await fetch('retrospective.html');
@@ -2181,9 +2256,10 @@ async function loadAndSetupRetrospective() {
                 throw new Error(`Falha ao carregar retrospective.html: ${response.status} ${response.statusText}`);
             }
             const htmlContent = await response.text();
-            retrospectiveModalEl.innerHTML = htmlContent;
+            retrospectiveModalEl.innerHTML = htmlContent; // Injeta o HTML da retrospectiva no modal
             console.log("TASKIFY_MAIN: retrospective.html carregado e injetado.");
 
+            // Após carregar o HTML, inicializa os componentes internos da retrospectiva
             if (typeof window.initializeRetrospectiveInternals === 'function') {
                 window.initializeRetrospectiveInternals();
                 console.log("TASKIFY_MAIN: window.initializeRetrospectiveInternals() chamada com sucesso.");
@@ -2194,9 +2270,11 @@ async function loadAndSetupRetrospective() {
             console.error('TASKIFY_MAIN: Falha ao carregar e configurar retrospective.html:', error);
             const alertFn = typeof window.showCustomAlert === 'function' ? window.showCustomAlert : alert;
             alertFn('Erro crítico ao carregar a retrospectiva. Verifique o console.', 'Erro');
-            btnOpenRetrospectiveMain.style.display = 'none';
+            btnOpenRetrospectiveMain.style.display = 'none'; // Esconde o botão se falhar
         }
     } else {
+        // Se o HTML já existe, apenas garante que os internos sejam inicializados
+        // (útil para hot-reloading ou cenários onde o script é recarregado mas o DOM persiste)
         console.log("TASKIFY_MAIN: retrospective.html já estava carregado. Garantindo inicialização dos internos.");
         if (typeof window.initializeRetrospectiveInternals === 'function') {
             window.initializeRetrospectiveInternals();
