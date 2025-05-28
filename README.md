@@ -1,18 +1,13 @@
 <p align="center"> <h1 align="center">Taskify — Dashboard de Metas e Foco 🎯</h1> </p>
 
 <p align="center">
-  <img src="![image](https://github.com/user-attachments/assets/99139d62-6870-49dc-8bdf-665ad5b60472)
-" alt="Taskify Dashboard Demo" width="700">
+  <img src="https://github.com/user-attachments/assets/99139d62-6870-49dc-8bdf-665ad5b60472" alt="Taskify Dashboard Demo - Visão Geral" width="700">
 </p>
 <p align="center">
-  <img src="![image](https://github.com/user-attachments/assets/ef6f015c-6e04-454d-8aba-ae82c08c044c)
-" alt="Taskify Dashboard Demo" width="700">
+  <img src="https://github.com/user-attachments/assets/ef6f015c-6e04-454d-8aba-ae82c08c044c" alt="Taskify Dashboard Demo - Pomodoro e Tarefas" width="700">
 </p>
 <p align="center">
-  <img src="<p align="center">
-  <img src="![image](https://github.com/user-attachments/assets/148d6ffe-a2ed-4942-83da-e7f0d7b7f8b1)
-" alt="Taskify Dashboard Demo" width="700">
-</p>" alt="Taskify Dashboard Demo" width="700">
+  <img src="https://github.com/user-attachments/assets/148d6ffe-a2ed-4942-83da-e7f0d7b7f8b1" alt="Taskify Dashboard Demo - Retrospectiva" width="700">
 </p>
 
 Taskify é um dashboard responsivo e personalizável para acompanhamento de metas, gerenciamento de tarefas e sessões de foco com timer Pomodoro. Todos os dados são salvos localmente no seu navegador.
