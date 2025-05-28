@@ -670,8 +670,8 @@ function populateMainStatsScreen() {
     }
     const { currentMonth } = retrospectiveDataStore;
     const cardsData = [
-        { metric: "questions", el: questionsResolvedEl, value: currentMonth.questionsResolved || 0, phraseEl: phraseQuestionsEl, cardSel: '[data-metric-card="questions"]', formatter: val => val },
-        { metric: "tasks", el: tasksCompletedEl, value: currentMonth.tasksCompleted || 0, phraseEl: phraseTasksEl, cardSel: '[data-metric-card="tasks"]', formatter: val => val },
+        { metric: "questions", el: questionsResolvedEl, value: currentMonth.questionsResolved || 0, phraseEl: phraseQuestionsEl, cardSel: '[data-metric-card="questions"]', formatter: val => Math.round(val) }, // MODIFICADO
+        { metric: "tasks", el: tasksCompletedEl, value: currentMonth.tasksCompleted || 0, phraseEl: phraseTasksEl, cardSel: '[data-metric-card="tasks"]', formatter: val => Math.round(val) },       // MODIFICADO
         { metric: "focus", el: focusTimeEl, value: currentMonth.focusTimeMinutes || 0, phraseEl: phraseFocusEl, cardSel: '[data-metric-card="focus"]', formatter: formatFocusMinutes }
     ];
     let visibleCards = 0;
@@ -852,7 +852,7 @@ function populateFinalScreen() {
     if (highlightsGrid) highlightsGrid.dataset.itemCount = visibleHighlightCount;
     if (finalPeakFocusStatItem && currentMonth.peakFocusHour !== null) { finalPeakFocusStatItem.style.display = 'flex'; if(finalPeakFocusHourEl) finalPeakFocusHourEl.textContent = `${String(currentMonth.peakFocusHour).padStart(2, '0')}:00`; } else if (finalPeakFocusStatItem && currentMonth.peakFocusHour === null) { finalPeakFocusStatItem.style.display = 'flex'; if(finalPeakFocusHourEl) finalPeakFocusHourEl.textContent = "-"; }
     if (finalLongestStreakStatItem && (currentMonth.longestStreakInMonth || 0) >= 0) { finalLongestStreakStatItem.style.display = 'flex'; if(finalLongestStreakEl) finalLongestStreakEl.textContent = currentMonth.longestStreakInMonth || 0; }
-    if (finalProductiveDayStatItem && currentMonth.mostProductiveDayOverall && currentMonth.mostProductiveDayOverall.date) { finalProductiveDayStatItem.style.display = 'flex'; const prodDate = new Date(currentMonth.mostProductiveDayOverall.date); if(finalMostProductiveDayShortEl) finalMostProductiveDayShortEl.textContent = prodDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', ''); } else if (finalProductiveDayStatItem) { finalProductiveDayStatItem.style.display = 'flex'; if(finalMostProductiveDayShortEl) finalMostProductiveDayShortEl.textContent = "-"; }
+    if (finalProductiveDayStatItem && currentMonth.mostProductiveDayOverall && currentMonth.mostProductiveDayOverall.date) { finalProductiveDayStatItem.style.display = 'flex'; const prodDate = new Date(currentMonth.mostProductiveDayOverall.date); if(finalMostProductiveDayShortEl) finalMostProductiveDayShortEl.textContent = prodDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }).replace('.', ''); } else if (finalProductiveDayStatItem) { finalProductiveDayStatItem.style.display = 'flex'; if(finalMostProductiveDayShortEl) finalMostProductiveDayShortEl.textContent = "-"; }
     achievementsListEl.innerHTML = '';
     const achievements = determineAchievements(currentMonth, selectedMetrics);
     if (achievements.length > 0) { if (finalAchievementsContainer) finalAchievementsContainer.style.display = ''; const badge = document.createElement('span'); badge.className = 'retrospective-badge-achievement'; badge.innerHTML = achievements[0]; achievementsListEl.appendChild(badge); }
@@ -893,7 +893,7 @@ function generateRetrospectiveShareText() {
     if (selectedMetrics.includes("tasks") && (tasksCompleted || 0) > 0) { text += `🎯 ${tasksCompleted} tarefas\n`; detailsAdded++; }
     if (selectedMetrics.includes("focus") && (focusTimeMinutes || 0) > 0) { text += `⏰ ${formatFocusMinutes(focusTimeMinutes)} de foco\n`; detailsAdded++; }
     if (detailsAdded > 0 && ((mostProductiveDayOverall && mostProductiveDayOverall.date) || (longestStreakInMonth || 0) >= 3 )) text += "\n";
-    if (mostProductiveDayOverall && mostProductiveDayOverall.date && (mostProductiveDayOverall.totalScore || 0) > 0) { const prodDate = new Date(mostProductiveDayOverall.date); text += `🌟 Dia Mais Produtivo: ${prodDate.toLocaleDateString('pt-BR', {day: '2-digit', month: 'short'}).replace('.','')}\n`; }
+    if (mostProductiveDayOverall && mostProductiveDayOverall.date && (mostProductiveDayOverall.totalScore || 0) > 0) { const prodDate = new Date(mostProductiveDayOverall.date); text += `🌟 Dia Mais Produtivo: ${prodDate.toLocaleDateString('pt-BR', {day: '2-digit', month: 'long'}).replace('.','')}\n`; }
     if ((longestStreakInMonth || 0) >= 3) { text += `🔥 Maior Streak: ${longestStreakInMonth} dias\n`; }
     text += "Confira o Taskify e organize seu sucesso! 👉 taskify-fabinxz.vercel.app\n#TaskifyWrapped";
     return text;
