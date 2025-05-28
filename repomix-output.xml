@@ -5968,6 +5968,7 @@ let retrospectiveDataStore = { currentMonth: {}, previousMonth: {} };
 let retrospectiveDataProcessed = false;
 let isMusicPlaying = false;
 let userInteractedWithMusic = false;
+let shouldResumeMusicOnFocus = false; // Nova variável de estado
 
 // Constantes e Frases
 const motivationalPhrases = {
@@ -6068,29 +6069,31 @@ function toggleMetric(event) {
 
 // --- Funções de Controle de Música ---
 function playRetrospectiveMusic() {
-    if (retrospectiveMusicAudio && retrospectiveMusicAudio.paused && userInteractedWithMusic) {
+    if (retrospectiveMusicAudio && retrospectiveMusicAudio.paused && userInteractedWithMusic && document.visibilityState === 'visible') {
         retrospectiveMusicAudio.play().then(() => {
             isMusicPlaying = true;
             updateMusicButtonIcon();
         }).catch(error => {
             console.warn("TASKIFY_RETRO_MUSIC: Erro ao tentar tocar a música:", error);
-            isMusicPlaying = false;
+            isMusicPlaying = false; // Garante que o estado reflita a falha
             updateMusicButtonIcon();
         });
     }
 }
 
-function pauseRetrospectiveMusic() {
+function pauseRetrospectiveMusic(dueToVisibilityChange = false) {
     if (retrospectiveMusicAudio && !retrospectiveMusicAudio.paused) {
         retrospectiveMusicAudio.pause();
+        if (!dueToVisibilityChange) {
+            userInteractedWithMusic = true; // Só marca interação manual se não for por mudança de visibilidade
+        }
         isMusicPlaying = false;
-        userInteractedWithMusic = true;
         updateMusicButtonIcon();
     }
 }
 
 function toggleRetrospectiveMusic() {
-    userInteractedWithMusic = true;
+    userInteractedWithMusic = true; // Qualquer clique no botão é uma interação
     if (isMusicPlaying) {
         pauseRetrospectiveMusic();
     } else {
@@ -6259,6 +6262,8 @@ function openRetrospectiveView() {
         monthSelectionText.textContent = getMonthYearString(new Date());
     }
 
+    shouldResumeMusicOnFocus = false; // Resetar ao abrir o modal
+
     retrospectiveOverlay.classList.add('show');
     retrospectiveModal.classList.add('show');
     document.body.classList.add('modal-open', 'retrospective-open');
@@ -6268,7 +6273,7 @@ function openRetrospectiveView() {
     if (musicToggleButton) musicToggleButton.style.display = 'none';
 
     showScreen(0);
-    updateMusicButtonIcon();
+    updateMusicButtonIcon(); // Garante que o ícone esteja correto mesmo se a música não tocar
 }
 
 function closeRetrospectiveView() {
@@ -6278,12 +6283,12 @@ function closeRetrospectiveView() {
     document.body.classList.remove('modal-open', 'retrospective-open');
 
     if (retrospectiveMusicAudio) {
-        retrospectiveMusicAudio.pause();
-        retrospectiveMusicAudio.currentTime = 0;
-        isMusicPlaying = false;
+        pauseRetrospectiveMusic(); // Usa a função para garantir que isMusicPlaying seja atualizado
+        retrospectiveMusicAudio.currentTime = 0; // Continua resetando o tempo
         if (musicToggleButton) musicToggleButton.style.display = 'none';
         updateMusicButtonIcon();
     }
+    shouldResumeMusicOnFocus = false; // Resetar ao fechar o modal
 
     setTimeout(() => {
         currentScreenIndex = 0;
@@ -6375,7 +6380,7 @@ function startRetrospectiveFlow() {
         return;
     }
 
-    userInteractedWithMusic = true;
+    userInteractedWithMusic = true; // Considera a interação aqui para poder tocar
     if (retrospectiveMusicAudio && !isMusicPlaying) playRetrospectiveMusic();
     if (musicToggleButton) musicToggleButton.style.display = 'flex';
     updateMusicButtonIcon();
@@ -6960,7 +6965,7 @@ async function shareRetrospectiveOnTwitterWithImage() {
 
     if (isMobileDevice()) {
         console.log("TASKIFY_RETRO: Modo mobile para compartilhar. Tentando download da imagem.");
-        const result = await generateRetrospectiveImageInternal(true, false); // forSharingNotification = true, tryClipboard = false
+        const result = await generateRetrospectiveImageInternal(true, false);
         if (result.success && result.canvas) {
             downloadCanvasAsImageFile(result.canvas, 'retrospectiva_taskify_twitter.png');
             if (typeof window.showCustomAlert === 'function') {
@@ -6974,14 +6979,14 @@ async function shareRetrospectiveOnTwitterWithImage() {
         }
     } else {
         console.log("TASKIFY_RETRO: Modo desktop para compartilhar. Tentando copiar imagem para o clipboard.");
-        const result = await generateRetrospectiveImageInternal(true, true); // forSharingNotification = true, tryClipboard = true
-        if (result.success && result.canvas) { // Se success for true, a cópia ocorreu (ou o alerta de falha na cópia já foi dado)
+        const result = await generateRetrospectiveImageInternal(true, true);
+        if (result.success && result.canvas) {
             imageGeneratedAndHandled = true;
-        } else if (!result.success && result.canvas) { // Falha na cópia (API indisponível), mas canvas existe
+        } else if (!result.success && result.canvas) {
             if (typeof window.showCustomAlert === 'function') {
                  window.showCustomAlert("Não foi possível copiar a imagem. Tente baixá-la com o outro botão e anexar ao tweet, ou compartilhe apenas o texto.", "Falha na Cópia");
             }
-        } else { // Falha completa na geração da imagem (result.canvas é null)
+        } else {
              if (typeof window.showCustomAlert === 'function') {
                 window.showCustomAlert("Não foi possível gerar a imagem para o Twitter. Compartilhando apenas o texto.", "Falha na Imagem");
             }
@@ -7002,10 +7007,41 @@ async function downloadRetrospectiveImageAction() {
         console.error("TASKIFY_RETRO: Canvas não foi gerado para download ou houve erro.");
         if (typeof window.showCustomAlert === 'function' && !result.canvas) {
              window.showCustomAlert("Não foi possível gerar a imagem para download. Tente um print screen.", "Falha no Download");
-        } else if (typeof window.showCustomAlert === 'function' && result.canvas && !result.success) { // Canvas existe, mas success é false (ex: API clipboard falhou)
+        } else if (typeof window.showCustomAlert === 'function' && result.canvas && !result.success) {
             window.showCustomAlert("Houve um problema ao preparar a imagem para download (Canvas gerado, mas erro na operação).", "Falha");
         }
     }
+}
+
+// --- Event Listener para Visibilidade da Página ---
+function handleVisibilityChange() {
+    // Verifica se o modal da retrospectiva está aberto
+    if (!retrospectiveModal || !retrospectiveModal.classList.contains('show')) {
+        return; // Se não estiver aberto, não faz nada
+    }
+
+    if (document.hidden) {
+        // A página ficou oculta
+        if (isMusicPlaying) {
+            shouldResumeMusicOnFocus = true; // Marcar para retomar
+            pauseRetrospectiveMusic(true); // Pausa a música, indicando que é por mudança de visibilidade
+            console.log("TASKIFY_RETRO_MUSIC: Música pausada devido à aba ficar inativa.");
+        }
+    } else {
+        // A página ficou visível novamente
+        if (shouldResumeMusicOnFocus && userInteractedWithMusic) { // Só retoma se o usuário já interagiu
+            playRetrospectiveMusic();
+            console.log("TASKIFY_RETRO_MUSIC: Música retomada ao focar na aba.");
+        }
+        shouldResumeMusicOnFocus = false; // Reseta a flag
+    }
+}
+
+// Adicionar o listener de visibilidade globalmente, mas com cuidado
+if (typeof document !== 'undefined') {
+    // Remove listener antigo para evitar duplicatas se o script for re-executado (raro, mas seguro)
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 }
 
 
@@ -9255,42 +9291,74 @@ async function loadAndSetupRetrospective() {
 </file>
 
 <file path="README.md">
-<p align="center"> <h1 align="center">Taskify — Dashboard de Metas 🎯</h1> </p> <p align="center">
+<p align="center"> <h1 align="center">Taskify — Dashboard de Metas e Foco 🎯</h1> </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/0556a3c1-b54d-4c1b-8f01-b055a7f36474" alt="Taskify Dashboard Demo" width="700">
+  <img src="https://github.com/user-attachments/assets/99139d62-6870-49dc-8bdf-665ad5b60472" alt="Taskify Dashboard Demo - Visão Geral" width="700">
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/ef6f015c-6e04-454d-8aba-ae82c08c044c" alt="Taskify Dashboard Demo - Pomodoro e Tarefas" width="700">
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/148d6ffe-a2ed-4942-83da-e7f0d7b7f8b1" alt="Taskify Dashboard Demo - Retrospectiva" width="700">
 </p>
 
-Taskify é um dashboard responsivo para acompanhamento de metas diárias, semanais, mensais e anuais, de forma simples e intuitiva. Totalmente personalizável, com dados salvos no seu navegador.
+Taskify é um dashboard responsivo e personalizável para acompanhamento de metas, gerenciamento de tarefas e sessões de foco com timer Pomodoro. Todos os dados são salvos localmente no seu navegador.
 
-**👉** [Acesse a Demo](https://taskify-wine.vercel.app/)
+**👉** [Acesse a Demo](https://taskify-fabinxz.vercel.app/)
 
-## 🚀 Funcionalidades
+## 🚀 Funcionalidades Principais
 
-*   **Contador de Tarefas Dinâmico:** Adicione e remova tarefas concluídas facilmente.
-*   **Acompanhamento de Metas:** Visualize seu progresso para metas diárias, semanais, mensais e anuais com anéis de progresso.
+*   **Contador de Progresso Dinâmico:** Adicione e remova unidades de progresso (ex: questões resolvidas) facilmente.
+*   **Acompanhamento Detalhado de Metas:**
+    *   Visualize seu progresso para metas diárias, semanais, mensais e anuais com anéis de progresso.
+    *   Metas totalmente editáveis.
 *   **Estatísticas de Performance:**
-    *   Recorde Diário
-    *   Streak Atual (dias consecutivos de metas batidas)
-    *   Pico de Atividade Semanal
-*   **Gráfico de Atividade Semanal:** Monitore sua produtividade nos últimos 7 dias.
-*   **Personalização:**
-    *   Temas Escuro (padrão) e Claro.
-    *   Cor primária do dashboard customizável (clique no logo!).
-*   **Metas Editáveis:** Ajuste suas metas a qualquer momento.
+    *   Recorde Diário de progresso.
+    *   Streak Atual (dias consecutivos de metas diárias batidas) com barra de progresso para a meta de streak.
+    *   Pico de Atividade Semanal (dia da semana com maior progresso).
+*   **Gerenciamento de Tarefas:**
+    *   Adicione, complete e delete tarefas.
+    *   Atribua datas às tarefas (com seletor de data no formato DD/MM/AAAA).
+    *   Arraste e solte para reordenar tarefas.
+*   **Timer Pomodoro Integrado:**
+    *   Configure durações de foco, pausas curtas e longas.
+    *   Contador de ciclos de Pomodoro.
+    *   Opções de início automático de pausas/foco e notificações sonoras.
+*   **Visualização de Dados:**
+    *   Gráfico de Atividade Semanal (progresso dos últimos 7 dias).
+    *   Gráfico Semanal de Tempo de Foco (Pomodoro).
+    *   Gráfico Semanal de Tarefas Concluídas.
+*   **Retrospectiva Mensal Interativa:**
+    *   Visualize suas principais métricas do mês (questões, tarefas, foco).
+    *   Descubra seu dia mais produtivo e padrões de produtividade.
+    *   Compare seu desempenho com o mês anterior.
+    *   Gere uma imagem da sua retrospectiva para compartilhar.
+    *   Música ambiente opcional para a experiência.
+*   **Ampla Personalização Visual:**
+    *   **Temas:** Escuro (padrão) e Claro.
+    *   **Paletas de Cores:** Diversas opções predefinidas para a cor primária do dashboard.
+    *   **Modos Visuais:**
+        *   Padrão: Experiência Taskify completa.
+        *   Foco Total: Interface minimalista para menos distrações.
+        *   Profundo da Noite: Cores escuras e suaves.
+        *   Energia Vibrante: Cores dinâmicas e fundo com gradiente.
 *   **Responsivo:** Ótima experiência em desktops, tablets e celulares.
-*   **Persistência Local:** Seus dados são salvos no navegador (`localStorage`).
+*   **Persistência Local:** Seus dados e personalizações são salvos no navegador (`localStorage`).
 *   **Favicon Dinâmico:** O ícone do site reflete a cor primária escolhida.
+*   **Guia de Boas-Vindas:** Para novos usuários.
 
 ## 🛠️ Tecnologias
 
 *   **HTML5**
-*   **CSS3** (Flexbox, Grid, Variáveis CSS)
+*   **CSS3** (Flexbox, Grid, Variáveis CSS, Animações)
 *   **JavaScript (ES6+)**
 *   **Chart.js** (para gráficos)
+*   **Flatpickr** (para seleção de data customizada)
 *   **Bootstrap Icons** (para ícones)
+*   **html2canvas** (para gerar imagem da retrospectiva)
 
-## ✨ Como Usar
+## ⚡ Como Usar
 
 1.  Clone o repositório:
     ```bash
@@ -9305,26 +9373,36 @@ Taskify é um dashboard responsivo para acompanhamento de metas diárias, semana
 
 ## 🎨 Personalização Rápida
 
-*   **Cor Primária:** Clique no logo "Taskify" (ou "Tkfy" no mobile).
-*   **Tema:** Use o ícone de lua/sol no header.
-*   **Metas:** Clique no ícone de lápis no header.
+*   **Aparência (Temas, Cores, Modos Visuais):** Clique no ícone de paleta <i class="bi bi-palette-fill"></i> no header.
+*   **Tema Claro/Escuro:** Use o ícone de lua/sol <i class="bi bi-moon-fill"></i> / <i class="bi bi-sun-fill"></i> no header.
+*   **Metas e Reset:** Clique no ícone de lápis <i class="bi bi-pencil-square"></i> no header.
+*   **Configurações do Pomodoro:** Clique no ícone de engrenagem <i class="bi bi-gear-fill"></i> na seção do Pomodoro.
+*   **Retrospectiva Mensal:** Clique no ícone de calendário com coração <i class="bi bi-calendar-heart-fill"></i> no canto inferior direito.
 
 ## 📂 Estrutura do Projeto
-Use code with caution.
-Markdown
+
 Taskify/
 ├── css/
-│ └── style.css # Estilos principais
+│ ├── style.css # Estilos principais da aplicação
+│ └── retrospective.css # Estilos específicos da retrospectiva
 ├── js/
-│ └── script.js # Lógica da aplicação
-├── index.html # Página principal
+│ ├── script.js # Lógica principal da aplicação
+│ └── retrospective.js # Lógica da funcionalidade de retrospectiva
+├── sounds/
+│ ├── focus_end.mp3 # Som para fim do ciclo de foco Pomodoro
+│ ├── break_end.mp3 # Som para fim do ciclo de pausa Pomodoro
+│ └── BalloonPlanet - Echoes of Freedom.mp3 # Música para retrospectiva
+├── index.html # Página principal da aplicação
+├── retrospective.html # Estrutura HTML da retrospectiva (carregada dinamicamente)
 └── README.md # Este arquivo
 ## 💡 Melhorias Futuras (Ideias)
 
 *   Sincronização de dados online (ex: Firebase, Supabase).
-*   Notificações push para lembretes de metas ou conquistas de streak.
-*   Opção de exportar/importar dados do usuário.
-*   Mais opções de temas ou customização de layout.
+*   Notificações push para lembretes de metas ou fim de ciclos Pomodoro.
+*   Opção de exportar/importar dados do usuário (JSON, CSV).
+*   Mais opções de temas e customização de layout.
+*   Gamificação mais elaborada com badges e níveis.
+*   Integração com calendários externos.
 
 ---
 
