@@ -26,65 +26,132 @@
     left: 50%;
     transform: translate(-50%, -50%) scale(0.9);
     width: 95vw;
-    max-width: 700px;
+    max-width: 500px;
     height: 90vh;
-    max-height: 780px; /* Limite máximo de altura para desktops maiores */
-    background: #121212;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    max-height: 750px;
+    background: #000000;
+    /* Será sobrescrito pelo .retrospective-screen */
+    border: 1px solid rgba(var(--primary-color-dark-rgb, 10, 124, 255), 0.2);
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
     z-index: 2000;
     opacity: 0;
     transition: opacity 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-    overflow: hidden; /* Importante: o scroll deve ser no .retrospective-screen */
+    overflow: hidden;
     color: #FFFFFF;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'CircularSp', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 .retrospective-modal.show {
     display: flex;
+    flex-direction: column;
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
 }
 
 body.light .retrospective-modal-overlay {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(8px);
 }
 
 body.light .retrospective-modal {
-    background: #f0f0f0;
-    border-color: #d0d0d0;
+    /* background: #FFFFFF; Será sobrescrito pelo .retrospective-screen */
+    border-color: rgba(var(--primary-color-light-rgb, 10, 124, 255), 0.3);
     color: #121212;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes fadeInRight {
-    from { opacity: 0; transform: translateX(50px) scale(0.98); }
-    to { opacity: 1; transform: translateX(0) scale(1); }
-}
-@keyframes fadeOutLeft {
-    from { opacity: 1; transform: translateX(0) scale(1); }
-    to { opacity: 0; transform: translateX(-50px) scale(0.98); visibility: hidden; }
-}
-@keyframes fadeInFromLeft {
-    from { opacity: 0; transform: translateX(-50px) scale(0.98); }
-    to { opacity: 1; transform: translateX(0) scale(1); }
-}
-@keyframes fadeOutToRight {
-    from { opacity: 1; transform: translateX(0) scale(1); }
-    to { opacity: 0; transform: translateX(50px) scale(0.98); visibility: hidden; }
+/* Botão de Controle de Música e Fechar (X) */
+.retrospective-music-control-button,
+.retrospective-final-close-x-btn {
+    position: absolute;
+    top: 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    opacity: 0.8;
 }
 
+.retrospective-music-control-button {
+    left: 15px;
+    z-index: 2011;
+}
+
+.retrospective-final-close-x-btn {
+    right: 15px;
+    z-index: 2012;
+}
+
+
+.retrospective-music-control-button:hover,
+.retrospective-final-close-x-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+.retrospective-music-control-button:active,
+.retrospective-final-close-x-btn:active {
+    transform: scale(1);
+}
+
+body.light .retrospective-music-control-button,
+body.light .retrospective-final-close-x-btn {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: var(--text-color-light, #222);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body.light .retrospective-music-control-button:hover,
+body.light .retrospective-final-close-x-btn:hover {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+
+/* Animações de Transição de Tela */
+@keyframes fadeInFromDirection {
+    from {
+        opacity: 0;
+        transform: var(--transform-from) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes fadeOutToDirection {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: var(--transform-to) scale(0.97);
+        visibility: hidden;
+    }
+}
 
 .retrospective-screen {
     width: 100%;
-    height: 100%; /* Ocupa toda a altura do modal */
+    height: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centraliza horizontalmente o conteúdo se ele for mais estreito */
-    justify-content: center; /* Padrão: centraliza verticalmente o conteúdo */
-    padding: 30px 40px;
+    align-items: center;
+    padding: 20px clamp(15px, 4vw, 25px); /* MODIFICADO: Padding superior e inferior geral reduzido de 30px para 20px */
     box-sizing: border-box;
     position: absolute;
     top: 0;
@@ -92,45 +159,57 @@ body.light .retrospective-modal {
     opacity: 0;
     visibility: hidden;
     transform-origin: center center;
-    overflow-y: hidden; /* Permite scroll vertical DENTRO da tela se o conteúdo exceder */
-    -webkit-overflow-scrolling: touch; /* Melhora a experiência de scroll em iOS */
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    background: linear-gradient(160deg,
+            color-mix(in srgb, rgba(var(--primary-color-dark-rgb, 10, 124, 255), 1) 30%, #000000 70%),
+            #000000 60%,
+            color-mix(in srgb, rgba(var(--primary-color-dark-rgb, 10, 124, 255), 1) 15%, #000000 85%) 100%);
+    color: var(--text-color-dark, #FFFFFF);
 }
 
-/* REMOVIDO/COMENTADO para permitir que .retrospective-screen controle a centralização vertical da tela final */
-/*
-#retrospective-final-screen.retrospective-screen {
-    justify-content: flex-start; /* Para a tela final, o conteúdo começa do topo para permitir scroll */
-    /* align-items: center; herdado */
-    /* overflow-y: auto; herdado */
-/* }
-*/
-
+body.light .retrospective-screen {
+    background: linear-gradient(160deg,
+            color-mix(in srgb, rgba(var(--primary-color-light-rgb, 10, 124, 255), 1) 30%, #ffffff 70%),
+            #ffffff 60%,
+            color-mix(in srgb, rgba(var(--primary-color-light-rgb, 10, 124, 255), 1) 15%, #ffffff 85%) 100%);
+    color: var(--text-color-light, #121212);
+}
 
 .retrospective-screen.active {
     opacity: 1;
     visibility: visible;
-    animation: fadeInRight 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-    z-index: 10;
-}
-.retrospective-screen.previous {
-    opacity: 0;
-    visibility: hidden;
-    animation: fadeOutLeft 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-    z-index: 1;
-}
-.retrospective-screen.next-out {
-    opacity: 0;
-    visibility: hidden;
-    animation: fadeOutToRight 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-    z-index: 1;
-}
-.retrospective-screen.previous-in.active {
-    opacity: 1;
-    visibility: visible;
-    animation: fadeInFromLeft 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    --transform-from: translateX(40px);
+    animation: fadeInFromDirection 0.7s cubic-bezier(0.3, 0, 0.1, 1) forwards;
     z-index: 10;
 }
 
+.retrospective-screen.previous {
+    opacity: 0;
+    visibility: hidden;
+    --transform-to: translateX(-40px);
+    animation: fadeOutToDirection 0.7s cubic-bezier(0.3, 0, 0.1, 1) forwards;
+    z-index: 1;
+}
+
+.retrospective-screen.next-out {
+    opacity: 0;
+    visibility: hidden;
+    --transform-to: translateX(40px);
+    animation: fadeOutToDirection 0.7s cubic-bezier(0.3, 0, 0.1, 1) forwards;
+    z-index: 1;
+}
+
+.retrospective-screen.previous-in.active {
+    opacity: 1;
+    visibility: visible;
+    --transform-from: translateX(-40px);
+    animation: fadeInFromDirection 0.7s cubic-bezier(0.3, 0, 0.1, 1) forwards;
+    z-index: 10;
+}
 
 .retrospective-content-wrapper {
     width: 100%;
@@ -139,15 +218,29 @@ body.light .retrospective-modal {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    flex-grow: 1; /* Ocupa o espaço vertical disponível na tela */
-    padding: 10px 0; /* Pequeno respiro vertical */
-    flex-shrink: 0; /* Não permite que o wrapper encolha se o conteúdo for pequeno demais */
+    flex-grow: 1;
+    padding: 5px 0; /* MODIFICADO: Padding vertical interno do wrapper reduzido de 10px para 5px */
+    flex-shrink: 0;
 }
+
+/* Garante que o conteúdo de telas específicas não cause scroll */
+#retrospective-main-stats-screen .retrospective-content-wrapper,
+#retrospective-productive-day-screen .retrospective-content-wrapper,
+#retrospective-comparison-screen .retrospective-content-wrapper {
+    justify-content: center;
+    overflow: hidden;
+}
+
+#retrospective-main-stats-screen,
+#retrospective-productive-day-screen,
+#retrospective-comparison-screen {
+    overflow: hidden;
+}
+
+
 .retrospective-text-center {
     text-align: center;
 }
-
 
 /* Tela de Seleção de Métricas */
 .retrospective-selection-card {
@@ -158,98 +251,99 @@ body.light .retrospective-modal {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 25px;
+    gap: 20px;
     width: 100%;
-    max-width: 450px;
+    max-width: 400px;
     flex-grow: 1;
-}
-body.light .retrospective-selection-card {
-    background: transparent;
-}
-
-
-.retrospective-logo-container {
-    text-align: center;
-    margin-bottom: 20px;
 }
 
 .retrospective-logo-icon-wrapper {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 20px;
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 15px;
+    background: linear-gradient(135deg, var(--primary-color-dark, #0A7CFF) 0%, color-mix(in srgb, var(--primary-color-dark, #0A7CFF) 60%, #000000 40%) 100%);
+    border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 6px 20px rgba(var(--primary-color-dark-rgb, 10, 124, 255), 0.3);
 }
+
+body.light .retrospective-logo-icon-wrapper {
+    background: linear-gradient(135deg, var(--primary-color-light, #0A7CFF) 0%, color-mix(in srgb, var(--primary-color-light, #0A7CFF) 70%, #ffffff 30%) 100%);
+    box-shadow: 0 6px 20px rgba(var(--primary-color-light-rgb, 10, 124, 255), 0.2);
+}
+
 .retrospective-logo-icon-wrapper .retrospective-icon {
-    font-size: 38px;
+    font-size: 32px;
     color: white;
 }
 
-
 .retrospective-main-title {
-    font-size: 34px;
+    font-size: clamp(28px, 6vw, 32px);
     font-weight: 700;
-    color: #FFFFFF;
+    color: var(--text-color-dark, #FFFFFF);
     margin-bottom: 5px;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
+
 body.light .retrospective-main-title {
-    color: var(--text-color-light);
-    text-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    color: var(--text-color-light, #222);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .retrospective-month {
-    font-size: 20px;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 25px;
+    font-size: clamp(16px, 4vw, 18px);
+    color: rgba(var(--text-color-dark-rgb, 255, 255, 255), 0.7);
+    margin-bottom: 20px;
+    font-weight: 500;
 }
+
 body.light .retrospective-month {
-    color: var(--text-muted-light);
+    color: rgba(var(--text-color-light-rgb, 34, 34, 34), 0.7);
 }
 
 .retrospective-selection-prompt {
-    font-size: 18px;
-    color: rgba(255, 255, 255, 0.8);
+    font-size: clamp(15px, 3.5vw, 17px);
+    color: rgba(var(--text-color-dark-rgb, 255, 255, 255), 0.8);
     margin-bottom: 15px;
     font-weight: 500;
 }
+
 body.light .retrospective-selection-prompt {
-    color: var(--text-muted-light);
+    color: rgba(var(--text-color-light-rgb, 34, 34, 34), 0.8);
 }
 
 .retrospective-metrics-selection {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin-bottom: 30px;
+    gap: 12px;
+    margin-bottom: 20px;
 }
 
 .retrospective-metric-button {
     width: 100%;
-    padding: 16px 22px;
-    font-size: 18px;
+    padding: 14px 20px;
+    font-size: clamp(16px, 3.8vw, 17px);
     font-weight: 500;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background-color: rgba(255, 255, 255, 0.08);
-    color: #FFFFFF;
+    border-radius: 8px;
+    border: 1px solid var(--card-border-dark, rgba(255, 255, 255, 0.15));
+    background-color: var(--card-bg-dark, rgba(255, 255, 255, 0.07));
+    color: var(--text-color-dark, #FFFFFF);
     display: flex;
     align-items: center;
-    gap: 15px;
-    transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+    gap: 12px;
+    transition: all .2s cubic-bezier(.25, .1, .25, 1);
     text-align: left;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .15);
 }
+
 .retrospective-metric-button .retrospective-icon {
-    font-size: 22px;
-    color: rgba(255, 255, 255, 0.8);
-    transition: color 0.25s ease;
-    min-width: 25px;
+    font-size: 20px;
+    color: rgba(var(--text-color-dark-rgb, 255, 255, 255), 0.7);
+    transition: color .2s ease;
+    min-width: 22px;
     text-align: center;
     display: inline-flex;
     align-items: center;
@@ -257,28 +351,31 @@ body.light .retrospective-selection-prompt {
 }
 
 body.light .retrospective-metric-button {
-    background-color: rgba(0, 0, 0, 0.04);
-    border-color: rgba(0, 0, 0, 0.1);
-    color: var(--text-color-light);
+    background-color: var(--card-bg-light, rgba(0, 0, 0, 0.04));
+    border-color: var(--card-border-light, rgba(0, 0, 0, 0.1));
+    color: var(--text-color-light, #222);
 }
+
 body.light .retrospective-metric-button .retrospective-icon {
-    color: var(--text-muted-light);
+    color: var(--text-muted-light, #555);
 }
 
 .retrospective-metric-button:hover {
     border-color: var(--primary-color-dark);
-    background-color: rgba(255, 255, 255, 0.12);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    background-color: rgba(var(--primary-color-dark-rgb), 0.15);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 5px 15px rgba(var(--primary-color-dark-rgb), 0.2);
 }
-.retrospective-metric-button:hover .retrospective-icon {
-    color: var(--primary-color-dark);
+
+.retrospective-metric-button:active {
+    transform: translateY(0px) scale(.99);
 }
 
 body.light .retrospective-metric-button:hover {
     border-color: var(--primary-color-light);
-    background-color: rgba(0, 0, 0, 0.08);
+    background-color: rgba(var(--primary-color-light-rgb), 0.15);
 }
+
 body.light .retrospective-metric-button:hover .retrospective-icon {
     color: var(--primary-color-light);
 }
@@ -287,18 +384,10 @@ body.light .retrospective-metric-button:hover .retrospective-icon {
     background-color: var(--primary-color-dark);
     color: white;
     border-color: var(--primary-color-dark);
-    box-shadow: 0 0 15px rgba(var(--primary-color-dark-rgb), 0.5);
-}
-.retrospective-metric-button.selected .retrospective-icon {
-    color: white;
+    box-shadow: 0 0 15px rgba(var(--primary-color-dark-rgb), .5);
 }
 
-body.light .retrospective-metric-button.selected {
-    background-color: var(--primary-color-light);
-    border-color: var(--primary-color-light);
-    box-shadow: 0 0 15px rgba(var(--primary-color-light-rgb), 0.5);
-}
-body.light .retrospective-metric-button.selected .retrospective-icon {
+.retrospective-metric-button.selected .retrospective-icon {
     color: white;
 }
 
@@ -309,62 +398,101 @@ body.light .retrospective-metric-button.selected .retrospective-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s ease;
+    transition: transform .2s ease;
 }
+
 .retrospective-metric-button.selected .retrospective-checkmark-placeholder::before {
-    content: "\F26E"; /* Bootstrap checkmark */
+    content: "\F26E";
     font-family: 'bootstrap-icons';
     font-size: 22px;
-    color: white;
     transform: scale(1.1);
 }
 
+body.light .retrospective-metric-button.selected {
+    background-color: var(--primary-color-light);
+    border-color: var(--primary-color-light);
+    box-shadow: 0 0 15px rgba(var(--primary-color-light-rgb), .5);
+}
+
+body.light .retrospective-metric-button.selected .retrospective-icon {
+    color: var(--card-bg-light, #FFFFFF);
+}
+
+.retrospective-metric-button .retrospective-checkmark-placeholder::before {
+    color: white;
+}
+
+body.light .retrospective-metric-button.selected .retrospective-checkmark-placeholder::before {
+    color: var(--card-bg-light, #FFFFFF);
+}
 
 .retrospective-button {
-    padding: 14px 30px;
-    font-size: 18px;
-    font-weight: 600;
-    border-radius: 25px;
+    padding: 12px 28px;
+    font-size: clamp(15px, 3.5vw, 16px);
+    font-weight: 700;
+    border-radius: 50px;
     border: none;
-    transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+    transition: all .2s cubic-bezier(.25, .1, .25, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: .8px;
     cursor: pointer;
+    line-height: 1.3;
+}
+
+.retrospective-button:active {
+    transform: scale(.97);
 }
 
 .retrospective-start-button {
     width: 100%;
-    max-width: 320px;
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    max-width: 280px;
+    background: var(--primary-color-dark);
     color: white;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    margin-top: 15px;
+    box-shadow: 0 4px 15px rgba(var(--primary-color-dark-rgb), .3);
+    margin-top: 10px;
 }
+
+body.light .retrospective-start-button {
+    background: var(--primary-color-light);
+    color: var(--card-bg-light, #FFFFFF);
+    box-shadow: 0 4px 15px rgba(var(--primary-color-light-rgb), .3);
+}
+
 .retrospective-start-button:hover {
     transform: scale(1.03);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    opacity: .9;
+    box-shadow: 0 6px 20px rgba(var(--primary-color-dark-rgb), .4);
 }
-body.light .retrospective-start-button {
-    background: linear-gradient(135deg, var(--primary-color-light) 0%, var(--primary-color-light) 100%);
+
+body.light .retrospective-start-button:hover {
+    box-shadow: 0 6px 20px rgba(var(--primary-color-light-rgb), .4);
 }
+
 .retrospective-start-button:disabled {
-    background: var(--text-muted-dark);
+    background: #535353;
+    color: #A0A0A0;
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 1;
     box-shadow: none;
     transform: scale(1);
 }
+
 body.light .retrospective-start-button:disabled {
-    background-color: var(--text-muted-light);
-    opacity: 0.6;
+    background-color: #B3B3B3;
+    color: #757575;
 }
 
-
 /* Tela de Introdução */
+#retrospective-intro-screen .retrospective-content-wrapper {
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+}
+
 .retrospective-intro-content {
     text-align: center;
     display: flex;
@@ -372,409 +500,739 @@ body.light .retrospective-start-button:disabled {
     align-items: center;
     justify-content: center;
     height: 100%;
-}
-
-@keyframes pulseStar {
-    0% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4)); }
-    50% { transform: scale(1.1); filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.7)); }
-    100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4)); }
+    width: 100%;
 }
 
 .retrospective-intro-icon-wrapper {
-    width: 140px;
-    height: 140px;
-    margin-bottom: 35px;
-    background: linear-gradient(145deg, #fcc72b, #ff8000);
+    width: clamp(100px, 25vw, 130px);
+    height: clamp(100px, 25vw, 130px);
+    margin-bottom: 30px;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--primary-color-dark, #0A7CFF) 90%, #fff 10%), var(--primary-color-dark, #0A7CFF));
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: pulseStar 2.2s infinite cubic-bezier(0.455, 0.030, 0.515, 0.955);
-}
-.retrospective-intro-icon-wrapper .retrospective-icon-large {
-    font-size: 70px;
-    color: white;
+    animation: pulseStar 2.2s infinite cubic-bezier(.455, .03, .515, .955);
+    box-shadow: 0 0 30px rgba(var(--primary-color-dark-rgb, 10, 124, 255), .5);
 }
 
+body.light .retrospective-intro-icon-wrapper {
+    background: linear-gradient(145deg, color-mix(in srgb, var(--primary-color-light, #0A7CFF) 90%, #333 10%), var(--primary-color-light, #0A7CFF));
+    box-shadow: 0 0 30px rgba(var(--primary-color-light-rgb, 10, 124, 255), .4);
+}
+
+.retrospective-intro-icon-wrapper .retrospective-icon-large {
+    font-size: clamp(50px, 12vw, 65px);
+    color: #fff;
+}
+
+@keyframes pulseStar {
+    0% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 8px rgba(var(--primary-color-dark-rgb, 10, 124, 255), .4));
+    }
+
+    50% {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 20px rgba(var(--primary-color-dark-rgb, 10, 124, 255), .7));
+    }
+
+    100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 8px rgba(var(--primary-color-dark-rgb, 10, 124, 255), .4));
+    }
+}
+
+body.light .pulse-effect {
+    animation: pulseStar 2s infinite;
+  }
+
+
 .retrospective-intro-title {
-    font-size: 50px;
+    font-size: clamp(34px, 9vw, 48px);
     font-weight: 800;
     margin-bottom: 12px;
-    line-height: 1.1;
-    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    line-height: 1.15;
+    background: linear-gradient(45deg, var(--primary-color-dark, #0A7CFF) 0%, color-mix(in srgb, var(--primary-color-dark, #0A7CFF) 70%, #fff 30%) 50%, var(--primary-color-dark, #0A7CFF) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     color: transparent;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .3));
 }
-body.light .retrospective-intro-title{
-    background: linear-gradient(45deg, #007cf0 0%, #00dfd8 25%, #79f1a4 50%, #f5e653 75%, #ff8c42 100%);
+
+body.light .retrospective-intro-title {
+    background: linear-gradient(45deg, var(--primary-color-light, #0A7CFF) 0%, color-mix(in srgb, var(--primary-color-light, #0A7CFF) 70%, #000 30%) 50%, var(--primary-color-light, #0A7CFF) 100%);
     -webkit-background-clip: text;
     background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .15));
 }
 
 .retrospective-intro-subtitle {
-    font-size: 24px;
-    color: rgba(255,255,255,0.75);
-    margin-bottom: 45px;
-    font-weight: 300;
+    font-size: clamp(18px, 4.5vw, 22px);
+    color: rgba(255, 255, 255, .75);
+    margin-bottom: 40px;
+    font-weight: 400;
 }
+
 body.light .retrospective-intro-subtitle {
-    color: rgba(0,0,0,0.65);
+    color: rgba(var(--text-color-light-rgb, 34, 34, 34), .7);
 }
 
 .retrospective-intro-button {
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-    color: white;
-    padding: 16px 35px;
-    font-size: 19px;
-    border-radius: 30px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 5px 20px rgba(78, 64, 255, 0.4);
+    background: var(--primary-color-dark, #0A7CFF);
+    color: #fff;
+    padding: 14px 32px;
+    font-size: clamp(16px, 4vw, 18px);
+    box-shadow: 0 5px 20px rgba(var(--primary-color-dark-rgb, 10, 124, 255), .4);
 }
+
 body.light .retrospective-intro-button {
-    background: linear-gradient(135deg, var(--primary-color-light) 0%, var(--primary-color-light) 100%);
-    box-shadow: 0 5px 20px rgba(var(--primary-color-light-rgb), 0.4);
+    background: var(--primary-color-light, #0A7CFF);
+    color: var(--card-bg-light, #fff);
+    box-shadow: 0 5px 20px rgba(var(--primary-color-light-rgb, 10, 124, 255), .4);
 }
+
 .retrospective-intro-button:hover {
     transform: scale(1.05) translateY(-2px);
-    box-shadow: 0 8px 25px rgba(78, 64, 255, 0.5);
-}
-body.light .retrospective-intro-button:hover {
-    box-shadow: 0 8px 25px rgba(var(--primary-color-light-rgb), 0.5);
+    opacity: .9;
+    box-shadow: 0 8px 25px rgba(var(--primary-color-dark-rgb, 10, 124, 255), .5);
 }
 
+body.light .retrospective-intro-button:hover {
+    box-shadow: 0 8px 25px rgba(var(--primary-color-light-rgb, 10, 124, 255), .5);
+}
 
 /* Tela de Estatísticas Principais ("Brilharam!") */
-#retrospective-main-stats-screen .retrospective-content-wrapper {
-    justify-content: center;
-}
-
 .retrospective-screen-title {
-    font-size: 38px;
+    font-size: clamp(26px, 7vw, 36px);
     font-weight: 700;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    color: #FFFFFF;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    gap: 10px;
+    color: var(--text-color-dark, #FFFFFF);
+    text-shadow: 0 2px 6px rgba(0, 0, 0, .3);
 }
+
 body.light .retrospective-screen-title {
-    color: var(--text-color-light);
-    text-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    color: var(--text-color-light, #222);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, .15);
 }
+
 .retrospective-title-icon {
-    font-size: 0.9em;
-    color: #FFD700;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-    filter: brightness(1.1);
+    font-size: .85em;
+    color: var(--primary-color-dark);
+    filter: brightness(1.2) saturate(1.2);
+    text-shadow: 0 0 10px rgba(var(--primary-color-dark-rgb), .7);
+}
+
+body.light .retrospective-title-icon {
+    color: var(--primary-color-light);
+    text-shadow: 0 0 10px rgba(var(--primary-color-light-rgb), .6);
 }
 
 .retrospective-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
     width: 100%;
-    max-width: 600px;
+    max-width: 100%;
     justify-content: center;
+    align-items: stretch;
 }
-.retrospective-stats-grid:has(:nth-child(1):not(:nth-child(2))) {
-    grid-template-columns: minmax(180px, 300px);
-}
-.retrospective-stats-grid:has(:nth-child(2):not(:nth-child(3))) {
-    grid-template-columns: repeat(2, minmax(180px, 1fr));
-}
-
 
 .retrospective-stat-card {
-    background: rgba(37, 117, 252, 0.1);
-    border-color: rgba(37, 117, 252, 0.3);
-    box-shadow: 0 0 15px rgba(37, 117, 252, 0.15);
-    padding: 20px;
-    border-radius: 16px;
-    padding: 20px 15px;
+    background: var(--card-bg-dark, rgba(var(--primary-color-dark-rgb), .08));
+    border: 1px solid var(--card-border-dark, rgba(var(--primary-color-dark-rgb), .2));
+    box-shadow: 0 4px 15px rgba(var(--primary-color-dark-rgb), .1);
+    padding: clamp(15px, 3vw, 20px);
+    border-radius: 10px;
     text-align: center;
-    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    transition: transform .25s cubic-bezier(.25, .1, .25, 1), box-shadow .25s cubic-bezier(.25, .1, .25, 1);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    min-height: 230px;
+    justify-content: space-around;
+    min-height: clamp(170px, 38vw, 190px);
+    flex-grow: 1;
+    flex-basis: calc(33.333% - 10px);
+    min-width: 140px;
 }
-.retrospective-stat-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
+
 body.light .retrospective-stat-card {
-    background: #ffffff;
-    border-color: #e0e0e0;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    background: var(--card-bg-light, rgba(var(--primary-color-light-rgb), .08));
+    border-color: var(--card-border-light, rgba(var(--primary-color-light-rgb), .25));
+    box-shadow: 0 4px 15px rgba(var(--primary-color-light-rgb), .1);
 }
+
+.retrospective-stats-grid:has(> .retrospective-stat-card:nth-child(1):not(:nth-child(2))) .retrospective-stat-card {
+    flex-basis: clamp(180px, 55%, 260px);
+    max-width: 260px;
+}
+
+.retrospective-stats-grid:has(> .retrospective-stat-card:nth-child(2):not(:nth-child(3))) .retrospective-stat-card {
+    flex-basis: calc(50% - 7.5px);
+    max-width: calc(50% - 7.5px);
+}
+
+.retrospective-stat-card:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 8px 25px rgba(var(--primary-color-dark-rgb), .15);
+}
+
 body.light .retrospective-stat-card:hover {
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    box-shadow: 0 8px 25px rgba(var(--primary-color-light-rgb), .15);
+}
+
+.retrospective-stat-card:active {
+    transform: translateY(0) scale(1);
 }
 
 @keyframes metricCardAppear {
-    from { opacity: 0; transform: translateY(25px) scale(0.95);  }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
-.animated-metric-card { opacity: 0;  animation: metricCardAppear 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;  }
-.retrospective-stats-grid > .animated-metric-card:nth-child(1) { animation-delay: 0.1s; }
-.retrospective-stats-grid > .animated-metric-card:nth-child(2) { animation-delay: 0.2s; }
-.retrospective-stats-grid > .animated-metric-card:nth-child(3) { animation-delay: 0.3s; }
 
-.retrospective-icon-large { font-size: 48px; margin-bottom: 15px; }
-.retrospective-icon-medium { font-size: 24px; }
-.retrospective-icon-small { font-size: 16px; }
-.retrospective-icon-xlarge { font-size: 75px; margin-bottom: 25px; }
+.animated-metric-card {
+    opacity: 0;
+    animation: metricCardAppear .5s cubic-bezier(.25, .1, .25, 1) forwards;
+}
 
-.retrospective-icon-blue { color: #00A9FF; }
-.retrospective-icon-green { color: #39FF14; }
-.retrospective-icon-purple { color: #BC13FE; }
-.retrospective-icon-yellow { color: #FCE205; }
-.retrospective-icon-main { color: var(--primary-color-dark); }
-body.light .retrospective-icon-main { color: var(--primary-color-light); }
+.retrospective-stats-grid>.animated-metric-card:nth-child(1) {
+    animation-delay: .1s;
+}
+
+.retrospective-stats-grid>.animated-metric-card:nth-child(2) {
+    animation-delay: .2s;
+}
+
+.retrospective-stats-grid>.animated-metric-card:nth-child(3) {
+    animation-delay: .3s;
+}
+
+.retrospective-icon-large {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.retrospective-icon-medium {
+    font-size: 24px;
+}
+
+.retrospective-icon-small {
+    font-size: 16px;
+}
+
+.retrospective-icon-xlarge {
+    font-size: 75px;
+    margin-bottom: 25px;
+}
+
+.retrospective-stat-card .retrospective-icon-large {
+    font-size: clamp(32px, 7.5vw, 40px);
+    margin-bottom: 10px;
+    color: var(--primary-color-dark);
+    filter: brightness(1.1);
+}
+
+body.light .retrospective-stat-card .retrospective-icon-large {
+    color: var(--primary-color-light);
+}
 
 .retrospective-stat-value {
-    font-size: 40px;
+    font-size: clamp(28px, 8vw, 38px);
     font-weight: 700;
-    color: #FFFFFF;
-    margin-bottom: 6px;
-    text-shadow: 0 0 8px rgba(255,255,255,0.3);
+    color: var(--text-color-dark, #FFFFFF);
+    margin-bottom: 4px;
+    line-height: 1.1;
+    text-shadow: 0 0 10px rgba(var(--primary-color-dark-rgb), .3);
 }
-body.light .retrospective-stat-value { color: var(--text-color-light); text-shadow: none; }
+
+body.light .retrospective-stat-value {
+    color: var(--text-color-light, #222);
+    text-shadow: 0 0 8px rgba(var(--primary-color-light-rgb), .2);
+}
 
 .retrospective-stat-label {
-    font-size: 16px;
-    color: rgba(255,255,255,0.7);
-    margin-bottom: 12px;
+    font-size: clamp(12px, 2.8vw, 14px);
+    color: rgba(var(--text-color-dark-rgb, 255, 255, 255), .7);
+    margin-bottom: 8px;
     flex-grow: 1;
+    line-height: 1.3;
 }
-body.light .retrospective-stat-label { color: var(--text-muted-light); }
+
+body.light .retrospective-stat-label {
+    color: rgba(var(--text-color-light-rgb, 34, 34, 34), .65);
+}
 
 .retrospective-badge {
     display: block;
-    padding: 8px 12px;
-    border-radius: 18px;
-    font-size: 13px;
+    padding: 6px 9px;
+    border-radius: 6px;
+    font-size: clamp(10px, 2.3vw, 12px);
     line-height: 1.3;
     font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    text-transform: none;
+    letter-spacing: .2px;
     word-break: break-word;
     white-space: normal;
     margin-top: auto;
+    background-color: rgba(var(--primary-color-dark-rgb), .2);
+    color: var(--primary-color-dark);
+    border: 1px solid rgba(var(--primary-color-dark-rgb), .4);
+    filter: brightness(1.1);
 }
-.retrospective-badge-blue { background-color: rgba(0, 169, 255, 0.2); color: #00A9FF; border: 1px solid rgba(0, 169, 255, 0.4); }
-.retrospective-badge-green { background-color: rgba(57, 255, 20, 0.2); color: #39FF14; border: 1px solid rgba(57, 255, 20, 0.4); }
-.retrospective-badge-purple { background-color: rgba(188, 19, 254, 0.2); color: #BC13FE; border: 1px solid rgba(188, 19, 254, 0.4); }
 
+body.light .retrospective-badge {
+    background-color: rgba(var(--primary-color-light-rgb), .2);
+    color: var(--primary-color-light);
+    border: 1px solid rgba(var(--primary-color-light-rgb), .4);
+}
 
 .retrospective-navigation-button {
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-    color: white;
-    margin-top: 25px;
-    margin-bottom: 10px; /* Espaço para o final da tela, se for o último elemento */
+    background: var(--primary-color-dark);
+    color: #fff;
+    margin-top: 20px;
+    margin-bottom: 10px;
 }
+
 body.light .retrospective-navigation-button {
-    background: linear-gradient(135deg, var(--primary-color-light) 0%, var(--primary-color-light) 100%);
+    background: var(--primary-color-light);
+    color: var(--card-bg-light, #fff);
 }
+
 .retrospective-navigation-button:hover {
-    opacity: 1;
+    opacity: .9;
     transform: scale(1.03);
 }
 
 /* Tela Dia Mais Produtivo */
-#retrospective-productive-day-screen .retrospective-content-wrapper {
-    justify-content: center;
+.retrospective-icon-container .retrospective-icon-xlarge {
+    font-size: clamp(60px, 15vw, 70px);
+    margin-bottom: 20px;
+    color: var(--primary-color-dark);
+    filter: brightness(1.3) saturate(1.3);
+    text-shadow: 0 0 20px rgba(var(--primary-color-dark-rgb), .6);
 }
-.retrospective-title-yellow {
-    background: linear-gradient(135deg, #FCE205, #ffab00);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;
+
+body.light .retrospective-icon-container .retrospective-icon-xlarge {
+    color: var(--primary-color-light);
+    text-shadow: 0 0 20px rgba(var(--primary-color-light-rgb), .5);
 }
+
+#retrospective-productive-day-screen .retrospective-screen-title {
+    background: linear-gradient(135deg, var(--primary-color-dark), color-mix(in srgb, var(--primary-color-dark) 60%, #fff 40%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .2));
+}
+
+body.light #retrospective-productive-day-screen .retrospective-screen-title {
+    background: linear-gradient(135deg, var(--primary-color-light), color-mix(in srgb, var(--primary-color-light) 60%, #000 40%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
 .retrospective-productive-day-card {
-    background: linear-gradient(145deg, rgba(252, 226, 5, 0.1), rgba(255, 171, 0, 0.15));
-    border: 1px solid rgba(252, 226, 5, 0.3);
-    padding: 30px;
-    border-radius: 16px;
+    background: rgba(var(--primary-color-dark-rgb), .1);
+    border: 1px solid rgba(var(--primary-color-dark-rgb), .25);
+    padding: clamp(20px, 4vw, 25px);
+    border-radius: 10px;
     margin-bottom: 20px;
-    box-shadow: 0 0 25px rgba(252, 226, 5, 0.2);
+    box-shadow: 0 0 20px rgba(var(--primary-color-dark-rgb), .15);
     width: 100%;
-    max-width: 450px;
+    max-width: 400px;
 }
+
+body.light .retrospective-productive-day-card {
+    background: rgba(var(--primary-color-light-rgb), .1);
+    border: 1px solid rgba(var(--primary-color-light-rgb), .25);
+    box-shadow: 0 0 20px rgba(var(--primary-color-light-rgb), .15);
+}
+
 .retrospective-productive-day-date {
-    font-size: 60px;
+    font-size: clamp(40px, 12vw, 54px);
     font-weight: 700;
-    color: #FFFFFF;
-    margin-bottom: 10px;
-    text-shadow: 0 0 12px #FCE205;
+    color: var(--text-color-dark, #FFFFFF);
+    margin-bottom: 8px;
+    text-shadow: 0 0 10px rgba(var(--primary-color-dark-rgb), .4);
 }
+
+body.light .retrospective-productive-day-date {
+    color: var(--text-color-light, #222);
+    text-shadow: 0 0 10px rgba(var(--primary-color-light-rgb), .3);
+}
+
 .retrospective-productive-day-value {
-    font-size: 20px;
-    color: #fff3a0;
-    margin-bottom: 20px;
+    font-size: clamp(16px, 4vw, 19px);
+    color: color-mix(in srgb, var(--primary-color-dark) 80%, #fff 20%);
+    margin-bottom: 15px;
     line-height: 1.4;
+    font-weight: 500;
 }
-.retrospective-stars-container { display: flex; justify-content: center; gap: 8px; }
-.retrospective-stars-container i { text-shadow: 0 0 7px #FCE205;  font-size: 26px;  }
+
+body.light .retrospective-productive-day-value {
+    color: color-mix(in srgb, var(--primary-color-light) 80%, #333 20%);
+}
+
+.retrospective-stars-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.retrospective-stars-container i {
+    text-shadow: 0 0 7px var(--primary-color-dark);
+    font-size: clamp(20px, 5vw, 24px);
+    color: var(--primary-color-dark);
+    filter: brightness(1.2);
+}
+
+body.light .retrospective-stars-container i {
+    text-shadow: 0 0 7px var(--primary-color-light);
+    color: var(--primary-color-light);
+}
+
 .retrospective-motivational-text {
-    font-size: 22px;
-    color: rgba(255,255,255,0.75);
+    font-size: clamp(17px, 4.2vw, 20px);
+    color: rgba(var(--text-color-dark-rgb, 255, 255, 255), .75);
     margin-bottom: 25px;
     font-weight: 300;
 }
-body.light .retrospective-motivational-text { color: var(--text-muted-light); }
-.retrospective-highlight-yellow { color: #FCE205; font-weight: 600; text-shadow: 0 0 5px #FCE205;}
-.retrospective-button-yellow {
-    background: linear-gradient(135deg, #FCE205, #ffab00);
-    color: #333;
-    box-shadow: 0 4px 15px rgba(252, 226, 5, 0.4);
-}
-.retrospective-button-yellow:hover {
-    opacity: 1; transform: scale(1.03);
-    box-shadow: 0 6px 20px rgba(252, 226, 5, 0.5);
+
+body.light .retrospective-motivational-text {
+    color: rgba(var(--text-color-light-rgb, 34, 34, 34), .7);
 }
 
-/* Tela Padrões de Tempo */
+.retrospective-highlight-primary {
+    color: var(--primary-color-dark);
+    font-weight: 600;
+    text-shadow: 0 0 5px var(--primary-color-dark);
+}
+
+body.light .retrospective-highlight-primary {
+    color: var(--primary-color-light);
+    text-shadow: 0 0 5px var(--primary-color-light);
+}
+
+#retrospective-productive-day-next-button.retrospective-button {
+    background: var(--primary-color-dark);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(var(--primary-color-dark-rgb), .4);
+}
+
+body.light #retrospective-productive-day-next-button.retrospective-button {
+    background: var(--primary-color-light);
+    color: var(--card-bg-light, #fff);
+    box-shadow: 0 4px 15px rgba(var(--primary-color-light-rgb), .4);
+}
+
+#retrospective-productive-day-next-button.retrospective-button:hover {
+    opacity: .9;
+    transform: scale(1.03);
+    box-shadow: 0 6px 20px rgba(var(--primary-color-dark-rgb), .5);
+}
+
+body.light #retrospective-productive-day-next-button.retrospective-button:hover {
+    box-shadow: 0 6px 20px rgba(var(--primary-color-light-rgb), .5);
+}
+
+/* === Tela Padrões de Produtividade === */
 #retrospective-time-patterns-screen .retrospective-content-wrapper {
-    justify-content: center;
-    gap: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Mantido para alinhar cards e botão, mas o conteúdo interno definirá o espaço principal */
+    gap: clamp(10px, 1.8vh, 15px); /* MODIFICADO: Gap reduzido */
     width: 100%;
-    max-width: 600px;
+    flex-grow: 1;
+    align-items: center;
 }
-.retrospective-title-cyan {
-    background: linear-gradient(135deg, #05F4F0, #00A9FF);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;
+
+#retrospective-time-patterns-screen .retrospective-screen-title {
+    color: var(--text-color-dark, #FFFFFF);
+    margin-bottom: clamp(8px, 1.5vh, 12px); /* MODIFICADO: Margem inferior reduzida */
+    flex-shrink: 0;
 }
-.retrospective-time-patterns-grid {
+
+body.light #retrospective-time-patterns-screen .retrospective-screen-title {
+    color: var(--text-color-light, #222);
+}
+
+#retrospective-time-patterns-screen .retrospective-time-patterns-main-content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 1.5vh, 12px); /* MODIFICADO: Gap reduzido */
+    width: 100%;
+    flex-grow: 1; /* Permite que este container cresça e preencha o espaço */
+    justify-content: flex-start;
+}
+
+#retrospective-time-patterns-screen .retrospective-time-patterns-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
-    margin-bottom: 0;
+    grid-template-columns: 1fr; /* Empilhado por padrão (mobile) */
+    gap: clamp(8px, 1.5vh, 12px); /* MODIFICADO: Gap reduzido entre os cards superiores */
     width: 100%;
-    align-items: stretch;
+    flex-shrink: 0;
 }
-.retrospective-card-header .retrospective-icon-large { font-size: 38px; }
-.retrospective-card-title { font-size: 20px; font-weight: 600; color: #FFFFFF; }
-body.light .retrospective-card-title { color: var(--text-color-light); }
 
-.retrospective-card-cyan, .retrospective-card-purple {
-    min-height: 180px;
+#retrospective-time-patterns-screen .retrospective-time-patterns-grid .retrospective-stat-card,
+#retrospective-time-patterns-screen .retrospective-card-indigo {
+    background: var(--card-bg-dark);
+    border: 1px solid var(--card-border-dark);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    color: var(--text-color-dark);
+    padding: clamp(10px, 1.8vh, 15px); /* MODIFICADO: Padding reduzido */
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    text-align: center;
 }
 
-.retrospective-card-indigo {
-    background: rgba(37, 117, 252, 0.1);
-    border-color: rgba(37, 117, 252, 0.3);
-    padding: 20px;
-    box-shadow: 0 0 15px rgba(37, 117, 252, 0.15);
-    width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 0;
+body.light #retrospective-time-patterns-screen .retrospective-time-patterns-grid .retrospective-stat-card,
+body.light #retrospective-time-patterns-screen .retrospective-card-indigo {
+    background: var(--card-bg-light);
+    border: 1px solid var(--card-border-light);
+    color: var(--text-color-light);
+}
+
+#retrospective-time-patterns-screen .retrospective-time-patterns-grid .retrospective-stat-card {
+    min-height: clamp(110px, 18vh, 130px); /* MODIFICADO: Altura dos cards superiores reduzida */
+    flex-grow: 0; /* MODIFICADO: Impede que cresçam demais se houver muito espaço vertical */
+    flex-shrink: 1; /* Permite encolher se necessário */
+}
+
+#retrospective-time-patterns-screen .retrospective-time-patterns-grid .retrospective-stat-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    transform: translateY(-2px);
+}
+
+#retrospective-time-patterns-screen .retrospective-card-header {
     display: flex;
     flex-direction: column;
-    min-height: 240px;
+    align-items: center;
+    margin-bottom: clamp(5px, 1vh, 8px); /* MODIFICADO: Margem inferior reduzida */
 }
-.retrospective-card-indigo .retrospective-card-header {
-    margin-bottom: 10px;
+
+#retrospective-time-patterns-screen .retrospective-card-header .retrospective-icon-large {
+    color: var(--primary-color-dark);
+    font-size: clamp(24px, 4.5vw, 28px); /* MODIFICADO: Tamanho do ícone reduzido */
+    margin-bottom: 5px; /* MODIFICADO: Margem inferior reduzida */
 }
-.retrospective-weekday-chart {
+
+body.light #retrospective-time-patterns-screen .retrospective-card-header .retrospective-icon-large {
+    color: var(--primary-color-light);
+}
+
+#retrospective-time-patterns-screen .retrospective-card-title {
+    color: var(--text-color-dark);
+    font-size: clamp(14px, 3vw, 16px); /* MODIFICADO: Tamanho do título reduzido */
+    font-weight: 600;
+    margin-bottom: 3px; /* MODIFICADO: Margem inferior reduzida */
+}
+
+body.light #retrospective-time-patterns-screen .retrospective-card-title {
+    color: var(--text-color-light);
+}
+
+#retrospective-time-patterns-screen .retrospective-stat-card .retrospective-stat-value {
+    color: var(--text-color-dark);
+    font-size: clamp(26px, 6.5vw, 34px); /* MODIFICADO: Valor principal reduzido */
+    font-weight: 700;
+    margin-bottom: 2px; /* MODIFICADO: Margem inferior reduzida */
+    line-height: 1.1;
+}
+
+body.light #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-stat-value {
+    color: var(--text-color-light);
+}
+
+#retrospective-time-patterns-screen .retrospective-stat-card .retrospective-card-subtitle,
+#retrospective-time-patterns-screen .retrospective-stat-card .retrospective-stat-label {
+    color: var(--text-muted-dark);
+    font-size: clamp(11px, 2.5vw, 13px); /* MODIFICADO: Tamanho do subtítulo/label reduzido */
+    line-height: 1.2; /* MODIFICADO: Line-height ajustado */
+}
+
+body.light #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-card-subtitle,
+body.light #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-stat-label {
+    color: var(--text-muted-light);
+}
+
+/* Card de Distribuição Semanal */
+#retrospective-time-patterns-screen .retrospective-card-indigo {
+    min-height: clamp(150px, 25vh, 200px); /* MODIFICADO: Altura do card de distribuição reduzida */
+    width: 100%;
+    justify-content: space-between;
+    flex-grow: 1; /* Mantido para usar espaço se disponível */
+    display: flex;
+    flex-direction: column;
+}
+
+#retrospective-time-patterns-screen .retrospective-weekday-chart {
+    min-height: 70px; /* MODIFICADO: Altura mínima para as barras reduzida */
+    height: clamp(70px, 13vh, 100px); /* MODIFICADO: Altura flexível para o gráfico reduzida */
+    width: 100%;
     display: flex;
     justify-content: space-around;
     align-items: flex-end;
+    margin-top: auto;
     flex-grow: 1;
-    min-height: 130px;
-    margin-top: 10px;
-    padding: 0 5px;
-    margin-bottom: 5px;
+    padding-bottom: 3px; /* MODIFICADO: Pequena redução no padding inferior */
 }
+
 .retrospective-weekday-bar-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     height: 100%;
     justify-content: flex-end;
-    flex-grow: 1;
-    max-width: 35px;
+    flex-basis: 12%;
+    max-width: 35px; /* MODIFICADO: Largura máxima da barra individual reduzida */
 }
+
 .retrospective-weekday-bar {
-    width: 65%;
-    max-width: 22px;
-    background: linear-gradient(to top, #05F4F0, #00A9FF);
-    border-radius: 4px 4px 0 0;
-    transition: height 0.6s cubic-bezier(0.25, 0.1, 0.25, 1), filter 0.3s ease;
-    box-shadow: 0 0 6px rgba(5, 244, 240, 0.3);
+    width: clamp(15px, 3.5vw, 24px); /* MODIFICADO: Largura da barra reduzida */
+    background: var(--primary-color-dark);
+    border-radius: 4px 4px 0 0; /* MODIFICADO: Bordas arredondadas levemente reduzidas */
+    transition: height 0.5s ease-out, background-color 0.3s ease, filter 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); /* MODIFICADO: Sombra mais sutil */
 }
-.retrospective-weekday-bar:hover { filter: brightness(1.3) drop-shadow(0 0 8px #05F4F0); }
+
 body.light .retrospective-weekday-bar {
-    background: linear-gradient(to top, var(--primary-color-light), #9c27b0);
-    box-shadow: 0 0 6px rgba(var(--primary-color-light-rgb), 0.3);
+    background: var(--primary-color-light);
 }
-body.light .retrospective-weekday-bar:hover { filter: brightness(1.1) drop-shadow(0 0 8px var(--primary-color-light)); }
+
+.retrospective-weekday-bar:hover {
+    filter: brightness(1.2); /* MODIFICADO: Efeito de hover levemente ajustado */
+}
 
 .retrospective-weekday-label {
-    font-size: 12px;
-    color: rgba(255,255,255,0.7);
-    margin-top: 6px;
-    font-weight: 500;
+    margin-top: 6px; /* MODIFICADO: Espaço reduzido */
+    font-size: clamp(10px, 2vw, 12px); /* MODIFICADO: Tamanho do label reduzido */
+    color: var(--text-muted-dark);
+    text-align: center;
 }
-body.light .retrospective-weekday-label { color: var(--text-muted-light); }
 
-#retrospective-time-patterns-next-button.retrospective-button-cyan {
-    margin-top: 25px !important;
-    align-self: center;
-    background: linear-gradient(135deg, #05F4F0, #00A9FF);
-    box-shadow: 0 4px 15px rgba(5, 244, 240, 0.4);
+body.light .retrospective-weekday-label {
+    color: var(--text-muted-light);
 }
-#retrospective-time-patterns-next-button.retrospective-button-cyan:hover {
-    box-shadow: 0 6px 20px rgba(5, 244, 240, 0.5);
+
+#retrospective-time-patterns-screen #retrospective-time-patterns-next-button.retrospective-button {
+    background: var(--primary-color-dark);
+    color: white;
+    box-shadow: 0 4px 15px rgba(var(--primary-color-dark-rgb), 0.3);
+    margin-top: clamp(15px, 2vh, 20px); /* MODIFICADO: Margem superior reduzida */
+    align-self: center;
+    flex-shrink: 0;
+}
+
+body.light #retrospective-time-patterns-screen #retrospective-time-patterns-next-button.retrospective-button {
+    background: var(--primary-color-light);
+    box-shadow: 0 4px 15px rgba(var(--primary-color-light-rgb), 0.3);
+}
+
+#retrospective-time-patterns-screen #retrospective-time-patterns-next-button.retrospective-button:hover {
+    opacity: 0.9;
+    box-shadow: 0 6px 20px rgba(var(--primary-color-dark-rgb), 0.4);
+}
+
+body.light #retrospective-time-patterns-screen #retrospective-time-patterns-next-button.retrospective-button:hover {
+    box-shadow: 0 6px 20px rgba(var(--primary-color-light-rgb), 0.4);
 }
 
 
 /* Tela Comparação */
-#retrospective-comparison-screen .retrospective-content-wrapper {
+#retrospective-comparison-screen .retrospective-screen-title {
+    background: linear-gradient(135deg, var(--primary-color-dark), color-mix(in srgb, var(--primary-color-dark) 60%, #fff 40%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .2));
+}
+
+body.light #retrospective-comparison-screen .retrospective-screen-title {
+    background: linear-gradient(135deg, var(--primary-color-light), color-mix(in srgb, var(--primary-color-light) 60%, #000 40%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card {
+    min-height: clamp(160px, 38vw, 190px);
+}
+
+.retrospective-comparison-percentage {
+    display: flex;
+    align-items: center;
     justify-content: center;
-}
-.retrospective-title-green {
-    background: linear-gradient(135deg, #39FF14, #8EFF7B);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;
-}
-.retrospective-comparison-percentage { display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 1.2em; margin-top: 8px; }
-.retrospective-comparison-percentage .retrospective-icon-green { color: #39FF14 !important; }
-.retrospective-comparison-percentage .retrospective-icon-red { color: #FF3B30; }
-body.light .retrospective-comparison-percentage .retrospective-icon-red { color: #D90000; }
-
-
-.retrospective-highlight-green { color: #39FF14; font-weight: bold; text-shadow: 0 0 8px #39FF14;}
-#retrospective-comparison-next-button.retrospective-button-green {
-    background: linear-gradient(135deg, #39FF14, #8EFF7B);
-    color: #121212;
-    box-shadow: 0 4px 15px rgba(57, 255, 20, 0.4);
-}
-#retrospective-comparison-next-button.retrospective-button-green:hover {
-    box-shadow: 0 6px 20px rgba(57, 255, 20, 0.5);
+    gap: 5px;
+    font-size: clamp(1.1em, 3vw, 1.2em);
+    margin-top: 6px;
+    font-weight: 600;
 }
 
+.retrospective-comparison-percentage .retrospective-icon-small.retrospective-icon-green {
+    color: var(--primary-color-dark) !important;
+}
+
+.retrospective-comparison-percentage .retrospective-icon-small.retrospective-icon-red {
+    color: #FF453A;
+}
+
+body.light .retrospective-comparison-percentage .retrospective-icon-small.retrospective-icon-red {
+    color: #FF3B30;
+}
+
+#retrospective-comparison-next-button.retrospective-button {
+    background: var(--primary-color-dark);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(var(--primary-color-dark-rgb), .4);
+}
+
+body.light #retrospective-comparison-next-button.retrospective-button {
+    background: var(--primary-color-light);
+    color: var(--card-bg-light, #fff);
+    box-shadow: 0 4px 15px rgba(var(--primary-color-light-rgb), .4);
+}
+
+#retrospective-comparison-next-button.retrospective-button:hover {
+    opacity: .9;
+    transform: scale(1.03);
+    box-shadow: 0 6px 20px rgba(var(--primary-color-dark-rgb), .5);
+}
+
+body.light #retrospective-comparison-next-button.retrospective-button:hover {
+    box-shadow: 0 6px 20px rgba(var(--primary-color-light-rgb), .5);
+}
 
 /* --- ESTILOS DA TELA FINAL (SPOTIFY WRAPPED STYLE) --- */
 .retrospective-final-screen-spotify-style {
-    padding: 20px; /* Padding geral da tela */
-    background-color: var(--body-bg-dark);
-    color: var(--text-color-dark);
-    /* justify-content: flex-start; <- Removido, .retrospective-screen centralizará */
-    /* overflow-y: hidden; <- Removido, .retrospective-screen tem auto */
-    align-items: center; /* Mantido (ou herdado de .retrospective-screen) */
-}
-body.light .retrospective-final-screen-spotify-style {
-    background-color: var(--body-bg-light);
-    color: var(--text-color-light);
+    padding: 20px clamp(10px, 3vw, 20px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden !important;
 }
 
 .retrospective-final-content-wrapper {
@@ -784,350 +1242,358 @@ body.light .retrospective-final-screen-spotify-style {
     justify-content: space-between;
     width: 100%;
     max-width: 380px;
-    min-height: auto; /* Deixa o conteúdo ditar a altura */
-    background: linear-gradient(160deg,
-        rgba(var(--primary-color-dark-rgb), 0.3) 0%,
-        rgba(var(--primary-color-dark-rgb), 0.1) 40%,
-        #0a0a0a 100%);
-    color: #FFFFFF;
-    padding: 30px 25px clamp(20px, 4vh, 30px) 25px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    background: linear-gradient(160deg, rgba(var(--primary-color-dark-rgb, 10, 124, 255), .2) 0%, rgba(var(--primary-color-dark-rgb, 10, 124, 255), .08) 40%, #050505 100%);
+    color: #fff;
+    padding: 25px 20px clamp(15px, 3vh, 25px) 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .6);
     overflow: hidden;
     box-sizing: border-box;
     position: relative;
-    flex-shrink: 0; /* Para que não encolha se os botões de ação precisarem de espaço */
-    margin-bottom: 15px; /* Espaço antes dos botões de ação */
-}
-body.light .retrospective-final-content-wrapper {
-    background: linear-gradient(160deg,
-        rgba(var(--primary-color-light-rgb), 0.3) 0%,
-        rgba(var(--primary-color-light-rgb), 0.1) 40%,
-        #ffffff 100%);
-    color: var(--text-color-light);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+    flex-grow: 0;
+    margin-bottom: clamp(10px, 2vh, 15px);
 }
 
+body.light .retrospective-final-content-wrapper {
+    background: linear-gradient(160deg, rgba(var(--primary-color-light-rgb, 10, 124, 255), .2) 0%, rgba(var(--primary-color-light-rgb, 10, 124, 255), .08) 40%, #f8f8f8 100%);
+    color: var(--text-color-light, #222);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .2);
+}
 
 .retrospective-final-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    margin-bottom: clamp(15px, 4vh, 25px);
+    margin-bottom: clamp(15px, 3.5vh, 20px);
 }
+
 .retrospective-final-logo {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: clamp(18px, 3vw, 20px);
+    font-size: clamp(17px, 2.8vw, 19px);
     font-weight: 700;
-    color: #FFFFFF;
+    color: #fff;
 }
+
 body.light .retrospective-final-logo {
-    color: var(--text-color-light);
+    color: var(--text-color-light, #222);
 }
+
 .retrospective-final-logo .logo-icon {
-    width: clamp(20px, 3.5vw, 24px);
-    height: clamp(20px, 3.5vw, 24px);
+    width: clamp(18px, 3vw, 22px);
+    height: clamp(18px, 3vw, 22px);
     background: var(--primary-color-dark);
     border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: clamp(10px, 1.8vw, 12px);
-    font-weight: bold;
+    color: #fff;
+    font-size: clamp(9px, 1.6vw, 11px);
+    font-weight: 700;
     line-height: 1;
 }
+
 body.light .retrospective-final-logo .logo-icon {
     background: var(--primary-color-light);
+    color: var(--card-bg-light, #fff);
 }
-
 
 .retrospective-final-date {
-    font-size: clamp(13px, 2.5vw, 15px);
-    color: rgba(255,255,255,0.7);
+    font-size: clamp(12px, 2.2vw, 14px);
+    color: rgba(255, 255, 255, .7);
 }
-body.light .retrospective-final-date { color: rgba(0,0,0,0.6); }
+
+body.light .retrospective-final-date {
+    color: rgba(var(--text-color-light-rgb, 34, 34, 34), .6);
+}
 
 .retrospective-final-main-title {
-    font-size: clamp(24px, 5vh, 30px);
+    font-size: clamp(22px, 4.5vh, 28px);
     font-weight: 800;
     text-align: center;
-    margin-bottom: clamp(20px, 4vh, 30px);
+    margin-bottom: clamp(18px, 3.8vh, 28px);
     line-height: 1.2;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    text-shadow: 0 2px 5px rgba(0, 0, 0, .3);
+    color: #fff;
 }
-body.light .retrospective-final-main-title { text-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+
+body.light .retrospective-final-main-title {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .15);
+    color: var(--text-color-light, #222);
+}
 
 .retrospective-final-highlights {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-    grid-auto-flow: column;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     justify-content: center;
-    gap: clamp(8px, 1.5vw, 15px);
+    gap: clamp(6px, 1.2vw, 12px);
     width: 100%;
-    margin-bottom: clamp(20px, 4vh, 30px);
+    margin-bottom: clamp(18px, 3.8vh, 28px);
 }
+
 .retrospective-final-highlights[data-item-count="1"] {
-    grid-template-columns: minmax(120px, 0.6fr);
+    grid-template-columns: minmax(100px, .5fr);
 }
+
 .retrospective-final-highlights[data-item-count="2"] {
-    grid-template-columns: repeat(2, minmax(100px, 1fr));
+    grid-template-columns: repeat(2, minmax(90px, 1fr));
 }
+
 .retrospective-final-highlights[data-item-count="3"] {
     grid-template-columns: repeat(3, 1fr);
 }
 
-
 .retrospective-final-highlight-item {
-    background: rgba(255,255,255,0.08);
-    border-radius: 10px;
-    padding: clamp(10px, 2vh, 15px) clamp(8px, 1.5vw, 12px);
+    background: rgba(255, 255, 255, .08);
+    border-radius: 8px;
+    padding: clamp(8px, 1.8vh, 12px) clamp(6px, 1.2vw, 10px);
     text-align: center;
-    border: 1px solid rgba(255,255,255,0.15);
+    border: 1px solid rgba(255, 255, 255, .15);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 90px;
+    min-height: 80px;
 }
+
 body.light .retrospective-final-highlight-item {
-    background: rgba(0,0,0,0.04);
-    border-color: rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, .04);
+    border-color: rgba(0, 0, 0, .1);
 }
+
 .retrospective-final-highlight-value {
-    font-size: clamp(18px, 3.5vh, 24px);
+    font-size: clamp(17px, 3.2vh, 22px);
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     color: var(--primary-color-dark);
     white-space: nowrap;
 }
-body.light .retrospective-final-highlight-value { color: var(--primary-color-light); }
+
+body.light .retrospective-final-highlight-value {
+    color: var(--primary-color-light);
+}
 
 .retrospective-final-highlight-label {
-    font-size: clamp(10px, 1.8vh, 13px);
-    color: rgba(255,255,255,0.7);
-    margin-bottom: 6px;
+    font-size: clamp(9px, 1.6vh, 12px);
+    color: rgba(255, 255, 255, .7);
+    margin-bottom: 5px;
     flex-grow: 1;
     line-height: 1.2;
 }
-body.light .retrospective-final-highlight-label { color: rgba(0,0,0,0.6); }
+
+body.light .retrospective-final-highlight-label {
+    color: rgba(var(--text-color-light-rgb, 34, 34, 34), .6);
+}
 
 .final-highlight-icon {
-    font-size: clamp(16px, 2.8vh, 22px);
-    color: rgba(255,255,255,0.5);
+    font-size: clamp(15px, 2.5vh, 20px);
+    color: rgba(255, 255, 255, .5);
     margin-top: auto;
 }
-body.light .final-highlight-icon { color: rgba(0,0,0,0.4); }
+
+body.light .final-highlight-icon {
+    color: rgba(var(--text-color-light-rgb, 34, 34, 34), .4);
+}
 
 .retrospective-final-other-stats {
     width: 100%;
-    margin-bottom: clamp(15px, 3vh, 25px);
-    font-size: clamp(13px, 2.5vh, 16px);
+    margin-bottom: clamp(12px, 2.8vh, 22px);
+    font-size: clamp(12px, 2.2vh, 15px);
 }
+
 .retrospective-final-other-stat-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: clamp(6px, 1.5vh, 10px) 0;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    gap: 8px;
+    padding: clamp(5px, 1.2vh, 8px) 0;
+    border-bottom: 1px solid rgba(255, 255, 255, .1);
 }
-.retrospective-final-other-stat-item:last-child { border-bottom: none; }
-body.light .retrospective-final-other-stat-item { border-bottom-color: rgba(0,0,0,0.08); }
-.retrospective-final-other-stat-item i {
-    font-size: clamp(16px, 2.8vh, 19px);
-    color: var(--primary-color-dark);
-    min-width: 20px;
-}
-body.light .retrospective-final-other-stat-item i { color: var(--primary-color-light); }
-.retrospective-final-other-stat-item strong { font-weight: 600; }
 
+.retrospective-final-other-stat-item:last-child {
+    border-bottom: none;
+}
+
+body.light .retrospective-final-other-stat-item {
+    border-bottom-color: rgba(0, 0, 0, .08);
+}
+
+.retrospective-final-other-stat-item i {
+    font-size: clamp(15px, 2.5vh, 18px);
+    color: var(--primary-color-dark);
+    min-width: 18px;
+}
+
+body.light .retrospective-final-other-stat-item i {
+    color: var(--primary-color-light);
+}
+
+.retrospective-final-other-stat-item strong {
+    font-weight: 600;
+}
 
 .retrospective-final-achievements-container {
     width: 100%;
     margin-top: auto;
-    margin-bottom: clamp(10px, 2vh, 15px);
+    margin-bottom: clamp(8px, 1.8vh, 12px);
     text-align: center;
 }
+
 .retrospective-final-achievements-title {
-    font-size: clamp(14px, 2.8vh, 17px);
+    font-size: clamp(13px, 2.5vh, 16px);
     font-weight: 600;
-    margin-bottom: 10px;
-    color: rgba(255,255,255,0.8);
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, .8);
 }
-body.light .retrospective-final-achievements-title { color: rgba(0,0,0,0.7); }
+
+body.light .retrospective-final-achievements-title {
+    color: rgba(var(--text-color-light-rgb, 34, 34, 34), .7);
+}
+
 .retrospective-final-achievements-list {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
 }
+
 .retrospective-badge-achievement {
-    background: linear-gradient(45deg,
-        var(--primary-color-dark),
-        #4e4376,
-        var(--primary-color-dark),
-        #1c1629,
-        var(--primary-color-dark)
-    );
-    background-size: 400% 400%;
-    animation: achievementGradient 5s ease infinite;
-    color: white;
-    padding: clamp(7px, 1.5vh, 9px) clamp(12px, 2.5vw, 18px);
-    font-size: clamp(11px, 2vh, 14px);
-    border-radius: 20px;
+    background: linear-gradient(45deg, var(--primary-color-dark), color-mix(in srgb, var(--primary-color-dark) 60%, #000 40%), var(--primary-color-dark));
+    background-size: 300% 300%;
+    animation: achievementGradient 4s ease infinite;
+    color: #fff;
+    padding: clamp(6px, 1.2vh, 8px) clamp(10px, 2vw, 15px);
+    font-size: clamp(10px, 1.8vh, 13px);
+    border-radius: 15px;
     border: none;
-    box-shadow: 0 0 8px rgba(var(--primary-color-dark-rgb), 0.5),
-                0 0 12px rgba(255,255,255,0.15) inset;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+    box-shadow: 0 0 8px rgba(var(--primary-color-dark-rgb), .4), 0 0 10px rgba(255, 255, 255, .1) inset;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, .3);
     font-weight: 600;
 }
+
 body.light .retrospective-badge-achievement {
-    background: linear-gradient(45deg,
-        var(--primary-color-light),
-        #877cb0,
-        var(--primary-color-light),
-        #e0d9f0,
-        var(--primary-color-light)
-    );
-    background-size: 400% 400%;
-    animation: achievementGradient 5s ease infinite;
-    color: var(--card-bg-light);
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    background: linear-gradient(45deg, var(--primary-color-light), color-mix(in srgb, var(--primary-color-light) 70%, #fff 30%), var(--primary-color-light));
+    background-size: 300% 300%;
+    animation: achievementGradient 4s ease infinite;
+    color: var(--card-bg-light, #fff);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, .15);
+    box-shadow: 0 0 8px rgba(var(--primary-color-light-rgb), .3), 0 0 10px rgba(0, 0, 0, .05) inset;
 }
 
 @keyframes achievementGradient {
-    0% {background-position: 0% 50%;}
-    50% {background-position: 100% 50%;}
-    100% {background-position: 0% 50%;}
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .retrospective-final-footer {
     width: 100%;
     text-align: center;
-    font-size: clamp(12px, 2.2vh, 14px);
-    color: rgba(255,255,255,0.6);
-    padding-top: clamp(10px, 2vh, 18px);
-    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: clamp(11px, 2vh, 13px);
+    color: rgba(255, 255, 255, .6);
+    padding-top: clamp(8px, 1.8vh, 15px);
+    border-top: 1px solid rgba(255, 255, 255, .1);
     margin-top: auto;
 }
-body.light .retrospective-final-footer { color: rgba(0,0,0,0.5); border-top-color: rgba(0,0,0,0.08); }
+
+body.light .retrospective-final-footer {
+    color: rgba(var(--text-color-light-rgb, 34, 34, 34), .5);
+    border-top-color: rgba(0, 0, 0, .08);
+}
 
 .retrospective-action-buttons-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
     width: 100%;
-    max-width: 380px; /* Mantém a largura do card para consistência */
-    margin-top: 15px;
-    padding-bottom: 20px; /* Mais espaço no final para scroll */
-    flex-shrink: 0; /* Não encolhe */
+    max-width: 380px;
+    margin-top: clamp(15px, 2.5vh, 20px);
+    padding-bottom: 0;
+    flex-shrink: 0;
 }
+
 .retrospective-action-buttons {
     display: flex;
-    gap: 15px;
+    flex-direction: column;
+    gap: 12px;
     justify-content: center;
     width: 100%;
 }
+
 .retrospective-action-button {
-    color: white;
+    color: #fff;
     flex-grow: 1;
-    max-width: 180px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    padding: 12px 20px;
-    font-size: 16px;
+    max-width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+    padding: 10px 18px;
+    font-size: clamp(14px, 3.5vw, 15px);
+}
+
+.retrospective-action-button:active {
+    transform: scale(.98);
 }
 
 .retrospective-action-button#retrospective-share-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: transparent;
-    border: 2px solid var(--primary-color-dark);
-    color: var(--primary-color-dark);
+    background: var(--primary-color-dark);
+    color: #fff;
+    border: none;
 }
+
 .retrospective-action-button#retrospective-share-button:hover {
-    background: rgba(var(--primary-color-dark-rgb), 0.2);
-    border-color: var(--primary-color-dark);
+    background: color-mix(in srgb, var(--primary-color-dark) 85%, #000 15%);
 }
+
 body.light .retrospective-action-button#retrospective-share-button {
-    border-color: var(--primary-color-light);
-    color: var(--primary-color-light);
+    background: var(--primary-color-light);
+    color: var(--card-bg-light, #fff);
 }
+
 body.light .retrospective-action-button#retrospective-share-button:hover {
-    background: rgba(var(--primary-color-light-rgb), 0.2);
-    border-color: var(--primary-color-light);
+    background: color-mix(in srgb, var(--primary-color-light) 85%, #fff 15%);
 }
 
 .twitter-logo-retro {
-    width: 1.2em;
-    height: 1.2em;
-    fill: #1DA1F2;
+    width: 1.3em;
+    height: 1.3em;
+    fill: currentColor;
     vertical-align: middle;
+    margin-right: 6px;
 }
-body.light .retrospective-action-button#retrospective-share-button .twitter-logo-retro {
-    fill: #1DA1F2;
-}
-
 
 .retrospective-action-button#retrospective-download-button {
     background: transparent;
     border: 2px solid var(--primary-color-dark);
     color: var(--primary-color-dark);
 }
+
 body.light .retrospective-action-button#retrospective-download-button {
     border-color: var(--primary-color-light);
     color: var(--primary-color-light);
 }
+
 .retrospective-action-button#retrospective-download-button:hover {
-    background: rgba(var(--primary-color-dark-rgb), 0.2);
+    background: rgba(var(--primary-color-dark-rgb), .15);
     border-color: var(--primary-color-dark);
 }
+
 body.light .retrospective-action-button#retrospective-download-button:hover {
-    background: rgba(var(--primary-color-light-rgb), 0.2);
+    background: rgba(var(--primary-color-light-rgb), .15);
     border-color: var(--primary-color-light);
 }
 
-
 .retrospective-action-button .retrospective-icon-small {
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
-
-
-.retrospective-final-close-x-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: rgba(0,0,0,0.3);
-    border: none;
-    color: rgba(255,255,255,0.7);
-    font-size: 20px;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-    z-index: 10;
-}
-.retrospective-final-close-x-btn:hover {
-    background: rgba(0,0,0,0.5);
-    color: white;
-}
-body.light .retrospective-final-close-x-btn {
-    background: rgba(255,255,255,0.5);
-    color: rgba(0,0,0,0.6);
-}
-body.light .retrospective-final-close-x-btn:hover {
-    background: rgba(255,255,255,0.8);
-    color: black;
-}
-
 
 /* Ícones Globais da Retrospectiva */
 .retrospective-icon,
@@ -1143,158 +1609,352 @@ body.light .retrospective-final-close-x-btn:hover {
 
 /* Ajustes de responsividade para o modal */
 @media (min-width: 701px) {
-    #retrospective-time-patterns-screen .retrospective-content-wrapper {
-        display: grid;
-        grid-template-areas:
-            "title title"
-            "grid grid"
-            "chart chart"
-            "button button";
+
+    /* Padrões de Produtividade: Cards superiores lado a lado */
+    #retrospective-time-patterns-screen .retrospective-time-patterns-grid {
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto auto 1fr auto;
-        gap: 20px;
-        align-items: start;
-        height: 100%;
     }
-    #retrospective-time-patterns-screen .retrospective-screen-title { grid-area: title; margin-bottom: 0;}
-    #retrospective-time-patterns-screen .retrospective-time-patterns-grid { grid-area: grid; margin-bottom: 0; align-self: stretch; }
-    #retrospective-time-patterns-screen .retrospective-card-indigo { grid-area: chart; margin-bottom: 0; height: 100%; display: flex; flex-direction: column;}
-    #retrospective-time-patterns-screen .retrospective-weekday-chart { flex-grow: 1; height: auto; min-height: 150px;}
-    #retrospective-time-patterns-screen .retrospective-navigation-button { grid-area: button; margin-top: 0; align-self: end; justify-self: center; }
 
     .retrospective-action-buttons-container {
-        flex-direction: row;
-        justify-content: center;
-        gap: 20px;
+        max-width: 420px;
     }
+
+    .retrospective-action-buttons {
+        flex-direction: row;
+        gap: 15px;
+    }
+
     .retrospective-action-button {
-        flex-grow: 0;
+        flex-grow: 1;
+        max-width: calc(50% - 7.5px);
     }
 }
-
 
 @media (max-width: 700px) {
     .retrospective-modal {
         max-width: 95vw;
-        padding: 10px;
     }
+
     .retrospective-screen {
-        padding: 20px 10px;
+        padding: 20px clamp(15px, 4vw, 20px); /* MODIFICADO: Padding geral um pouco reduzido */
     }
-    .retrospective-stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+
+    .retrospective-music-control-button,
+    .retrospective-final-close-x-btn {
+        top: 10px;
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
     }
-    .retrospective-time-patterns-grid {
-        grid-template-columns: 1fr;
+
+    .retrospective-music-control-button {
+        left: 10px;
     }
-    .retrospective-card-indigo {
-        max-width: 100%;
+
+    .retrospective-final-close-x-btn {
+        right: 10px;
     }
-     .retrospective-final-content-wrapper {
+
+    .retrospective-stats-grid .retrospective-stat-card {
+        flex-basis: calc(50% - 7.5px);
+        max-width: calc(50% - 7.5px);
+    }
+
+    .retrospective-stats-grid:has(> .retrospective-stat-card:nth-child(1):not(:nth-child(2))) .retrospective-stat-card {
+        flex-basis: clamp(180px, 80%, 250px);
+        max-width: 250px;
+    }
+
+    .retrospective-final-content-wrapper {
         padding: 20px 15px clamp(15px, 3vh, 20px) 15px;
+    }
+
+    /* Padrões de Produtividade - garantir empilhamento em telas menores */
+    #retrospective-time-patterns-screen .retrospective-time-patterns-grid {
+        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 600px) {
     .retrospective-modal {
-        height: auto; /* Deixa o conteúdo interno ditar a altura */
-        min-height: 85vh; /* Garante uma altura mínima razoável */
-        max-height: 95vh; /* Limita para não cobrir tudo o notch/barra de status */
-        overflow-y: auto; /* Permite scroll no modal se o .retrospective-screen não conseguir conter */
-        border-radius: 12px;
+        height: 95vh;
+        max-height: 95vh;
+        border-radius: 10px;
     }
+
     .retrospective-screen {
-        padding: 15px 10px;
-        height: auto; /* Permite que a tela cresça com o conteúdo */
-        min-height: 100%; /* Tenta ocupar o espaço do modal */
+        padding: 15px clamp(10px, 3vw, 15px); /* MODIFICADO: Padding geral ainda mais reduzido */
     }
 
-    .retrospective-main-title { font-size: 26px; }
-    .retrospective-screen-title { font-size: 28px; margin-bottom: 15px; }
+    .retrospective-main-title {
+        font-size: clamp(24px, 5.5vw, 28px);
+    }
 
-    .retrospective-stats-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
-    .retrospective-stat-card { padding: 12px 8px; min-height: 170px; }
-    .retrospective-icon-large { font-size: 36px; }
-    .retrospective-stat-value { font-size: 28px; }
-    .retrospective-stat-label { font-size: 13px; }
-    .retrospective-badge { font-size: 11px; padding: 5px 8px; }
+    .retrospective-screen-title {
+        font-size: clamp(22px, 6vw, 30px);
+        margin-bottom: 15px; /* MODIFICADO: Margem inferior do título reduzida */
+    }
+
+    .retrospective-stats-grid {
+        gap: 12px;
+    }
+
+    .retrospective-stats-grid .retrospective-stat-card {
+        flex-basis: 100%;
+        max-width: 100%;
+        min-height: clamp(140px, 33vw, 160px);
+        padding: 12px 10px;
+    }
+
+    .retrospective-stat-card .retrospective-icon-large {
+        font-size: clamp(30px, 7vw, 36px);
+    }
+
+    .retrospective-stat-value {
+        font-size: clamp(24px, 7vw, 32px);
+    }
+
+    .retrospective-stat-label {
+        font-size: clamp(11px, 2.8vw, 13px);
+    }
+
+    .retrospective-badge {
+        font-size: clamp(10px, 2.2vw, 12px);
+        padding: 5px 8px;
+    }
 
     .retrospective-final-screen-spotify-style {
-        padding: 10px 5px; /* Padding da tela final bem reduzido */
+        padding: 15px 5px;
     }
+
     .retrospective-final-content-wrapper {
         padding: 15px 10px clamp(10px, 2.5vh, 15px) 10px;
-        border-radius: 12px;
+        border-radius: 10px;
     }
-    .retrospective-final-main-title { font-size: 22px; margin-bottom: 12px; }
+
+    .retrospective-final-main-title {
+        font-size: clamp(20px, 4vh, 24px);
+        margin-bottom: 12px;
+    }
+
     .retrospective-final-highlights {
         gap: 6px;
         margin-bottom: 12px;
     }
+
     .retrospective-final-highlight-item {
         padding: clamp(6px, 1.2vh, 10px) clamp(4px, 1vw, 6px);
     }
-    .retrospective-final-highlight-value { font-size: clamp(16px, 3vh, 20px); }
-    .retrospective-final-highlight-label { font-size: clamp(9px, 1.5vh, 11px); }
-    .final-highlight-icon { font-size: clamp(14px, 2.5vh, 18px); }
 
-    .retrospective-final-other-stats { font-size: 12px; margin-bottom: 12px;}
-    .retrospective-final-other-stat-item i { font-size: 15px; }
-    .retrospective-badge-achievement { font-size: 10px; padding: 5px 10px; }
+    .retrospective-final-highlight-value {
+        font-size: clamp(16px, 3vh, 20px);
+    }
+
+    .retrospective-final-highlight-label {
+        font-size: clamp(9px, 1.5vh, 11px);
+    }
+
+    .final-highlight-icon {
+        font-size: clamp(14px, 2.5vh, 18px);
+    }
+
+    .retrospective-final-other-stats {
+        font-size: clamp(11px, 2vh, 13px);
+        margin-bottom: 12px;
+    }
+
+    .retrospective-final-other-stat-item i {
+        font-size: clamp(14px, 2.2vh, 16px);
+    }
+
+    .retrospective-badge-achievement {
+        font-size: clamp(9px, 1.8vh, 11px);
+        padding: 5px 10px;
+    }
 
     .retrospective-action-buttons-container {
         margin-top: 10px;
-        padding-bottom: 15px; /* Espaço para scroll */
-    }
-    .retrospective-action-buttons {
-        flex-direction: column;
-        gap: 10px;
-    }
-    .retrospective-action-button {
-        max-width: 100%;
-        font-size: 15px;
     }
 
-    .retrospective-final-close-x-btn {
-        top: 8px;
-        right: 8px;
-        width: 30px;
-        height: 30px;
-        font-size: 16px;
+    .retrospective-action-button {
+        max-width: 100%;
+        font-size: clamp(14px, 3.5vw, 15px);
     }
 }
 
-/* Ajuste para telas muito pequenas (ex: iPhone SE) */
 @media (max-width: 380px) {
     .retrospective-modal {
-        padding: 5px;
-        border-radius: 10px;
+        border-radius: 8px;
     }
-    .retrospective-screen {
-        padding: 10px 5px;
-    }
-    .retrospective-main-title { font-size: 22px; }
-    .retrospective-screen-title { font-size: 24px; }
-    .retrospective-intro-title { font-size: 38px; }
-    .retrospective-intro-subtitle { font-size: 18px; margin-bottom: 30px; }
-    .retrospective-intro-icon-wrapper { width: 100px; height: 100px; margin-bottom: 25px; }
-    .retrospective-intro-icon-wrapper .retrospective-icon-large { font-size: 50px; }
 
+    .retrospective-screen {
+        padding: 10px 5px; /* MODIFICADO: Padding geral bem reduzido */
+    }
+
+    .retrospective-music-control-button,
+    .retrospective-final-close-x-btn {
+        top: 8px;
+        width: 30px;
+        height: 30px;
+        font-size: 15px;
+    }
+
+    .retrospective-music-control-button {
+        left: 8px;
+    }
+
+    .retrospective-final-close-x-btn {
+        right: 8px;
+    }
+
+    .retrospective-main-title {
+        font-size: clamp(20px, 5vw, 22px);
+    }
+
+    .retrospective-screen-title {
+        font-size: clamp(20px, 5.5vw, 26px);
+        margin-bottom: 10px; /* MODIFICADO: Margem inferior do título mais reduzida */
+    }
+
+    .retrospective-intro-title {
+        font-size: clamp(30px, 8vw, 36px);
+    }
+
+    .retrospective-intro-subtitle {
+        font-size: clamp(15px, 4vw, 17px);
+        margin-bottom: 25px;
+    }
+
+    .retrospective-intro-icon-wrapper {
+        width: clamp(80px, 20vw, 90px);
+        height: clamp(80px, 20vw, 90px);
+        margin-bottom: 20px;
+    }
+
+    .retrospective-intro-icon-wrapper .retrospective-icon-large {
+        font-size: clamp(40px, 10vw, 45px);
+    }
+
+    .retrospective-stats-grid .retrospective-stat-card {
+        min-height: clamp(130px, 30vw, 150px);
+    }
+
+    /* Ajustes específicos para #retrospective-time-patterns-screen em telas muito pequenas */
+    #retrospective-time-patterns-screen .retrospective-content-wrapper {
+        gap: clamp(8px, 1.5vh, 12px); /* MODIFICADO: Gap ainda menor */
+    }
+     #retrospective-time-patterns-screen .retrospective-screen-title {
+        margin-bottom: clamp(5px, 1vh, 8px); /* MODIFICADO: Margem ainda menor */
+        font-size: clamp(18px, 5vw, 22px); /* MODIFICADO: Título da tela menor */
+    }
+    #retrospective-time-patterns-screen .retrospective-time-patterns-main-content {
+        gap: clamp(6px, 1vh, 10px); /* MODIFICADO: Gap ainda menor */
+    }
+    #retrospective-time-patterns-screen .retrospective-time-patterns-grid {
+        gap: clamp(6px, 1vh, 10px); /* MODIFICADO: Gap ainda menor */
+    }
+
+    #retrospective-time-patterns-screen .retrospective-time-patterns-grid .retrospective-stat-card {
+        min-height: clamp(100px, 16vh, 120px); /* MODIFICADO: Altura dos cards superiores bem reduzida */
+        padding: clamp(8px, 1.5vh, 12px); /* MODIFICADO: Padding reduzido */
+    }
+    #retrospective-time-patterns-screen .retrospective-card-header .retrospective-icon-large {
+        font-size: clamp(20px, 4vw, 24px); /* MODIFICADO: Ícone menor */
+        margin-bottom: 3px;
+    }
+     #retrospective-time-patterns-screen .retrospective-card-title {
+        font-size: clamp(12px, 2.8vw, 14px); /* MODIFICADO: Título do card menor */
+        margin-bottom: 2px;
+    }
+    #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-stat-value {
+        font-size: clamp(22px, 6vw, 28px); /* MODIFICADO: Valor principal menor */
+    }
+     #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-card-subtitle,
+     #retrospective-time-patterns-screen .retrospective-stat-card .retrospective-stat-label {
+        font-size: clamp(10px, 2.2vw, 12px); /* MODIFICADO: Subtítulo/label menor */
+    }
+
+    #retrospective-time-patterns-screen .retrospective-card-indigo {
+        min-height: clamp(130px, 22vh, 170px); /* MODIFICADO: Altura do card de distribuição bem reduzida */
+        padding: clamp(8px, 1.5vh, 12px); /* MODIFICADO: Padding reduzido */
+    }
+
+    #retrospective-time-patterns-screen .retrospective-weekday-chart {
+        min-height: 60px; /* MODIFICADO: Altura mínima do gráfico bem reduzida */
+        height: clamp(60px, 10vh, 80px); /* MODIFICADO: Altura flexível do gráfico bem reduzida */
+    }
+     .retrospective-weekday-bar {
+        width: clamp(12px, 3vw, 20px); /* MODIFICADO: Largura da barra menor */
+    }
+    .retrospective-weekday-label {
+        margin-top: 4px; /* MODIFICADO: Espaço acima do label menor */
+        font-size: clamp(9px, 1.8vw, 11px); /* MODIFICADO: Label menor */
+    }
+    #retrospective-time-patterns-screen #retrospective-time-patterns-next-button.retrospective-button {
+        margin-top: clamp(10px, 1.5vh, 15px); /* MODIFICADO: Margem do botão menor */
+        padding: 10px 24px; /* MODIFICADO: Padding do botão ajustado */
+        font-size: clamp(13px, 3vw, 14px);
+    }
 
     .retrospective-final-screen-spotify-style {
-        padding: 5px 3px;
+        padding: 10px 3px;
     }
+
     .retrospective-final-content-wrapper {
         padding: 10px 8px clamp(8px, 2vh, 12px) 8px;
         border-radius: 10px;
     }
-    .retrospective-final-main-title { font-size: 20px; }
-    .retrospective-final-highlights { gap: 5px; }
-    .retrospective-final-highlight-value { font-size: clamp(14px, 2.8vh, 18px); }
-    .retrospective-final-highlight-label { font-size: clamp(8px, 1.3vh, 10px); }
-    .final-highlight-icon { font-size: clamp(12px, 2.2vh, 16px); }
-    .retrospective-final-other-stats { font-size: 11px; }
-    .retrospective-final-other-stat-item i { font-size: 14px; }
-    .retrospective-badge-achievement { font-size: 9px; padding: 4px 8px; }
-    .retrospective-action-button { font-size: 14px; }
+
+    .retrospective-final-main-title {
+        font-size: clamp(18px, 3.8vh, 22px);
+    }
+
+    .retrospective-final-highlights {
+        gap: 5px;
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    }
+
+    .retrospective-final-highlight-value {
+        font-size: clamp(14px, 2.8vh, 18px);
+    }
+
+    .retrospective-final-highlight-label {
+        font-size: clamp(8px, 1.3vh, 10px);
+    }
+
+    .final-highlight-icon {
+        font-size: clamp(12px, 2.2vh, 16px);
+    }
+
+    .retrospective-final-other-stats {
+        font-size: clamp(10px, 1.8vh, 12px);
+    }
+
+    .retrospective-final-other-stat-item i {
+        font-size: clamp(12px, 2vh, 14px);
+    }
+
+    .retrospective-badge-achievement {
+        font-size: clamp(8px, 1.5vh, 10px);
+        padding: 4px 8px;
+    }
+
+    .retrospective-action-button {
+        font-size: clamp(13px, 3.2vw, 14px);
+    }
+}
+
+/* Garante que as telas que precisam de centralização vertical funcionem corretamente */
+#retrospective-selection-screen .retrospective-content-wrapper,
+#retrospective-intro-screen .retrospective-content-wrapper,
+#retrospective-main-stats-screen .retrospective-content-wrapper,
+#retrospective-productive-day-screen .retrospective-content-wrapper,
+#retrospective-comparison-screen .retrospective-content-wrapper,
+#retrospective-final-screen .retrospective-final-screen-spotify-style {
+    justify-content: center; /* Centraliza o conteúdo verticalmente quando ele é menor que a tela */
+}
+
+/* Para a tela de padrões de produtividade, o space-between é importante para o botão no final */
+#retrospective-time-patterns-screen .retrospective-content-wrapper {
+    justify-content: space-between; /* Mantém o botão no final */
 }
