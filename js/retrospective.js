@@ -40,6 +40,7 @@ let retrospectiveDataStore = { currentMonth: {}, previousMonth: {} };
 let retrospectiveDataProcessed = false;
 let isMusicPlaying = false;
 let userInteractedWithMusic = false;
+let shouldResumeMusicOnFocus = false; // Nova variável de estado
 
 // Constantes e Frases
 const motivationalPhrases = {
@@ -140,29 +141,31 @@ function toggleMetric(event) {
 
 // --- Funções de Controle de Música ---
 function playRetrospectiveMusic() {
-    if (retrospectiveMusicAudio && retrospectiveMusicAudio.paused && userInteractedWithMusic) {
+    if (retrospectiveMusicAudio && retrospectiveMusicAudio.paused && userInteractedWithMusic && document.visibilityState === 'visible') {
         retrospectiveMusicAudio.play().then(() => {
             isMusicPlaying = true;
             updateMusicButtonIcon();
         }).catch(error => {
             console.warn("TASKIFY_RETRO_MUSIC: Erro ao tentar tocar a música:", error);
-            isMusicPlaying = false;
+            isMusicPlaying = false; // Garante que o estado reflita a falha
             updateMusicButtonIcon();
         });
     }
 }
 
-function pauseRetrospectiveMusic() {
+function pauseRetrospectiveMusic(dueToVisibilityChange = false) {
     if (retrospectiveMusicAudio && !retrospectiveMusicAudio.paused) {
         retrospectiveMusicAudio.pause();
+        if (!dueToVisibilityChange) {
+            userInteractedWithMusic = true; // Só marca interação manual se não for por mudança de visibilidade
+        }
         isMusicPlaying = false;
-        userInteractedWithMusic = true;
         updateMusicButtonIcon();
     }
 }
 
 function toggleRetrospectiveMusic() {
-    userInteractedWithMusic = true;
+    userInteractedWithMusic = true; // Qualquer clique no botão é uma interação
     if (isMusicPlaying) {
         pauseRetrospectiveMusic();
     } else {
@@ -331,6 +334,8 @@ function openRetrospectiveView() {
         monthSelectionText.textContent = getMonthYearString(new Date());
     }
 
+    shouldResumeMusicOnFocus = false; // Resetar ao abrir o modal
+
     retrospectiveOverlay.classList.add('show');
     retrospectiveModal.classList.add('show');
     document.body.classList.add('modal-open', 'retrospective-open');
@@ -340,7 +345,7 @@ function openRetrospectiveView() {
     if (musicToggleButton) musicToggleButton.style.display = 'none';
 
     showScreen(0);
-    updateMusicButtonIcon();
+    updateMusicButtonIcon(); // Garante que o ícone esteja correto mesmo se a música não tocar
 }
 
 function closeRetrospectiveView() {
@@ -350,12 +355,12 @@ function closeRetrospectiveView() {
     document.body.classList.remove('modal-open', 'retrospective-open');
 
     if (retrospectiveMusicAudio) {
-        retrospectiveMusicAudio.pause();
-        retrospectiveMusicAudio.currentTime = 0;
-        isMusicPlaying = false;
+        pauseRetrospectiveMusic(); // Usa a função para garantir que isMusicPlaying seja atualizado
+        retrospectiveMusicAudio.currentTime = 0; // Continua resetando o tempo
         if (musicToggleButton) musicToggleButton.style.display = 'none';
         updateMusicButtonIcon();
     }
+    shouldResumeMusicOnFocus = false; // Resetar ao fechar o modal
 
     setTimeout(() => {
         currentScreenIndex = 0;
@@ -447,7 +452,7 @@ function startRetrospectiveFlow() {
         return;
     }
 
-    userInteractedWithMusic = true;
+    userInteractedWithMusic = true; // Considera a interação aqui para poder tocar
     if (retrospectiveMusicAudio && !isMusicPlaying) playRetrospectiveMusic();
     if (musicToggleButton) musicToggleButton.style.display = 'flex';
     updateMusicButtonIcon();
@@ -1078,6 +1083,37 @@ async function downloadRetrospectiveImageAction() {
             window.showCustomAlert("Houve um problema ao preparar a imagem para download (Canvas gerado, mas erro na operação).", "Falha");
         }
     }
+}
+
+// --- Event Listener para Visibilidade da Página ---
+function handleVisibilityChange() {
+    // Verifica se o modal da retrospectiva está aberto
+    if (!retrospectiveModal || !retrospectiveModal.classList.contains('show')) {
+        return; // Se não estiver aberto, não faz nada
+    }
+
+    if (document.hidden) {
+        // A página ficou oculta
+        if (isMusicPlaying) {
+            shouldResumeMusicOnFocus = true; // Marcar para retomar
+            pauseRetrospectiveMusic(true); // Pausa a música, indicando que é por mudança de visibilidade
+            console.log("TASKIFY_RETRO_MUSIC: Música pausada devido à aba ficar inativa.");
+        }
+    } else {
+        // A página ficou visível novamente
+        if (shouldResumeMusicOnFocus && userInteractedWithMusic) { // Só retoma se o usuário já interagiu
+            playRetrospectiveMusic();
+            console.log("TASKIFY_RETRO_MUSIC: Música retomada ao focar na aba.");
+        }
+        shouldResumeMusicOnFocus = false; // Reseta a flag
+    }
+}
+
+// Adicionar o listener de visibilidade globalmente, mas com cuidado
+if (typeof document !== 'undefined') {
+    // Remove listener antigo para evitar duplicatas se o script for re-executado (raro, mas seguro)
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 }
 
 
