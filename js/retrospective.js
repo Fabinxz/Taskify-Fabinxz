@@ -1032,19 +1032,27 @@ async function shareRetrospectiveOnTwitterWithImage() {
 
     if (isMobileDevice()) {
         console.log("TASKIFY_RETRO: Modo mobile para compartilhar. Tentando download da imagem.");
-        const result = await generateRetrospectiveImageInternal(true, false); // forSharingNotification = true, tryClipboard = false
-        if (result.success && result.canvas) {
-            downloadCanvasAsImageFile(result.canvas, 'retrospectiva_taskify_twitter.png');
-            if (typeof window.showCustomAlert === 'function') {
-                window.showCustomAlert("Imagem baixada! Agora, anexe-a ao seu tweet.", "Compartilhar no Twitter");
-            }
+        // Linha original que força o download no mobile:
+        // const result = await generateRetrospectiveImageInternal(true, false); 
+        // Mudar para tentar o clipboard também no mobile:
+        const result = await generateRetrospectiveImageInternal(true, true); // tryClipboard = true
+        
+        if (result.success && result.canvas && result.error === null) { // error === null indica que a cópia foi tentada e bem-sucedida (ou API estava ok)
+            // A cópia foi bem sucedida (ou o alerta de falha na cópia já foi mostrado em generateRetrospectiveImageInternal)
             imageGeneratedAndHandled = true;
-        } else {
+        } else if (result.canvas) { // Imagem gerada, mas cópia falhou ou não foi tentada (API indisponível)
+            // Se a cópia falhou no mobile, oferecemos o download como fallback principal
+            if (typeof window.showCustomAlert === 'function') {
+                window.showCustomAlert("Não foi possível copiar a imagem. Vamos tentar baixá-la para você anexar manualmente.", "Falha na Cópia");
+            }
+            downloadCanvasAsImageFile(result.canvas, 'retrospectiva_taskify_twitter.png');
+            imageGeneratedAndHandled = true; // Imagem foi pelo menos baixada
+        } else { // Falha completa na geração da imagem
             if (typeof window.showCustomAlert === 'function') {
                  window.showCustomAlert("Não foi possível preparar a imagem para o Twitter. Você pode tentar baixá-la com o outro botão ou compartilhar apenas o texto.", "Falha na Imagem");
             }
         }
-    } else {
+    } else { 
         console.log("TASKIFY_RETRO: Modo desktop para compartilhar. Tentando copiar imagem para o clipboard.");
         const result = await generateRetrospectiveImageInternal(true, true); // forSharingNotification = true, tryClipboard = true
         if (result.success && result.canvas) { // Se success for true, a cópia ocorreu (ou o alerta de falha na cópia já foi dado)
