@@ -16,19 +16,27 @@
     --task-delete-btn-hover-bg-light: rgba(220, 0, 0, 0.1);
     --task-delete-btn-hover-color-light: #D90000;
     --body-bg-dark: #020306;
-    --card-bg-dark: rgba(255, 255, 255, 0.07);
+    --card-solid-bg-dark: #1C1C1E;
+    --card-bg-dark: rgba(30, 32, 37, 0.75);
     --card-border-dark: rgba(255, 255, 255, 0.1);
     --text-color-dark: white;
     --text-muted-dark: #aaa;
-    --header-bg-dark: rgba(255, 255, 255, 0.07);
-    --header-border-dark: rgba(255, 255, 255, 0.1);
+    --header-bg-dark: var(--card-bg-dark);
+    --header-border-dark: var(--card-border-dark);
+
     --body-bg-light: #f4f4f4;
     --card-bg-light: #ffffff;
     --card-border-light: #e8e8e8;
     --text-color-light: #222;
     --text-muted-light: #555;
-    --header-bg-light: #ffffff;
-    --header-border-light: #e8e8e8;
+    --header-bg-light: var(--card-bg-light);
+    --header-border-light: var(--card-border-light);
+
+    /* Cores da scrollbar padrão */
+    --scrollbar-thumb-bg-dark: var(--primary-color-dark);
+    --scrollbar-track-bg-dark: rgba(255, 255, 255, 0.08);
+    --scrollbar-thumb-bg-light: var(--primary-color-light);
+    --scrollbar-track-bg-light: rgba(0, 0, 0, 0.08);
 }
 
 body.light {
@@ -999,7 +1007,7 @@ body.light .tasks-section .tasks-counter {
 
 #task-form {
     display: flex;
-    flex-wrap: wrap; /* Permite que os itens quebrem linha */
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 15px;
     align-items: center;
@@ -1007,8 +1015,8 @@ body.light .tasks-section .tasks-counter {
 
 #task-input {
     flex-grow: 1;
-    flex-basis: 200px; /* Base para o input de texto, permite encolher/crescer */
-    min-width: 150px; /* Largura mínima para o input de texto */
+    flex-basis: 200px;
+    min-width: 150px;
     padding: 10px 12px;
     border: 1px solid var(--card-border-dark);
     border-radius: 8px;
@@ -1046,59 +1054,60 @@ body.light #task-input:focus {
     background: var(--card-bg-light);
 }
 
-.task-date-input {
-    padding: 9px 10px; /* Ajuste para alinhar com #task-input e #add-task-btn */
+.task-date-input.flatpickr-input {
+    padding: 9px 30px 9px 10px;
     border: 1px solid var(--card-border-dark);
     border-radius: 8px;
-    background: rgba(0, 0, 0, 0.1);
-    color: var(--text-muted-dark);
-    font-size: 0.9rem; /* Um pouco menor para economizar espaço */
-    line-height: normal; /* Reset para evitar problemas de altura */
-    height: auto; /* Permite que o padding dite a altura */
-    flex-shrink: 0;
-    flex-basis: 130px; /* Base para o input de data */
-    min-width: 120px; /* Largura mínima */
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    color-scheme: dark;
-    font-family: inherit; /* Usa a mesma fonte do corpo */
-    box-sizing: border-box; /* Garante que padding e border não aumentem a largura total */
-}
-.task-date-input:focus,
-.task-date-input:valid {
+    background-color: rgba(0, 0, 0, 0.1);
     color: var(--text-color-dark);
-}
-
-body.light .task-date-input {
-    background: rgba(255, 255, 255, 0.5);
-    border-color: var(--card-border-light);
-    color: var(--text-muted-light);
-    color-scheme: light;
-}
-body.light .task-date-input:focus,
-body.light .task-date-input:valid {
-    color: var(--text-color-light);
-}
-
-.task-date-input::-webkit-calendar-picker-indicator {
-    filter: invert(0.7) brightness(0.9); /* Mais escuro para melhor contraste no tema escuro */
+    font-size: 0.9rem;
+    line-height: normal;
+    height: 38px;
+    flex-shrink: 0;
+    flex-basis: 140px;
+    min-width: 130px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    font-family: inherit;
+    box-sizing: border-box;
     cursor: pointer;
-    padding-left: 4px; /* Pequeno espaçamento */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23cccccc' class='bi bi-calendar-event' viewBox='0 0 16 16'%3E%3Cpath d='M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z'/%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px 16px;
 }
-body.light .task-date-input::-webkit-calendar-picker-indicator {
-    filter: invert(0.15); /* Levemente mais escuro no tema claro */
-}
-/* Tenta uniformizar a altura dos inputs e botão */
-#task-input, .task-date-input, #add-task-btn {
-    height: 38px; /* Altura consistente */
+body.light .task-date-input.flatpickr-input {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-color: var(--card-border-light);
+    color: var(--text-color-light);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555555' class='bi bi-calendar-event' viewBox='0 0 16 16'%3E%3Cpath d='M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z'/%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z'/%3E%3C/svg%3E");
 }
 
+.task-date-input.flatpickr-input::placeholder {
+    color: var(--text-muted-dark);
+    opacity: 0.8;
+}
+body.light .task-date-input.flatpickr-input::placeholder {
+    color: var(--text-muted-light);
+}
+
+.task-date-input.flatpickr-input:focus {
+    outline: none;
+    border-color: var(--primary-color-dark);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color-dark) 20%, transparent);
+}
+body.light .task-date-input.flatpickr-input:focus {
+    border-color: var(--primary-color-light);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color-light) 20%, transparent);
+}
+
+
+#task-input, .task-date-input, #add-task-btn {
+    height: 38px;
+}
 
 #add-task-btn {
-    padding: 0 18px; /* Removido padding vertical para confiar na altura explícita */
-    line-height: 38px; /* Alinha texto verticalmente com a altura */
+    padding: 0 18px;
+    line-height: 38px;
     background: var(--primary-color-dark);
     color: white;
     border: none;
@@ -2089,32 +2098,42 @@ body.light .loader::after {
 /* Visual Mode Specific Styles */
 body.theme-mode-focus {
     --body-bg-dark: #0A0A0A;
-    --card-bg-dark: rgba(255, 255, 255, 0.05);
-    --header-bg-dark: rgba(255, 255, 255, 0.05);
+    --card-bg-dark: rgba(40, 40, 42, 0.75);
+    --card-solid-bg-dark: #121212;
+    --header-bg-dark: var(--card-bg-dark);
     --body-bg-light: #EFEFEF;
     --card-bg-light: #FAFAFA;
-    --header-bg-light: #FAFAFA;
+    --header-bg-light: var(--card-bg-light);
 }
 
 body.theme-mode-night {
     --body-bg-dark: #000000;
     --card-bg-dark: #101010;
+    --card-solid-bg-dark: #0D0D0D;
     --card-border-dark: #1F1F1F;
-    --header-bg-dark: #101010;
-    --header-border-dark: #1F1F1F;
+    --header-bg-dark: var(--card-bg-dark);
+    --header-border-dark: var(--card-border-dark);
 
     --body-bg-light: #E0E0E0;
     --card-bg-light: #F0F0F0;
     --card-border-light: #D8D8D8;
-    --header-bg-light: #F0F0F0;
-    --header-border-light: #D8D8D8;
+    --header-bg-light: var(--card-bg-light);
+    --header-border-light: var(--card-border-light);
 }
 
 body.theme-mode-motivational {
-    --body-bg-dark: linear-gradient(180deg, color-mix(in srgb, var(--primary-color-dark) 20%, #020306) 0%, #020306 30%);
+    --body-bg-dark: #020306;
     --card-border-dark: var(--primary-color-dark);
+    --card-solid-bg-dark: #1A1A1D;
     --body-bg-light: linear-gradient(180deg, color-mix(in srgb, var(--primary-color-light) 20%, #f4f4f4) 0%, #f4f4f4 30%);
     --card-border-light: var(--primary-color-light);
+}
+
+body.theme-mode-motivational .header {
+    border-color: var(--primary-color-dark);
+}
+body.light.theme-mode-motivational .header {
+    border-color: var(--primary-color-light);
 }
 
 
@@ -2338,23 +2357,22 @@ body.theme-mode-motivational {
     }
 
     #task-form {
-        flex-wrap: nowrap; /* Evita quebra de linha em telas médias */
+        flex-wrap: nowrap;
     }
-    #task-input {
+    #task-input, .task-date-input.flatpickr-input {
         padding: 9px;
         font-size: 0.95rem;
-        flex-basis: auto; /* Reseta para comportamento padrão */
+        flex-basis: auto;
+        height: 36px;
     }
-    .task-date-input {
-         padding: 9px 10px;
-         font-size: 0.9rem;
+    .task-date-input.flatpickr-input {
          flex-basis: 140px;
-         height: 36px; /* Altura do #task-input neste breakpoint */
+         padding-right: 30px;
     }
     #add-task-btn {
         padding: 0 18px;
         font-size: 0.9rem;
-        line-height: 36px; /* Altura do #task-input neste breakpoint */
+        line-height: 36px;
     }
 
     #task-list {
@@ -2595,38 +2613,39 @@ body.theme-mode-motivational {
     }
 
      #task-form {
-        flex-wrap: wrap; /* Permite quebra em telas menores */
+        flex-wrap: wrap;
     }
     #task-input {
-        flex-basis: calc(100% - 130px - 10px); /* Input de texto tenta ocupar o espaço restante na primeira linha */
-        min-width: 120px; /* Garante um mínimo */
+        flex-basis: calc(100% - 140px - 10px);
+        min-width: 120px;
     }
-    .task-date-input {
-        flex-basis: 130px; /* Largura fixa para data */
+    .task-date-input.flatpickr-input {
+        flex-basis: 140px;
+        height: 38px;
     }
      #add-task-btn {
-        flex-basis: auto; /* Botão com largura natural */
+        flex-basis: auto;
     }
 }
 
-@media (max-width: 520px) { /* Ajuste para telas menores onde o form pode quebrar */
+@media (max-width: 520px) {
     #task-form {
         flex-direction: column;
-        align-items: stretch; /* Inputs ocupam largura total */
+        align-items: stretch;
     }
     #task-input,
-    .task-date-input,
+    .task-date-input.flatpickr-input,
     #add-task-btn {
         width: 100%;
-        max-width: none; /* Remove max-width para ocupar tudo */
+        max-width: none;
         flex-basis: auto;
-        margin-bottom: 8px; /* Espaço entre os itens empilhados */
+        margin-bottom: 8px;
     }
     #add-task-btn {
-        margin-bottom: 0; /* Último item não precisa de margem inferior */
+        margin-bottom: 0;
     }
-    .task-date-input {
-        height: 38px; /* Mantém altura consistente */
+    .task-date-input.flatpickr-input {
+        height: 38px;
     }
 }
 
@@ -2648,14 +2667,12 @@ body.theme-mode-motivational {
         height: 56px;
         margin-bottom: 15px;
         border-radius: 0 0 12px 12px;
-        background: var(--header-bg-dark);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
 
     body.light .header {
-        background: var(--header-bg-light);
         border-bottom: 1px solid var(--header-border-light);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
@@ -2865,16 +2882,15 @@ body.theme-mode-motivational {
         font-size: 0.8rem;
     }
 
-    /* #task-form já está flex-direction: column; de @media (max-width: 520px) */
-    #task-input, .task-date-input, #add-task-btn {
-        font-size: 0.9rem; /* Consistência */
+    #task-input, .task-date-input.flatpickr-input, #add-task-btn {
+        font-size: 0.9rem;
     }
-    .task-date-input {
-        padding: 9px 10px; /* Ajuste padding para consistência */
+    .task-date-input.flatpickr-input {
+        padding: 9px 30px 9px 10px;
     }
     #add-task-btn {
-        padding: 10px 15px; /* Padding ajustado */
-        line-height: normal; /* Reset line-height */
+        padding: 10px 15px;
+        line-height: normal;
     }
 
 
@@ -2998,45 +3014,268 @@ body.light .footer-link {
     color: var(--primary-color-light);
 }
 
+
+
+/* ESTILOS PARA FLATPICKR */
+.flatpickr-calendar {
+    background: var(--card-solid-bg-dark, #282a2e);
+    border: 1px solid var(--card-border-dark, rgba(255, 255, 255, 0.2));
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    color: var(--text-color-dark, #e0e0e0);
+    font-family: inherit;
+}
+body.light .flatpickr-calendar {
+    background: var(--card-bg-light, #ffffff);
+    border-color: var(--card-border-light, #d1d1d1);
+    color: var(--text-color-light, #333333);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+}
+
+.flatpickr-weekday {
+    color: var(--text-color-dark) !important;
+    opacity: 0.85 !important;
+    font-weight: 600 !important;
+}
+body.light .flatpickr-weekday {
+    color: var(--text-muted-light) !important;
+    opacity: 1 !important;
+    font-weight: 500 !important;
+}
+
+.flatpickr-day {
+    color: var(--text-muted-dark);
+    border-radius: 50%;
+    transition: background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+    border: 1px solid transparent;
+}
+body.light .flatpickr-day {
+    color: var(--text-muted-light);
+}
+
+.flatpickr-day:hover,
+.flatpickr-day.flatpickr-focused {
+    background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent);
+    border-color: var(--primary-color-dark);
+    color: var(--primary-color-dark);
+}
+body.light .flatpickr-day:hover,
+body.light .flatpickr-day.flatpickr-focused {
+    background: color-mix(in srgb, var(--primary-color-light) 20%, transparent);
+    border-color: var(--primary-color-light);
+    color: var(--primary-color-light);
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.today.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+    background: var(--primary-color-dark) !important;
+    border-color: var(--primary-color-dark) !important;
+    color: white !important;
+    box-shadow: none !important;
+}
+body.light .flatpickr-day.selected,
+body.light .flatpickr-day.today.selected,
+body.light .flatpickr-day.startRange,
+body.light .flatpickr-day.endRange {
+    background: var(--primary-color-light) !important;
+    border-color: var(--primary-color-light) !important;
+    color: white !important;
+}
+
+.flatpickr-day.today {
+    border-color: var(--primary-color-dark) !important;
+    color: var(--primary-color-dark) !important;
+    background: transparent !important;
+}
+.flatpickr-day.today:hover {
+    background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent) !important;
+    color: var(--primary-color-dark) !important;
+    border-color: var(--primary-color-dark) !important;
+}
+body.light .flatpickr-day.today {
+    border-color: var(--primary-color-light) !important;
+    color: var(--primary-color-light) !important;
+    background: transparent !important;
+}
+body.light .flatpickr-day.today:hover {
+    background: color-mix(in srgb, var(--primary-color-light) 20%, transparent) !important;
+    color: var(--primary-color-light) !important;
+    border-color: var(--primary-color-light) !important;
+}
+
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+  color: var(--text-muted-dark);
+  opacity: 0.4;
+}
+body.light .flatpickr-day.prevMonthDay,
+body.light .flatpickr-day.nextMonthDay {
+  color: var(--text-muted-light);
+  opacity: 0.4;
+}
+
+.flatpickr-months .flatpickr-month {
+    color: var(--text-color-dark);
+    fill: var(--text-color-dark);
+    height: 38px;
+}
+body.light .flatpickr-months .flatpickr-month {
+    color: var(--text-color-light);
+    fill: var(--text-color-light);
+}
+
+.flatpickr-monthDropdown-months {
+    background: var(--card-solid-bg-dark, #282a2e) !important;
+    border: 1px solid var(--card-border-dark, rgba(255,255,255,0.2)) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    padding: 4px !important;
+    max-height: 220px;
+    overflow-y: auto;
+}
+body.light .flatpickr-monthDropdown-months {
+    background: var(--card-bg-light, #fff) !important;
+    border-color: var(--card-border-light, #d1d1d1) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+
+.flatpickr-monthDropdown-month {
+    color: var(--text-color-dark) !important;
+    padding: 6px 10px !important;
+    border-radius: 4px !important;
+    margin: 0px 2px !important;
+    line-height: 1.5;
+}
+body.light .flatpickr-monthDropdown-month {
+    color: var(--text-color-light) !important;
+}
+
+.flatpickr-monthDropdown-month:hover {
+    background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent) !important; /* Hover mais suave */
+    color: var(--primary-color-dark) !important;
+}
+body.light .flatpickr-monthDropdown-month:hover {
+    background: color-mix(in srgb, var(--primary-color-light) 15%, var(--card-bg-light)) !important;
+    color: var(--primary-color-light) !important;
+}
+
+.flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected,
+span.flatpickr-monthDropdown-month:focus,
+span.flatpickr-monthDropdown-month.flatpickr-current-month
+{
+    background: var(--primary-color-dark) !important;
+    color: white !important;
+    border-radius: 4px !important;
+}
+body.light .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected,
+body.light span.flatpickr-monthDropdown-month:focus,
+body.light span.flatpickr-monthDropdown-month.flatpickr-current-month
+{
+    background: var(--primary-color-light) !important;
+    color: white !important;
+}
+
+
+.flatpickr-current-month input.cur-year {
+    color: var(--text-color-dark);
+    font-weight: bold;
+}
+body.light .flatpickr-current-month input.cur-year {
+    color: var(--text-color-light);
+}
+
+.flatpickr-months .flatpickr-prev-month svg,
+.flatpickr-months .flatpickr-next-month svg {
+    fill: var(--text-color-dark);
+    opacity: 0.8;
+    width: 16px;
+    height: 16px;
+}
+body.light .flatpickr-months .flatpickr-prev-month svg,
+body.light .flatpickr-months .flatpickr-next-month svg {
+    fill: var(--text-color-light);
+    opacity: 0.8;
+}
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
+    fill: var(--primary-color-dark);
+    opacity: 1;
+}
+body.light .flatpickr-months .flatpickr-prev-month:hover svg,
+body.light .flatpickr-months .flatpickr-next-month:hover svg {
+    fill: var(--primary-color-light);
+    opacity: 1;
+}
+
+.flatpickr-input[readonly] {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+body.light .flatpickr-input[readonly] {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.flatpickr-calendar.dark {
+    background: var(--card-solid-bg-dark, #19191c);
+    border-color: var(--card-border-dark, rgba(255, 255, 255, 0.15));
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
+.flatpickr-calendar.light {
+    background: var(--card-bg-light, #ffffff);
+    border-color: var(--card-border-light, #e0e0e0);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+
+/* SCROLLBAR STYLES */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
-
 ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--scrollbar-track-bg-dark); /* Usando variável global */
     border-radius: 10px;
 }
-
 body.light ::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.08);
+    background: var(--scrollbar-track-bg-light); /* Usando variável global */
 }
-
 ::-webkit-scrollbar-thumb {
-    background-color: var(--primary-color-dark);
+    background-color: var(--scrollbar-thumb-bg-dark); /* Usando variável global */
     border-radius: 10px;
     border: 2px solid transparent;
     background-clip: content-box;
 }
-
 body.light ::-webkit-scrollbar-thumb {
-    background-color: var(--primary-color-light);
+    background-color: var(--scrollbar-thumb-bg-light); /* Usando variável global */
 }
-
 ::-webkit-scrollbar-thumb:hover {
-    background-color: color-mix(in srgb, var(--primary-color-dark) 80%, #000000);
+    background-color: color-mix(in srgb, var(--scrollbar-thumb-bg-dark) 80%, #000000);
 }
-
 body.light ::-webkit-scrollbar-thumb:hover {
-    background-color: color-mix(in srgb, var(--primary-color-light) 80%, #ffffff);
+    background-color: color-mix(in srgb, var(--scrollbar-thumb-bg-light) 80%, #ffffff);
 }
 
 html {
     scrollbar-width: thin;
-    scrollbar-color: var(--primary-color-dark) rgba(255, 255, 255, 0.08);
+    scrollbar-color: var(--scrollbar-thumb-bg-dark) var(--scrollbar-track-bg-dark); /* Usando variáveis globais */
+}
+body.light { /* Para Firefox no modo claro */
+    scrollbar-color: var(--scrollbar-thumb-bg-light) var(--scrollbar-track-bg-light);
 }
 
-html.light-theme-active,
-body.light {
-    scrollbar-color: var(--primary-color-light) rgba(0, 0, 0, 0.08);
+/* Scrollbar para o tema "Energia Vibrante" no modo escuro */
+body.theme-mode-motivational:not(.light) {
+    /* Para Firefox */
+    scrollbar-color: var(--primary-color-dark) color-mix(in srgb, var(--primary-color-dark) 5%, #020306 95%) !important;
+}
+body.theme-mode-motivational:not(.light)::-webkit-scrollbar-track {
+    background: color-mix(in srgb, var(--primary-color-dark) 5%, #020306 95%) !important; /* Track com um leve toque da cor primária */
+}
+body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color-dark) !important; /* Thumb na cor primária */
+}
+body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, var(--primary-color-dark) 80%, black) !important; /* Hover no thumb */
 }
