@@ -12,7 +12,7 @@
 
 Taskify é um dashboard responsivo e personalizável para acompanhamento de metas, gerenciamento de tarefas e sessões de foco com timer Pomodoro. Todos os dados são salvos localmente no seu navegador.
 
-**👉** [Acesse a Demo](https://taskify-wine.vercel.app/)
+**👉** [Acesse a Demo](https://taskify-fabinxz.vercel.app/)
 
 ## 🚀 Funcionalidades Principais
 
