@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taskify</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/retrospective.css">
 
@@ -13,11 +15,9 @@
     <script>
         
         (function () {
-            // Função auxiliar para converter HEX para RGB, similar à do script.js
-            // Colocada aqui para ser autossuficiente, pois o script.js principal pode não ter sido carregado ainda.
             function hexToRgbArrayInline(hex) {
                 if (!hex || typeof hex !== 'string') return null;
-                let c = hex.startsWith('#') ? hex.substring(1) : hex.trim(); // Remove '#' e espaços
+                let c = hex.startsWith('#') ? hex.substring(1) : hex.trim();
                 if (c.length === 3) {
                     c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
                 }
@@ -41,11 +41,10 @@
                 const savedPrimaryColor = localStorage.getItem('taskify-primary-color');
                 const savedTheme = localStorage.getItem('taskify-theme');
                 const docElement = document.documentElement;
-                const defaultPrimaryColor = '#0A7CFF'; // Cor primária padrão do sistema
+                const defaultPrimaryColor = '#0A7CFF';
                 
                 let colorToApply = savedPrimaryColor || defaultPrimaryColor;
 
-                // Garante que colorToApply é um HEX válido antes de tentar converter
                 if (!/^#[0-9A-F]{6}$/i.test(colorToApply) && !/^#[0-9A-F]{3}$/i.test(colorToApply)) {
                     console.warn(`Cor primária salva inválida ('${savedPrimaryColor}'), usando padrão.`);
                     colorToApply = defaultPrimaryColor;
@@ -60,7 +59,6 @@
                     docElement.style.setProperty('--primary-color-light-rgb', rgbString);
                     docElement.style.setProperty('--primary-color-dark-rgb', rgbString);
                 } else {
-                    // Fallback para RGB da cor padrão se a conversão falhar
                     console.warn(`Falha ao converter '${colorToApply}' para RGB, usando RGB padrão.`);
                     const defaultRgbArray = hexToRgbArrayInline(defaultPrimaryColor);
                     if (defaultRgbArray) {
@@ -114,9 +112,6 @@
                 <button class="btn-icon-nav" id="btn-open-themes" aria-label="Personalizar Aparência" onclick="openThemesModal()">
                     <i class="bi bi-palette-fill"></i>
                 </button>
-                <!-- <button class="btn-icon-nav" id="btn-open-guide" aria-label="Abrir guia rápido">
-                    <i class="bi bi-question-circle"></i>
-                </button> -->
                 <button class="theme-toggle-btn" id="theme-toggle" aria-label="Alternar tema" onclick="toggleTheme()">
                     <i id="theme-icon" class="bi bi-moon-fill"></i>
                 </button>
@@ -275,7 +270,8 @@
                     </div>
                     <form id="task-form">
                         <input type="text" id="task-input" placeholder="Adicione nova tarefa...">
-                        <input type="date" id="task-assigned-date" class="task-date-input"> <!-- NOVO CAMPO DE DATA -->
+                        <!-- ABAIXO: input alterado de type="date" para type="text" para Flatpickr -->
+                        <input type="text" id="task-assigned-date" class="task-date-input" placeholder="DD/MM/AAAA">
                         <button type="submit" id="add-task-btn" class="btn-primary">Adicionar</button>
                     </form>
                     <ul id="task-list">
@@ -431,7 +427,7 @@
                     <input type="checkbox" id="pomodoro-auto-start-focus-checkbox">
                     <label for="pomodoro-auto-start-focus-checkbox">Iniciar foco automaticamente após pausas?</label>
                 </div>
-                <div class="form-group-checkbox"> <!-- NOVA OPÇÃO -->
+                <div class="form-group-checkbox">
                     <input type="checkbox" id="pomodoro-enable-sound-checkbox">
                     <label for="pomodoro-enable-sound-checkbox">Ativar sons de notificação?</label>
                 </div>
@@ -515,6 +511,9 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script> <!-- Tradução para Português -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="js/script.js" defer></script>
     <script src="js/retrospective.js" defer></script> 
