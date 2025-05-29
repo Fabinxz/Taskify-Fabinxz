@@ -4208,11 +4208,72 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
 
 
 #recurring-patterns-list {
-    flex-grow: 1;     /* Permite que a lista cresça para ocupar o espaço disponível */
-    min-height: 0;    /* Essencial para permitir que o item flex encolha abaixo do seu conteúdo mínimo */
-    overflow-y: auto; /* Garante o scroll vertical apenas para a lista (já estava no seu CSS) */
-    max-height: 120px; /* Esta regra (já existente) limita a altura máxima da lista.
-                           Se o conteúdo da lista exceder 220px, ela terá scroll interno.
-                           Se o espaço disponível no modal for menor que 220px + altura dos outros elementos,
-                           o min-height: 0 e flex-grow: 1 permitirão que ela se ajuste. */
+    flex-grow: 1;
+    min-height: 0;
+    overflow-y: auto;
+    max-height: 120px;
+}
+
+/* Correção APRIMORADA para inputs de data no modal de tarefas recorrentes em modo claro */
+body.light #recurring-task-modal .task-date-input.flatpickr-input,
+body.light #recurring-task-modal #recurring-task-start-date,
+body.light #recurring-task-modal #recurring-task-end-date {
+    background-color: var(--card-bg-light); /* Usar um fundo sólido como os outros inputs no modo claro */
+    border-color: var(--card-border-light);
+    color: var(--text-color-light);
+    /* Garante que o ícone correto do modo claro seja usado, herdado da regra geral de .task-date-input.flatpickr-input */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555555' class='bi bi-calendar-event' viewBox='0 0 16 16'%3E%3Cpath d='M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z'/%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z'/%3E%3C/svg%3E");
+}
+
+body.light #recurring-task-modal .task-date-input.flatpickr-input::placeholder,
+body.light #recurring-task-modal #recurring-task-start-date::placeholder,
+body.light #recurring-task-modal #recurring-task-end-date::placeholder {
+    color: var(--text-muted-light);
+    opacity: 1;
+}
+
+body.light #recurring-task-modal .task-date-input.flatpickr-input:focus,
+body.light #recurring-task-modal #recurring-task-start-date:focus,
+body.light #recurring-task-modal #recurring-task-end-date:focus {
+    border-color: var(--primary-color-light);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color-light) 20%, transparent);
+    background-color: var(--card-bg-light); /* Manter o fundo sólido no foco */
+}
+
+
+/* Correção DEFINITIVA para inputs de data no modal de tarefas recorrentes em modo claro */
+body.light #recurring-task-modal .task-date-input.flatpickr-input,
+body.light #recurring-task-modal #recurring-task-start-date.form-input.task-date-input.flatpickr-input,
+body.light #recurring-task-modal #recurring-task-end-date.form-input.task-date-input.flatpickr-input {
+    /* Define um background sólido e o ícone, sobrescrevendo qualquer transparência herdada */
+    background: var(--card-bg-light) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555555' class='bi bi-calendar-event' viewBox='0 0 16 16'%3E%3Cpath d='M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z'/%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z'/%3E%3C/svg%3E") no-repeat right 10px center;
+    background-size: 16px 16px; /* Importante re-declarar após o shorthand 'background' */
+    border: 1px solid var(--card-border-light);
+    color: var(--text-color-light);
+    -webkit-appearance: none; /* Remove estilos padrão do navegador */
+    -moz-appearance: none;
+    appearance: none;
+    padding: 9px 30px 9px 10px; /* Garante o padding correto */
+    font-size: 0.9rem; /* Garante o tamanho da fonte correto */
+    border-radius: 8px; /* Garante o border-radius correto */
+    height: 38px; /* Garante a altura correta */
+    box-shadow: none; /* Remove qualquer box-shadow herdado que possa causar problemas */
+    text-shadow: none; /* Remove qualquer text-shadow */
+}
+
+body.light #recurring-task-modal .task-date-input.flatpickr-input::placeholder,
+body.light #recurring-task-modal #recurring-task-start-date.form-input.task-date-input.flatpickr-input::placeholder,
+body.light #recurring-task-modal #recurring-task-end-date.form-input.task-date-input.flatpickr-input::placeholder {
+    color: var(--text-muted-light);
+    opacity: 1;
+}
+
+body.light #recurring-task-modal .task-date-input.flatpickr-input:focus,
+body.light #recurring-task-modal #recurring-task-start-date.form-input.task-date-input.flatpickr-input:focus,
+body.light #recurring-task-modal #recurring-task-end-date.form-input.task-date-input.flatpickr-input:focus {
+    border-color: var(--primary-color-light);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color-light) 20%, transparent);
+    /* Mantém o background sólido e o ícone no foco */
+    background: var(--card-bg-light) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555555' class='bi bi-calendar-event' viewBox='0 0 16 16'%3E%3Cpath d='M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z'/%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z'/%3E%3C/svg%3E") no-repeat right 10px center;
+    background-size: 16px 16px;
 }
