@@ -2118,7 +2118,6 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
 </file>
 
 <file path="css/style.css">
-/* css/style.css */
 :root {
     --nav-icon-btn-color-light: #333;
     --nav-icon-btn-color-dark: #fff;
@@ -2133,8 +2132,10 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
     --pomodoro-break-color-light: color-mix(in srgb, var(--primary-color-light) 65%, #666666 35%);
     --task-delete-btn-hover-bg-dark: rgba(255, 59, 48, 0.2);
     --task-delete-btn-hover-color-dark: #FF3B30;
+    --task-delete-btn-hover-color-dark-rgb: 255, 59, 48; /* Adicionado para warning */
     --task-delete-btn-hover-bg-light: rgba(220, 0, 0, 0.1);
     --task-delete-btn-hover-color-light: #D90000;
+    --task-delete-btn-hover-color-light-rgb: 220, 0, 0; /* Adicionado para warning */
     --body-bg-dark: #020306;
     --card-solid-bg-dark: #1C1C1E;
     --card-bg-dark: rgba(30, 32, 37, 0.75);
@@ -2145,6 +2146,7 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
     --header-border-dark: var(--card-border-dark);
 
     --body-bg-light: #f4f4f4;
+    --card-solid-bg-light: #ffffff; /* Adicionado para consistência */
     --card-bg-light: #ffffff;
     --card-border-light: #e8e8e8;
     --text-color-light: #222;
@@ -2198,6 +2200,7 @@ body.modal-open {
 
 body.modal-open .header {
     z-index: 998;
+    /* Abaixo do overlay do modal */
 }
 
 body.retrospective-open {
@@ -2220,7 +2223,9 @@ input[type="color"],
 #add-task-btn,
 .palette-btn,
 .mode-btn,
-.custom-alert-ok-btn {
+.custom-alert-ok-btn,
+.delete-option-card,
+.btn-icon-recurring {
     cursor: pointer;
 }
 
@@ -2455,6 +2460,10 @@ body.light .scroll-indicator {
     align-items: stretch;
     width: 100%;
     max-width: 100%;
+    /* Adicionado para animação */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
 
 .productivity-focus-area.visible {
@@ -2680,6 +2689,7 @@ body.light .card-subtitle {
     border-radius: 4px;
     overflow: hidden;
     margin-top: 0;
+    /* Já estava 0, mantido */
 }
 
 body.light .progress-bar-horizontal {
@@ -2800,6 +2810,7 @@ body.light .activity-value {
 }
 
 .chart-container {
+    /* Mantido para gráfico de atividade semanal */
     height: 200px;
     position: relative;
     overflow: hidden;
@@ -2887,6 +2898,7 @@ body.light .counter-display {
 .tasks-section-wrapper {
     flex: 1 1 0;
     min-width: 0;
+    /* Para garantir que o flex item possa encolher */
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -2896,7 +2908,9 @@ body.light .counter-display {
 .tasks-section {
     flex-grow: 1;
     flex-shrink: 0;
+    /* Permite que encolham se necessário, mas tentam manter o tamanho */
     flex-basis: auto;
+    /* Tamanho base automático */
     border-radius: 16px;
     padding: 24px;
     background: var(--card-bg-dark);
@@ -2909,7 +2923,9 @@ body.light .counter-display {
     display: flex;
     flex-direction: column;
     width: 100%;
+    /* Garante que ocupem a largura do wrapper */
     box-sizing: border-box;
+    /* Para padding não afetar a largura total */
 }
 
 body.light .pomodoro-section,
@@ -2971,6 +2987,7 @@ body.light .pomodoro-section .pomodoro-settings-btn:hover {
     font-size: 5.5rem;
     font-weight: 700;
     margin: 10px 0 10px 0;
+    /* Ajustado para reduzir espaço se necessário */
     line-height: 1;
     color: var(--pomodoro-focus-color);
     transition: color 0.3s ease;
@@ -2990,6 +3007,7 @@ body.light .pomodoro-timer-display.break-mode {
     color: var(--text-muted-dark);
     margin-bottom: 15px;
     min-height: 1.5em;
+    /* Para evitar saltos de layout */
 }
 
 body.light .pomodoro-section .pomodoro-status {
@@ -3073,6 +3091,7 @@ body.light .pomodoro-controls .btn-reset:hover {
     font-size: 0.9rem;
     color: var(--text-muted-dark);
     margin-top: 10px;
+    /* Ajustado para reduzir espaço se necessário */
 }
 
 body.light .pomodoro-section .pomodoro-cycles {
@@ -3112,6 +3131,23 @@ body.light .tasks-section .tasks-title {
     color: var(--text-color-light);
 }
 
+.tasks-header-actions {
+    /* NOVO */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* Espaçamento entre o botão de recorrentes e o contador */
+}
+
+.tasks-header-actions .btn-icon-nav {
+    /* Ajuste para o botão dentro do header de tarefas */
+    padding: 6px;
+    /* Um pouco menor que os botões do header principal */
+    font-size: 1.3rem;
+    /* Tamanho do ícone */
+}
+
+
 .tasks-counter {
     font-size: 0.9rem;
     color: var(--text-muted-dark);
@@ -3136,7 +3172,9 @@ body.light .tasks-section .tasks-counter {
 #task-input {
     flex-grow: 1;
     flex-basis: 200px;
+    /* Base para responsividade */
     min-width: 150px;
+    /* Mínimo para não quebrar muito */
     padding: 10px 12px;
     border: 1px solid var(--card-border-dark);
     border-radius: 8px;
@@ -3166,35 +3204,46 @@ body.light .tasks-section #task-input::placeholder {
     border-color: var(--primary-color-dark);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color-dark) 20%, transparent);
     background: var(--card-bg-dark);
+    /* Ajuste para tema escuro */
 }
 
 body.light #task-input:focus {
     border-color: var(--primary-color-light);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color-light) 20%, transparent);
     background: var(--card-bg-light);
+    /* Ajuste para tema claro */
 }
 
 .task-date-input.flatpickr-input {
+    /* Estilo genérico para inputs de data com flatpickr */
     padding: 9px 30px 9px 10px;
+    /* Espaço para o ícone */
     border: 1px solid var(--card-border-dark);
     border-radius: 8px;
     background-color: rgba(0, 0, 0, 0.1);
     color: var(--text-color-dark);
     font-size: 0.9rem;
     line-height: normal;
+    /* Para alinhar verticalmente */
     height: 38px;
+    /* Altura consistente com outros inputs */
     flex-shrink: 0;
+    /* Não encolher */
     flex-basis: 140px;
+    /* Tamanho base */
     min-width: 130px;
+    /* Mínimo */
     transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
     font-family: inherit;
     box-sizing: border-box;
     cursor: pointer;
+    /* Ícone de calendário como background */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23cccccc' class='bi bi-calendar-event' viewBox='0 0 16 16'%3E%3Cpath d='M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z'/%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 16px 16px;
 }
+
 body.light .task-date-input.flatpickr-input {
     background-color: rgba(255, 255, 255, 0.5);
     border-color: var(--card-border-light);
@@ -3206,6 +3255,7 @@ body.light .task-date-input.flatpickr-input {
     color: var(--text-muted-dark);
     opacity: 0.8;
 }
+
 body.light .task-date-input.flatpickr-input::placeholder {
     color: var(--text-muted-light);
 }
@@ -3215,19 +3265,25 @@ body.light .task-date-input.flatpickr-input::placeholder {
     border-color: var(--primary-color-dark);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color-dark) 20%, transparent);
 }
+
 body.light .task-date-input.flatpickr-input:focus {
     border-color: var(--primary-color-light);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color-light) 20%, transparent);
 }
 
 
-#task-input, .task-date-input, #add-task-btn {
+#task-input,
+.task-date-input,
+#add-task-btn {
     height: 38px;
+    /* Consistência na altura */
 }
 
 #add-task-btn {
     padding: 0 18px;
+    /* Ajustado para caber texto */
     line-height: 38px;
+    /* Para alinhar texto verticalmente */
     background: var(--primary-color-dark);
     color: white;
     border: none;
@@ -3236,6 +3292,7 @@ body.light .task-date-input.flatpickr-input:focus {
     font-weight: 600;
     transition: opacity 0.2s ease, transform 0.15s ease;
     flex-shrink: 0;
+    /* Não encolher */
 }
 
 body.light #add-task-btn {
@@ -3257,22 +3314,29 @@ body.light #add-task-btn {
     padding: 0;
     margin: 0;
     flex-grow: 1;
+    /* Para ocupar espaço disponível */
     overflow-y: auto;
+    /* Scroll se necessário */
     padding-right: 5px;
+    /* Espaço para scrollbar */
     min-height: 50px;
+    /* Altura mínima para visualização */
     height: 0;
+    /* Truque para flex-grow funcionar corretamente com min-height */
 }
 
 .task-item {
     display: flex;
     align-items: center;
     padding: 12px 5px 12px 0;
+    /* Ajuste para não cortar borda */
     border-bottom: 1px solid var(--card-border-dark);
     transition: background-color 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease;
     cursor: grab;
 }
 
 .task-item:active {
+    /* Durante o arrasto */
     cursor: grabbing;
 }
 
@@ -3292,37 +3356,49 @@ body.light .tasks-section .task-item:hover {
     background-color: rgba(0, 0, 0, 0.02);
 }
 
+/* Estilo para item sendo arrastado */
 .task-item.dragging {
     opacity: 0.5;
     background-color: var(--primary-color-dark) !important;
     color: white !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
+
 body.light .task-item.dragging {
     background-color: var(--primary-color-light) !important;
 }
+
+/* Garante que texto e ícones dentro do item arrastado também fiquem brancos */
 .task-item.dragging .task-item-text,
 .task-item.dragging .task-item-delete-btn,
 .task-item.dragging .task-item-checkbox {
     color: white !important;
     border-color: white !important;
+    /* Para o checkbox */
 }
+
 .task-item.dragging .task-item-checkbox:checked::before {
     color: var(--primary-color-dark);
+    /* Cor do checkmark quando o fundo é a cor primária */
 }
+
 body.light .task-item.dragging .task-item-checkbox:checked::before {
     color: var(--primary-color-light);
 }
 
 
+/* Placeholder para local de drop */
 .drag-over-placeholder {
     height: 2px;
     background-color: var(--primary-color-dark);
     opacity: 0.7;
     margin: 6px 0;
+    /* Espaçamento visual */
     list-style: none;
+    /* Remove marcador de lista */
     border-radius: 1px;
 }
+
 body.light .drag-over-placeholder {
     background-color: var(--primary-color-light);
 }
@@ -3335,6 +3411,7 @@ body.light .drag-over-placeholder {
     accent-color: var(--primary-color-dark);
     cursor: pointer;
     flex-shrink: 0;
+    /* Estilo customizado para checkbox */
     appearance: none;
     -webkit-appearance: none;
     background-color: transparent;
@@ -3370,12 +3447,14 @@ body.light .tasks-section .task-item-checkbox:checked {
 .task-item-checkbox:checked::before {
     content: '✔';
     font-size: 12px;
+    /* Ajuste para caber no checkbox */
     color: white;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     line-height: 1;
+    /* Para melhor alinhamento vertical */
 }
 
 
@@ -3385,11 +3464,36 @@ body.light .tasks-section .task-item-checkbox:checked {
     color: var(--text-color-dark);
     transition: color 0.3s ease, opacity 0.3s ease;
     word-break: break-word;
+    /* Para quebrar palavras longas */
     line-height: 1.4;
     position: relative;
+    /* Para o after do strike-through */
     display: flex;
+    /* Para alinhar ícone de recorrência com texto */
     align-items: center;
+    /* Alinha ícone verticalmente */
 }
+
+.task-recurring-icon {
+    /* NOVO: Ícone para tarefa recorrente */
+    font-size: 0.9em;
+    /* Um pouco menor que o texto da tarefa */
+    color: var(--primary-color-dark);
+    margin-right: 8px;
+    /* Espaço entre ícone e texto */
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+body.light .task-recurring-icon {
+    color: var(--primary-color-light);
+}
+
+.task-item.completed .task-recurring-icon {
+    /* Ícone em tarefa completada */
+    opacity: 0.4;
+}
+
 
 .task-assigned-date-indicator {
     font-size: 0.75em;
@@ -3400,7 +3504,9 @@ body.light .tasks-section .task-item-checkbox:checked {
     margin-left: 8px;
     font-style: italic;
     white-space: nowrap;
+    /* Evita quebrar a data */
 }
+
 body.light .task-assigned-date-indicator {
     color: var(--text-muted-light);
     background-color: rgba(0, 0, 0, 0.03);
@@ -3421,6 +3527,7 @@ body.light .tasks-section .task-item.completed .task-item-text {
     color: var(--text-muted-light);
 }
 
+/* Efeito de linha cortada para tarefas completas */
 .task-item.completed .task-item-text::after {
     content: '';
     position: absolute;
@@ -3430,6 +3537,7 @@ body.light .tasks-section .task-item.completed .task-item-text {
     background-color: var(--primary-color-dark);
     animation: strikeThroughAnim 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
     transform-origin: left;
+    /* Animação da esquerda para a direita */
 }
 
 body.light .task-item.completed .task-item-text::after {
@@ -3455,12 +3563,16 @@ body.light .task-item.completed .task-item-text::after {
     color: var(--text-muted-dark);
     font-size: 1.1rem;
     padding: 5px 8px;
+    /* Área de clique maior */
     margin-left: 10px;
     border-radius: 6px;
     line-height: 1;
+    /* Alinhamento do ícone */
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
     flex-shrink: 0;
+    /* Para não ser esmagado */
     opacity: 0.6;
+    /* Sutil por padrão */
 }
 
 body.light .tasks-section .task-item-delete-btn {
@@ -3469,6 +3581,7 @@ body.light .tasks-section .task-item-delete-btn {
 
 .task-item:hover .task-item-delete-btn {
     opacity: 1;
+    /* Totalmente visível no hover da tarefa */
 }
 
 .task-item-delete-btn:hover {
@@ -3491,6 +3604,7 @@ body.light .task-item-delete-btn:hover {
     font-size: 0.9rem;
     opacity: 0.7;
     flex-grow: 1;
+    /* Para centralizar se a lista estiver vazia */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3502,6 +3616,7 @@ body.light .tasks-section .task-list-empty-message {
 
 
 .chart-section {
+    /* Estilo para o container dos gráficos Pomodoro e Tarefas */
     border-radius: 16px;
     padding: 18px;
     background: var(--card-bg-dark);
@@ -3511,7 +3626,9 @@ body.light .tasks-section .task-list-empty-message {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
     color: var(--text-color-dark);
     height: 218px;
+    /* Altura fixa para consistência */
     flex-shrink: 0;
+    /* Para não encolher mais que o necessário */
     display: flex;
     flex-direction: column;
 }
@@ -3529,6 +3646,7 @@ body.light .chart-section {
     align-items: center;
     margin-bottom: 18px;
     flex-shrink: 0;
+    /* Header não deve encolher */
 }
 
 .chart-section .chart-title {
@@ -3551,8 +3669,11 @@ body.light .chart-section .chart-period-label {
 }
 
 .chart-section .chart-container {
+    /* Especificidade para os containers de gráfico dentro desta seção */
     height: 170px;
+    /* Altura do canvas */
     flex-grow: 1;
+    /* Canvas ocupa o restante do espaço */
     position: relative;
     overflow: hidden;
 }
@@ -3691,12 +3812,17 @@ body.light .modal-overlay {
     border-radius: 16px;
     padding: 32px;
     padding-top: 48px;
+    /* Espaço para botão de fechar */
     width: 90%;
     max-width: 500px;
     z-index: 1000;
     opacity: 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-height: 90vh;
+    /* Adicionado para evitar que o modal seja muito alto */
+    overflow-y: auto;
+    /* Adicionado para permitir scroll dentro do modal */
 }
 
 .modal.show {
@@ -3711,6 +3837,670 @@ body.light .modal {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     color: var(--text-color-light);
 }
+
+/* Estilos para o modal de tarefas recorrentes */
+#recurring-task-modal {
+    max-width: 580px; /* Um pouco mais largo */
+    padding: 28px;
+    padding-top: 52px; /* Mais espaço para título e fechar */
+}
+
+#recurring-task-modal .modal-title {
+    font-size: 1.75rem; /* Título maior */
+    font-weight: 700;
+    margin-bottom: 8px; /* Menos espaço abaixo do título */
+}
+body.light #recurring-task-modal .modal-title {
+    color: var(--text-color-light);
+}
+
+#recurring-task-modal .modal-subtitle-description {
+    font-size: 0.95rem;
+    color: var(--text-muted-dark);
+    margin-bottom: 24px; /* Espaço antes do formulário */
+    text-align: center;
+}
+body.light #recurring-task-modal .modal-subtitle-description {
+    color: var(--text-muted-light);
+}
+
+#recurring-task-modal .form-group {
+    margin-bottom: 18px;
+}
+
+#recurring-task-modal .form-label {
+    font-weight: 500;
+    margin-bottom: 6px;
+    display: block; /* Alterado para block */
+}
+
+.form-label-group { /* Novo container para label e hint */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.required-asterisk {
+    color: var(--task-delete-btn-hover-color-dark); /* Vermelho */
+    font-weight: bold;
+    margin-left: 2px;
+}
+body.light .required-asterisk {
+    color: var(--task-delete-btn-hover-color-light);
+}
+
+.label-hint {
+    font-size: 0.85em;
+    color: var(--text-muted-dark);
+    font-weight: normal;
+}
+body.light .label-hint {
+    color: var(--text-muted-light);
+}
+
+.form-group-inline {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.form-group-inline > .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+#recurring-task-frequency-group {
+    display: none !important;
+}
+
+
+.recurring-days-checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    background-color: transparent;
+    padding: 0;
+    border: none;
+}
+
+.recurring-days-checkbox-group label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 6px;
+    border-radius: 8px;
+    background-color: rgba(var(--primary-color-dark-rgb), 0.08);
+    border: 1px solid rgba(var(--primary-color-dark-rgb), 0.15);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    font-size: 0.9rem;
+    color: var(--text-muted-dark);
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+}
+body.light .recurring-days-checkbox-group label {
+    background-color: rgba(var(--primary-color-light-rgb), 0.08);
+    border-color: rgba(var(--primary-color-light-rgb), 0.15);
+    color: var(--text-muted-light);
+}
+
+.recurring-days-checkbox-group label:hover {
+    border-color: var(--primary-color-dark);
+    background-color: rgba(var(--primary-color-dark-rgb), 0.15);
+    color: var(--primary-color-dark);
+}
+body.light .recurring-days-checkbox-group label:hover {
+    border-color: var(--primary-color-light);
+    background-color: rgba(var(--primary-color-light-rgb), 0.15);
+    color: var(--primary-color-light);
+}
+
+.recurring-days-checkbox-group input[type="checkbox"] {
+    display: none;
+}
+
+.recurring-days-checkbox-group label.checked {
+    background-color: var(--primary-color-dark) !important;
+    border-color: var(--primary-color-dark) !important;
+    color: white !important;
+}
+body.light .recurring-days-checkbox-group label.checked {
+    background-color: var(--primary-color-light) !important;
+    border-color: var(--primary-color-light) !important;
+    color: white !important;
+}
+
+.form-info-notice { /* Novo para a caixa de informação */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background-color: rgba(var(--primary-color-dark-rgb), 0.1);
+    border: 1px solid rgba(var(--primary-color-dark-rgb), 0.2);
+    font-size: 0.85rem;
+    color: var(--text-muted-dark);
+    margin-top: 12px; /* Espaço acima */
+    margin-bottom: 20px; /* Espaço abaixo antes dos botões */
+}
+body.light .form-info-notice {
+    background-color: rgba(var(--primary-color-light-rgb), 0.1);
+    border-color: rgba(var(--primary-color-light-rgb), 0.2);
+    color: var(--text-muted-light);
+}
+.form-info-notice i {
+    font-size: 1.2rem;
+    color: var(--primary-color-dark);
+    flex-shrink: 0;
+}
+body.light .form-info-notice i {
+    color: var(--primary-color-light);
+}
+.form-info-notice span {
+    line-height: 1.4;
+}
+
+
+.recurring-task-divider {
+    margin: 28px 0 20px 0;
+    border-color: var(--card-border-dark);
+    opacity: 0.5;
+}
+body.light .recurring-task-divider {
+    border-color: var(--card-border-light);
+}
+
+.recurring-patterns-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--card-border-dark);
+}
+body.light .recurring-patterns-header {
+    border-bottom-color: var(--card-border-light);
+}
+
+.recurring-patterns-header .modal-subtitle { /* Reutilizando modal-subtitle para o título aqui */
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0;
+    color: var(--text-color-dark);
+}
+body.light .recurring-patterns-header .modal-subtitle {
+    color: var(--text-color-light);
+}
+
+.recurring-patterns-count {
+    font-size: 0.9rem;
+    color: var(--text-muted-dark);
+    font-weight: 500;
+    background-color: rgba(var(--primary-color-dark-rgb), 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+body.light .recurring-patterns-count {
+    color: var(--text-muted-light);
+    background-color: rgba(var(--primary-color-light-rgb), 0.1);
+}
+
+
+#recurring-patterns-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 220px; /* Altura máxima para scroll */
+    overflow-y: auto;
+    background-color: transparent;
+    border: none;
+    padding-right: 5px; /* Espaço para scrollbar */
+}
+
+.recurring-pattern-item { /* Card para cada padrão salvo */
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Alinha topo para nome e ícones */
+    gap: 15px;
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    background-color: rgba(var(--primary-color-dark-rgb), 0.1);
+    border: 1px solid rgba(var(--primary-color-dark-rgb), 0.2);
+}
+.recurring-pattern-item:last-child {
+    margin-bottom: 0;
+}
+body.light .recurring-pattern-item {
+    background-color: var(--card-solid-bg-light);
+    border-color: var(--card-border-light);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.recurring-pattern-item:hover {
+    box-shadow: 0 4px 10px rgba(var(--primary-color-dark-rgb), 0.1) !important;
+}
+body.light .recurring-pattern-item:hover {
+    box-shadow: 0 4px 10px rgba(var(--primary-color-light-rgb), 0.1);
+}
+
+.recurring-pattern-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Aumentado para mais respiro */
+    min-width: 0;
+    flex-grow: 1;
+}
+
+.recurring-pattern-name {
+    font-weight: 700; /* Mais destaque */
+    font-size: 1.1rem;
+    color: var(--text-color-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+body.light .recurring-pattern-name {
+    color: var(--text-color-light);
+}
+
+.recurring-pattern-details-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.recurring-pattern-days { /* Container para os dias em formato de "pílula" */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 2px; /* Pequeno espaço antes das datas */
+}
+.day-pill { /* Estilo para cada dia */
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 3px 7px;
+    border-radius: 12px; /* Mais arredondado */
+    background-color: rgba(var(--primary-color-dark-rgb), 0.15);
+    color: var(--primary-color-dark);
+    border: 1px solid rgba(var(--primary-color-dark-rgb), 0.25);
+    white-space: nowrap;
+}
+body.light .day-pill {
+    background-color: rgba(var(--primary-color-light-rgb), 0.15);
+    color: var(--primary-color-light);
+    border-color: rgba(var(--primary-color-light-rgb), 0.25);
+}
+/* Remove ::before de .recurring-pattern-days */
+.recurring-pattern-days::before { content: none; }
+
+
+.recurring-pattern-dates {
+    font-size: 0.8rem;
+    color: var(--text-muted-dark);
+    line-height: 1.3;
+}
+body.light .recurring-pattern-dates {
+    color: var(--text-muted-light);
+}
+/* Remove ::before de .recurring-pattern-dates */
+.recurring-pattern-dates::before { content: none; }
+.recurring-pattern-dates .date-label { /* Nova classe para "Início:" e "Fim:" */
+    font-weight: 500;
+    color: var(--text-muted-dark);
+}
+body.light .recurring-pattern-dates .date-label {
+    color: var(--text-muted-light);
+}
+
+
+.recurring-pattern-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Aumentado para mais espaçamento */
+    flex-shrink: 0;
+}
+
+.btn-icon-recurring {
+    background: transparent;
+    border: 1px solid transparent;
+    font-size: 1.1rem;
+    padding: 6px; /* Aumenta área de clique */
+    border-radius: 50%; /* Botões redondos */
+    color: var(--text-muted-dark);
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; /* Tamanho fixo */
+    height: 32px;
+}
+body.light .btn-icon-recurring {
+    color: var(--text-muted-light);
+}
+.btn-icon-recurring:hover {
+    transform: scale(1.1);
+}
+
+.btn-icon-recurring.edit:hover {
+    background-color: rgba(var(--primary-color-dark-rgb), 0.15);
+    color: var(--primary-color-dark);
+}
+body.light .btn-icon-recurring.edit:hover {
+    background-color: rgba(var(--primary-color-light-rgb), 0.15);
+    color: var(--primary-color-light);
+}
+
+.btn-icon-recurring.delete:hover {
+    background-color: var(--task-delete-btn-hover-bg-dark);
+    color: var(--task-delete-btn-hover-color-dark);
+}
+body.light .btn-icon-recurring.delete:hover {
+    background-color: var(--task-delete-btn-hover-bg-light);
+    color: var(--task-delete-btn-hover-color-light);
+}
+
+
+.recurring-pattern-empty-message {
+    text-align: center;
+    color: var(--text-muted-dark);
+    padding: 20px 0;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+body.light .recurring-pattern-empty-message {
+    color: var(--text-muted-light);
+}
+
+
+/* Modal de Exclusão de Tarefa Recorrente (Mantendo o estilo anterior, mas verificando) */
+#delete-recurring-task-modal .modal-content {
+    padding: 28px;
+    padding-top: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centraliza conteúdo */
+    text-align: center; /* Centraliza texto */
+}
+
+#delete-recurring-task-modal .modal-title {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+}
+
+#delete-recurring-task-modal .modal-body-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text-muted-dark);
+    margin-bottom: 20px;
+}
+body.light #delete-recurring-task-modal .modal-body-text {
+    color: var(--text-muted-light);
+}
+
+.delete-options-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 380px;
+}
+
+.delete-option-card {
+    display: flex; /* Já estava flex, mantido */
+    align-items: center;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border-dark);
+    background-color: rgba(var(--primary-color-dark-rgb), 0.05); /* Fundo sutil */
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    cursor: pointer; /* Para indicar que é clicável */
+}
+body.light .delete-option-card {
+    border-color: var(--card-border-light);
+    background-color: rgba(var(--primary-color-light-rgb), 0.05);
+}
+
+.delete-option-card input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--text-muted-dark);
+    margin-right: 12px;
+    flex-shrink: 0;
+    position: relative;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+body.light .delete-option-card input[type="radio"] {
+    border-color: var(--text-muted-light);
+}
+
+.delete-option-card input[type="radio"]:checked {
+    border-color: var(--primary-color-dark);
+    background-color: var(--primary-color-dark);
+}
+body.light .delete-option-card input[type="radio"]:checked {
+    border-color: var(--primary-color-light);
+    background-color: var(--primary-color-light);
+}
+
+.delete-option-card input[type="radio"]:checked::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--card-solid-bg-dark); /* Usar cor sólida do card para contraste */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+body.light .delete-option-card input[type="radio"]:checked::before {
+    background-color: var(--card-solid-bg-light);
+}
+
+.delete-option-card:hover input[type="radio"]:not(:checked) {
+    border-color: var(--primary-color-dark);
+}
+body.light .delete-option-card:hover input[type="radio"]:not(:checked) {
+    border-color: var(--primary-color-light);
+}
+
+.delete-option-card.selected { /* Classe para o label quando o radio está checado */
+    border-color: var(--primary-color-dark) !important;
+    background-color: rgba(var(--primary-color-dark-rgb), 0.15) !important;
+}
+body.light .delete-option-card.selected {
+    border-color: var(--primary-color-light) !important;
+    background-color: rgba(var(--primary-color-light-rgb), 0.15) !important;
+}
+
+/* Ajustes para o texto e ícone dentro do card selecionado */
+.delete-option-card.selected .delete-option-icon i,
+.delete-option-card.selected .delete-option-text strong {
+    color: var(--primary-color-dark); /* Destaque para o texto principal e ícone */
+}
+.delete-option-card.selected .delete-option-text small {
+    color: color-mix(in srgb, var(--primary-color-dark) 70%, var(--text-muted-dark) 30%); /* Subtexto um pouco mais destacado */
+}
+body.light .delete-option-card.selected .delete-option-icon i,
+body.light .delete-option-card.selected .delete-option-text strong {
+    color: var(--primary-color-light);
+}
+body.light .delete-option-card.selected .delete-option-text small {
+    color: color-mix(in srgb, var(--primary-color-light) 70%, var(--text-muted-light) 30%);
+}
+
+/* Estilo especial para a opção "all" quando selecionada */
+#delete-option-all-card.selected {
+    border-color: var(--task-delete-btn-hover-color-dark) !important;
+    background-color: rgba(var(--task-delete-btn-hover-color-dark-rgb), 0.15) !important;
+}
+body.light #delete-option-all-card.selected {
+    border-color: var(--task-delete-btn-hover-color-light) !important;
+    background-color: rgba(var(--task-delete-btn-hover-color-light-rgb), 0.15) !important;
+}
+#delete-option-all-card.selected .delete-option-icon i,
+#delete-option-all-card.selected .delete-option-text strong {
+    color: var(--task-delete-btn-hover-color-dark) !important;
+}
+#delete-option-all-card.selected .delete-option-text small {
+    color: color-mix(in srgb, var(--task-delete-btn-hover-color-dark) 70%, var(--text-muted-dark) 30%) !important;
+}
+body.light #delete-option-all-card.selected .delete-option-icon i,
+body.light #delete-option-all-card.selected .delete-option-text strong {
+    color: var(--task-delete-btn-hover-color-light) !important;
+}
+body.light #delete-option-all-card.selected .delete-option-text small {
+    color: color-mix(in srgb, var(--task-delete-btn-hover-color-light) 70%, var(--text-muted-light) 30%) !important;
+}
+
+
+.delete-option-card-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.delete-option-icon i {
+    font-size: 1.3rem;
+    color: var(--text-muted-dark);
+    transition: color 0.2s ease;
+    width: 24px; /* Largura fixa para alinhar ícones */
+    text-align: center;
+}
+
+.delete-option-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left; /* Alinha o texto à esquerda dentro do seu container */
+}
+
+.delete-option-text strong {
+    font-weight: 600;
+    color: var(--text-color-dark);
+    font-size: 0.95rem;
+    line-height: 1.3;
+}
+body.light .delete-option-text strong {
+    color: var(--text-color-light);
+}
+
+.delete-option-text small {
+    font-size: 0.8rem;
+    color: var(--text-muted-dark);
+    line-height: 1.3;
+}
+body.light .delete-option-text small {
+    color: var(--text-muted-light);
+}
+
+.delete-recurring-warning {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background-color: rgba(var(--primary-color-dark-rgb), 0.08);
+    border: 1px solid rgba(var(--primary-color-dark-rgb), 0.2);
+    font-size: 0.9rem;
+    color: var(--text-muted-dark);
+    margin-bottom: 24px;
+    width: 100%;
+    max-width: 380px; /* Mesma largura das opções */
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    text-align: left; /* Alinha texto do aviso à esquerda */
+}
+body.light .delete-recurring-warning {
+    background-color: rgba(var(--primary-color-light-rgb), 0.08);
+    border-color: rgba(var(--primary-color-light-rgb), 0.2);
+    color: var(--text-muted-light);
+}
+
+.delete-recurring-warning i {
+    font-size: 1.2rem;
+    color: var(--primary-color-dark);
+    flex-shrink: 0;
+}
+body.light .delete-recurring-warning i {
+    color: var(--primary-color-light);
+}
+
+.delete-recurring-warning.danger {
+    background-color: rgba(var(--task-delete-btn-hover-color-dark-rgb), 0.1);
+    border-color: rgba(var(--task-delete-btn-hover-color-dark-rgb), 0.3);
+    color: var(--task-delete-btn-hover-color-dark);
+}
+body.light .delete-recurring-warning.danger {
+    background-color: rgba(var(--task-delete-btn-hover-color-light-rgb), 0.1);
+    border-color: rgba(var(--task-delete-btn-hover-color-light-rgb), 0.3);
+    color: var(--task-delete-btn-hover-color-light);
+}
+
+.delete-recurring-warning.danger i {
+    color: var(--task-delete-btn-hover-color-dark);
+}
+body.light .delete-recurring-warning.danger i {
+    color: var(--task-delete-btn-hover-color-light);
+}
+
+
+#delete-recurring-task-modal .modal-buttons {
+    justify-content: center;
+    width: 100%;
+    max-width: 380px; /* Mesma largura das opções */
+    margin-top: 20px;
+}
+
+#btn-confirm-delete-recurring-action { /* Botão principal de confirmação */
+    flex-grow: 1; /* Para ocupar espaço */
+}
+
+#btn-confirm-delete-recurring-action.btn-danger-style {
+    background-color: var(--task-delete-btn-hover-color-dark) !important;
+    color: white !important;
+}
+body.light #btn-confirm-delete-recurring-action.btn-danger-style {
+    background-color: var(--task-delete-btn-hover-color-light) !important;
+}
+#btn-confirm-delete-recurring-action.btn-danger-style:hover {
+    background-color: color-mix(in srgb, var(--task-delete-btn-hover-color-dark) 85%, black) !important;
+}
+body.light #btn-confirm-delete-recurring-action.btn-danger-style:hover {
+    background-color: color-mix(in srgb, var(--task-delete-btn-hover-color-light) 85%, white) !important;
+}
+
+#btn-cancel-delete-recurring { /* Botão de cancelar */
+    background-color: transparent;
+    border: 1px solid var(--card-border-dark);
+    color: var(--text-muted-dark);
+    flex-grow: 1; /* Para ocupar espaço */
+    font-weight: 500;
+}
+body.light #btn-cancel-delete-recurring {
+    border-color: var(--card-border-light);
+    color: var(--text-muted-light);
+}
+#btn-cancel-delete-recurring:hover {
+    background-color: rgba(255,255,255,0.05);
+    border-color: var(--text-muted-dark);
+}
+body.light #btn-cancel-delete-recurring:hover {
+    background-color: rgba(0,0,0,0.04);
+    border-color: var(--text-muted-light);
+}
+
+/* Fim estilos modal tarefas recorrentes */
+
 
 #themes-modal {
     background: var(--card-bg-dark);
@@ -3910,10 +4700,12 @@ body.light .mode-btn .active-dot {
 
 #themes-modal .modal-buttons {
     justify-content: space-between;
+    /* Para 'Aplicar' e 'Cancelar' */
     margin-top: 30px;
 }
 
 .themes-btn-apply {
+    /* Botão Aplicar no modal de temas */
     background: var(--primary-color-dark);
     color: white;
     display: flex;
@@ -3927,8 +4719,10 @@ body.light #themes-modal .themes-btn-apply {
 }
 
 .themes-btn-apply i {
+    /* Ícone dentro do botão (se houver) */
     font-size: 1em;
     display: none;
+    /* Pode ser ativado se necessário */
 }
 
 
@@ -3947,15 +4741,16 @@ body.light #themes-modal .themes-btn-apply {
     z-index: 10;
 }
 
-body.light #themes-modal .modal-close-btn {
+body.light .modal-close-btn {
+    /* Estilo para botão fechar no tema claro */
     color: var(--text-color-light);
 }
 
-#themes-modal .modal-close-btn:hover {
+.modal-close-btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-body.light #themes-modal .modal-close-btn:hover {
+body.light .modal-close-btn:hover {
     background-color: rgba(0, 0, 0, 0.08);
 }
 
@@ -3985,11 +4780,13 @@ body.light .modal-body-text {
 .modal-body-text ul {
     list-style-position: inside;
     padding-left: 0px;
+    /* Removido para alinhar com texto */
     margin-top: 8px;
     margin-bottom: 12px;
 }
 
 .modal-body-text ul ul {
+    /* Sub-listas */
     margin-left: 20px;
     margin-top: 4px;
     margin-bottom: 8px;
@@ -4040,10 +4837,12 @@ body.light .form-label {
     gap: 8px;
     margin-top: 20px;
     margin-bottom: 10px;
+    /* Reduzido para espaçamento mais compacto */
 }
 
 .form-group-checkbox input[type="checkbox"] {
     width: auto;
+    /* Para não esticar */
 }
 
 .form-input {
@@ -4055,6 +4854,7 @@ body.light .form-label {
     color: var(--text-color-dark);
     font-size: 16px;
     -moz-appearance: textfield;
+    /* Remove setas de número no Firefox */
     transition: border-color 0.3s ease, box-shadow 0.3s ease, padding 0.2s ease, font-size 0.2s ease;
 }
 
@@ -4067,6 +4867,7 @@ body.light .form-input {
 .form-input::-webkit-outer-spin-button,
 .form-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
+    /* Remove setas de número no Chrome/Safari */
     margin: 0;
 }
 
@@ -4085,6 +4886,7 @@ body.light .form-input:focus {
     display: flex;
     gap: 12px;
     justify-content: flex-end;
+    /* Padrão para direita */
     margin-top: 24px;
 }
 
@@ -4096,6 +4898,7 @@ body.light .form-input:focus {
     font-weight: 600;
     transition: all 0.2s ease, background-color 0.3s ease, color 0.3s ease, padding 0.2s ease, font-size 0.2s ease;
     display: inline-flex;
+    /* Para alinhar ícone e texto */
     align-items: center;
     justify-content: center;
     gap: 6px;
@@ -4136,9 +4939,12 @@ body.light .btn-secondary:hover {
 
 .btn-reset-app {
     background-color: #dc3545;
+    /* Vermelho para perigo */
     color: white;
     padding-left: 15px;
+    /* Espaço para ícone (se adicionar) */
     justify-content: flex-start;
+    /* Alinha conteúdo à esquerda */
     gap: 8px;
 }
 
@@ -4152,6 +4958,7 @@ body.light .btn-secondary:hover {
 
 .modal-buttons .btn-reset-app {
     margin-right: auto;
+    /* Empurra o botão de reset para a esquerda */
 }
 
 .loader {
@@ -4221,8 +5028,10 @@ body.theme-mode-focus {
     --card-bg-dark: rgba(40, 40, 42, 0.75);
     --card-solid-bg-dark: #121212;
     --header-bg-dark: var(--card-bg-dark);
+
     --body-bg-light: #EFEFEF;
     --card-bg-light: #FAFAFA;
+    --card-solid-bg-light: #FAFAFA;
     --header-bg-light: var(--card-bg-light);
 }
 
@@ -4236,6 +5045,7 @@ body.theme-mode-night {
 
     --body-bg-light: #E0E0E0;
     --card-bg-light: #F0F0F0;
+    --card-solid-bg-light: #F0F0F0;
     --card-border-light: #D8D8D8;
     --header-bg-light: var(--card-bg-light);
     --header-border-light: var(--card-border-light);
@@ -4244,34 +5054,49 @@ body.theme-mode-night {
 body.theme-mode-motivational {
     --body-bg-dark: #020306;
     --card-border-dark: var(--primary-color-dark);
+    /* Bordas dos cards na cor primária */
     --card-solid-bg-dark: #1A1A1D;
+    /* Fundo sólido um pouco mais claro */
+
     --body-bg-light: linear-gradient(180deg, color-mix(in srgb, var(--primary-color-light) 20%, #f4f4f4) 0%, #f4f4f4 30%);
     --card-border-light: var(--primary-color-light);
+    --card-solid-bg-light: var(--card-bg-light);
 }
 
 body.theme-mode-motivational .header {
     border-color: var(--primary-color-dark);
 }
+
 body.light.theme-mode-motivational .header {
     border-color: var(--primary-color-light);
 }
 
 
 @media (min-width: 769px) {
-    .header {}
+    .header {
+        /* Ajustes para header em telas maiores se necessário */
+    }
 
     .question-counter {
         position: absolute;
+        /* Centraliza na horizontal */
         left: 50%;
         transform: translateX(-50%);
     }
 
     .header-controls {
         margin-left: auto;
+        /* Empurra controles para a direita */
     }
 
     .scroll-indicator {
         display: flex;
+        /* Mostra o indicador em telas maiores */
+    }
+
+    .recurring-days-checkbox-group {
+        grid-template-columns: repeat(7, 1fr);
+        /* Força 7 colunas em telas maiores */
     }
 }
 
@@ -4408,12 +5233,9 @@ body.light.theme-mode-motivational .header {
     .tasks-section {
         padding: 18px;
         border-radius: 12px;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        box-sizing: border-box;
     }
 
+    /* Removido display flex e width/box-sizing pois já estão no wrapper */
     .chart-section {
         padding: 18px;
         border-radius: 12px;
@@ -4432,6 +5254,11 @@ body.light.theme-mode-motivational .header {
         font-size: 16px;
     }
 
+    .tasks-header-actions .btn-icon-nav {
+        padding: 5px;
+        font-size: 1.2rem;
+    }
+
     .activity-controls .control-btn {
         width: 28px;
         height: 28px;
@@ -4446,12 +5273,12 @@ body.light.theme-mode-motivational .header {
         height: 130px;
     }
 
+    /* Para gráfico semanal de questões */
     .chart-section .chart-container {
         height: 130px;
-        flex-grow: 1;
-        position: relative;
-        overflow: hidden;
     }
+
+    /* Para gráficos de pomodoro e tarefas */
 
     .pomodoro-settings-btn {
         font-size: 1.2rem;
@@ -4479,21 +5306,28 @@ body.light.theme-mode-motivational .header {
     #task-form {
         flex-wrap: nowrap;
     }
-    #task-input, .task-date-input.flatpickr-input {
+
+    /* Evita quebra de linha no form de tarefas */
+    #task-input,
+    .task-date-input.flatpickr-input {
         padding: 9px;
         font-size: 0.95rem;
         flex-basis: auto;
         height: 36px;
     }
+
     .task-date-input.flatpickr-input {
-         flex-basis: 140px;
-         padding-right: 30px;
+        flex-basis: 140px;
+        padding-right: 30px;
     }
+
+    /* Espaço para o ícone */
     #add-task-btn {
         padding: 0 18px;
         font-size: 0.9rem;
         line-height: 36px;
     }
+
 
     #task-list {
         max-height: 220px;
@@ -4562,22 +5396,31 @@ body.light.theme-mode-motivational .header {
 
     .pomodoro-section-wrapper,
     .tasks-section-wrapper {
+        /* Mantém o gap padrão */
     }
 }
 
 @media (max-width: 992px) {
+
+    /* Tablets e telas menores */
     .productivity-focus-area {
         flex-direction: column;
+        /* Empilha seções de Pomodoro e Tarefas */
         gap: 15px;
+        /* Espaço entre elas */
         margin-top: 0;
+        /* Remove margem superior se houver */
         margin-bottom: 15px;
         align-items: stretch;
+        /* Estica para preencher largura */
     }
 
     .pomodoro-section-wrapper,
     .tasks-section-wrapper {
         width: 100%;
+        /* Ocupa toda a largura disponível */
         gap: 15px;
+        /* Espaço entre card principal e gráfico */
     }
 
     .pomodoro-section-wrapper>.pomodoro-section,
@@ -4585,6 +5428,7 @@ body.light.theme-mode-motivational .header {
     .tasks-section-wrapper>.tasks-section,
     .tasks-section-wrapper>.chart-section {
         margin-bottom: 0 !important;
+        /* Remove margem inferior dos itens internos */
     }
 
     .activity-section {
@@ -4595,10 +5439,14 @@ body.light.theme-mode-motivational .header {
     #task-list {
         max-height: 200px;
     }
+
+    /* Ajuste de altura da lista de tarefas */
 }
 
 
 @media (max-width: 768px) {
+
+    /* Tablets menores e celulares grandes */
     .container {
         padding-left: 15px;
         padding-right: 15px;
@@ -4606,9 +5454,11 @@ body.light.theme-mode-motivational .header {
 
     .header {
         flex-wrap: wrap;
+        /* Permite quebra de linha no header */
         padding: 16px;
         margin-bottom: 15px;
         gap: 10px 15px;
+        /* Espaço entre itens do header */
     }
 
     .header .logo {
@@ -4705,10 +5555,17 @@ body.light.theme-mode-motivational .header {
         font-size: 17px;
     }
 
+    .tasks-header-actions .btn-icon-nav {
+        padding: 4px;
+        font-size: 1.1rem;
+    }
+
+
     .activity-section .chart-container,
     .pomodoro-section-wrapper .chart-section .chart-container,
     .tasks-section-wrapper .chart-section .chart-container {
         height: 180px;
+        /* Aumenta um pouco a altura dos gráficos */
     }
 
     .pomodoro-timer-display {
@@ -4732,27 +5589,65 @@ body.light.theme-mode-motivational .header {
         display: none !important;
     }
 
-     #task-form {
+    /* Oculta permanentemente em telas menores */
+
+    #task-form {
         flex-wrap: wrap;
     }
+
+    /* Permite quebra no form de tarefa */
     #task-input {
         flex-basis: calc(100% - 140px - 10px);
         min-width: 120px;
     }
+
+    /* Ajusta input de texto */
     .task-date-input.flatpickr-input {
         flex-basis: 140px;
         height: 38px;
     }
-     #add-task-btn {
+
+    /* Input de data */
+    #add-task-btn {
         flex-basis: auto;
+    }
+
+    /* Botão de adicionar */
+
+    .recurring-days-checkbox-group {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        /* Ajuste para telas menores */
+    }
+
+    .form-group-inline {
+        flex-direction: column;
+        /* Empilha os inputs de data */
+        gap: 18px;
+        /* Espaço entre eles quando empilhados */
+    }
+
+    .form-group-inline>.form-group {
+        width: 100%;
+        /* Ocupa toda a largura */
+    }
+
+    #delete-recurring-task-modal .modal-content {
+        justify-content: flex-start;
+        /* Não força centralização se conteúdo for grande */
+        min-height: auto;
     }
 }
 
 @media (max-width: 520px) {
+
+    /* Ajustes para form de tarefas em telas muito pequenas */
     #task-form {
         flex-direction: column;
+        /* Empilha os inputs do form */
         align-items: stretch;
+        /* Estica para largura total */
     }
+
     #task-input,
     .task-date-input.flatpickr-input,
     #add-task-btn {
@@ -4760,10 +5655,13 @@ body.light.theme-mode-motivational .header {
         max-width: none;
         flex-basis: auto;
         margin-bottom: 8px;
+        /* Espaço entre inputs empilhados */
     }
+
     #add-task-btn {
         margin-bottom: 0;
     }
+
     .task-date-input.flatpickr-input {
         height: 38px;
     }
@@ -4771,6 +5669,8 @@ body.light.theme-mode-motivational .header {
 
 
 @media (max-width: 480px) {
+
+    /* Celulares */
     .container {
         padding-left: 12px;
         padding-right: 12px;
@@ -4780,6 +5680,7 @@ body.light.theme-mode-motivational .header {
         position: sticky;
         top: 0;
         z-index: 100;
+        /* Header fixo no topo */
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -4787,6 +5688,7 @@ body.light.theme-mode-motivational .header {
         height: 56px;
         margin-bottom: 15px;
         border-radius: 0 0 12px 12px;
+        /* Apenas borda inferior arredondada */
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -4945,6 +5847,7 @@ body.light.theme-mode-motivational .header {
         min-height: auto;
     }
 
+    /* Remove min-height para mais flexibilidade */
     #task-list {
         max-height: 180px;
     }
@@ -4956,6 +5859,12 @@ body.light.theme-mode-motivational .header {
     .chart-section .chart-title {
         font-size: 15px;
     }
+
+    .tasks-header-actions .btn-icon-nav {
+        padding: 3px;
+        font-size: 1rem;
+    }
+
 
     .activity-controls .control-btn {
         width: 28px;
@@ -5002,21 +5911,28 @@ body.light.theme-mode-motivational .header {
         font-size: 0.8rem;
     }
 
-    #task-input, .task-date-input.flatpickr-input, #add-task-btn {
+    #task-input,
+    .task-date-input.flatpickr-input,
+    #add-task-btn {
         font-size: 0.9rem;
     }
+
     .task-date-input.flatpickr-input {
         padding: 9px 30px 9px 10px;
     }
+
+    /* Garante espaço para ícone */
     #add-task-btn {
         padding: 10px 15px;
         line-height: normal;
+        /* Para texto não cortar */
     }
 
 
     .task-item-text {
         font-size: 0.9rem;
     }
+
     .task-assigned-date-indicator {
         font-size: 0.7em;
         margin-left: 6px;
@@ -5079,6 +5995,7 @@ body.light.theme-mode-motivational .header {
         margin-bottom: 6px;
     }
 
+    /* Ajustes para o modal de boas vindas em telas pequenas */
     #welcome-guide-modal .modal-title {
         font-size: 17px;
     }
@@ -5103,6 +6020,50 @@ body.light.theme-mode-motivational .header {
     #welcome-guide-modal .modal-buttons .btn {
         padding: 7px 10px;
         font-size: 12px;
+    }
+
+    /* Ajustes para modal de tarefas recorrentes em telas pequenas */
+    #recurring-task-modal .form-group-inline {
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    #recurring-patterns-list {
+        max-height: 150px;
+    }
+
+    .recurring-pattern-item {
+        flex-direction: column; /* Empilha info e actions */
+        align-items: stretch; /* Estica para preencher */
+    }
+
+    .recurring-pattern-name {
+      /* Nome já ocupa largura total se infoDiv for block */
+    }
+
+    .recurring-pattern-actions {
+        justify-content: flex-end; /* Alinha botões à direita */
+        margin-top: 10px; /* Espaço acima dos botões */
+    }
+
+    .recurring-days-checkbox-group {
+        /* Ajuste para caber em telas muito pequenas */
+        grid-template-columns: repeat(auto-fit, minmax(55px, 1fr));
+        gap: 6px;
+    }
+
+    .recurring-days-checkbox-group label {
+        padding: 8px 4px;
+        font-size: 0.8rem;
+    }
+
+    #delete-recurring-task-modal .modal-buttons { /* Modificado para modal de deleção */
+       flex-direction: column; /* Empilha botões */
+       gap: 10px;
+       align-items: stretch; /* Faz botões ocuparem largura */
+    }
+    #delete-recurring-task-modal .modal-buttons .btn {
+        width: 100%; /* Botões ocupam largura total */
     }
 }
 
@@ -5139,17 +6100,20 @@ body.light .footer-link {
 /* ESTILOS PARA FLATPICKR */
 .flatpickr-calendar {
     background: var(--card-solid-bg-dark, #282a2e);
+    /* Fundo mais sólido para o calendário */
     border: 1px solid var(--card-border-dark, rgba(255, 255, 255, 0.2));
     border-radius: 8px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
     color: var(--text-color-dark, #e0e0e0);
     font-family: inherit;
+    /* Usa a mesma fonte do corpo */
 }
+
 body.light .flatpickr-calendar {
     background: var(--card-bg-light, #ffffff);
     border-color: var(--card-border-light, #d1d1d1);
     color: var(--text-color-light, #333333);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
 }
 
 .flatpickr-weekday {
@@ -5157,6 +6121,7 @@ body.light .flatpickr-calendar {
     opacity: 0.85 !important;
     font-weight: 600 !important;
 }
+
 body.light .flatpickr-weekday {
     color: var(--text-muted-light) !important;
     opacity: 1 !important;
@@ -5166,19 +6131,24 @@ body.light .flatpickr-weekday {
 .flatpickr-day {
     color: var(--text-muted-dark);
     border-radius: 50%;
+    /* Dias circulares */
     transition: background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease;
     border: 1px solid transparent;
+    /* Borda sutil para hover */
 }
+
 body.light .flatpickr-day {
     color: var(--text-muted-light);
 }
 
 .flatpickr-day:hover,
 .flatpickr-day.flatpickr-focused {
+    /* Hover e foco */
     background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent);
     border-color: var(--primary-color-dark);
     color: var(--primary-color-dark);
 }
+
 body.light .flatpickr-day:hover,
 body.light .flatpickr-day.flatpickr-focused {
     background: color-mix(in srgb, var(--primary-color-light) 20%, transparent);
@@ -5188,13 +6158,16 @@ body.light .flatpickr-day.flatpickr-focused {
 
 .flatpickr-day.selected,
 .flatpickr-day.today.selected,
+/* Dia atual selecionado */
 .flatpickr-day.startRange,
+/* Para ranges, se usar no futuro */
 .flatpickr-day.endRange {
     background: var(--primary-color-dark) !important;
     border-color: var(--primary-color-dark) !important;
     color: white !important;
     box-shadow: none !important;
 }
+
 body.light .flatpickr-day.selected,
 body.light .flatpickr-day.today.selected,
 body.light .flatpickr-day.startRange,
@@ -5205,20 +6178,25 @@ body.light .flatpickr-day.endRange {
 }
 
 .flatpickr-day.today {
+    /* Apenas o dia atual, não selecionado */
     border-color: var(--primary-color-dark) !important;
     color: var(--primary-color-dark) !important;
     background: transparent !important;
 }
+
 .flatpickr-day.today:hover {
+    /* Hover no dia atual */
     background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent) !important;
     color: var(--primary-color-dark) !important;
     border-color: var(--primary-color-dark) !important;
 }
+
 body.light .flatpickr-day.today {
     border-color: var(--primary-color-light) !important;
     color: var(--primary-color-light) !important;
     background: transparent !important;
 }
+
 body.light .flatpickr-day.today:hover {
     background: color-mix(in srgb, var(--primary-color-light) 20%, transparent) !important;
     color: var(--primary-color-light) !important;
@@ -5227,39 +6205,47 @@ body.light .flatpickr-day.today:hover {
 
 .flatpickr-day.prevMonthDay,
 .flatpickr-day.nextMonthDay {
-  color: var(--text-muted-dark);
-  opacity: 0.4;
+    /* Dias do mês anterior/seguinte */
+    color: var(--text-muted-dark);
+    opacity: 0.4;
 }
+
 body.light .flatpickr-day.prevMonthDay,
 body.light .flatpickr-day.nextMonthDay {
-  color: var(--text-muted-light);
-  opacity: 0.4;
+    color: var(--text-muted-light);
+    opacity: 0.4;
 }
 
 .flatpickr-months .flatpickr-month {
     color: var(--text-color-dark);
     fill: var(--text-color-dark);
+    /* Cor das setas de navegação de mês */
     height: 38px;
+    /* Ajuste de altura do header do calendário */
 }
+
 body.light .flatpickr-months .flatpickr-month {
     color: var(--text-color-light);
     fill: var(--text-color-light);
 }
 
 .flatpickr-monthDropdown-months {
+    /* Dropdown de seleção de mês */
     background: var(--card-solid-bg-dark, #282a2e) !important;
-    border: 1px solid var(--card-border-dark, rgba(255,255,255,0.2)) !important;
+    border: 1px solid var(--card-border-dark, rgba(255, 255, 255, 0.2)) !important;
     border-radius: 6px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
     padding: 4px !important;
     max-height: 220px;
+    /* Para scroll em listas longas de meses */
     overflow-y: auto;
 }
+
 body.light .flatpickr-monthDropdown-months {
     background: var(--card-bg-light, #fff) !important;
     border-color: var(--card-border-light, #d1d1d1) !important;
     border-radius: 6px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 .flatpickr-monthDropdown-month {
@@ -5267,85 +6253,108 @@ body.light .flatpickr-monthDropdown-months {
     padding: 6px 10px !important;
     border-radius: 4px !important;
     margin: 0px 2px !important;
+    /* Pequeno ajuste de margem */
     line-height: 1.5;
 }
+
 body.light .flatpickr-monthDropdown-month {
     color: var(--text-color-light) !important;
 }
 
 .flatpickr-monthDropdown-month:hover {
-    background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent) !important; /* Hover mais suave */
+    background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent) !important;
+    /* Hover mais suave */
     color: var(--primary-color-dark) !important;
 }
+
 body.light .flatpickr-monthDropdown-month:hover {
     background: color-mix(in srgb, var(--primary-color-light) 15%, var(--card-bg-light)) !important;
     color: var(--primary-color-light) !important;
 }
 
 .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected,
+/* Mês selecionado no dropdown */
 span.flatpickr-monthDropdown-month:focus,
+/* Foco no dropdown */
 span.flatpickr-monthDropdown-month.flatpickr-current-month
-{
+
+/* Mês atual no dropdown */
+    {
     background: var(--primary-color-dark) !important;
     color: white !important;
     border-radius: 4px !important;
 }
+
 body.light .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected,
 body.light span.flatpickr-monthDropdown-month:focus,
-body.light span.flatpickr-monthDropdown-month.flatpickr-current-month
-{
+body.light span.flatpickr-monthDropdown-month.flatpickr-current-month {
     background: var(--primary-color-light) !important;
     color: white !important;
 }
 
 
 .flatpickr-current-month input.cur-year {
+    /* Input do ano */
     color: var(--text-color-dark);
     font-weight: bold;
 }
+
 body.light .flatpickr-current-month input.cur-year {
     color: var(--text-color-light);
 }
 
 .flatpickr-months .flatpickr-prev-month svg,
 .flatpickr-months .flatpickr-next-month svg {
+    /* Setas de navegação de mês */
     fill: var(--text-color-dark);
     opacity: 0.8;
     width: 16px;
+    /* Tamanho das setas */
     height: 16px;
 }
+
 body.light .flatpickr-months .flatpickr-prev-month svg,
 body.light .flatpickr-months .flatpickr-next-month svg {
     fill: var(--text-color-light);
     opacity: 0.8;
 }
+
 .flatpickr-months .flatpickr-prev-month:hover svg,
 .flatpickr-months .flatpickr-next-month:hover svg {
     fill: var(--primary-color-dark);
+    /* Cor no hover */
     opacity: 1;
 }
+
 body.light .flatpickr-months .flatpickr-prev-month:hover svg,
 body.light .flatpickr-months .flatpickr-next-month:hover svg {
     fill: var(--primary-color-light);
     opacity: 1;
 }
 
+/* Correção para input readonly do Flatpickr, se necessário */
 .flatpickr-input[readonly] {
     background-color: rgba(0, 0, 0, 0.1);
+    /* Mantém o mesmo estilo do input normal */
 }
+
 body.light .flatpickr-input[readonly] {
     background-color: rgba(255, 255, 255, 0.5);
 }
 
+/* Para garantir que as classes .dark e .light do Flatpickr não interfiram com o tema do body */
 .flatpickr-calendar.dark {
+    /* Quando o flatpickr adiciona sua própria classe .dark */
     background: var(--card-solid-bg-dark, #19191c);
     border-color: var(--card-border-dark, rgba(255, 255, 255, 0.15));
-    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
+
 .flatpickr-calendar.light {
+    /* Quando o flatpickr adiciona sua própria classe .light */
     background: var(--card-bg-light, #ffffff);
     border-color: var(--card-border-light, #e0e0e0);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 
@@ -5354,34 +6363,49 @@ body.light .flatpickr-input[readonly] {
     width: 8px;
     height: 8px;
 }
+
 ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg-dark); /* Usando variável global */
+    background: var(--scrollbar-track-bg-dark);
+    /* Usando variável global */
     border-radius: 10px;
 }
+
 body.light ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg-light); /* Usando variável global */
+    background: var(--scrollbar-track-bg-light);
+    /* Usando variável global */
 }
+
 ::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg-dark); /* Usando variável global */
+    background-color: var(--scrollbar-thumb-bg-dark);
+    /* Usando variável global */
     border-radius: 10px;
     border: 2px solid transparent;
+    /* Para criar efeito de padding no thumb */
     background-clip: content-box;
 }
+
 body.light ::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg-light); /* Usando variável global */
+    background-color: var(--scrollbar-thumb-bg-light);
+    /* Usando variável global */
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background-color: color-mix(in srgb, var(--scrollbar-thumb-bg-dark) 80%, #000000);
 }
+
 body.light ::-webkit-scrollbar-thumb:hover {
     background-color: color-mix(in srgb, var(--scrollbar-thumb-bg-light) 80%, #ffffff);
 }
 
+/* Para Firefox */
 html {
     scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb-bg-dark) var(--scrollbar-track-bg-dark); /* Usando variáveis globais */
+    scrollbar-color: var(--scrollbar-thumb-bg-dark) var(--scrollbar-track-bg-dark);
+    /* Usando variáveis globais */
 }
-body.light { /* Para Firefox no modo claro */
+
+body.light {
+    /* Para Firefox no modo claro */
     scrollbar-color: var(--scrollbar-thumb-bg-light) var(--scrollbar-track-bg-light);
 }
 
@@ -5390,20 +6414,26 @@ body.theme-mode-motivational:not(.light) {
     /* Para Firefox */
     scrollbar-color: var(--primary-color-dark) color-mix(in srgb, var(--primary-color-dark) 5%, #020306 95%) !important;
 }
+
 body.theme-mode-motivational:not(.light)::-webkit-scrollbar-track {
-    background: color-mix(in srgb, var(--primary-color-dark) 5%, #020306 95%) !important; /* Track com um leve toque da cor primária */
+    background: color-mix(in srgb, var(--primary-color-dark) 5%, #020306 95%) !important;
+    /* Track com um leve toque da cor primária */
 }
+
 body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb {
-    background-color: var(--primary-color-dark) !important; /* Thumb na cor primária */
+    background-color: var(--primary-color-dark) !important;
+    /* Thumb na cor primária */
 }
+
 body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
-    background-color: color-mix(in srgb, var(--primary-color-dark) 80%, black) !important; /* Hover no thumb */
+    background-color: color-mix(in srgb, var(--primary-color-dark) 80%, black) !important;
+    /* Hover no thumb */
 }
 </file>
 
 <file path="index.html">
 <!DOCTYPE html>
-    <html lang="pt-BR">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
@@ -5417,7 +6447,6 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
 
 
     <script>
-        
         (function () {
             function hexToRgbArrayInline(hex) {
                 if (!hex || typeof hex !== 'string') return null;
@@ -5446,7 +6475,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                 const savedTheme = localStorage.getItem('taskify-theme');
                 const docElement = document.documentElement;
                 const defaultPrimaryColor = '#0A7CFF';
-                
+
                 let colorToApply = savedPrimaryColor || defaultPrimaryColor;
 
                 if (!/^#[0-9A-F]{6}$/i.test(colorToApply) && !/^#[0-9A-F]{3}$/i.test(colorToApply)) {
@@ -5456,7 +6485,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
 
                 docElement.style.setProperty('--primary-color-light', colorToApply);
                 docElement.style.setProperty('--primary-color-dark', colorToApply);
-                
+
                 const rgbArray = hexToRgbArrayInline(colorToApply);
                 if (rgbArray) {
                     const rgbString = rgbArray.join(', ');
@@ -5473,7 +6502,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                 }
 
                 if (savedTheme === 'light') {
-                    docElement.classList.add('light-theme-active'); 
+                    docElement.classList.add('light-theme-active');
                 }
 
             } catch (e) {
@@ -5508,11 +6537,13 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                 <button class="counter-btn" id="increment-btn" onclick="incrementToday()">+</button>
             </div>
 
+
+
             <div class="header-controls">
                 <button class="btn-icon-nav" id="btn-edit-goals-header" aria-label="Editar metas"
-                    onclick="openGoalsModal()">
-                    <i class="bi bi-pencil-square"></i>
-                </button>
+                onclick="openGoalsModal()">
+                <i class="bi bi-pencil-square"></i>
+            </button>
                 <button class="btn-icon-nav" id="btn-open-themes" aria-label="Personalizar Aparência" onclick="openThemesModal()">
                     <i class="bi bi-palette-fill"></i>
                 </button>
@@ -5522,7 +6553,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
             </div>
         </header>
 
-        
+
         <section class="stats-grid">
             <div class="stat-card">
                 <div class="stat-title">Hoje</div>
@@ -5596,12 +6627,12 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                     <span>Streak Atual</span>
                     <i class="bi bi-fire card-title-icon"></i>
                 </div>
-                
+
                 <div class="streak-value-meta-container">
                     <div class="card-value" id="current-streak-value">0 dias</div>
                     <div class="card-streak-target">Meta: <span id="streak-target-value">30</span></div>
                 </div>
-                
+
                 <div class="progress-bar-horizontal">
                     <div class="progress-fill" id="streak-progress-fill" style="width: 0%;"></div>
                 </div>
@@ -5632,7 +6663,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
         <div class="scroll-indicator" id="scroll-indicator">
             <i class="bi bi-chevron-down"></i>
         </div>
-        
+
         <section class="productivity-focus-area">
             <div class="pomodoro-section-wrapper">
                 <div class="pomodoro-section">
@@ -5655,7 +6686,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                         <span id="pomodoro-cycles-count-value">0</span>
                     </div>
                 </div>
-                <div class="chart-section pomodoro-chart-section"> 
+                <div class="chart-section pomodoro-chart-section">
                     <div class="chart-header">
                         <h4 class="chart-title">Tempo de Foco Semanal</h4>
                         <span class="chart-period-label" id="pomodoro-weekly-period">Últimos 7 dias</span>
@@ -5670,11 +6701,16 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                 <div class="tasks-section">
                     <div class="tasks-header">
                         <h3 class="tasks-title">Tarefas</h3>
-                        <span class="tasks-counter" id="tasks-counter">0/0</span>
+                        <div class="tasks-header-actions">
+                            <button class="btn-icon-nav" id="btn-open-recurring-task-modal" aria-label="Gerenciar Tarefas Recorrentes"
+                                    onclick="openRecurringTaskPatternModal()" title="Gerenciar Tarefas Recorrentes">
+                                <i class="bi bi-calendar-check-fill"></i>
+                            </button>
+                            <span class="tasks-counter" id="tasks-counter">0/0</span>
+                        </div>
                     </div>
                     <form id="task-form">
                         <input type="text" id="task-input" placeholder="Adicione nova tarefa...">
-                        <!-- ABAIXO: input alterado de type="date" para type="text" para Flatpickr -->
                         <input type="text" id="task-assigned-date" class="task-date-input" placeholder="DD/MM/AAAA">
                         <button type="submit" id="add-task-btn" class="btn-primary">Adicionar</button>
                     </form>
@@ -5682,7 +6718,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                         <!-- Tarefas serão adicionadas aqui pelo JS -->
                     </ul>
                 </div>
-                <div class="chart-section tasks-chart-section"> 
+                <div class="chart-section tasks-chart-section">
                     <div class="chart-header">
                         <h4 class="chart-title">Tarefas Concluídas</h4>
                         <span class="chart-period-label" id="tasks-weekly-period">Últimos 7 dias</span>
@@ -5693,11 +6729,11 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                 </div>
             </div>
         </section>
-        
-        
-        <footer class="main-footer"> 
+
+
+        <footer class="main-footer">
             Criado por <a href="https://x.com/fabinxz" target="_blank" class="footer-link">@fabinxz</a>
-            <span class="footer-separator">•</span> © <span id="current-year">2025</span> 
+            <span class="footer-separator">•</span> © <span id="current-year">2025</span>
         </footer>
     </div> <!-- Fim .container -->
 
@@ -5739,6 +6775,133 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
         </div>
     </div>
 
+    <!-- Modal de Padrões de Tarefas Recorrentes -->
+    <div class="modal-overlay" id="recurring-task-modal-overlay"></div>
+    <div class="modal" id="recurring-task-modal" data-modal-type="recurring-task">
+        <div class="modal-content">
+            <button class="modal-close-btn" aria-label="Fechar" onclick="closeRecurringTaskPatternModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title" id="recurring-task-modal-title">Adicionar Padrão Recorrente</h2>
+            <p class="modal-subtitle-description" id="recurring-task-modal-description">Configure uma nova rotina de estudos ou hábitos.</p>
+
+            <form id="recurring-task-form">
+                <div class="form-group">
+                    <label class="form-label" for="recurring-task-name">Nome da Tarefa <span class="required-asterisk"></span></label>
+                    <input type="text" class="form-input" id="recurring-task-name" placeholder="Ex: Simulado Semanal" required>
+                </div>
+
+                <div class="form-group" id="recurring-task-frequency-group" style="display: none;">
+                    <label class="form-label" for="recurring-task-frequency">Frequência</label>
+                    <input type="text" class="form-input" id="recurring-task-frequency" value="Semanal" disabled title="Apenas semanal disponível no momento">
+                </div>
+
+
+                <div class="form-group">
+                    <div class="form-label-group">
+                        <label class="form-label">Dias da Semana <span class="required-asterisk"></span></label>
+                    </div>
+                    <div class="recurring-days-checkbox-group">
+                        <label><input type="checkbox" id="recurring-day-1" value="1"> Seg</label>
+                        <label><input type="checkbox" id="recurring-day-2" value="2"> Ter</label>
+                        <label><input type="checkbox" id="recurring-day-3" value="3"> Qua</label>
+                        <label><input type="checkbox" id="recurring-day-4" value="4"> Qui</label>
+                        <label><input type="checkbox" id="recurring-day-5" value="5"> Sex</label>
+                        <label><input type="checkbox" id="recurring-day-6" value="6"> Sáb</label>
+                        <label><input type="checkbox" id="recurring-day-0" value="0"> Dom</label>
+                    </div>
+                </div>
+
+                <div class="form-group-inline">
+                    <div class="form-group">
+                        <label class="form-label" for="recurring-task-start-date">Data de Início <span class="required-asterisk"></span></label>
+                        <input type="text" class="form-input task-date-input" id="recurring-task-start-date" placeholder="DD/MM/AAAA" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="recurring-task-end-date">Data de Término <span class="label-hint">(Opcional)</span></label>
+                        <input type="text" class="form-input task-date-input" id="recurring-task-end-date" placeholder="DD/MM/AAAA">
+                    </div>
+                </div>
+                <div class="form-info-notice">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>O padrão será aplicado automaticamente nos dias selecionados a partir da data de início.</span>
+                </div>
+
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeRecurringTaskPatternModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Salvar Padrão</button>
+                </div>
+            </form>
+
+            <hr class="recurring-task-divider">
+            <div class="recurring-patterns-header">
+                <h3 class="modal-subtitle">Padrões Salvos</h3>
+                <span class="recurring-patterns-count" id="recurring-patterns-count">0 padrões</span>
+            </div>
+            <ul id="recurring-patterns-list">
+            </ul>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão de Tarefa Recorrente -->
+    <div class="modal-overlay" id="delete-recurring-task-modal-overlay"></div>
+    <div class="modal" id="delete-recurring-task-modal" data-modal-type="delete-recurring-task">
+        <div class="modal-content">
+            <button class="modal-close-btn" aria-label="Fechar" onclick="closeDeleteRecurringTaskModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Excluir Tarefa Recorrente</h2>
+            <p class="modal-body-text" id="delete-recurring-task-prompt">Escolha como deseja proceder com a exclusão desta tarefa recorrente:</p>
+
+            <div class="delete-options-group">
+                <label class="delete-option-card">
+                    <input type="radio" name="delete-recurring-option" value="this" checked>
+                    <span class="delete-option-card-content">
+                        <span class="delete-option-icon"><i class="bi bi-calendar-x"></i></span>
+                        <span class="delete-option-text">
+                            <strong>Apenas esta ocorrência</strong>
+                            <small>Remove somente esta instância da tarefa.</small>
+                        </span>
+                    </span>
+                </label>
+                <label class="delete-option-card">
+                    <input type="radio" name="delete-recurring-option" value="future">
+                     <span class="delete-option-card-content">
+                        <span class="delete-option-icon"><i class="bi bi-calendar2-x"></i></span>
+                        <span class="delete-option-text">
+                            <strong>Esta e todas as futuras</strong>
+                            <small>Remove esta ocorrência e todas as próximas.</small>
+                        </span>
+                    </span>
+                </label>
+                <label class="delete-option-card" id="delete-option-all-card">
+                    <input type="radio" name="delete-recurring-option" value="all">
+                     <span class="delete-option-card-content">
+                        <span class="delete-option-icon"><i class="bi bi-trash3"></i></span>
+                        <span class="delete-option-text">
+                            <strong>Toda a série recorrente</strong>
+                            <small>Remove permanentemente toda a tarefa recorrente.</small>
+                        </span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="delete-recurring-warning" id="delete-recurring-warning-message">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Apenas esta ocorrência será removida. A tarefa recorrente continuará normalmente.</span>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-delete-recurring">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-confirm-delete-recurring-action">Excluir Ocorrência</button>
+            </div>
+        </div>
+    </div>
+
+
+
     <!-- Modal de Confirmação de Reset -->
     <div class="modal-overlay" id="confirm-reset-modal-overlay"></div>
     <div class="modal" id="confirm-reset-modal">
@@ -5756,13 +6919,13 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                     <li>Seu streak atual e histórico de streak</li>
                     <li>Suas metas personalizadas (serão revertidas para o padrão)</li>
                     <li>Sua preferência de tema e cor primária (serão revertidas para o padrão)</li>
-                    <li>Suas configurações, histórico do Pomodoro e lista de tarefas</li>
+                    <li>Suas configurações, histórico do Pomodoro, lista de tarefas e padrões recorrentes</li>
                 </ul>
                 <p>A página será recarregada com as configurações de fábrica.</p>
             </div>
             <div class="modal-buttons">
                 <button type="button" class="btn btn-secondary" id="btn-cancel-reset-confirmation">Cancelar</button>
-                <button type="button" class="btn btn-reset-app" id="btn-confirm-reset-action">Confirmar Reset</button> 
+                <button type="button" class="btn btn-reset-app" id="btn-confirm-reset-action">Confirmar Reset</button>
             </div>
         </div>
     </div>
@@ -5779,6 +6942,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                 <p>Este é um guia rápido para te ajudar a começar:</p>
                 <ul>
                     <li><strong>Contador Principal (<span class="guide-highlight">no centro do cabeçalho</span>):</strong> Use os botões <span class="guide-highlight guide-btn-example">+</span> e <span class="guide-highlight guide-btn-example">−</span> para adicionar ou remover questões resolvidas hoje. O número entre eles define quantas questões são adicionadas/removidas por clique.</li>
+                    <li><strong>Gerenciar Tarefas Recorrentes:</strong> Clique no ícone <i class="bi bi-calendar-check-fill guide-icon-example"></i> no cabeçalho da seção de Tarefas para criar padrões de tarefas que se repetem.</li>
                     <li><strong>Editar Metas:</strong> Clique no ícone <i class="bi bi-pencil-square guide-icon-example"></i> no cabeçalho para definir suas metas diárias, semanais, mensais, anuais e de streak.</li>
                     <li><strong>Alternar Tema:</strong> Use o ícone <i class="bi bi-moon-fill guide-icon-example"></i> / <i class="bi bi-sun-fill guide-icon-example"></i> no cabeçalho para trocar entre o tema escuro e claro.</li>
                     <li><strong>Personalizar Aparência:</strong> Clique no ícone <i class="bi bi-palette-fill guide-icon-example"></i> no cabeçalho para escolher paletas de cores e modos visuais.</li>
@@ -5797,7 +6961,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
         </div>
     </div>
 
-    
+
     <!-- Modal de Configurações do Pomodoro -->
     <div class="modal-overlay" id="pomodoro-settings-modal-overlay"></div>
     <div class="modal" id="pomodoro-settings-modal">
@@ -5845,7 +7009,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
 
     <!-- Modal de Temas e Aparência -->
     <div class="modal-overlay" id="themes-modal-overlay"></div>
-    <div class="modal" id="themes-modal"> 
+    <div class="modal" id="themes-modal">
         <div class="themes-modal-content">
             <button class="modal-close-btn" id="themes-modal-close-btn" aria-label="Fechar" onclick="closeThemesModal()">
                 <i class="bi bi-x-lg"></i>
@@ -5854,7 +7018,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                 <i class="bi bi-palette-fill themes-modal-title-icon"></i>
                 Personalizar Aparência
             </h2>
-    
+
             <div class="themes-modal-section">
                 <h3 class="themes-modal-section-title">
                     <i class="bi bi-paint-bucket"></i>
@@ -5865,7 +7029,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                     <!-- Botões de paleta serão gerados pelo JS -->
                 </div>
             </div>
-    
+
             <div class="themes-modal-section">
                 <h3 class="themes-modal-section-title">
                     <i class="bi bi-eye-fill"></i>
@@ -5876,34 +7040,34 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                     <!-- Botões de modo visual serão gerados pelo JS -->
                 </div>
             </div>
-    
-            <div class="modal-buttons themes-modal-actions"> 
+
+            <div class="modal-buttons themes-modal-actions">
                 <button type="button" class="btn btn-secondary themes-btn-cancel" onclick="closeThemesModal()">Cancelar</button>
-                <button type="button" class="btn btn-primary themes-btn-apply" onclick="closeThemesModal()"> 
+                <button type="button" class="btn btn-primary themes-btn-apply" onclick="closeThemesModal()">
                      Aplicar Mudanças
                 </button>
             </div>
         </div>
     </div>
-    
+
     <!-- Alerta Personalizado -->
     <div class="custom-alert-overlay" id="custom-alert-overlay"></div>
     <div class="custom-alert-modal" id="custom-alert-modal">
         <h3 class="custom-alert-title" id="custom-alert-title">Alerta</h3>
         <p class="custom-alert-message" id="custom-alert-message"></p>
-        <button class="custom-alert-ok-btn" id="custom-alert-ok-btn">OK</button> 
+        <button class="custom-alert-ok-btn" id="custom-alert-ok-btn">OK</button>
     </div>
 
     <!-- Botão Flutuante e Modal da Retrospectiva -->
-    <button class="btn-icon-nav" id="btn-open-retrospective" aria-label="Abrir Retrospectiva" 
+    <button class="btn-icon-nav" id="btn-open-retrospective" aria-label="Abrir Retrospectiva"
         style="position: fixed; bottom: 20px; right: 20px; z-index: 1001;
-               background-color: var(--primary-color-dark); color: white; 
+               background-color: var(--primary-color-dark); color: white;
                width: 50px; height: 50px; border-radius: 50%;
                box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 1.5rem;
                display: flex; align-items: center; justify-content: center;">
         <i class="bi bi-calendar-heart-fill"></i>
     </button>
-    
+
     <div class="retrospective-modal-overlay" id="retrospective-modal-overlay"></div>
     <div class="retrospective-modal" id="retrospective-modal">
         <!-- O conteúdo da retrospectiva será carregado aqui pelo JS (de retrospective.html) -->
@@ -5915,12 +7079,11 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script> <!-- Tradução para Português -->
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="js/script.js" defer></script>
-    <script src="js/retrospective.js" defer></script> 
+    <script src="js/retrospective.js" defer></script>
 </body>
 </html>
 </file>
@@ -7065,8 +8228,10 @@ let breakEndSound = null;
 // Variáveis para Drag and Drop
 let draggedItem = null;
 
-// Flatpickr instance
+// Flatpickr instances
 let taskDatePicker = null;
+let recurringTaskStartDatePicker = null;
+let recurringTaskEndDatePicker = null;
 
 
 window.showCustomAlert = showCustomAlert;
@@ -7139,6 +8304,7 @@ const initialDefaultState = {
     },
     tasks: [],
     dailyTaskCompletionData: [0, 0, 0, 0, 0, 0, 0],
+    recurringTaskPatterns: [],
     visuals: {
         currentPalette: 'electricBlue',
         currentVisualMode: 'default'
@@ -7146,13 +8312,13 @@ const initialDefaultState = {
 };
 
 let state = JSON.parse(JSON.stringify(initialDefaultState));
-window.state = state; // Tornando o estado globalmente acessível
+window.state = state;
 
 // Funções Utilitárias de Data, Cor e Formatação
 function getStartOfWeek(date) {
     const d = new Date(date);
     const day = d.getDay();
-    const diff = d.getDate() - day;
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(d.setDate(diff));
 }
 
@@ -7194,6 +8360,29 @@ function hexToRgba(hex, alpha = 1) {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+function hexToRgbArray(hex) {
+    if (!hex || typeof hex !== 'string') return null;
+    let c = hex.substring(1);
+    if (c.length === 3) {
+        c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+    }
+    if (c.length !== 6) {
+        return null;
+    }
+    try {
+        const bigint = parseInt(c, 16);
+        if (isNaN(bigint)) return null;
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return [r, g, b];
+    } catch (e) {
+        console.error("Erro ao converter hex para RGB:", hex, e);
+        return null;
+    }
+}
+
+
 function formatUnit(value, singularUnit, pluralUnit) {
     const val = parseInt(value, 10);
     if (isNaN(val)) return `0 ${pluralUnit}`;
@@ -7208,7 +8397,6 @@ function getTodayISO() {
     return `${year}-${month}-${day}`;
 }
 
-// Converte YYYY-MM-DD para DD/MM/AAAA
 function formatDateToDDMMYYYY(isoDateString) {
     if (!isoDateString) return '';
     const dateParts = isoDateString.split('-');
@@ -7218,14 +8406,13 @@ function formatDateToDDMMYYYY(isoDateString) {
     return isoDateString;
 }
 
-// Converte DD/MM/AAAA para YYYY-MM-DD (usado pelo Flatpickr para salvar)
 function formatDateToISO(ddmmyyyyString) {
     if (!ddmmyyyyString) return null;
     const parts = ddmmyyyyString.split('/');
     if (parts.length === 3) {
         return `${parts[2]}-${parts[1]}-${parts[0]}`;
     }
-    return null; // ou retorna o original se o formato for inesperado
+    return null;
 }
 
 
@@ -7294,11 +8481,16 @@ function loadState() {
                 ? loadedState.weeklyActivityData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0))
                 : [...initialDefaultState.weeklyActivityData],
             tasks: (loadedState.tasks && Array.isArray(loadedState.tasks))
-                 ? loadedState.tasks.map(task => ({
+                ? loadedState.tasks.map(task => ({
                     ...task,
-                    assignedDate: task.assignedDate || null
-                   }))
+                    assignedDate: task.assignedDate || null,
+                    sourcePatternId: task.sourcePatternId || null,
+                    isRecurringInstance: task.isRecurringInstance || false
+                }))
                 : [...initialDefaultState.tasks],
+            recurringTaskPatterns: (loadedState.recurringTaskPatterns && Array.isArray(loadedState.recurringTaskPatterns))
+                ? loadedState.recurringTaskPatterns
+                : [...initialDefaultState.recurringTaskPatterns],
             dailyTaskCompletionData: (loadedState.dailyTaskCompletionData && Array.isArray(loadedState.dailyTaskCompletionData) && loadedState.dailyTaskCompletionData.length === 7)
                 ? loadedState.dailyTaskCompletionData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0))
                 : [...initialDefaultState.dailyTaskCompletionData],
@@ -7342,7 +8534,7 @@ function loadState() {
     state.visuals.currentPalette = currentPaletteName;
     state.visuals.currentVisualMode = currentVisualModeName;
 
-    window.state = state; // Atualiza o estado global
+    window.state = state;
 }
 
 function saveState() {
@@ -7353,7 +8545,7 @@ function saveState() {
         localStorage.setItem('taskify-theme', state.isDarkMode ? 'dark' : 'light');
 
         if (state.visuals.currentPalette === 'custom') {
-             localStorage.setItem('taskify-primary-color', getComputedStyle(document.documentElement).getPropertyValue('--primary-color-dark').trim());
+            localStorage.setItem('taskify-primary-color', getComputedStyle(document.documentElement).getPropertyValue('--primary-color-dark').trim());
         } else if (PREDEFINED_PALETTES[state.visuals.currentPalette]) {
             localStorage.setItem('taskify-primary-color', PREDEFINED_PALETTES[state.visuals.currentPalette].primary);
         } else {
@@ -7397,7 +8589,7 @@ function checkAllResets() {
     }
 
     if (state.lastAccessDate !== todayStr) {
-      state.lastAccessDate = todayStr;
+        state.lastAccessDate = todayStr;
     }
     saveState();
 }
@@ -7411,7 +8603,7 @@ function checkAndResetDailyCounters(todayStr) {
                 arr.shift();
                 arr.push(0);
             } else {
-                return [0,0,0,0,0,0,0];
+                return [0, 0, 0, 0, 0, 0, 0];
             }
             return arr;
         };
@@ -7427,11 +8619,13 @@ function checkAndResetDailyCounters(todayStr) {
             const dateToCheckISO = dateToCheck.toISOString().split('T')[0];
 
             let focusForThisDay = 0;
-            state.pomodoro.sessions.forEach(session => {
-                if (session.type === 'focus' && new Date(session.startTime).toISOString().split('T')[0] === dateToCheckISO) {
-                    focusForThisDay += Math.round((session.duration || 0) / 60);
-                }
-            });
+            if (state.pomodoro && state.pomodoro.sessions && Array.isArray(state.pomodoro.sessions)) {
+                state.pomodoro.sessions.forEach(session => {
+                    if (session.type === 'focus' && new Date(session.startTime).toISOString().split('T')[0] === dateToCheckISO) {
+                        focusForThisDay += Math.round((session.duration || 0) / 60);
+                    }
+                });
+            }
             newDailyFocusData[d] = focusForThisDay;
         }
         state.pomodoro.dailyFocusData = newDailyFocusData;
@@ -7513,11 +8707,17 @@ function updateUI() {
         streakTargetValueEl.textContent = state.goals.streak;
     }
 
-    document.getElementById('daily-goal-input').value = state.goals.daily;
-    document.getElementById('weekly-goal-input').value = state.goals.weekly;
-    document.getElementById('monthly-goal-input').value = state.goals.monthly;
-    document.getElementById('yearly-goal-input').value = state.goals.yearly;
-    document.getElementById('streak-goal-input').value = state.goals.streak;
+    const dailyGoalInput = document.getElementById('daily-goal-input');
+    if (dailyGoalInput) dailyGoalInput.value = state.goals.daily;
+    const weeklyGoalInput = document.getElementById('weekly-goal-input');
+    if (weeklyGoalInput) weeklyGoalInput.value = state.goals.weekly;
+    const monthlyGoalInput = document.getElementById('monthly-goal-input');
+    if (monthlyGoalInput) monthlyGoalInput.value = state.goals.monthly;
+    const yearlyGoalInput = document.getElementById('yearly-goal-input');
+    if (yearlyGoalInput) yearlyGoalInput.value = state.goals.yearly;
+    const streakGoalInput = document.getElementById('streak-goal-input');
+    if (streakGoalInput) streakGoalInput.value = state.goals.streak;
+
 
     updateWeeklyChartDataOnly();
     updatePomodoroChartDataOnly();
@@ -7557,7 +8757,7 @@ function incrementToday() {
     state.monthlyProgress += step;
     state.yearlyProgress += step;
 
-    if(state.weeklyActivityData && state.weeklyActivityData.length === 7) {
+    if (state.weeklyActivityData && state.weeklyActivityData.length === 7) {
         state.weeklyActivityData[6] += step;
     }
 
@@ -7581,8 +8781,8 @@ function decrementToday() {
         state.monthlyProgress = Math.max(0, state.monthlyProgress - actualDecrementAmount);
         state.yearlyProgress = Math.max(0, state.yearlyProgress - actualDecrementAmount);
 
-        if(state.weeklyActivityData && state.weeklyActivityData.length === 7) {
-             state.weeklyActivityData[6] = Math.max(0, state.weeklyActivityData[6] - actualDecrementAmount);
+        if (state.weeklyActivityData && state.weeklyActivityData.length === 7) {
+            state.weeklyActivityData[6] = Math.max(0, state.weeklyActivityData[6] - actualDecrementAmount);
         }
     }
     updateDailyRecord();
@@ -7659,10 +8859,12 @@ function updateStreak() {
     if (streakData.lastValidDate && streakData.lastValidDate !== todayISO) {
         const lastValid = new Date(streakData.lastValidDate);
         const todayDateObj = new Date(todayISO);
-        lastValid.setHours(0,0,0,0);
-        todayDateObj.setHours(0,0,0,0);
+        lastValid.setHours(0, 0, 0, 0);
+        todayDateObj.setHours(0, 0, 0, 0);
+
         const diffTime = todayDateObj - lastValid;
         const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
         if (diffDays > 1) {
             streakData.current = goalMetToday ? 1 : 0;
             streakData.lastValidDate = goalMetToday ? todayISO : null;
@@ -7671,6 +8873,7 @@ function updateStreak() {
         streakData.current = 1;
         streakData.lastValidDate = todayISO;
     }
+
 
     state.currentStreak.days = streakData.current;
     state.currentStreak.lastCompletionDate = streakData.lastValidDate;
@@ -7707,15 +8910,12 @@ function removeDayFromStreak(streakData, dateISO) {
             const yesterday = new Date(dateISO);
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayISO = yesterday.toISOString().split('T')[0];
-            if (streakData.history[yesterdayISO] && Number(streakData.history[yesterdayISO]) >= state.goals.daily) {
-                 streakData.lastValidDate = yesterdayISO;
-            } else {
-                 streakData.lastValidDate = yesterdayISO;
-            }
+            streakData.lastValidDate = yesterdayISO;
         }
     }
     delete streakData.history[dateISO];
 }
+
 
 function saveStreakData(data) {
     localStorage.setItem('taskify-streak', JSON.stringify(data));
@@ -7740,11 +8940,17 @@ function openGoalsModal() {
     const modal = document.getElementById('goals-modal');
     const overlay = document.getElementById('goals-modal-overlay');
     if (modal && overlay) {
-        document.getElementById('daily-goal-input').value = state.goals.daily;
-        document.getElementById('weekly-goal-input').value = state.goals.weekly;
-        document.getElementById('monthly-goal-input').value = state.goals.monthly;
-        document.getElementById('yearly-goal-input').value = state.goals.yearly;
-        document.getElementById('streak-goal-input').value = state.goals.streak;
+        const dailyGoalInput = document.getElementById('daily-goal-input');
+        if (dailyGoalInput) dailyGoalInput.value = state.goals.daily;
+        const weeklyGoalInput = document.getElementById('weekly-goal-input');
+        if (weeklyGoalInput) weeklyGoalInput.value = state.goals.weekly;
+        const monthlyGoalInput = document.getElementById('monthly-goal-input');
+        if (monthlyGoalInput) monthlyGoalInput.value = state.goals.monthly;
+        const yearlyGoalInput = document.getElementById('yearly-goal-input');
+        if (yearlyGoalInput) yearlyGoalInput.value = state.goals.yearly;
+        const streakGoalInput = document.getElementById('streak-goal-input');
+        if (streakGoalInput) streakGoalInput.value = state.goals.streak;
+
         overlay.classList.add('show');
         modal.classList.add('show');
         document.body.classList.add('modal-open');
@@ -7793,7 +8999,6 @@ function applyPrimaryColor(color) {
         document.documentElement.style.setProperty('--primary-color-light-rgb', rgbArray.join(', '));
         document.documentElement.style.setProperty('--primary-color-dark-rgb', rgbArray.join(', '));
     }
-    applyCurrentThemeAndMode();
 }
 
 function applyCurrentThemeAndMode() {
@@ -7823,6 +9028,11 @@ function applyCurrentThemeAndMode() {
     } else if (PREDEFINED_PALETTES[state.visuals.currentPalette]) {
         currentPrimaryColor = PREDEFINED_PALETTES[state.visuals.currentPalette].primary;
     }
+
+    if (getComputedStyle(document.documentElement).getPropertyValue('--primary-color-dark').trim() !== currentPrimaryColor) {
+        applyPrimaryColor(currentPrimaryColor);
+    }
+
 
     if (faviconEl) {
         faviconEl.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='${encodeURIComponent(currentPrimaryColor)}' class='bi bi-check2-square' viewBox='0 0 16 16'><path d='M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8A1.5 1.5 0 0 1 12.5 3v1.5a.5.5 0 0 1-1 0V3a.5.5 0 0 0-.5-.5H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 1 0 1H3z'/><path d='m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z'/></svg>`;
@@ -7930,11 +9140,11 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
 function setupChart(animateInitialRender = true) {
     if (weeklyChartInstance) weeklyChartInstance.destroy();
     const data = (window.state && Array.isArray(window.state.weeklyActivityData) && window.state.weeklyActivityData.length === 7)
-                ? window.state.weeklyActivityData
-                : [0,0,0,0,0,0,0];
+        ? window.state.weeklyActivityData
+        : [0, 0, 0, 0, 0, 0, 0];
 
     weeklyChartInstance = createChartConfig('weeklyActivityChart', data, 'Questões', 'Nº de Questões', 'Questões');
-    if(weeklyChartInstance) weeklyChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
+    if (weeklyChartInstance) weeklyChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
 }
 function updateWeeklyChartDataOnly() {
     if (!window.state || !Array.isArray(window.state.weeklyActivityData) || window.state.weeklyActivityData.length !== 7) {
@@ -7952,14 +9162,14 @@ function updateWeeklyChartDataOnly() {
 
 function setupPomodoroChart(animateInitialRender = true) {
     if (pomodoroChartInstance) pomodoroChartInstance.destroy();
-     const data = (state.pomodoro && Array.isArray(state.pomodoro.dailyFocusData) && state.pomodoro.dailyFocusData.length === 7)
-                ? state.pomodoro.dailyFocusData
-                : [0,0,0,0,0,0,0];
+    const data = (state.pomodoro && Array.isArray(state.pomodoro.dailyFocusData) && state.pomodoro.dailyFocusData.length === 7)
+        ? state.pomodoro.dailyFocusData
+        : [0, 0, 0, 0, 0, 0, 0];
     pomodoroChartInstance = createChartConfig(
         'weeklyPomodoroFocusChart', data, 'Tempo de Foco', 'Minutos de Foco', 'Foco',
         (value) => value.toFixed(0) + ' min'
     );
-    if(pomodoroChartInstance) pomodoroChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
+    if (pomodoroChartInstance) pomodoroChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
 }
 function updatePomodoroChartDataOnly() {
     if (!state.pomodoro || !Array.isArray(state.pomodoro.dailyFocusData) || state.pomodoro.dailyFocusData.length !== 7) {
@@ -7978,13 +9188,13 @@ function updatePomodoroChartDataOnly() {
 function setupTasksChart(animateInitialRender = true) {
     if (tasksChartInstance) tasksChartInstance.destroy();
     const data = (Array.isArray(state.dailyTaskCompletionData) && state.dailyTaskCompletionData.length === 7)
-                ? state.dailyTaskCompletionData
-                : [0,0,0,0,0,0,0];
+        ? state.dailyTaskCompletionData
+        : [0, 0, 0, 0, 0, 0, 0];
     tasksChartInstance = createChartConfig('weeklyTasksCompletedChart', data, 'Tarefas Concluídas', 'Nº de Tarefas', 'Tarefas');
-    if(tasksChartInstance) tasksChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
+    if (tasksChartInstance) tasksChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
 }
 function updateTasksChartDataOnly() {
-     if (!Array.isArray(state.dailyTaskCompletionData) || state.dailyTaskCompletionData.length !== 7) {
+    if (!Array.isArray(state.dailyTaskCompletionData) || state.dailyTaskCompletionData.length !== 7) {
         console.warn("TASKIFY_CHART: dailyTaskCompletionData inválido ou ausente. Recriando gráfico.");
         setupTasksChart(false);
         return;
@@ -8060,7 +9270,7 @@ function updatePomodoroUI() {
                 const nextModeText = pomodoro.mode === 'focus' ? 'Foco' : (pomodoro.mode === 'shortBreak' ? 'Pausa Curta' : 'Pausa Longa');
                 statusDisplay.textContent = `Próximo: ${nextModeText}`;
             } else {
-                 statusDisplay.textContent = `Pronto para ${pomodoro.mode === 'focus' ? 'focar?' : (pomodoro.mode === 'shortBreak' ? 'uma pausa curta?' : 'uma pausa longa?')}`;
+                statusDisplay.textContent = `Pronto para ${pomodoro.mode === 'focus' ? 'focar?' : (pomodoro.mode === 'shortBreak' ? 'uma pausa curta?' : 'uma pausa longa?')}`;
             }
         }
     }
@@ -8073,17 +9283,17 @@ function updatePomodoroUI() {
 
         if (pomodoro.mode === 'focus') {
             startBtn.classList.remove('break-mode');
-            if(timerDisplay) timerDisplay.classList.remove('break-mode');
+            if (timerDisplay) timerDisplay.classList.remove('break-mode');
         } else {
             startBtn.classList.add('break-mode');
-            if(timerDisplay) timerDisplay.classList.add('break-mode');
+            if (timerDisplay) timerDisplay.classList.add('break-mode');
         }
 
         if (!pomodoro.timerRunning) {
             const isAtFullDurationForCurrentMode = pomodoro.currentTime ===
                 (pomodoro.mode === 'focus' ? pomodoro.focusDuration :
-                (pomodoro.mode === 'shortBreak' ? pomodoro.shortBreakDuration :
-                 pomodoro.longBreakDuration));
+                    (pomodoro.mode === 'shortBreak' ? pomodoro.shortBreakDuration :
+                        pomodoro.longBreakDuration));
             startBtn.textContent = isAtFullDurationForCurrentMode ? 'Iniciar' : 'Continuar';
         }
     }
@@ -8103,11 +9313,7 @@ function playSound(soundElement) {
     }
     if (typeof soundElement.play === 'function') {
         soundElement.currentTime = 0;
-        console.log(`TASKIFY_SOUND: Tentando tocar: ${soundElement.id}`);
         soundElement.play()
-            .then(() => {
-                console.log(`TASKIFY_SOUND: Som ${soundElement.id} tocado com sucesso.`);
-            })
             .catch(error => {
                 console.warn(`TASKIFY_SOUND: Erro ao tocar som ${soundElement.id}:`, error);
             });
@@ -8118,37 +9324,22 @@ function playSound(soundElement) {
 
 function handlePomodoroTick() {
     if (!state.pomodoro.timerRunning) return;
-
     state.pomodoro.currentTime--;
-
-    if (state.pomodoro.currentTime < 0) {
-        console.log("TASKIFY_POMO: Fim do ciclo detectado em handlePomodoroTick.");
-        handlePomodoroCycleEnd();
-    } else {
-        updatePomodoroUI();
-    }
+    if (state.pomodoro.currentTime < 0) handlePomodoroCycleEnd();
+    else updatePomodoroUI();
 }
 
 function handlePomodoroCycleEnd() {
-    console.log("TASKIFY_POMO: handlePomodoroCycleEnd iniciado. Modo encerrado:", state.pomodoro.mode);
     const endedMode = state.pomodoro.mode;
     let actualDurationSeconds = 0;
 
-    if (endedMode === 'focus') {
-        actualDurationSeconds = state.pomodoro.focusDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime);
-    } else if (endedMode === 'shortBreak') {
-        actualDurationSeconds = state.pomodoro.shortBreakDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime);
-    } else {
-        actualDurationSeconds = state.pomodoro.longBreakDuration - (state.pomodoro.currentTime < 0 ? -1 : state.pomodoro.currentTime);
-    }
-    actualDurationSeconds = Math.max(0, actualDurationSeconds);
-    console.log(`TASKIFY_POMO: Duração real do ciclo de ${endedMode}: ${actualDurationSeconds}s`);
-
+    if (endedMode === 'focus') actualDurationSeconds = state.pomodoro.focusDuration - Math.max(0, state.pomodoro.currentTime);
+    else if (endedMode === 'shortBreak') actualDurationSeconds = state.pomodoro.shortBreakDuration - Math.max(0, state.pomodoro.currentTime);
+    else actualDurationSeconds = state.pomodoro.longBreakDuration - Math.max(0, state.pomodoro.currentTime);
 
     if (endedMode === 'focus' && actualDurationSeconds > 0) {
-        if(state.pomodoro.dailyFocusData && state.pomodoro.dailyFocusData.length === 7) {
+        if (state.pomodoro.dailyFocusData && state.pomodoro.dailyFocusData.length === 7) {
             state.pomodoro.dailyFocusData[6] += Math.round(actualDurationSeconds / 60);
-            console.log("TASKIFY_POMO: dailyFocusData[6] atualizado para:", state.pomodoro.dailyFocusData[6]);
         }
         logPomodoroSession(endedMode, actualDurationSeconds);
         updatePomodoroChartDataOnly();
@@ -8158,44 +9349,30 @@ function handlePomodoroCycleEnd() {
     if (pomodoroInterval) {
         clearInterval(pomodoroInterval);
         pomodoroInterval = null;
-        console.log("TASKIFY_POMO: Timer parado e intervalo limpo em handlePomodoroCycleEnd.");
     }
 
     let nextModeMessage = "";
-
     if (endedMode === 'focus') {
         state.pomodoro.totalPomodorosToday++;
         state.pomodoro.currentCycleInSet++;
-        console.log("TASKIFY_POMO: Ciclo de foco terminado. Total hoje:", state.pomodoro.totalPomodorosToday, "Ciclo no set:", state.pomodoro.currentCycleInSet);
-        if (state.pomodoro.enableSound && focusEndSound) {
-            console.log("TASKIFY_POMO: Tentando tocar focusEndSound.");
-            playSound(focusEndSound);
-        }
+        if (state.pomodoro.enableSound && focusEndSound) playSound(focusEndSound);
         if (state.pomodoro.currentCycleInSet >= state.pomodoro.cyclesBeforeLongBreak) {
             state.pomodoro.mode = 'longBreak';
             state.pomodoro.currentTime = state.pomodoro.longBreakDuration;
             state.pomodoro.currentCycleInSet = 0;
             nextModeMessage = "Hora da pausa longa!";
-            console.log("TASKIFY_POMO: Próximo modo: longBreak");
         } else {
             state.pomodoro.mode = 'shortBreak';
             state.pomodoro.currentTime = state.pomodoro.shortBreakDuration;
             nextModeMessage = "Hora da pausa curta!";
-            console.log("TASKIFY_POMO: Próximo modo: shortBreak");
         }
     } else {
-        console.log("TASKIFY_POMO: Ciclo de pausa terminado.");
-        if (state.pomodoro.enableSound && breakEndSound) {
-            console.log("TASKIFY_POMO: Tentando tocar breakEndSound.");
-            playSound(breakEndSound);
-        }
+        if (state.pomodoro.enableSound && breakEndSound) playSound(breakEndSound);
         state.pomodoro.mode = 'focus';
         state.pomodoro.currentTime = state.pomodoro.focusDuration;
         nextModeMessage = "Hora de focar!";
-        console.log("TASKIFY_POMO: Próximo modo: focus");
     }
     state.pomodoro.lastModeEnded = endedMode;
-
     updatePomodoroUI();
     saveState();
 
@@ -8203,21 +9380,12 @@ function handlePomodoroCycleEnd() {
         `Ciclo de ${endedMode === 'focus' ? 'Foco' : (endedMode === 'shortBreak' ? 'Pausa Curta' : 'Pausa Longa')} terminado! ${nextModeMessage}`,
         "Pomodoro",
         () => {
-            console.log("TASKIFY_POMO: Callback do alerta executado.");
             const pomodoroSectionEl = document.querySelector('.pomodoro-section');
-            if(pomodoroSectionEl) {
-                setTimeout(() => {
-                    pomodoroSectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 100);
-            }
-
+            if (pomodoroSectionEl) setTimeout(() => pomodoroSectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
             const currentEndedMode = state.pomodoro.lastModeEnded;
             if ((currentEndedMode === 'focus' && state.pomodoro.autoStartBreaks) ||
                 ((currentEndedMode === 'shortBreak' || currentEndedMode === 'longBreak') && state.pomodoro.autoStartFocus)) {
-                console.log("TASKIFY_POMO: Iniciando próximo ciclo automaticamente após alerta.");
                 startPomodoro();
-            } else {
-                console.log("TASKIFY_POMO: Não iniciando próximo ciclo automaticamente após alerta. lastModeEnded:", currentEndedMode, "autoStartBreaks:", state.pomodoro.autoStartBreaks, "autoStartFocus:", state.pomodoro.autoStartFocus);
             }
         }
     );
@@ -8225,22 +9393,12 @@ function handlePomodoroCycleEnd() {
 
 
 function startPomodoro() {
-    console.log("TASKIFY_POMO: startPomodoro chamado. Timer rodando?", state.pomodoro.timerRunning);
-    if (state.pomodoro.timerRunning) {
-        console.log("TASKIFY_POMO: Timer já rodando, retornando.");
-        return;
-    }
+    if (state.pomodoro.timerRunning) return;
     checkAllResets();
     state.pomodoro.timerRunning = true;
     state.pomodoro.lastModeEnded = null;
-
-    if (pomodoroInterval) {
-        console.log("TASKIFY_POMO: Limpando intervalo existente em startPomodoro. ID:", pomodoroInterval);
-        clearInterval(pomodoroInterval);
-    }
+    if (pomodoroInterval) clearInterval(pomodoroInterval);
     pomodoroInterval = setInterval(handlePomodoroTick, 1000);
-    console.log("TASKIFY_POMO: Novo intervalo definido. ID:", pomodoroInterval);
-
     updatePomodoroUI();
     saveState();
 }
@@ -8260,11 +9418,9 @@ function resetPomodoro() {
     const timeRemaining = state.pomodoro.currentTime;
 
     if (wasRunning && endedMode === 'focus') {
-        let timeSpentSeconds = 0;
-        if(state.pomodoro.mode === 'focus') timeSpentSeconds = state.pomodoro.focusDuration - timeRemaining;
-
+        let timeSpentSeconds = state.pomodoro.focusDuration - timeRemaining;
         if (timeSpentSeconds > 0) {
-            if(state.pomodoro.dailyFocusData && state.pomodoro.dailyFocusData.length === 7) {
+            if (state.pomodoro.dailyFocusData && state.pomodoro.dailyFocusData.length === 7) {
                 state.pomodoro.dailyFocusData[6] += Math.round(timeSpentSeconds / 60);
             }
             logPomodoroSession(endedMode, timeSpentSeconds);
@@ -8275,11 +9431,9 @@ function resetPomodoro() {
     clearInterval(pomodoroInterval);
     pomodoroInterval = null;
     state.pomodoro.lastModeEnded = null;
-
     if (state.pomodoro.mode === 'focus') state.pomodoro.currentTime = state.pomodoro.focusDuration;
     else if (state.pomodoro.mode === 'shortBreak') state.pomodoro.currentTime = state.pomodoro.shortBreakDuration;
     else if (state.pomodoro.mode === 'longBreak') state.pomodoro.currentTime = state.pomodoro.longBreakDuration;
-
     updatePomodoroUI();
     updatePomodoroChartDataOnly();
     saveState();
@@ -8296,7 +9450,6 @@ function openPomodoroSettingsModal() {
         document.getElementById('pomodoro-auto-start-breaks-checkbox').checked = state.pomodoro.autoStartBreaks;
         document.getElementById('pomodoro-auto-start-focus-checkbox').checked = state.pomodoro.autoStartFocus;
         document.getElementById('pomodoro-enable-sound-checkbox').checked = state.pomodoro.enableSound;
-
         overlay.classList.add('show');
         modal.classList.add('show');
         document.body.classList.add('modal-open');
@@ -8364,10 +9517,6 @@ function logPomodoroSession(type, durationInSeconds) {
 function initPomodoro() {
     focusEndSound = document.getElementById('focus-end-sound');
     breakEndSound = document.getElementById('break-end-sound');
-    console.log("TASKIFY_POMO: focusEndSound element:", focusEndSound);
-    console.log("TASKIFY_POMO: breakEndSound element:", breakEndSound);
-
-
     const pomodoroSettingsForm = document.getElementById('pomodoro-settings-form');
     if (pomodoroSettingsForm) {
         pomodoroSettingsForm.addEventListener('submit', (e) => {
@@ -8376,7 +9525,7 @@ function initPomodoro() {
         });
     }
     const pomodoroSettingsModalOverlay = document.getElementById('pomodoro-settings-modal-overlay');
-    if(pomodoroSettingsModalOverlay) {
+    if (pomodoroSettingsModalOverlay) {
         pomodoroSettingsModalOverlay.addEventListener('click', closePomodoroSettingsModal);
     }
     updatePomodoroUI();
@@ -8390,32 +9539,34 @@ function renderTasks() {
     taskList.innerHTML = '';
     const todayISO = getTodayISO();
 
-    const sortedTasks = [...state.tasks].sort((a, b) => {
-        if (a.completed !== b.completed) {
-            return a.completed ? 1 : -1;
-        }
-        const aEffectiveDateStr = a.assignedDate || a.createdAt.split('T')[0];
-        const bEffectiveDateStr = b.assignedDate || b.createdAt.split('T')[0];
+    generateRecurringTaskInstances();
 
+    const tasksToDisplay = state.tasks.filter(task => {
+        if (task.isRecurringInstance) {
+            return task.assignedDate === todayISO;
+        }
+        return true;
+    });
+
+
+    const sortedTasks = [...tasksToDisplay].sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        const aDateStr = a.assignedDate || "0000-00-00";
+        const bDateStr = b.assignedDate || "0000-00-00";
         const aIsTodayOrNull = a.assignedDate === todayISO || a.assignedDate === null;
         const bIsTodayOrNull = b.assignedDate === todayISO || b.assignedDate === null;
-
         if (aIsTodayOrNull && !bIsTodayOrNull) return -1;
         if (!aIsTodayOrNull && bIsTodayOrNull) return 1;
-
-        const aDate = new Date(aEffectiveDateStr + "T00:00:00");
-        const bDate = new Date(bEffectiveDateStr + "T00:00:00");
-
-        if (aDate < bDate) return -1;
-        if (aDate > bDate) return 1;
-
+        if (aDateStr < bDateStr) return -1;
+        if (aDateStr > bDateStr) return 1;
         return new Date(a.createdAt) - new Date(b.createdAt);
     });
+
 
     if (sortedTasks.length === 0) {
         const emptyTaskMessage = document.createElement('li');
         emptyTaskMessage.className = 'task-list-empty-message';
-        emptyTaskMessage.textContent = 'Nenhuma tarefa por enquanto. Adicione algumas!';
+        emptyTaskMessage.textContent = 'Nenhuma tarefa para hoje. Adicione algumas!';
         taskList.appendChild(emptyTaskMessage);
     } else {
         sortedTasks.forEach(task => {
@@ -8437,38 +9588,35 @@ function renderTasks() {
             textSpan.className = 'task-item-text';
             textSpan.textContent = task.text;
 
-            if (task.assignedDate) {
+            if (task.isRecurringInstance || task.sourcePatternId) {
+                const recurringIcon = document.createElement('i');
+                recurringIcon.className = 'bi bi-arrow-repeat task-recurring-icon';
+                recurringIcon.title = 'Tarefa Recorrente';
+                textSpan.prepend(recurringIcon);
+            }
+
+
+            if (task.assignedDate && task.assignedDate !== todayISO) {
                 const dateIndicator = document.createElement('span');
                 dateIndicator.className = 'task-assigned-date-indicator';
-
                 const assignedDateParts = task.assignedDate.split('-');
-                const assignedDateObj = new Date(
-                    parseInt(assignedDateParts[0]),
-                    parseInt(assignedDateParts[1]) - 1,
-                    parseInt(assignedDateParts[2])
-                );
+                const assignedDateObj = new Date(parseInt(assignedDateParts[0]), parseInt(assignedDateParts[1]) - 1, parseInt(assignedDateParts[2]));
                 assignedDateObj.setHours(0, 0, 0, 0);
+                const todayDateObj = new Date(); todayDateObj.setHours(0, 0, 0, 0);
+                const tomorrowDateObj = new Date(todayDateObj); tomorrowDateObj.setDate(todayDateObj.getDate() + 1);
+                const yesterdayDateObj = new Date(todayDateObj); yesterdayDateObj.setDate(todayDateObj.getDate() - 1);
 
-                const todayDateObj = new Date();
-                todayDateObj.setHours(0, 0, 0, 0);
-
-                const tomorrowDateObj = new Date(todayDateObj);
-                tomorrowDateObj.setDate(todayDateObj.getDate() + 1);
-
-                const yesterdayDateObj = new Date(todayDateObj);
-                yesterdayDateObj.setDate(todayDateObj.getDate() - 1);
-
-                if (assignedDateObj.getTime() === todayDateObj.getTime()) {
-                    dateIndicator.textContent = 'Hoje';
-                } else if (assignedDateObj.getTime() === yesterdayDateObj.getTime()) {
-                    dateIndicator.textContent = 'Ontem';
-                } else if (assignedDateObj.getTime() === tomorrowDateObj.getTime()) {
-                    dateIndicator.textContent = 'Amanhã';
-                } else {
-                    dateIndicator.textContent = formatDateToDDMMYYYY(task.assignedDate);
-                }
+                if (assignedDateObj.getTime() === yesterdayDateObj.getTime()) dateIndicator.textContent = 'Ontem';
+                else if (assignedDateObj.getTime() === tomorrowDateObj.getTime()) dateIndicator.textContent = 'Amanhã';
+                else dateIndicator.textContent = formatDateToDDMMYYYY(task.assignedDate);
+                textSpan.appendChild(dateIndicator);
+            } else if (task.assignedDate === todayISO && !task.isRecurringInstance) {
+                const dateIndicator = document.createElement('span');
+                dateIndicator.className = 'task-assigned-date-indicator';
+                dateIndicator.textContent = 'Hoje';
                 textSpan.appendChild(dateIndicator);
             }
+
 
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'task-item-delete-btn';
@@ -8488,9 +9636,12 @@ function renderTasks() {
 function updateTasksCounter() {
     const tasksCounter = document.getElementById('tasks-counter');
     if (!tasksCounter) return;
-    const completedTasks = state.tasks.filter(task => task.completed).length;
-    const totalTasks = state.tasks.length;
-    tasksCounter.textContent = `${completedTasks}/${totalTasks}`;
+    const displayedTasks = state.tasks.filter(task => {
+        if (task.isRecurringInstance) return task.assignedDate === getTodayISO();
+        return true;
+    });
+    const completedDisplayedTasks = displayedTasks.filter(task => task.completed).length;
+    tasksCounter.textContent = `${completedDisplayedTasks}/${displayedTasks.length}`;
 }
 
 
@@ -8499,20 +9650,15 @@ function addTask(event) {
     checkAllResets();
     const taskInput = document.getElementById('task-input');
     const taskText = taskInput.value.trim();
-
-    // Pega a data selecionada pelo Flatpickr. Flatpickr retorna um array de datas selecionadas.
-    // Como configuramos para modo 'single', pegamos o primeiro elemento.
     const selectedDates = taskDatePicker.selectedDates;
     let assignedDateValue = null;
     if (selectedDates.length > 0) {
         const dateObj = selectedDates[0];
-        // Formata para YYYY-MM-DD para salvar no estado
         const year = dateObj.getFullYear();
         const month = String(dateObj.getMonth() + 1).padStart(2, '0');
         const day = String(dateObj.getDate()).padStart(2, '0');
         assignedDateValue = `${year}-${month}-${day}`;
     }
-
 
     if (taskText === '') {
         showCustomAlert('Por favor, insira o texto da tarefa.', 'Tarefa Inválida');
@@ -8525,13 +9671,12 @@ function addTask(event) {
         completed: false,
         createdAt: new Date().toISOString(),
         completionDate: null,
-        assignedDate: assignedDateValue // Salva YYYY-MM-DD ou null
+        assignedDate: assignedDateValue
     };
 
     state.tasks.push(newTask);
     taskInput.value = '';
-    taskDatePicker.setDate(new Date(), true); // Reseta Flatpickr para a data de hoje e atualiza o input
-
+    taskDatePicker.setDate(new Date(), true);
     renderTasks();
     saveState();
 }
@@ -8556,27 +9701,21 @@ function toggleTaskComplete(taskId) {
         updateTasksCounter();
 
         const completionDateForChart = task.completed ? new Date(task.completionDate) : new Date();
-        completionDateForChart.setHours(0,0,0,0);
-
-        const today = new Date();
-        today.setHours(0,0,0,0);
-
+        completionDateForChart.setHours(0, 0, 0, 0);
+        const today = new Date(); today.setHours(0, 0, 0, 0);
         const oneDay = 24 * 60 * 60 * 1000;
         const diffDays = Math.round((today.getTime() - completionDateForChart.getTime()) / oneDay);
 
         if (diffDays >= 0 && diffDays < 7) {
             const dayIndexInChart = 6 - diffDays;
             if (state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7 && dayIndexInChart >= 0 && dayIndexInChart < 7) {
-                if (task.completed && !wasCompleted) {
-                    state.dailyTaskCompletionData[dayIndexInChart]++;
-                } else if (!task.completed && wasCompleted) {
-                    state.dailyTaskCompletionData[dayIndexInChart] = Math.max(0, state.dailyTaskCompletionData[dayIndexInChart] - 1);
-                }
+                if (task.completed && !wasCompleted) state.dailyTaskCompletionData[dayIndexInChart]++;
+                else if (!task.completed && wasCompleted) state.dailyTaskCompletionData[dayIndexInChart] = Math.max(0, state.dailyTaskCompletionData[dayIndexInChart] - 1);
             }
         }
-
         saveState();
         updateTasksChartDataOnly();
+        if (task.completed || wasCompleted) renderTasks();
     }
 }
 
@@ -8587,35 +9726,30 @@ function deleteTask(taskId) {
     if (taskIndex > -1) {
         const deletedTask = state.tasks[taskIndex];
 
-        state.tasks.splice(taskIndex, 1);
-
-        const taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
-        if (taskElement) {
-            taskElement.remove();
+        if (deletedTask.isRecurringInstance || deletedTask.sourcePatternId) {
+            openDeleteRecurringTaskModal(deletedTask);
+            return;
         }
 
+        state.tasks.splice(taskIndex, 1);
+        const taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
+        if (taskElement) taskElement.remove();
         updateTasksCounter();
 
         if (deletedTask.completed && deletedTask.completionDate) {
             const completionDateForChart = new Date(deletedTask.completionDate);
-            completionDateForChart.setHours(0,0,0,0);
-
-            const today = new Date();
-            today.setHours(0,0,0,0);
-
+            completionDateForChart.setHours(0, 0, 0, 0);
+            const today = new Date(); today.setHours(0, 0, 0, 0);
             const oneDay = 24 * 60 * 60 * 1000;
             const diffDays = Math.round((today.getTime() - completionDateForChart.getTime()) / oneDay);
-
-
             if (diffDays >= 0 && diffDays < 7) {
                 const dayIndexInChart = 6 - diffDays;
-                 if(state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7 && dayIndexInChart >= 0 && dayIndexInChart < 7) {
+                if (state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7 && dayIndexInChart >= 0 && dayIndexInChart < 7) {
                     state.dailyTaskCompletionData[dayIndexInChart] = Math.max(0, state.dailyTaskCompletionData[dayIndexInChart] - 1);
                 }
             }
         }
-
-        if (state.tasks.length === 0) {
+        if (state.tasks.filter(t => (t.isRecurringInstance ? t.assignedDate === getTodayISO() : true)).length === 0) {
             renderTasks();
         }
 
@@ -8629,15 +9763,11 @@ function deleteTask(taskId) {
 function handleDragStart(e) {
     draggedItem = e.target;
     e.dataTransfer.effectAllowed = 'move';
-    setTimeout(() => {
-        if (draggedItem) draggedItem.classList.add('dragging');
-    }, 0);
+    setTimeout(() => { if (draggedItem) draggedItem.classList.add('dragging'); }, 0);
 }
 
 function handleDragEnd(e) {
-    if (draggedItem) {
-        draggedItem.classList.remove('dragging');
-    }
+    if (draggedItem) draggedItem.classList.remove('dragging');
     draggedItem = null;
     document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
 }
@@ -8646,60 +9776,40 @@ function handleDragOver(e) {
     e.preventDefault();
     const taskList = document.getElementById('task-list');
     const afterElement = getDragAfterElement(taskList, e.clientY);
-
-    const existingPlaceholder = taskList.querySelector('.drag-over-placeholder');
-    if (existingPlaceholder) {
-        existingPlaceholder.remove();
-    }
-
+    document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
     const placeholder = document.createElement('li');
     placeholder.classList.add('drag-over-placeholder');
-    if (afterElement == null) {
-        taskList.appendChild(placeholder);
-    } else {
-        taskList.insertBefore(placeholder, afterElement);
-    }
+    if (afterElement == null) taskList.appendChild(placeholder);
+    else taskList.insertBefore(placeholder, afterElement);
 }
 
 function handleDrop(e) {
     e.preventDefault();
     if (!draggedItem) return;
-
     const taskList = document.getElementById('task-list');
     const draggedItemId = draggedItem.dataset.taskId;
-
     const originalIndex = state.tasks.findIndex(task => task.id === draggedItemId);
     if (originalIndex === -1) {
         console.error("Tarefa arrastada não encontrada no estado.");
-        draggedItem.classList.remove('dragging');
+        if (draggedItem) draggedItem.classList.remove('dragging');
         draggedItem = null;
         document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
         return;
     }
-
     const [movedTask] = state.tasks.splice(originalIndex, 1);
-
     const afterElement = getDragAfterElement(taskList, e.clientY);
     let newIndex;
-
     if (afterElement) {
         const afterElementId = afterElement.dataset.taskId;
         const targetIndexInState = state.tasks.findIndex(task => task.id === afterElementId);
-        if (targetIndexInState !== -1) {
-            newIndex = targetIndexInState;
-        } else {
-            newIndex = state.tasks.length;
-        }
+        newIndex = targetIndexInState !== -1 ? targetIndexInState : state.tasks.length;
     } else {
         newIndex = state.tasks.length;
     }
-
     state.tasks.splice(newIndex, 0, movedTask);
-
-    draggedItem.classList.remove('dragging');
+    if (draggedItem) draggedItem.classList.remove('dragging');
     draggedItem = null;
     document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
-
     renderTasks();
     saveState();
 }
@@ -8707,15 +9817,11 @@ function handleDrop(e) {
 
 function getDragAfterElement(container, y) {
     const draggableElements = [...container.querySelectorAll('.task-item:not(.dragging)')];
-
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) {
-            return { offset: offset, element: child };
-        } else {
-            return closest;
-        }
+        if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+        else return closest;
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
@@ -8723,36 +9829,489 @@ function getDragAfterElement(container, y) {
 function initTasks() {
     const taskForm = document.getElementById('task-form');
     if (taskForm) taskForm.addEventListener('submit', addTask);
-
     const taskList = document.getElementById('task-list');
     if (taskList) {
         taskList.addEventListener('dragover', handleDragOver);
         taskList.addEventListener('drop', handleDrop);
     }
-
-    // Inicializa o Flatpickr
     const taskDateInput = document.getElementById('task-assigned-date');
     if (taskDateInput && typeof flatpickr === 'function') {
         taskDatePicker = flatpickr(taskDateInput, {
-            dateFormat: "d/m/Y", // Formato de exibição DD/MM/AAAA
-            defaultDate: "today", // Data padrão é hoje
-            locale: "pt", // Para tradução (requer o script de localização pt.js)
-            allowInput: true, // Permite digitar a data
-            // Flatpickr por padrão retorna a data no formato que o backend/JS espera (YYYY-MM-DD)
-            // quando você acessa `selectedDates`. O `dateFormat` afeta apenas a exibição.
-            // O `altInput` e `altFormat` são para ter um campo visível diferente do campo oculto,
-            // mas para este caso, `dateFormat` deve ser suficiente para a exibição.
+            dateFormat: "d/m/Y", defaultDate: "today", locale: "pt", allowInput: true,
         });
     } else if (taskDateInput) {
-        // Fallback se Flatpickr não carregar (improvável se os links CDN estiverem corretos)
-        taskDateInput.value = getTodayISO(); // YYYY-MM-DD
-        taskDateInput.type = "date"; // Reverte para o input nativo
-        taskDateInput.placeholder = ""; // Remove placeholder se reverter
+        taskDateInput.value = getTodayISO(); taskDateInput.type = "date"; taskDateInput.placeholder = "";
+    }
+    renderTasks();
+}
+
+// --- Funções de Tarefas Recorrentes ---
+function setupRecurringDaysCheckboxes() {
+    const checkboxes = document.querySelectorAll('.recurring-days-checkbox-group input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const label = e.target.closest('label');
+            if (label) {
+                label.classList.toggle('checked', e.target.checked);
+            }
+            updateSelectedDaysHint();
+        });
+    });
+}
+
+function updateSelectedDaysHint() {
+    const hintEl = document.getElementById('recurring-days-hint');
+    if (!hintEl) return;
+
+    const selectedLabels = [];
+    document.querySelectorAll('.recurring-days-checkbox-group input[type="checkbox"]:checked').forEach(cb => {
+        const labelText = cb.closest('label').textContent.trim();
+        selectedLabels.push(labelText);
+    });
+
+    if (selectedLabels.length === 0) {
+        hintEl.textContent = 'Nenhum dia selecionado';
+    } else if (selectedLabels.length === 7) {
+        hintEl.textContent = 'Todos os dias';
+    } else {
+        hintEl.textContent = selectedLabels.join(', ');
+    }
+}
+
+
+function openRecurringTaskPatternModal(patternId = null) {
+    const modal = document.getElementById('recurring-task-modal');
+    const overlay = document.getElementById('recurring-task-modal-overlay');
+    const form = document.getElementById('recurring-task-form');
+    const modalTitle = document.getElementById('recurring-task-modal-title');
+    const modalDescription = document.getElementById('recurring-task-modal-description');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+
+    if (!modal || !overlay || !form || !modalTitle || !modalDescription || !submitButton) {
+        console.error("Elementos do modal de tarefa recorrente não encontrados.");
+        return;
+    }
+    form.reset();
+    form.dataset.editingPatternId = '';
+    document.querySelectorAll('.recurring-days-checkbox-group input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+        const label = cb.closest('label');
+        if (label) label.classList.remove('checked');
+    });
+    updateSelectedDaysHint();
+
+
+    const startDateInput = document.getElementById('recurring-task-start-date');
+    const endDateInput = document.getElementById('recurring-task-end-date');
+
+    if (startDateInput && typeof flatpickr === 'function') {
+        if (!recurringTaskStartDatePicker) {
+            recurringTaskStartDatePicker = flatpickr(startDateInput, { dateFormat: "d/m/Y", defaultDate: "today", locale: "pt", allowInput: true });
+        } else {
+            recurringTaskStartDatePicker.setDate(new Date(), true);
+        }
+    }
+
+    if (endDateInput && typeof flatpickr === 'function') {
+        if (!recurringTaskEndDatePicker) {
+            recurringTaskEndDatePicker = flatpickr(endDateInput, { dateFormat: "d/m/Y", locale: "pt", allowInput: true });
+        }
+        recurringTaskEndDatePicker.clear();
     }
 
 
-    renderTasks();
+    if (patternId) {
+        const pattern = state.recurringTaskPatterns.find(p => p.id === patternId);
+        if (pattern) {
+            modalTitle.textContent = 'Editar Padrão Recorrente';
+            modalDescription.textContent = 'Ajuste sua rotina de estudos ou hábitos existentes.';
+            submitButton.innerHTML = '<i class="bi bi-check-lg"></i> Salvar Alterações';
+            form.dataset.editingPatternId = patternId;
+            document.getElementById('recurring-task-name').value = pattern.name;
+            pattern.daysOfWeek.forEach(dayIndex => {
+                const checkbox = document.getElementById(`recurring-day-${dayIndex}`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    const label = checkbox.closest('label');
+                    if (label) label.classList.add('checked');
+                }
+            });
+            if (recurringTaskStartDatePicker && pattern.startDate) recurringTaskStartDatePicker.setDate(pattern.startDate, true, "d/m/Y");
+            if (recurringTaskEndDatePicker && pattern.endDate) recurringTaskEndDatePicker.setDate(pattern.endDate, true, "d/m/Y");
+            updateSelectedDaysHint();
+        } else {
+            modalTitle.textContent = 'Adicionar Padrão Recorrente';
+            modalDescription.textContent = 'Configure uma nova rotina de estudos ou hábitos.';
+            submitButton.innerHTML = '<i class="bi bi-plus-lg"></i> Salvar Padrão';
+        }
+    } else {
+        modalTitle.textContent = 'Adicionar Padrão Recorrente';
+        modalDescription.textContent = 'Configure uma nova rotina de estudos ou hábitos.';
+        submitButton.innerHTML = '<i class="bi bi-plus-lg"></i> Salvar Padrão';
+    }
+
+    renderRecurringTaskPatterns();
+    overlay.classList.add('show');
+    modal.classList.add('show');
+    document.body.classList.add('modal-open');
 }
+
+function closeRecurringTaskPatternModal() {
+    const modal = document.getElementById('recurring-task-modal');
+    const overlay = document.getElementById('recurring-task-modal-overlay');
+    if (modal && overlay) {
+        modal.classList.remove('show');
+        overlay.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        const form = document.getElementById('recurring-task-form');
+        if (form) form.reset();
+        document.querySelectorAll('.recurring-days-checkbox-group input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+            const label = cb.closest('label');
+            if (label) label.classList.remove('checked');
+        });
+        updateSelectedDaysHint();
+    }
+}
+
+function saveRecurringTaskPattern(event) {
+    event.preventDefault();
+    const form = document.getElementById('recurring-task-form');
+    const patternId = form.dataset.editingPatternId;
+    const name = document.getElementById('recurring-task-name').value.trim();
+    if (!name) { showCustomAlert("O nome da tarefa recorrente é obrigatório.", "Erro de Validação"); return; }
+
+    const daysOfWeek = [];
+    for (let i = 0; i < 7; i++) {
+        const checkbox = document.getElementById(`recurring-day-${i}`);
+        if (checkbox && checkbox.checked) daysOfWeek.push(parseInt(checkbox.value, 10));
+    }
+    if (daysOfWeek.length === 0) { showCustomAlert("Selecione pelo menos um dia da semana.", "Erro de Validação"); return; }
+
+    const startDateSelected = recurringTaskStartDatePicker.selectedDates;
+    if (!startDateSelected || startDateSelected.length === 0) { showCustomAlert("A data de início é obrigatória.", "Erro de Validação"); return; }
+    const startDate = formatDateToISO(recurringTaskStartDatePicker.input.value);
+
+    let endDate = null;
+    const endDateSelected = recurringTaskEndDatePicker.selectedDates;
+    if (endDateSelected && endDateSelected.length > 0) {
+        endDate = formatDateToISO(recurringTaskEndDatePicker.input.value);
+        if (endDate && startDate && new Date(endDate + "T00:00:00Z") < new Date(startDate + "T00:00:00Z")) {
+            showCustomAlert("A data de término não pode ser anterior à data de início.", "Erro de Validação"); return;
+        }
+    }
+
+    if (patternId) {
+        const patternIndex = state.recurringTaskPatterns.findIndex(p => p.id === patternId);
+        if (patternIndex > -1) {
+            state.recurringTaskPatterns[patternIndex] = { ...state.recurringTaskPatterns[patternIndex], name, daysOfWeek, startDate, endDate };
+        }
+    } else {
+        state.recurringTaskPatterns.push({ id: Date.now().toString(), name, frequency: 'weekly', daysOfWeek, startDate, endDate, createdAt: new Date().toISOString() });
+    }
+
+    closeRecurringTaskPatternModal();
+    renderRecurringTaskPatterns();
+    generateRecurringTaskInstances();
+    renderTasks();
+    saveState();
+}
+
+function deleteRecurringTaskPattern(patternId) {
+    showCustomAlert(
+        "Tem certeza que deseja excluir este padrão recorrente?<br><br>Todas as suas ocorrências futuras (não concluídas) também serão removidas.<br>Ocorrências passadas e concluídas serão mantidas.",
+        "Confirmar Exclusão de Padrão",
+        () => {
+            state.recurringTaskPatterns = state.recurringTaskPatterns.filter(p => p.id !== patternId);
+            const todayISO = getTodayISO();
+            state.tasks = state.tasks.filter(task => {
+                if (task.sourcePatternId === patternId) {
+                    if (task.completed) return true;
+                    if (task.assignedDate && task.assignedDate < todayISO) return true;
+                    return false;
+                }
+                return true;
+            });
+            renderRecurringTaskPatterns();
+            renderTasks();
+            saveState();
+        }
+    );
+}
+
+
+function renderRecurringTaskPatterns() {
+    const patternsListEl = document.getElementById('recurring-patterns-list');
+    const patternsCountEl = document.getElementById('recurring-patterns-count');
+
+    if (!patternsListEl || !patternsCountEl) {
+        console.error("Elemento da lista de padrões ou contador não encontrado.");
+        return;
+    }
+
+    patternsListEl.innerHTML = '';
+    const patterns = state.recurringTaskPatterns;
+
+    if (patterns.length === 0) {
+        patternsListEl.innerHTML = '<li class="recurring-pattern-empty-message">Nenhum padrão recorrente criado.</li>';
+        patternsCountEl.textContent = '0 padrões';
+    } else {
+        patternsCountEl.textContent = `${patterns.length} ${patterns.length === 1 ? 'padrão' : 'padrões'}`;
+    }
+
+    const dayNamesShort = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    patterns.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Ordena por mais recente primeiro
+
+    patterns.forEach(pattern => {
+        const li = document.createElement('li');
+        li.className = 'recurring-pattern-item';
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'recurring-pattern-info';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'recurring-pattern-name';
+        nameSpan.textContent = pattern.name;
+
+        const detailsGroup = document.createElement('div');
+        detailsGroup.className = 'recurring-pattern-details-group';
+
+        const daysPillsContainer = document.createElement('div');
+        daysPillsContainer.className = 'recurring-pattern-days';
+        pattern.daysOfWeek.map(d => dayNamesShort[d]).forEach(dayText => {
+            const pill = document.createElement('span');
+            pill.className = 'day-pill';
+            pill.textContent = dayText;
+            daysPillsContainer.appendChild(pill);
+        });
+
+
+        const datesSpan = document.createElement('span');
+        datesSpan.className = 'recurring-pattern-dates';
+        let dateText = `<span class="date-label">Início:</span> ${formatDateToDDMMYYYY(pattern.startDate)}`;
+        if (pattern.endDate) dateText += ` • <span class="date-label">Fim:</span> ${formatDateToDDMMYYYY(pattern.endDate)}`;
+        else dateText += " • <span class=\"date-label\">Contínuo</span>";
+        datesSpan.innerHTML = dateText;
+
+        detailsGroup.appendChild(daysPillsContainer);
+        detailsGroup.appendChild(datesSpan);
+
+        infoDiv.appendChild(nameSpan);
+        infoDiv.appendChild(detailsGroup);
+
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'recurring-pattern-actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'btn-icon-recurring edit';
+        editBtn.innerHTML = '<i class="bi bi-pencil-fill"></i>';
+        editBtn.title = "Editar Padrão";
+        editBtn.addEventListener('click', () => openRecurringTaskPatternModal(pattern.id));
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn-icon-recurring delete';
+        deleteBtn.innerHTML = '<i class="bi bi-trash3-fill"></i>';
+        deleteBtn.title = "Excluir Padrão";
+        deleteBtn.addEventListener('click', () => deleteRecurringTaskPattern(pattern.id));
+
+        actionsDiv.appendChild(editBtn);
+        actionsDiv.appendChild(deleteBtn);
+
+        li.appendChild(infoDiv);
+        li.appendChild(actionsDiv);
+        patternsListEl.appendChild(li);
+    });
+}
+
+
+function generateRecurringTaskInstances() {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const todayISO = today.toISOString().split('T')[0];
+
+    const activePatternIds = new Set(state.recurringTaskPatterns.map(p => p.id));
+    state.tasks = state.tasks.filter(task => {
+        if (task.isRecurringInstance && task.sourcePatternId) {
+            if (!activePatternIds.has(task.sourcePatternId) && task.assignedDate >= todayISO && !task.completed) {
+                return false;
+            }
+            const pattern = state.recurringTaskPatterns.find(p => p.id === task.sourcePatternId);
+            if (pattern && pattern.endDate && task.assignedDate > pattern.endDate && !task.completed) {
+                return false;
+            }
+        }
+        return true;
+    });
+
+
+    let newTasksAdded = false;
+
+    state.recurringTaskPatterns.forEach(pattern => {
+        const patternStartDate = new Date(pattern.startDate + "T00:00:00Z"); // Use Z para UTC
+        const patternEndDate = pattern.endDate ? new Date(pattern.endDate + "T00:00:00Z") : null;
+
+        if (patternStartDate > today) return;
+        if (patternEndDate && patternEndDate < today) return;
+
+        const dayOfWeekToday = today.getUTCDay(); // getUTCDay para consistência
+
+        if (pattern.daysOfWeek.includes(dayOfWeekToday)) {
+            const existingTask = state.tasks.find(task =>
+                task.sourcePatternId === pattern.id && task.assignedDate === todayISO
+            );
+            if (!existingTask) {
+                state.tasks.push({
+                    id: `${pattern.id}-${todayISO}`,
+                    text: pattern.name,
+                    completed: false,
+                    createdAt: new Date().toISOString(),
+                    assignedDate: todayISO,
+                    sourcePatternId: pattern.id,
+                    isRecurringInstance: true
+                });
+                newTasksAdded = true;
+            }
+        }
+    });
+}
+
+function updateDeleteRecurringTaskModalUI(selectedOptionValue) {
+    const warningMessageContainer = document.getElementById('delete-recurring-warning-message');
+    const warningMessageTextEl = warningMessageContainer.querySelector('span');
+    const warningMessageIconEl = warningMessageContainer.querySelector('i');
+    const confirmBtn = document.getElementById('btn-confirm-delete-recurring-action');
+
+    confirmBtn.classList.remove('btn-danger-style');
+    warningMessageContainer.classList.remove('danger');
+    warningMessageIconEl.className = 'bi bi-exclamation-triangle-fill'; // Reset icon
+
+    switch (selectedOptionValue) {
+        case 'this':
+            warningMessageTextEl.textContent = 'Apenas esta ocorrência será removida. A tarefa recorrente continuará normalmente.';
+            confirmBtn.textContent = 'Excluir Ocorrência';
+            break;
+        case 'future':
+            warningMessageTextEl.textContent = 'Removerá esta e as futuras. Ocorrências passadas e concluídas serão mantidas.';
+            confirmBtn.textContent = 'Excluir Futuras';
+            break;
+        case 'all':
+            warningMessageTextEl.innerHTML = 'Ação irreversível: Toda a série recorrente será permanentemente excluída.';
+            confirmBtn.textContent = 'Excluir Série Completa';
+            confirmBtn.classList.add('btn-danger-style');
+            warningMessageContainer.classList.add('danger');
+            warningMessageIconEl.className = 'bi bi-trash3-fill'; // Change icon for "all"
+            break;
+    }
+}
+
+
+function openDeleteRecurringTaskModal(taskInstance) {
+    const modal = document.getElementById('delete-recurring-task-modal');
+    const overlay = document.getElementById('delete-recurring-task-modal-overlay');
+    if (!modal || !overlay) return;
+    modal.dataset.deletingTaskId = taskInstance.id;
+
+    const firstOptionRadio = modal.querySelector('input[name="delete-recurring-option"][value="this"]');
+    if (firstOptionRadio) {
+        firstOptionRadio.checked = true;
+        updateDeleteRecurringTaskModalUI('this'); // Atualiza UI para a opção padrão
+        // Atualiza o estado visual dos cards
+        document.querySelectorAll('.delete-option-card').forEach(card => card.classList.remove('selected'));
+        firstOptionRadio.closest('.delete-option-card').classList.add('selected');
+
+    }
+
+    overlay.classList.add('show');
+    modal.classList.add('show');
+    document.body.classList.add('modal-open');
+}
+
+function closeDeleteRecurringTaskModal() {
+    const modal = document.getElementById('delete-recurring-task-modal');
+    const overlay = document.getElementById('delete-recurring-task-modal-overlay');
+    if (modal && overlay) {
+        modal.classList.remove('show');
+        overlay.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        delete modal.dataset.deletingTaskId;
+    }
+}
+
+function confirmDeleteRecurringTask() {
+    const modal = document.getElementById('delete-recurring-task-modal');
+    const taskId = modal.dataset.deletingTaskId;
+    if (!taskId) return;
+
+    const selectedOptionRadio = modal.querySelector('input[name="delete-recurring-option"]:checked');
+    if (!selectedOptionRadio) {
+        showCustomAlert("Por favor, selecione uma opção de exclusão.", "Opção Necessária");
+        return;
+    }
+    const optionValue = selectedOptionRadio.value;
+
+    const taskIndex = state.tasks.findIndex(t => t.id === taskId);
+    if (taskIndex === -1) {
+        closeDeleteRecurringTaskModal();
+        return;
+    }
+
+    const taskInstance = state.tasks[taskIndex];
+    const patternId = taskInstance.sourcePatternId;
+    let tasksModified = false;
+    let patternsModified = false;
+    const todayISO = getTodayISO();
+
+    if (optionValue === 'this') {
+        state.tasks.splice(taskIndex, 1);
+        tasksModified = true;
+    } else if (optionValue === 'future' && patternId) {
+        const instanceDate = new Date(taskInstance.assignedDate + "T00:00:00Z");
+        const pattern = state.recurringTaskPatterns.find(p => p.id === patternId);
+
+        if (pattern) {
+            const dayBeforeInstance = new Date(instanceDate);
+            dayBeforeInstance.setUTCDate(instanceDate.getUTCDate() - 1);
+            if (!pattern.endDate || new Date(pattern.endDate + "T00:00:00Z") >= instanceDate) {
+                pattern.endDate = dayBeforeInstance.toISOString().split('T')[0];
+                patternsModified = true;
+            }
+        }
+        state.tasks = state.tasks.filter(t => {
+            if (t.sourcePatternId === patternId) {
+                const tDate = new Date(t.assignedDate + "T00:00:00Z");
+                if (tDate >= instanceDate && !t.completed) {
+                    tasksModified = true;
+                    return false;
+                }
+            }
+            return true;
+        });
+    } else if (optionValue === 'all' && patternId) {
+        state.recurringTaskPatterns = state.recurringTaskPatterns.filter(p => {
+            if (p.id === patternId) { patternsModified = true; return false; }
+            return true;
+        });
+        state.tasks = state.tasks.filter(t => {
+            if (t.sourcePatternId === patternId) {
+                if (!t.completed) { // Remove todas as não completadas, futuras e passadas
+                    tasksModified = true;
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
+    closeDeleteRecurringTaskModal();
+    if (tasksModified) renderTasks();
+    if (patternsModified) renderRecurringTaskPatterns();
+    saveState();
+    if (tasksModified) updateTasksChartDataOnly();
+}
+
+
+
 
 // --- Funções de Temas e Aparência ---
 function openThemesModal() {
@@ -8825,12 +10384,18 @@ function populateThemesModal() {
 }
 
 function updateThemeModalButtons() {
-    document.querySelectorAll('.palette-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.paletteKey === state.visuals.currentPalette);
-    });
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.modeKey === state.visuals.currentVisualMode);
-    });
+    const paletteBtns = document.querySelectorAll('.palette-btn');
+    if (paletteBtns) {
+        paletteBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.paletteKey === state.visuals.currentPalette);
+        });
+    }
+    const modeBtns = document.querySelectorAll('.mode-btn');
+    if (modeBtns) {
+        modeBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.modeKey === state.visuals.currentVisualMode);
+        });
+    }
 }
 
 function applyPalette(paletteName) {
@@ -8838,6 +10403,7 @@ function applyPalette(paletteName) {
         const newPrimaryColor = PREDEFINED_PALETTES[paletteName].primary;
         state.visuals.currentPalette = paletteName;
         applyPrimaryColor(newPrimaryColor);
+        applyCurrentThemeAndMode();
         saveState();
         updateThemeModalButtons();
     }
@@ -8874,7 +10440,7 @@ function showCustomAlert(message, title = 'Alerta', onConfirmCallback = null) {
     }
 
     alertTitleEl.textContent = title;
-    alertMessageEl.textContent = message;
+    alertMessageEl.innerHTML = message.replace(/\n/g, '<br>');
 
     const newOkBtn = alertOkBtn.cloneNode(true);
     alertOkBtn.parentNode.replaceChild(newOkBtn, alertOkBtn);
@@ -9008,8 +10574,11 @@ function updateScrollIndicator() {
             scrollIndicator.classList.remove('visible');
             scrollIndicator.classList.add('collapsed');
         }
-        if (window.scrollY > contentEntryThreshold) productivityArea.classList.add('visible');
-        else productivityArea.classList.remove('visible');
+        if (window.scrollY > contentEntryThreshold) {
+            productivityArea.classList.add('visible');
+        } else {
+            productivityArea.classList.remove('visible');
+        }
 
     } else {
         scrollIndicator.classList.remove('visible');
@@ -9025,17 +10594,62 @@ window.addEventListener('resize', updateScrollIndicator);
 // Inicialização Principal
 async function init() {
     const loaderElement = document.getElementById('loader');
-    if(loaderElement) loaderElement.style.display = 'flex';
+    if (loaderElement) loaderElement.style.display = 'flex';
 
     loadState();
-
-    console.log("TASKIFY_MAIN: window.state definido após loadState():", JSON.parse(JSON.stringify(window.state || {})));
 
     initThemes();
     checkAllResets();
     initStreak();
     initPomodoro();
-    initTasks(); // initTasks agora configura o Flatpickr
+    initTasks();
+
+    const recurringTaskForm = document.getElementById('recurring-task-form');
+    if (recurringTaskForm) recurringTaskForm.addEventListener('submit', saveRecurringTaskPattern);
+
+    const btnOpenRecurringModal = document.getElementById('btn-open-recurring-task-modal');
+    if (btnOpenRecurringModal) btnOpenRecurringModal.addEventListener('click', () => openRecurringTaskPatternModal());
+
+
+    const recurringTaskModalOverlay = document.getElementById('recurring-task-modal-overlay');
+    if (recurringTaskModalOverlay) {
+        recurringTaskModalOverlay.addEventListener('click', (e) => {
+            if (e.target === recurringTaskModalOverlay) closeRecurringTaskPatternModal();
+        });
+    }
+    const recurringTaskModalCloseBtn = document.querySelector('#recurring-task-modal .modal-close-btn');
+    if (recurringTaskModalCloseBtn) recurringTaskModalCloseBtn.addEventListener('click', closeRecurringTaskPatternModal);
+
+    setupRecurringDaysCheckboxes();
+
+    document.querySelectorAll('input[name="delete-recurring-option"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            updateDeleteRecurringTaskModalUI(e.target.value);
+            document.querySelectorAll('.delete-option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            if (e.target.checked) {
+                e.target.closest('.delete-option-card').classList.add('selected');
+            }
+        });
+    });
+    const btnConfirmDeleteRecurringAction = document.getElementById('btn-confirm-delete-recurring-action');
+    if(btnConfirmDeleteRecurringAction) btnConfirmDeleteRecurringAction.addEventListener('click', () => confirmDeleteRecurringTask());
+
+    const btnCancelDeleteRecurring = document.getElementById('btn-cancel-delete-recurring');
+    if (btnCancelDeleteRecurring) btnCancelDeleteRecurring.addEventListener('click', closeDeleteRecurringTaskModal);
+    const deleteRecurringModalOverlay = document.getElementById('delete-recurring-task-modal-overlay');
+    if (deleteRecurringModalOverlay) {
+        deleteRecurringModalOverlay.addEventListener('click', (e) => {
+            if (e.target === deleteRecurringModalOverlay) closeDeleteRecurringTaskModal();
+        });
+    }
+    const deleteRecurringModalCloseBtn = document.querySelector('#delete-recurring-task-modal .modal-close-btn');
+    if (deleteRecurringModalCloseBtn) deleteRecurringModalCloseBtn.addEventListener('click', closeDeleteRecurringTaskModal);
+
+
+    renderRecurringTaskPatterns();
+    generateRecurringTaskInstances();
 
     await loadAndSetupRetrospective();
 
@@ -9059,37 +10673,45 @@ async function init() {
     if (btnResetAppData) btnResetAppData.addEventListener('click', handleResetAppData);
 
     const confirmResetModalOverlay = document.getElementById('confirm-reset-modal-overlay');
-    if(confirmResetModalOverlay) confirmResetModalOverlay.addEventListener('click', closeConfirmResetModal);
+    if (confirmResetModalOverlay) confirmResetModalOverlay.addEventListener('click', closeConfirmResetModal);
     const confirmResetModalCloseBtn = document.getElementById('confirm-reset-modal-close-btn');
-    if(confirmResetModalCloseBtn) confirmResetModalCloseBtn.addEventListener('click', closeConfirmResetModal);
+    if (confirmResetModalCloseBtn) confirmResetModalCloseBtn.addEventListener('click', closeConfirmResetModal);
     const btnCancelResetConfirmation = document.getElementById('btn-cancel-reset-confirmation');
-    if(btnCancelResetConfirmation) btnCancelResetConfirmation.addEventListener('click', closeConfirmResetModal);
+    if (btnCancelResetConfirmation) btnCancelResetConfirmation.addEventListener('click', closeConfirmResetModal);
     const btnConfirmResetAction = document.getElementById('btn-confirm-reset-action');
-    if(btnConfirmResetAction) btnConfirmResetAction.addEventListener('click', performFullReset);
+    if (btnConfirmResetAction) btnConfirmResetAction.addEventListener('click', performFullReset);
 
     const welcomeGuideModalOverlay = document.getElementById('welcome-guide-modal-overlay');
-    if(welcomeGuideModalOverlay) welcomeGuideModalOverlay.addEventListener('click', closeWelcomeGuideModal);
+    if (welcomeGuideModalOverlay) welcomeGuideModalOverlay.addEventListener('click', closeWelcomeGuideModal);
     const welcomeGuideModalCloseBtn = document.getElementById('welcome-guide-modal-close-btn');
-    if(welcomeGuideModalCloseBtn) welcomeGuideModalCloseBtn.addEventListener('click', closeWelcomeGuideModal);
+    if (welcomeGuideModalCloseBtn) welcomeGuideModalCloseBtn.addEventListener('click', closeWelcomeGuideModal);
     const btnCloseWelcomeGuide = document.getElementById('btn-close-welcome-guide');
-    if(btnCloseWelcomeGuide) btnCloseWelcomeGuide.addEventListener('click', closeWelcomeGuideModal);
+    if (btnCloseWelcomeGuide) btnCloseWelcomeGuide.addEventListener('click', closeWelcomeGuideModal);
 
     if (localStorage.getItem('taskify-welcomeGuideDismissed') !== 'true') {
         openWelcomeGuideModal();
     }
 
-    setInterval(checkAllResets, 60000);
+    setInterval(() => {
+        checkAllResets();
+        const prevTaskCount = state.tasks.filter(t => (t.isRecurringInstance ? t.assignedDate === getTodayISO() : true)).length;
+        generateRecurringTaskInstances();
+        const currentTaskCount = state.tasks.filter(t => (t.isRecurringInstance ? t.assignedDate === getTodayISO() : true)).length;
+
+        if (state.lastAccessDate !== new Date().toDateString() || prevTaskCount !== currentTaskCount) {
+            renderTasks();
+            saveState();
+        }
+    }, 60 * 1000);
+
 
     window.taskifyStateReady = true;
-    console.log("TASKIFY_MAIN: Disparando evento 'taskifyStateReady'. Estado enviado:", JSON.parse(JSON.stringify(window.state || {})));
     document.dispatchEvent(new CustomEvent('taskifyStateReady', {
         detail: { taskifyAppState: JSON.parse(JSON.stringify(window.state || {})) }
     }));
-    console.log("TASKIFY_MAIN: Evento 'taskifyStateReady' disparado.");
-
 
     setTimeout(() => {
-        if(loaderElement) {
+        if (loaderElement) {
             loaderElement.style.opacity = '0';
             setTimeout(() => {
                 loaderElement.style.display = 'none';
@@ -9156,7 +10778,7 @@ if (particleCanvas) {
 
     function handleParticles(timestamp) {
         const isMouseInsideWindow = currentMouseX >= 0 && currentMouseX <= window.innerWidth &&
-                                    currentMouseY >= 0 && currentMouseY <= window.innerHeight;
+            currentMouseY >= 0 && currentMouseY <= window.innerHeight;
 
         let particleEnabled = true;
         if (typeof state !== 'undefined' && state.visuals && state.visuals.currentVisualMode === 'focus') {
@@ -9205,27 +10827,6 @@ if (particleCanvas) {
     console.warn("Elemento #particle-canvas não encontrado. Animação de partículas desabilitada.");
 }
 
-function hexToRgbArray(hex) {
-    if (!hex || typeof hex !== 'string') return null;
-    let c = hex.substring(1);
-    if (c.length === 3) {
-        c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
-    }
-    if (c.length !== 6) {
-        return null;
-    }
-    try {
-        const bigint = parseInt(c, 16);
-        if (isNaN(bigint)) return null;
-        const r = (bigint >> 16) & 255;
-        const g = (bigint >> 8) & 255;
-        const b = bigint & 255;
-        return [r, g, b];
-    } catch (e) {
-        console.error("Erro ao converter hex para RGB:", hex, e);
-        return null;
-    }
-}
 
 // --- Carregamento e Configuração da Retrospectiva ---
 async function loadAndSetupRetrospective() {
@@ -9235,16 +10836,15 @@ async function loadAndSetupRetrospective() {
 
     if (!retrospectiveModalEl || !retrospectiveModalOverlayEl || !btnOpenRetrospectiveMain) {
         console.error('TASKIFY_MAIN: Elementos base da retrospectiva não encontrados. A retrospectiva pode não funcionar.');
-        if(btnOpenRetrospectiveMain) btnOpenRetrospectiveMain.style.display = 'none';
+        if (btnOpenRetrospectiveMain) btnOpenRetrospectiveMain.style.display = 'none';
         return;
     }
 
     btnOpenRetrospectiveMain.addEventListener('click', () => {
-        console.log("TASKIFY_MAIN: Botão 'btn-open-retrospective' clicado.");
         if (typeof window.openRetrospectiveView === 'function') {
             window.openRetrospectiveView();
         } else {
-            console.error("TASKIFY_MAIN: Função window.openRetrospectiveView() não está definida. Verifique se retrospective.js foi carregado.");
+            console.error("TASKIFY_MAIN: Função window.openRetrospectiveView() não está definida.");
         }
     });
 
@@ -9257,7 +10857,6 @@ async function loadAndSetupRetrospective() {
     });
 
     if (!retrospectiveModalEl.querySelector('.retrospective-screen')) {
-        console.log("TASKIFY_MAIN: Carregando retrospective.html...");
         try {
             const response = await fetch('retrospective.html');
             if (!response.ok) {
@@ -9265,11 +10864,9 @@ async function loadAndSetupRetrospective() {
             }
             const htmlContent = await response.text();
             retrospectiveModalEl.innerHTML = htmlContent;
-            console.log("TASKIFY_MAIN: retrospective.html carregado e injetado.");
 
             if (typeof window.initializeRetrospectiveInternals === 'function') {
                 window.initializeRetrospectiveInternals();
-                console.log("TASKIFY_MAIN: window.initializeRetrospectiveInternals() chamada com sucesso.");
             } else {
                 console.error("TASKIFY_MAIN: Função window.initializeRetrospectiveInternals() não definida após carregar HTML.");
             }
@@ -9280,11 +10877,10 @@ async function loadAndSetupRetrospective() {
             btnOpenRetrospectiveMain.style.display = 'none';
         }
     } else {
-        console.log("TASKIFY_MAIN: retrospective.html já estava carregado. Garantindo inicialização dos internos.");
         if (typeof window.initializeRetrospectiveInternals === 'function') {
             window.initializeRetrospectiveInternals();
         } else {
-             console.error("TASKIFY_MAIN: Função window.initializeRetrospectiveInternals() não definida (HTML já presente).");
+            console.error("TASKIFY_MAIN: Função window.initializeRetrospectiveInternals() não definida (HTML já presente).");
         }
     }
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-    <html lang="pt-BR">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
@@ -13,7 +13,6 @@
 
 
     <script>
-        
         (function () {
             function hexToRgbArrayInline(hex) {
                 if (!hex || typeof hex !== 'string') return null;
@@ -42,7 +41,7 @@
                 const savedTheme = localStorage.getItem('taskify-theme');
                 const docElement = document.documentElement;
                 const defaultPrimaryColor = '#0A7CFF';
-                
+
                 let colorToApply = savedPrimaryColor || defaultPrimaryColor;
 
                 if (!/^#[0-9A-F]{6}$/i.test(colorToApply) && !/^#[0-9A-F]{3}$/i.test(colorToApply)) {
@@ -52,7 +51,7 @@
 
                 docElement.style.setProperty('--primary-color-light', colorToApply);
                 docElement.style.setProperty('--primary-color-dark', colorToApply);
-                
+
                 const rgbArray = hexToRgbArrayInline(colorToApply);
                 if (rgbArray) {
                     const rgbString = rgbArray.join(', ');
@@ -69,7 +68,7 @@
                 }
 
                 if (savedTheme === 'light') {
-                    docElement.classList.add('light-theme-active'); 
+                    docElement.classList.add('light-theme-active');
                 }
 
             } catch (e) {
@@ -104,11 +103,13 @@
                 <button class="counter-btn" id="increment-btn" onclick="incrementToday()">+</button>
             </div>
 
+
+
             <div class="header-controls">
                 <button class="btn-icon-nav" id="btn-edit-goals-header" aria-label="Editar metas"
-                    onclick="openGoalsModal()">
-                    <i class="bi bi-pencil-square"></i>
-                </button>
+                onclick="openGoalsModal()">
+                <i class="bi bi-pencil-square"></i>
+            </button>
                 <button class="btn-icon-nav" id="btn-open-themes" aria-label="Personalizar Aparência" onclick="openThemesModal()">
                     <i class="bi bi-palette-fill"></i>
                 </button>
@@ -118,7 +119,7 @@
             </div>
         </header>
 
-        
+
         <section class="stats-grid">
             <div class="stat-card">
                 <div class="stat-title">Hoje</div>
@@ -192,12 +193,12 @@
                     <span>Streak Atual</span>
                     <i class="bi bi-fire card-title-icon"></i>
                 </div>
-                
+
                 <div class="streak-value-meta-container">
                     <div class="card-value" id="current-streak-value">0 dias</div>
                     <div class="card-streak-target">Meta: <span id="streak-target-value">30</span></div>
                 </div>
-                
+
                 <div class="progress-bar-horizontal">
                     <div class="progress-fill" id="streak-progress-fill" style="width: 0%;"></div>
                 </div>
@@ -228,7 +229,7 @@
         <div class="scroll-indicator" id="scroll-indicator">
             <i class="bi bi-chevron-down"></i>
         </div>
-        
+
         <section class="productivity-focus-area">
             <div class="pomodoro-section-wrapper">
                 <div class="pomodoro-section">
@@ -251,7 +252,7 @@
                         <span id="pomodoro-cycles-count-value">0</span>
                     </div>
                 </div>
-                <div class="chart-section pomodoro-chart-section"> 
+                <div class="chart-section pomodoro-chart-section">
                     <div class="chart-header">
                         <h4 class="chart-title">Tempo de Foco Semanal</h4>
                         <span class="chart-period-label" id="pomodoro-weekly-period">Últimos 7 dias</span>
@@ -266,19 +267,27 @@
                 <div class="tasks-section">
                     <div class="tasks-header">
                         <h3 class="tasks-title">Tarefas</h3>
-                        <span class="tasks-counter" id="tasks-counter">0/0</span>
+                        <div class="tasks-header-actions">
+                            <!-- Botão de tarefas recorrentes foi movido para o form abaixo -->
+                            <span class="tasks-counter" id="tasks-counter">0/0</span>
+                        </div>
                     </div>
                     <form id="task-form">
                         <input type="text" id="task-input" placeholder="Adicione nova tarefa...">
-                        <!-- ABAIXO: input alterado de type="date" para type="text" para Flatpickr -->
                         <input type="text" id="task-assigned-date" class="task-date-input" placeholder="DD/MM/AAAA">
+                    
                         <button type="submit" id="add-task-btn" class="btn-primary">Adicionar</button>
+                        <button type="button" id="btn-open-recurring-task-modal" class="btn btn-secondary btn-recurring" 
+                        onclick="openRecurringTaskPatternModal()" title="Adicionar uma tarefa recorrente">
+                    <i class="bi bi-calendar-plus"></i> Nova Recorrente
+                </button>
+                
                     </form>
                     <ul id="task-list">
                         <!-- Tarefas serão adicionadas aqui pelo JS -->
                     </ul>
                 </div>
-                <div class="chart-section tasks-chart-section"> 
+                <div class="chart-section tasks-chart-section">
                     <div class="chart-header">
                         <h4 class="chart-title">Tarefas Concluídas</h4>
                         <span class="chart-period-label" id="tasks-weekly-period">Últimos 7 dias</span>
@@ -289,11 +298,11 @@
                 </div>
             </div>
         </section>
-        
-        
-        <footer class="main-footer"> 
+
+
+        <footer class="main-footer">
             Criado por <a href="https://x.com/fabinxz" target="_blank" class="footer-link">@fabinxz</a>
-            <span class="footer-separator">•</span> © <span id="current-year">2025</span> 
+            <span class="footer-separator">•</span> © <span id="current-year">2025</span>
         </footer>
     </div> <!-- Fim .container -->
 
@@ -335,6 +344,133 @@
         </div>
     </div>
 
+    <!-- Modal de Padrões de Tarefas Recorrentes -->
+    <div class="modal-overlay" id="recurring-task-modal-overlay"></div>
+    <div class="modal" id="recurring-task-modal" data-modal-type="recurring-task">
+        <div class="modal-content">
+            <button class="modal-close-btn" aria-label="Fechar" onclick="closeRecurringTaskPatternModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title" id="recurring-task-modal-title">Adicionar Padrão Recorrente</h2>
+            <p class="modal-subtitle-description" id="recurring-task-modal-description">Configure uma nova rotina de estudos ou hábitos.</p>
+
+            <form id="recurring-task-form">
+                <div class="form-group">
+                    <label class="form-label" for="recurring-task-name">Nome da Tarefa <span class="required-asterisk"></span></label>
+                    <input type="text" class="form-input" id="recurring-task-name" placeholder="Ex: Simulado Semanal" required>
+                </div>
+
+                <div class="form-group" id="recurring-task-frequency-group" style="display: none;">
+                    <label class="form-label" for="recurring-task-frequency">Frequência</label>
+                    <input type="text" class="form-input" id="recurring-task-frequency" value="Semanal" disabled title="Apenas semanal disponível no momento">
+                </div>
+
+
+                <div class="form-group">
+                    <div class="form-label-group">
+                        <label class="form-label">Dias da Semana <span class="required-asterisk"></span></label>
+                    </div>
+                    <div class="recurring-days-checkbox-group">
+                        <label><input type="checkbox" id="recurring-day-1" value="1"> Seg</label>
+                        <label><input type="checkbox" id="recurring-day-2" value="2"> Ter</label>
+                        <label><input type="checkbox" id="recurring-day-3" value="3"> Qua</label>
+                        <label><input type="checkbox" id="recurring-day-4" value="4"> Qui</label>
+                        <label><input type="checkbox" id="recurring-day-5" value="5"> Sex</label>
+                        <label><input type="checkbox" id="recurring-day-6" value="6"> Sáb</label>
+                        <label><input type="checkbox" id="recurring-day-0" value="0"> Dom</label>
+                    </div>
+                </div>
+
+                <div class="form-group-inline">
+                    <div class="form-group">
+                        <label class="form-label" for="recurring-task-start-date">Data de Início <span class="required-asterisk"></span></label>
+                        <input type="text" class="form-input task-date-input" id="recurring-task-start-date" placeholder="DD/MM/AAAA" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="recurring-task-end-date">Data de Término <span class="label-hint">(Opcional)</span></label>
+                        <input type="text" class="form-input task-date-input" id="recurring-task-end-date" placeholder="DD/MM/AAAA">
+                    </div>
+                </div>
+                <div class="form-info-notice">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>O padrão será aplicado automaticamente nos dias selecionados a partir da data de início.</span>
+                </div>
+
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeRecurringTaskPatternModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Salvar Padrão</button>
+                </div>
+            </form>
+
+            <hr class="recurring-task-divider">
+            <div class="recurring-patterns-header">
+                <h3 class="modal-subtitle">Padrões Salvos</h3>
+                <span class="recurring-patterns-count" id="recurring-patterns-count">0 padrões</span>
+            </div>
+            <ul id="recurring-patterns-list">
+            </ul>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão de Tarefa Recorrente -->
+    <div class="modal-overlay" id="delete-recurring-task-modal-overlay"></div>
+    <div class="modal" id="delete-recurring-task-modal" data-modal-type="delete-recurring-task">
+        <div class="modal-content">
+            <button class="modal-close-btn" aria-label="Fechar" onclick="closeDeleteRecurringTaskModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Excluir Tarefa Recorrente</h2>
+            <p class="modal-body-text" id="delete-recurring-task-prompt">Escolha como deseja proceder com a exclusão desta tarefa recorrente:</p>
+
+            <div class="delete-options-group">
+                <label class="delete-option-card">
+                    <input type="radio" name="delete-recurring-option" value="this" checked>
+                    <span class="delete-option-card-content">
+                        <span class="delete-option-icon"><i class="bi bi-calendar-x"></i></span>
+                        <span class="delete-option-text">
+                            <strong>Apenas esta ocorrência</strong>
+                            <small>Remove somente esta instância da tarefa.</small>
+                        </span>
+                    </span>
+                </label>
+                <label class="delete-option-card">
+                    <input type="radio" name="delete-recurring-option" value="future">
+                     <span class="delete-option-card-content">
+                        <span class="delete-option-icon"><i class="bi bi-calendar2-x"></i></span>
+                        <span class="delete-option-text">
+                            <strong>Esta e todas as futuras</strong>
+                            <small>Remove esta ocorrência e todas as próximas.</small>
+                        </span>
+                    </span>
+                </label>
+                <label class="delete-option-card" id="delete-option-all-card">
+                    <input type="radio" name="delete-recurring-option" value="all">
+                     <span class="delete-option-card-content">
+                        <span class="delete-option-icon"><i class="bi bi-trash3"></i></span>
+                        <span class="delete-option-text">
+                            <strong>Toda a série recorrente</strong>
+                            <small>Remove permanentemente toda a tarefa recorrente.</small>
+                        </span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="delete-recurring-warning" id="delete-recurring-warning-message">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Apenas esta ocorrência será removida. A tarefa recorrente continuará normalmente.</span>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-delete-recurring">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-confirm-delete-recurring-action">Excluir Ocorrência</button>
+            </div>
+        </div>
+    </div>
+
+
+
     <!-- Modal de Confirmação de Reset -->
     <div class="modal-overlay" id="confirm-reset-modal-overlay"></div>
     <div class="modal" id="confirm-reset-modal">
@@ -352,13 +488,13 @@
                     <li>Seu streak atual e histórico de streak</li>
                     <li>Suas metas personalizadas (serão revertidas para o padrão)</li>
                     <li>Sua preferência de tema e cor primária (serão revertidas para o padrão)</li>
-                    <li>Suas configurações, histórico do Pomodoro e lista de tarefas</li>
+                    <li>Suas configurações, histórico do Pomodoro, lista de tarefas e padrões recorrentes</li>
                 </ul>
                 <p>A página será recarregada com as configurações de fábrica.</p>
             </div>
             <div class="modal-buttons">
                 <button type="button" class="btn btn-secondary" id="btn-cancel-reset-confirmation">Cancelar</button>
-                <button type="button" class="btn btn-reset-app" id="btn-confirm-reset-action">Confirmar Reset</button> 
+                <button type="button" class="btn btn-reset-app" id="btn-confirm-reset-action">Confirmar Reset</button>
             </div>
         </div>
     </div>
@@ -375,6 +511,7 @@
                 <p>Este é um guia rápido para te ajudar a começar:</p>
                 <ul>
                     <li><strong>Contador Principal (<span class="guide-highlight">no centro do cabeçalho</span>):</strong> Use os botões <span class="guide-highlight guide-btn-example">+</span> e <span class="guide-highlight guide-btn-example">−</span> para adicionar ou remover questões resolvidas hoje. O número entre eles define quantas questões são adicionadas/removidas por clique.</li>
+                    <li><strong>Adicionar Tarefa Recorrente:</strong> No formulário de tarefas, clique no botão <span class="guide-highlight guide-btn-example"><i class="bi bi-calendar-plus"></i> Nova Recorrente</span> para abrir o gerenciador de padrões recorrentes.</li>
                     <li><strong>Editar Metas:</strong> Clique no ícone <i class="bi bi-pencil-square guide-icon-example"></i> no cabeçalho para definir suas metas diárias, semanais, mensais, anuais e de streak.</li>
                     <li><strong>Alternar Tema:</strong> Use o ícone <i class="bi bi-moon-fill guide-icon-example"></i> / <i class="bi bi-sun-fill guide-icon-example"></i> no cabeçalho para trocar entre o tema escuro e claro.</li>
                     <li><strong>Personalizar Aparência:</strong> Clique no ícone <i class="bi bi-palette-fill guide-icon-example"></i> no cabeçalho para escolher paletas de cores e modos visuais.</li>
@@ -393,7 +530,7 @@
         </div>
     </div>
 
-    
+
     <!-- Modal de Configurações do Pomodoro -->
     <div class="modal-overlay" id="pomodoro-settings-modal-overlay"></div>
     <div class="modal" id="pomodoro-settings-modal">
@@ -441,7 +578,7 @@
 
     <!-- Modal de Temas e Aparência -->
     <div class="modal-overlay" id="themes-modal-overlay"></div>
-    <div class="modal" id="themes-modal"> 
+    <div class="modal" id="themes-modal">
         <div class="themes-modal-content">
             <button class="modal-close-btn" id="themes-modal-close-btn" aria-label="Fechar" onclick="closeThemesModal()">
                 <i class="bi bi-x-lg"></i>
@@ -450,7 +587,7 @@
                 <i class="bi bi-palette-fill themes-modal-title-icon"></i>
                 Personalizar Aparência
             </h2>
-    
+
             <div class="themes-modal-section">
                 <h3 class="themes-modal-section-title">
                     <i class="bi bi-paint-bucket"></i>
@@ -461,7 +598,7 @@
                     <!-- Botões de paleta serão gerados pelo JS -->
                 </div>
             </div>
-    
+
             <div class="themes-modal-section">
                 <h3 class="themes-modal-section-title">
                     <i class="bi bi-eye-fill"></i>
@@ -472,34 +609,34 @@
                     <!-- Botões de modo visual serão gerados pelo JS -->
                 </div>
             </div>
-    
-            <div class="modal-buttons themes-modal-actions"> 
+
+            <div class="modal-buttons themes-modal-actions">
                 <button type="button" class="btn btn-secondary themes-btn-cancel" onclick="closeThemesModal()">Cancelar</button>
-                <button type="button" class="btn btn-primary themes-btn-apply" onclick="closeThemesModal()"> 
+                <button type="button" class="btn btn-primary themes-btn-apply" onclick="closeThemesModal()">
                      Aplicar Mudanças
                 </button>
             </div>
         </div>
     </div>
-    
+
     <!-- Alerta Personalizado -->
     <div class="custom-alert-overlay" id="custom-alert-overlay"></div>
     <div class="custom-alert-modal" id="custom-alert-modal">
         <h3 class="custom-alert-title" id="custom-alert-title">Alerta</h3>
         <p class="custom-alert-message" id="custom-alert-message"></p>
-        <button class="custom-alert-ok-btn" id="custom-alert-ok-btn">OK</button> 
+        <button class="custom-alert-ok-btn" id="custom-alert-ok-btn">OK</button>
     </div>
 
     <!-- Botão Flutuante e Modal da Retrospectiva -->
-    <button class="btn-icon-nav" id="btn-open-retrospective" aria-label="Abrir Retrospectiva" 
+    <button class="btn-icon-nav" id="btn-open-retrospective" aria-label="Abrir Retrospectiva"
         style="position: fixed; bottom: 20px; right: 20px; z-index: 1001;
-               background-color: var(--primary-color-dark); color: white; 
+               background-color: var(--primary-color-dark); color: white;
                width: 50px; height: 50px; border-radius: 50%;
                box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 1.5rem;
                display: flex; align-items: center; justify-content: center;">
         <i class="bi bi-calendar-heart-fill"></i>
     </button>
-    
+
     <div class="retrospective-modal-overlay" id="retrospective-modal-overlay"></div>
     <div class="retrospective-modal" id="retrospective-modal">
         <!-- O conteúdo da retrospectiva será carregado aqui pelo JS (de retrospective.html) -->
@@ -511,11 +648,10 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script> <!-- Tradução para Português -->
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="js/script.js" defer></script>
-    <script src="js/retrospective.js" defer></script> 
+    <script src="js/retrospective.js" defer></script>
 </body>
 </html>
