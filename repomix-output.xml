@@ -1245,30 +1245,37 @@ body.light #retrospective-comparison-screen .retrospective-screen-title {
 
 #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card {
     min-height: clamp(130px, 30vh, 160px);
-    padding: clamp(12px, 2.2vh, 18px); /* Ajustado padding para dar mais espaço interno */
-    justify-content: center; /* Centraliza o bloco de conteúdo verticalmente */
-    align-items: center; /* Centraliza o conteúdo horizontalmente */
+    padding: clamp(12px, 2.2vh, 18px);
+    /* Ajustado padding para dar mais espaço interno */
+    justify-content: center;
+    /* Centraliza o bloco de conteúdo verticalmente */
+    align-items: center;
+    /* Centraliza o conteúdo horizontalmente */
 }
 
 /* Melhorias de Margens Internas dos Cards da Tela de Comparação */
-#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-icon-medium {
+#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-icon-medium {
     margin-bottom: clamp(6px, 1vh, 10px);
 }
 
-#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-stat-value {
+#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-stat-value {
     margin-bottom: clamp(3px, 0.6vh, 5px);
 }
 
-#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-stat-label {
+#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-stat-label {
     margin-bottom: clamp(6px, 1vh, 10px);
-    flex-grow: 0; /* Já existia, mantém */
-    line-height: 1.2; /* Já existia, mantém */
+    flex-grow: 0;
+    /* Já existia, mantém */
+    line-height: 1.2;
+    /* Já existia, mantém */
 }
 
-#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-comparison-percentage {
-    margin-top: 0; /* Remove o margin-top original para depender do margin-bottom do label */
+#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-comparison-percentage {
+    margin-top: 0;
+    /* Remove o margin-top original para depender do margin-bottom do label */
     /* Demais estilos de .retrospective-comparison-percentage são mantidos */
 }
+
 /* Fim das Melhorias de Margens Internas */
 
 
@@ -2019,24 +2026,35 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
     }
 
     #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card {
-        min-height: clamp(110px, 28vh, 140px); /* A altura já era menor aqui, mantive */
-        padding: clamp(8px, 1.5vh, 12px); /* Padding também já era menor */
+        min-height: clamp(110px, 28vh, 140px);
+        /* A altura já era menor aqui, mantive */
+        padding: clamp(8px, 1.5vh, 12px);
+        /* Padding também já era menor */
     }
 
     /* As margens internas dos cards de comparação já são tratadas pelos seletores específicos adicionados */
-    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-icon-medium {
-        margin-bottom: clamp(4px, 0.8vh, 8px); /* Ajuste fino para telas menores */
+    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-icon-medium {
+        margin-bottom: clamp(4px, 0.8vh, 8px);
+        /* Ajuste fino para telas menores */
     }
-    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-stat-value {
-        font-size: clamp(20px, 5.5vw, 26px); /* Ajuste do tamanho do valor */
-        margin-bottom: clamp(2px, 0.4vh, 4px); /* Ajuste fino para telas menores */
+
+    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-stat-value {
+        font-size: clamp(20px, 5.5vw, 26px);
+        /* Ajuste do tamanho do valor */
+        margin-bottom: clamp(2px, 0.4vh, 4px);
+        /* Ajuste fino para telas menores */
     }
-    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-stat-label {
-        font-size: clamp(10px, 2.2vw, 11px); /* Ajuste do tamanho do label */
-        margin-bottom: clamp(4px, 0.8vh, 8px); /* Ajuste fino para telas menores */
+
+    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-stat-label {
+        font-size: clamp(10px, 2.2vw, 11px);
+        /* Ajuste do tamanho do label */
+        margin-bottom: clamp(4px, 0.8vh, 8px);
+        /* Ajuste fino para telas menores */
     }
-    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-comparison-percentage {
-        font-size: clamp(0.85em, 2.3vw, 0.95em); /* Ajuste do tamanho da porcentagem */
+
+    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-comparison-percentage {
+        font-size: clamp(0.85em, 2.3vw, 0.95em);
+        /* Ajuste do tamanho da porcentagem */
     }
 
 
@@ -5857,7 +5875,8 @@ body.light.theme-mode-motivational .header {
     }
 
     #task-form {
-        flex-wrap: nowrap;
+        /* flex-wrap: nowrap; */ /* Comentado/Removido para corrigir quebra do botão */
+        flex-wrap: wrap; /* Adicionado para garantir a quebra */
     }
 
     #task-input,
@@ -6230,6 +6249,17 @@ body.light.theme-mode-motivational .header {
         flex-basis: auto;
     }
 
+    /* Ajustes para o modal de rotina em 768px e abaixo */
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+    }
+
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2 {
+        min-width: 0; /* Permite que o card encolha para caber no grid */
+    }
+
+
     @media (max-width: 570px) {
         #task-input {
             flex-basis: 100%;
@@ -6291,8 +6321,8 @@ body.light.theme-mode-motivational .header {
         font-size: 0.75rem;
     }
 
-    .recurring-pattern-v2-days-grid {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-v2-days-grid { /* Já ajustado acima para 768px, pode ser mais específico aqui se necessário */
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         gap: 8px;
     }
 
@@ -6357,7 +6387,7 @@ body.light.theme-mode-motivational .header {
         height: 38px;
     }
 
-    .recurring-pattern-v2-days-grid {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-v2-days-grid {
         grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     }
 }
@@ -6728,44 +6758,45 @@ body.light.theme-mode-motivational .header {
         width: 100%;
     }
 
-    .recurring-pattern-definition-v2-content {
+    /* Ajustes para o modal de rotina em 480px e abaixo */
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-definition-v2-content {
         padding: 12px 15px;
         gap: 10px;
     }
 
-    .recurring-modal-header {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-header {
         padding-bottom: 10px;
     }
 
-    .recurring-modal-title-group .modal-title {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-title-group .modal-title {
         font-size: 1.1rem;
     }
 
-    .recurring-modal-title-group .modal-title .icon-title-recurring {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-title-group .modal-title .icon-title-recurring {
         font-size: 0.9em;
         margin-right: 6px;
     }
 
-    .recurring-modal-title-group .modal-subtitle-description {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-title-group .modal-subtitle-description {
         font-size: 0.75rem;
     }
 
-    #new-task-text-input-v2,
-    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] #new-task-text-input-v2,
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .new-task-input-container-v2 .btn-confirm-add-task-v2 {
         height: 34px;
         font-size: 0.75rem;
     }
 
-    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .new-task-input-container-v2 .btn-confirm-add-task-v2 {
         padding: 0 8px;
         gap: 3px;
     }
 
-    .new-task-input-container-v2 .btn-confirm-add-task-v2 i {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .new-task-input-container-v2 .btn-confirm-add-task-v2 i {
         font-size: 0.9em;
     }
 
-    .recurring-modal-sub-controls-line {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-sub-controls-line {
         margin-top: 6px;
         padding-bottom: 6px;
         gap: 6px;
@@ -6773,117 +6804,167 @@ body.light.theme-mode-motivational .header {
         justify-content: flex-start;
     }
 
-    .recurring-modal-controls-top .selected-days-count {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-controls-top .selected-days-count {
         width: 100%;
         margin-bottom: 6px;
     }
 
-    .recurring-modal-controls-top .day-selection-actions {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-controls-top .day-selection-actions {
         width: auto;
     }
 
-    .recurring-modal-controls-top .day-selection-actions .btn {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-controls-top .day-selection-actions .btn {
         font-size: 0.7rem;
         padding: 4px 8px;
     }
 
-    .recurring-pattern-v2-days-grid {
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Ajuste para minmax */
         gap: 5px;
     }
-
-    .day-card-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2 {
+        min-width: 0; /* Garante que os cards possam encolher */
         padding: 6px;
     }
 
-    .day-card-header-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-header-v2 {
         margin-bottom: 5px;
     }
 
-    .day-card-v2-short {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2-short {
         font-size: 0.8rem;
     }
 
-    .day-card-task-count-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-task-count-v2 {
         font-size: 0.65rem;
         padding: 1px 3px;
     }
 
-    .task-item-recurrent-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-item-recurrent-v2 {
         font-size: 0.7rem;
         gap: 3px;
         padding: 4px 4px 4px 0;
     }
 
-    .task-routine-checkbox {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-routine-checkbox {
         width: 13px;
         height: 13px;
         margin-left: 5px;
         margin-right: 5px;
     }
 
-    .task-routine-checkbox:checked::before {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-routine-checkbox:checked::before {
         font-size: 8px;
     }
 
-    .task-actions-recurrent-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-actions-recurrent-v2 {
         gap: 2px;
         margin-left: 2px;
     }
 
-    .btn-icon-recurrent-task-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .btn-icon-recurrent-task-v2 {
         width: 16px;
         height: 16px;
         font-size: 0.65rem;
     }
 
-    .recurring-modal-footer .footer-info-text,
-    .recurring-modal-footer .footer-total-tasks-count {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-footer .footer-info-text,
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-footer .footer-total-tasks-count {
         font-size: 0.7rem;
         width: 100%;
         text-align: center;
     }
 
-    .recurring-modal-footer .footer-total-tasks-count {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-footer .footer-total-tasks-count {
         margin-top: 4px;
     }
 }
 
+/* Breakpoint adicional para telas muito estreitas como a da imagem do celular */
+@media (max-width: 420px) {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(2, 1fr); /* Força 2 colunas */
+        gap: 8px; /* Um pouco mais de espaço entre as colunas */
+    }
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2 {
+        padding: 8px 6px; /* Ajuste fino no padding */
+    }
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2-short {
+        font-size: 0.8rem;
+    }
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-task-count-v2 {
+        font-size: 0.7rem;
+        padding: 1px 3px;
+    }
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-item-recurrent-v2 {
+        font-size: 0.75rem;
+        padding: 5px 5px 5px 0;
+    }
+     #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-routine-checkbox {
+        width: 14px;
+        height: 14px;
+        margin-right: 5px;
+    }
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-routine-checkbox:checked::before {
+        font-size: 9px;
+    }
+     #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .btn-icon-recurrent-task-v2 {
+        width: 17px;
+        height: 17px;
+        font-size: 0.7rem;
+    }
+}
+
+
 /* Estilos para a barra de rolagem */
 ::-webkit-scrollbar {
-    width: 10px; /* Largura para scrollbars verticais */
-    height: 10px; /* Altura para scrollbars horizontais */
+    width: 10px;
+    /* Largura para scrollbars verticais */
+    height: 10px;
+    /* Altura para scrollbars horizontais */
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg-dark); /* Cor de fundo do trilho para tema escuro */
+    background: var(--scrollbar-track-bg-dark);
+    /* Cor de fundo do trilho para tema escuro */
     border-radius: 10px;
 }
+
 body.light ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg-light); /* Cor de fundo do trilho para tema claro */
+    background: var(--scrollbar-track-bg-light);
+    /* Cor de fundo do trilho para tema claro */
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg-dark); /* Cor do polegar para tema escuro */
+    background-color: var(--scrollbar-thumb-bg-dark);
+    /* Cor do polegar para tema escuro */
     border-radius: 10px;
-    border: 2px solid transparent; /* Cria um "padding" visual */
+    border: 2px solid transparent;
+    /* Cria um "padding" visual */
     background-clip: content-box;
 }
+
 body.light ::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg-light); /* Cor do polegar para tema claro */
+    background-color: var(--scrollbar-thumb-bg-light);
+    /* Cor do polegar para tema claro */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    filter: brightness(1.2); /* Um pouco mais claro ao passar o mouse */
+    filter: brightness(1.2);
+    /* Um pouco mais claro ao passar o mouse */
 }
 
 /* Aplica a mesma estilização para elementos específicos com overflow */
 #task-list::-webkit-scrollbar,
-#recurring-patterns-list::-webkit-scrollbar, /* Para o modal antigo, se ainda usado */
+#recurring-patterns-list::-webkit-scrollbar,
+/* Para o modal antigo, se ainda usado */
 .day-card-v2-tasks::-webkit-scrollbar,
-.modal::-webkit-scrollbar, /* Para todos os modais genéricos */
-.retrospective-screen::-webkit-scrollbar /* Para telas da retrospectiva */
-{
+.modal::-webkit-scrollbar,
+/* Para todos os modais genéricos */
+.retrospective-screen::-webkit-scrollbar
+
+/* Para telas da retrospectiva */
+    {
     width: 8px;
     height: 8px;
 }
@@ -6892,17 +6973,16 @@ body.light ::-webkit-scrollbar-thumb {
 #recurring-patterns-list::-webkit-scrollbar-track,
 .day-card-v2-tasks::-webkit-scrollbar-track,
 .modal::-webkit-scrollbar-track,
-.retrospective-screen::-webkit-scrollbar-track
-{
+.retrospective-screen::-webkit-scrollbar-track {
     background: var(--scrollbar-track-bg-dark);
     border-radius: 10px;
 }
+
 body.light #task-list::-webkit-scrollbar-track,
 body.light #recurring-patterns-list::-webkit-scrollbar-track,
 body.light .day-card-v2-tasks::-webkit-scrollbar-track,
 body.light .modal::-webkit-scrollbar-track,
-body.light .retrospective-screen::-webkit-scrollbar-track
-{
+body.light .retrospective-screen::-webkit-scrollbar-track {
     background: var(--scrollbar-track-bg-light);
 }
 
@@ -6911,8 +6991,7 @@ body.light .retrospective-screen::-webkit-scrollbar-track
 #recurring-patterns-list::-webkit-scrollbar-thumb,
 .day-card-v2-tasks::-webkit-scrollbar-thumb,
 .modal::-webkit-scrollbar-thumb,
-.retrospective-screen::-webkit-scrollbar-thumb
-{
+.retrospective-screen::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb-bg-dark);
     border-radius: 10px;
     border: 2px solid transparent;
@@ -6923,8 +7002,7 @@ body.light #task-list::-webkit-scrollbar-thumb,
 body.light #recurring-patterns-list::-webkit-scrollbar-thumb,
 body.light .day-card-v2-tasks::-webkit-scrollbar-thumb,
 body.light .modal::-webkit-scrollbar-thumb,
-body.light .retrospective-screen::-webkit-scrollbar-thumb
-{
+body.light .retrospective-screen::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb-bg-light);
 }
 
@@ -6932,8 +7010,7 @@ body.light .retrospective-screen::-webkit-scrollbar-thumb
 #recurring-patterns-list::-webkit-scrollbar-thumb:hover,
 .day-card-v2-tasks::-webkit-scrollbar-thumb:hover,
 .modal::-webkit-scrollbar-thumb:hover,
-.retrospective-screen::-webkit-scrollbar-thumb:hover
-{
+.retrospective-screen::-webkit-scrollbar-thumb:hover {
     filter: brightness(1.2);
 }
 
@@ -7438,7 +7515,8 @@ body.light .retrospective-final-logo .logo-icon {
             </div>
 
             <div class="recurring-modal-footer">
-                <p class="footer-info-text" id="recurring-modal-footer-tip">Dica: Clique nos dias para selecioná-los e adicionar tarefas. Você também pode arrastar tarefas entre os dias para reorganizar!</p>
+                <p class="footer-info-text" id="recurring-modal-footer-tip">Dica: Clique nos dias para selecioná-los e
+                    adicionar tarefas. Você também pode arrastar tarefas entre os dias para reorganizar!</p>
                 <span class="footer-total-tasks-count" id="recurring-modal-total-tasks">Total de tarefas: 0</span>
             </div>
         </div>
@@ -7557,7 +7635,8 @@ body.light .retrospective-final-logo .logo-icon {
                         diárias, semanais, mensais, anuais e de streak.</li>
                     <li><strong>Alternar Tema:</strong> Use o ícone <i class="bi bi-moon-fill guide-icon-example"></i> /
                         <i class="bi bi-sun-fill guide-icon-example"></i> no cabeçalho para trocar entre o tema escuro e
-                        claro.</li>
+                        claro.
+                    </li>
                     <li><strong>Personalizar Aparência:</strong> Clique no ícone <i
                             class="bi bi-palette-fill guide-icon-example"></i> no cabeçalho para escolher paletas de
                         cores e modos visuais.</li>
@@ -8666,7 +8745,7 @@ async function generateRetrospectiveImageInternal(forSharingNotification = false
                 clonedContentWrapper.querySelectorAll('.retrospective-final-other-stat-item i').forEach(el => el.style.color = currentPrimaryColorHex);
                 clonedContentWrapper.querySelectorAll('.retrospective-final-other-stat-item span, .retrospective-final-other-stat-item strong').forEach(el => el.style.color = textColorForClone);
                 clonedContentWrapper.querySelector('.retrospective-final-achievements-title').style.color = isLightTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.8)';
-                const clonedFooter = clonedContentWrapper.querySelector('.retrospective-final-footer'); if (clonedFooter) { clonedFooter.textContent = "#TaskifyWrapped"; clonedFooter.style.color = isLightTheme ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.6)';}
+                const clonedFooter = clonedContentWrapper.querySelector('.retrospective-final-footer'); if (clonedFooter) { clonedFooter.textContent = "#TaskifyWrapped"; clonedFooter.style.color = isLightTheme ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.6)'; }
                 const clonedBadges = documentCloned.querySelectorAll('.retrospective-badge-achievement');
                 clonedBadges.forEach(badge => { let badgeSolidBgColor = isLightTheme ? `rgba(${primaryRgbArray[0]}, ${primaryRgbArray[1]}, ${primaryRgbArray[2]}, 0.8)` : `rgba(${primaryRgbArray[0]}, ${primaryRgbArray[1]}, ${primaryRgbArray[2]}, 0.9)`; let badgeTextColor = isLightTheme ? (getComputedStyle(document.documentElement).getPropertyValue('--card-bg-light').trim() || '#FFFFFF') : '#FFFFFF'; badge.style.background = badgeSolidBgColor; badge.style.color = badgeTextColor; badge.style.textShadow = 'none'; badge.style.boxShadow = 'none'; badge.style.animation = 'none'; });
             }
@@ -8705,7 +8784,7 @@ async function generateRetrospectiveImageInternal(forSharingNotification = false
                 return { success: true, canvas: canvas, error: null }; // Cópia bem-sucedida
             } else {
                 console.warn("TASKIFY_RETRO: API de Clipboard não disponível para cópia.");
-                 if (forSharingNotification && isMobileDevice()) {
+                if (forSharingNotification && isMobileDevice()) {
                     // Se for para compartilhar e é mobile, não mostre erro aqui, o fluxo de fallback (download) será ativado
                 } else if (forSharingNotification) { // Desktop e API não disponível
                     if (typeof window.showCustomAlert === 'function') window.showCustomAlert("Seu navegador não suporta copiar imagens para a área de transferência. Tente baixar a imagem.", "Aviso");
@@ -8767,7 +8846,7 @@ async function shareRetrospectiveOnTwitterWithImage() {
             imageGeneratedAndHandled = true;
         } else {
             if (typeof window.showCustomAlert === 'function') {
-                 window.showCustomAlert("Não foi possível preparar a imagem para o Twitter. Você pode tentar baixá-la com o outro botão ou compartilhar apenas o texto.", "Falha na Imagem");
+                window.showCustomAlert("Não foi possível preparar a imagem para o Twitter. Você pode tentar baixá-la com o outro botão ou compartilhar apenas o texto.", "Falha na Imagem");
             }
         }
     } else {
@@ -8777,10 +8856,10 @@ async function shareRetrospectiveOnTwitterWithImage() {
             imageGeneratedAndHandled = true;
         } else if (!result.success && result.canvas) {
             if (typeof window.showCustomAlert === 'function') {
-                 window.showCustomAlert("Não foi possível copiar a imagem. Tente baixá-la com o outro botão e anexar ao tweet, ou compartilhe apenas o texto.", "Falha na Cópia");
+                window.showCustomAlert("Não foi possível copiar a imagem. Tente baixá-la com o outro botão e anexar ao tweet, ou compartilhe apenas o texto.", "Falha na Cópia");
             }
         } else {
-             if (typeof window.showCustomAlert === 'function') {
+            if (typeof window.showCustomAlert === 'function') {
                 window.showCustomAlert("Não foi possível gerar a imagem para o Twitter. Compartilhando apenas o texto.", "Falha na Imagem");
             }
         }
@@ -8799,7 +8878,7 @@ async function downloadRetrospectiveImageAction() {
     } else {
         console.error("TASKIFY_RETRO: Canvas não foi gerado para download ou houve erro.");
         if (typeof window.showCustomAlert === 'function' && !result.canvas) {
-             window.showCustomAlert("Não foi possível gerar a imagem para download. Tente um print screen.", "Falha no Download");
+            window.showCustomAlert("Não foi possível gerar a imagem para download. Tente um print screen.", "Falha no Download");
         } else if (typeof window.showCustomAlert === 'function' && result.canvas && !result.success) {
             window.showCustomAlert("Houve um problema ao preparar a imagem para download (Canvas gerado, mas erro na operação).", "Falha");
         }
@@ -12211,7 +12290,8 @@ console.log(`\n🎉 Processo finalizado! ${count} arquivo(s) extraído(s).`);
                 <p class="retrospective-card-subtitle">dias de pura consistência!</p>
             </div>
         </div>
-        <div class="retrospective-card-indigo"> <!-- Card Distribuição Semanal (usando a classe do seu HTML original) -->
+        <div class="retrospective-card-indigo">
+            <!-- Card Distribuição Semanal (usando a classe do seu HTML original) -->
             <div class="retrospective-card-header">
                 <i class="bi bi-bar-chart-line-fill retrospective-icon-large"></i>
                 <h3 class="retrospective-card-title">Distribuição Semanal</h3>
@@ -12220,7 +12300,8 @@ console.log(`\n🎉 Processo finalizado! ${count} arquivo(s) extraído(s).`);
                 <!-- Barras do gráfico -->
             </div>
         </div>
-        <button id="retrospective-time-patterns-next-button" class="retrospective-button retrospective-navigation-button">
+        <button id="retrospective-time-patterns-next-button"
+            class="retrospective-button retrospective-navigation-button">
             PRÓXIMA DESCOBERTA <i class="bi bi-chevron-right retrospective-icon-small"></i>
         </button>
     </div>

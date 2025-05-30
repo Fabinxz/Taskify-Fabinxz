@@ -1189,30 +1189,37 @@ body.light #retrospective-comparison-screen .retrospective-screen-title {
 
 #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card {
     min-height: clamp(130px, 30vh, 160px);
-    padding: clamp(12px, 2.2vh, 18px); /* Ajustado padding para dar mais espaço interno */
-    justify-content: center; /* Centraliza o bloco de conteúdo verticalmente */
-    align-items: center; /* Centraliza o conteúdo horizontalmente */
+    padding: clamp(12px, 2.2vh, 18px);
+    /* Ajustado padding para dar mais espaço interno */
+    justify-content: center;
+    /* Centraliza o bloco de conteúdo verticalmente */
+    align-items: center;
+    /* Centraliza o conteúdo horizontalmente */
 }
 
 /* Melhorias de Margens Internas dos Cards da Tela de Comparação */
-#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-icon-medium {
+#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-icon-medium {
     margin-bottom: clamp(6px, 1vh, 10px);
 }
 
-#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-stat-value {
+#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-stat-value {
     margin-bottom: clamp(3px, 0.6vh, 5px);
 }
 
-#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-stat-label {
+#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-stat-label {
     margin-bottom: clamp(6px, 1vh, 10px);
-    flex-grow: 0; /* Já existia, mantém */
-    line-height: 1.2; /* Já existia, mantém */
+    flex-grow: 0;
+    /* Já existia, mantém */
+    line-height: 1.2;
+    /* Já existia, mantém */
 }
 
-#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-comparison-percentage {
-    margin-top: 0; /* Remove o margin-top original para depender do margin-bottom do label */
+#retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-comparison-percentage {
+    margin-top: 0;
+    /* Remove o margin-top original para depender do margin-bottom do label */
     /* Demais estilos de .retrospective-comparison-percentage são mantidos */
 }
+
 /* Fim das Melhorias de Margens Internas */
 
 
@@ -1963,24 +1970,35 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
     }
 
     #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card {
-        min-height: clamp(110px, 28vh, 140px); /* A altura já era menor aqui, mantive */
-        padding: clamp(8px, 1.5vh, 12px); /* Padding também já era menor */
+        min-height: clamp(110px, 28vh, 140px);
+        /* A altura já era menor aqui, mantive */
+        padding: clamp(8px, 1.5vh, 12px);
+        /* Padding também já era menor */
     }
 
     /* As margens internas dos cards de comparação já são tratadas pelos seletores específicos adicionados */
-    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-icon-medium {
-        margin-bottom: clamp(4px, 0.8vh, 8px); /* Ajuste fino para telas menores */
+    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-icon-medium {
+        margin-bottom: clamp(4px, 0.8vh, 8px);
+        /* Ajuste fino para telas menores */
     }
-    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-stat-value {
-        font-size: clamp(20px, 5.5vw, 26px); /* Ajuste do tamanho do valor */
-        margin-bottom: clamp(2px, 0.4vh, 4px); /* Ajuste fino para telas menores */
+
+    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-stat-value {
+        font-size: clamp(20px, 5.5vw, 26px);
+        /* Ajuste do tamanho do valor */
+        margin-bottom: clamp(2px, 0.4vh, 4px);
+        /* Ajuste fino para telas menores */
     }
-    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-stat-label {
-        font-size: clamp(10px, 2.2vw, 11px); /* Ajuste do tamanho do label */
-        margin-bottom: clamp(4px, 0.8vh, 8px); /* Ajuste fino para telas menores */
+
+    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-stat-label {
+        font-size: clamp(10px, 2.2vw, 11px);
+        /* Ajuste do tamanho do label */
+        margin-bottom: clamp(4px, 0.8vh, 8px);
+        /* Ajuste fino para telas menores */
     }
-    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card > .retrospective-comparison-percentage {
-        font-size: clamp(0.85em, 2.3vw, 0.95em); /* Ajuste do tamanho da porcentagem */
+
+    #retrospective-comparison-screen .retrospective-stats-grid .retrospective-stat-card>.retrospective-comparison-percentage {
+        font-size: clamp(0.85em, 2.3vw, 0.95em);
+        /* Ajuste do tamanho da porcentagem */
     }
 
 

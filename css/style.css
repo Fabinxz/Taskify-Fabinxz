@@ -3737,7 +3737,8 @@ body.light.theme-mode-motivational .header {
     }
 
     #task-form {
-        flex-wrap: nowrap;
+        /* flex-wrap: nowrap; */ /* Comentado/Removido para corrigir quebra do botão */
+        flex-wrap: wrap; /* Adicionado para garantir a quebra */
     }
 
     #task-input,
@@ -4110,6 +4111,17 @@ body.light.theme-mode-motivational .header {
         flex-basis: auto;
     }
 
+    /* Ajustes para o modal de rotina em 768px e abaixo */
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+    }
+
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2 {
+        min-width: 0; /* Permite que o card encolha para caber no grid */
+    }
+
+
     @media (max-width: 570px) {
         #task-input {
             flex-basis: 100%;
@@ -4171,8 +4183,8 @@ body.light.theme-mode-motivational .header {
         font-size: 0.75rem;
     }
 
-    .recurring-pattern-v2-days-grid {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-v2-days-grid { /* Já ajustado acima para 768px, pode ser mais específico aqui se necessário */
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         gap: 8px;
     }
 
@@ -4237,7 +4249,7 @@ body.light.theme-mode-motivational .header {
         height: 38px;
     }
 
-    .recurring-pattern-v2-days-grid {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-v2-days-grid {
         grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     }
 }
@@ -4608,44 +4620,45 @@ body.light.theme-mode-motivational .header {
         width: 100%;
     }
 
-    .recurring-pattern-definition-v2-content {
+    /* Ajustes para o modal de rotina em 480px e abaixo */
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-definition-v2-content {
         padding: 12px 15px;
         gap: 10px;
     }
 
-    .recurring-modal-header {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-header {
         padding-bottom: 10px;
     }
 
-    .recurring-modal-title-group .modal-title {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-title-group .modal-title {
         font-size: 1.1rem;
     }
 
-    .recurring-modal-title-group .modal-title .icon-title-recurring {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-title-group .modal-title .icon-title-recurring {
         font-size: 0.9em;
         margin-right: 6px;
     }
 
-    .recurring-modal-title-group .modal-subtitle-description {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-title-group .modal-subtitle-description {
         font-size: 0.75rem;
     }
 
-    #new-task-text-input-v2,
-    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] #new-task-text-input-v2,
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .new-task-input-container-v2 .btn-confirm-add-task-v2 {
         height: 34px;
         font-size: 0.75rem;
     }
 
-    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .new-task-input-container-v2 .btn-confirm-add-task-v2 {
         padding: 0 8px;
         gap: 3px;
     }
 
-    .new-task-input-container-v2 .btn-confirm-add-task-v2 i {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .new-task-input-container-v2 .btn-confirm-add-task-v2 i {
         font-size: 0.9em;
     }
 
-    .recurring-modal-sub-controls-line {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-sub-controls-line {
         margin-top: 6px;
         padding-bottom: 6px;
         gap: 6px;
@@ -4653,117 +4666,167 @@ body.light.theme-mode-motivational .header {
         justify-content: flex-start;
     }
 
-    .recurring-modal-controls-top .selected-days-count {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-controls-top .selected-days-count {
         width: 100%;
         margin-bottom: 6px;
     }
 
-    .recurring-modal-controls-top .day-selection-actions {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-controls-top .day-selection-actions {
         width: auto;
     }
 
-    .recurring-modal-controls-top .day-selection-actions .btn {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-controls-top .day-selection-actions .btn {
         font-size: 0.7rem;
         padding: 4px 8px;
     }
 
-    .recurring-pattern-v2-days-grid {
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Ajuste para minmax */
         gap: 5px;
     }
-
-    .day-card-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2 {
+        min-width: 0; /* Garante que os cards possam encolher */
         padding: 6px;
     }
 
-    .day-card-header-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-header-v2 {
         margin-bottom: 5px;
     }
 
-    .day-card-v2-short {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2-short {
         font-size: 0.8rem;
     }
 
-    .day-card-task-count-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-task-count-v2 {
         font-size: 0.65rem;
         padding: 1px 3px;
     }
 
-    .task-item-recurrent-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-item-recurrent-v2 {
         font-size: 0.7rem;
         gap: 3px;
         padding: 4px 4px 4px 0;
     }
 
-    .task-routine-checkbox {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-routine-checkbox {
         width: 13px;
         height: 13px;
         margin-left: 5px;
         margin-right: 5px;
     }
 
-    .task-routine-checkbox:checked::before {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-routine-checkbox:checked::before {
         font-size: 8px;
     }
 
-    .task-actions-recurrent-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-actions-recurrent-v2 {
         gap: 2px;
         margin-left: 2px;
     }
 
-    .btn-icon-recurrent-task-v2 {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .btn-icon-recurrent-task-v2 {
         width: 16px;
         height: 16px;
         font-size: 0.65rem;
     }
 
-    .recurring-modal-footer .footer-info-text,
-    .recurring-modal-footer .footer-total-tasks-count {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-footer .footer-info-text,
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-footer .footer-total-tasks-count {
         font-size: 0.7rem;
         width: 100%;
         text-align: center;
     }
 
-    .recurring-modal-footer .footer-total-tasks-count {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-footer .footer-total-tasks-count {
         margin-top: 4px;
     }
 }
 
+/* Breakpoint adicional para telas muito estreitas como a da imagem do celular */
+@media (max-width: 420px) {
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(2, 1fr); /* Força 2 colunas */
+        gap: 8px; /* Um pouco mais de espaço entre as colunas */
+    }
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2 {
+        padding: 8px 6px; /* Ajuste fino no padding */
+    }
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2-short {
+        font-size: 0.8rem;
+    }
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-task-count-v2 {
+        font-size: 0.7rem;
+        padding: 1px 3px;
+    }
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-item-recurrent-v2 {
+        font-size: 0.75rem;
+        padding: 5px 5px 5px 0;
+    }
+     #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-routine-checkbox {
+        width: 14px;
+        height: 14px;
+        margin-right: 5px;
+    }
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .task-routine-checkbox:checked::before {
+        font-size: 9px;
+    }
+     #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .btn-icon-recurrent-task-v2 {
+        width: 17px;
+        height: 17px;
+        font-size: 0.7rem;
+    }
+}
+
+
 /* Estilos para a barra de rolagem */
 ::-webkit-scrollbar {
-    width: 10px; /* Largura para scrollbars verticais */
-    height: 10px; /* Altura para scrollbars horizontais */
+    width: 10px;
+    /* Largura para scrollbars verticais */
+    height: 10px;
+    /* Altura para scrollbars horizontais */
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg-dark); /* Cor de fundo do trilho para tema escuro */
+    background: var(--scrollbar-track-bg-dark);
+    /* Cor de fundo do trilho para tema escuro */
     border-radius: 10px;
 }
+
 body.light ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg-light); /* Cor de fundo do trilho para tema claro */
+    background: var(--scrollbar-track-bg-light);
+    /* Cor de fundo do trilho para tema claro */
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg-dark); /* Cor do polegar para tema escuro */
+    background-color: var(--scrollbar-thumb-bg-dark);
+    /* Cor do polegar para tema escuro */
     border-radius: 10px;
-    border: 2px solid transparent; /* Cria um "padding" visual */
+    border: 2px solid transparent;
+    /* Cria um "padding" visual */
     background-clip: content-box;
 }
+
 body.light ::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg-light); /* Cor do polegar para tema claro */
+    background-color: var(--scrollbar-thumb-bg-light);
+    /* Cor do polegar para tema claro */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    filter: brightness(1.2); /* Um pouco mais claro ao passar o mouse */
+    filter: brightness(1.2);
+    /* Um pouco mais claro ao passar o mouse */
 }
 
 /* Aplica a mesma estilização para elementos específicos com overflow */
 #task-list::-webkit-scrollbar,
-#recurring-patterns-list::-webkit-scrollbar, /* Para o modal antigo, se ainda usado */
+#recurring-patterns-list::-webkit-scrollbar,
+/* Para o modal antigo, se ainda usado */
 .day-card-v2-tasks::-webkit-scrollbar,
-.modal::-webkit-scrollbar, /* Para todos os modais genéricos */
-.retrospective-screen::-webkit-scrollbar /* Para telas da retrospectiva */
-{
+.modal::-webkit-scrollbar,
+/* Para todos os modais genéricos */
+.retrospective-screen::-webkit-scrollbar
+
+/* Para telas da retrospectiva */
+    {
     width: 8px;
     height: 8px;
 }
@@ -4772,17 +4835,16 @@ body.light ::-webkit-scrollbar-thumb {
 #recurring-patterns-list::-webkit-scrollbar-track,
 .day-card-v2-tasks::-webkit-scrollbar-track,
 .modal::-webkit-scrollbar-track,
-.retrospective-screen::-webkit-scrollbar-track
-{
+.retrospective-screen::-webkit-scrollbar-track {
     background: var(--scrollbar-track-bg-dark);
     border-radius: 10px;
 }
+
 body.light #task-list::-webkit-scrollbar-track,
 body.light #recurring-patterns-list::-webkit-scrollbar-track,
 body.light .day-card-v2-tasks::-webkit-scrollbar-track,
 body.light .modal::-webkit-scrollbar-track,
-body.light .retrospective-screen::-webkit-scrollbar-track
-{
+body.light .retrospective-screen::-webkit-scrollbar-track {
     background: var(--scrollbar-track-bg-light);
 }
 
@@ -4791,8 +4853,7 @@ body.light .retrospective-screen::-webkit-scrollbar-track
 #recurring-patterns-list::-webkit-scrollbar-thumb,
 .day-card-v2-tasks::-webkit-scrollbar-thumb,
 .modal::-webkit-scrollbar-thumb,
-.retrospective-screen::-webkit-scrollbar-thumb
-{
+.retrospective-screen::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb-bg-dark);
     border-radius: 10px;
     border: 2px solid transparent;
@@ -4803,8 +4864,7 @@ body.light #task-list::-webkit-scrollbar-thumb,
 body.light #recurring-patterns-list::-webkit-scrollbar-thumb,
 body.light .day-card-v2-tasks::-webkit-scrollbar-thumb,
 body.light .modal::-webkit-scrollbar-thumb,
-body.light .retrospective-screen::-webkit-scrollbar-thumb
-{
+body.light .retrospective-screen::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb-bg-light);
 }
 
@@ -4812,8 +4872,7 @@ body.light .retrospective-screen::-webkit-scrollbar-thumb
 #recurring-patterns-list::-webkit-scrollbar-thumb:hover,
 .day-card-v2-tasks::-webkit-scrollbar-thumb:hover,
 .modal::-webkit-scrollbar-thumb:hover,
-.retrospective-screen::-webkit-scrollbar-thumb:hover
-{
+.retrospective-screen::-webkit-scrollbar-thumb:hover {
     filter: brightness(1.2);
 }
 

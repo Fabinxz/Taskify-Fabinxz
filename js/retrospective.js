@@ -945,7 +945,7 @@ async function generateRetrospectiveImageInternal(forSharingNotification = false
                 clonedContentWrapper.querySelectorAll('.retrospective-final-other-stat-item i').forEach(el => el.style.color = currentPrimaryColorHex);
                 clonedContentWrapper.querySelectorAll('.retrospective-final-other-stat-item span, .retrospective-final-other-stat-item strong').forEach(el => el.style.color = textColorForClone);
                 clonedContentWrapper.querySelector('.retrospective-final-achievements-title').style.color = isLightTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.8)';
-                const clonedFooter = clonedContentWrapper.querySelector('.retrospective-final-footer'); if (clonedFooter) { clonedFooter.textContent = "#TaskifyWrapped"; clonedFooter.style.color = isLightTheme ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.6)';}
+                const clonedFooter = clonedContentWrapper.querySelector('.retrospective-final-footer'); if (clonedFooter) { clonedFooter.textContent = "#TaskifyWrapped"; clonedFooter.style.color = isLightTheme ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.6)'; }
                 const clonedBadges = documentCloned.querySelectorAll('.retrospective-badge-achievement');
                 clonedBadges.forEach(badge => { let badgeSolidBgColor = isLightTheme ? `rgba(${primaryRgbArray[0]}, ${primaryRgbArray[1]}, ${primaryRgbArray[2]}, 0.8)` : `rgba(${primaryRgbArray[0]}, ${primaryRgbArray[1]}, ${primaryRgbArray[2]}, 0.9)`; let badgeTextColor = isLightTheme ? (getComputedStyle(document.documentElement).getPropertyValue('--card-bg-light').trim() || '#FFFFFF') : '#FFFFFF'; badge.style.background = badgeSolidBgColor; badge.style.color = badgeTextColor; badge.style.textShadow = 'none'; badge.style.boxShadow = 'none'; badge.style.animation = 'none'; });
             }
@@ -984,7 +984,7 @@ async function generateRetrospectiveImageInternal(forSharingNotification = false
                 return { success: true, canvas: canvas, error: null }; // Cópia bem-sucedida
             } else {
                 console.warn("TASKIFY_RETRO: API de Clipboard não disponível para cópia.");
-                 if (forSharingNotification && isMobileDevice()) {
+                if (forSharingNotification && isMobileDevice()) {
                     // Se for para compartilhar e é mobile, não mostre erro aqui, o fluxo de fallback (download) será ativado
                 } else if (forSharingNotification) { // Desktop e API não disponível
                     if (typeof window.showCustomAlert === 'function') window.showCustomAlert("Seu navegador não suporta copiar imagens para a área de transferência. Tente baixar a imagem.", "Aviso");
@@ -1046,7 +1046,7 @@ async function shareRetrospectiveOnTwitterWithImage() {
             imageGeneratedAndHandled = true;
         } else {
             if (typeof window.showCustomAlert === 'function') {
-                 window.showCustomAlert("Não foi possível preparar a imagem para o Twitter. Você pode tentar baixá-la com o outro botão ou compartilhar apenas o texto.", "Falha na Imagem");
+                window.showCustomAlert("Não foi possível preparar a imagem para o Twitter. Você pode tentar baixá-la com o outro botão ou compartilhar apenas o texto.", "Falha na Imagem");
             }
         }
     } else {
@@ -1056,10 +1056,10 @@ async function shareRetrospectiveOnTwitterWithImage() {
             imageGeneratedAndHandled = true;
         } else if (!result.success && result.canvas) {
             if (typeof window.showCustomAlert === 'function') {
-                 window.showCustomAlert("Não foi possível copiar a imagem. Tente baixá-la com o outro botão e anexar ao tweet, ou compartilhe apenas o texto.", "Falha na Cópia");
+                window.showCustomAlert("Não foi possível copiar a imagem. Tente baixá-la com o outro botão e anexar ao tweet, ou compartilhe apenas o texto.", "Falha na Cópia");
             }
         } else {
-             if (typeof window.showCustomAlert === 'function') {
+            if (typeof window.showCustomAlert === 'function') {
                 window.showCustomAlert("Não foi possível gerar a imagem para o Twitter. Compartilhando apenas o texto.", "Falha na Imagem");
             }
         }
@@ -1078,7 +1078,7 @@ async function downloadRetrospectiveImageAction() {
     } else {
         console.error("TASKIFY_RETRO: Canvas não foi gerado para download ou houve erro.");
         if (typeof window.showCustomAlert === 'function' && !result.canvas) {
-             window.showCustomAlert("Não foi possível gerar a imagem para download. Tente um print screen.", "Falha no Download");
+            window.showCustomAlert("Não foi possível gerar a imagem para download. Tente um print screen.", "Falha no Download");
         } else if (typeof window.showCustomAlert === 'function' && result.canvas && !result.success) {
             window.showCustomAlert("Houve um problema ao preparar a imagem para download (Canvas gerado, mas erro na operação).", "Falha");
         }
