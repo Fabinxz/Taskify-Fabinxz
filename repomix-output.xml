@@ -164,8 +164,8 @@ body.light .retrospective-modal {
 
 body.light .retrospective-music-control-button,
 body.light .retrospective-final-close-x-btn {
-    background-color: rgba(0, 0, 0, 0.08);
-    color: var(--text-color-light, #222);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -675,7 +675,7 @@ body.light .retrospective-intro-button:hover {
 }
 
 body.light .retrospective-screen-title {
-    color: var(--text-color-light, #222);
+    color: white;
     text-shadow: 0 1px 4px rgba(0, 0, 0, .15);
 }
 
