@@ -16,7 +16,10 @@ Taskify é um dashboard responsivo e personalizável para acompanhamento de meta
 
 ## 🚀 Funcionalidades Principais
 
-*   **Contador de Progresso Dinâmico:** Adicione e remova unidades de progresso (ex: questões resolvidas) facilmente.
+*   **Contador de Progresso Dinâmico:**
+    *   Adicione e remova unidades de progresso (ex: questões resolvidas) facilmente com botões de incremento/decremento.
+    *   Input numérico para definir o "passo" (quantidade) de unidades por clique.
+    *   Tooltips informativos para maior clareza da funcionalidade do contador.
 *   **Acompanhamento Detalhado de Metas:**
     *   Visualize seu progresso para metas diárias, semanais, mensais e anuais com anéis de progresso.
     *   Metas totalmente editáveis.
@@ -27,7 +30,13 @@ Taskify é um dashboard responsivo e personalizável para acompanhamento de meta
 *   **Gerenciamento de Tarefas:**
     *   Adicione, complete e delete tarefas.
     *   Atribua datas às tarefas (com seletor de data no formato DD/MM/AAAA).
-    *   Arraste e solte para reordenar tarefas.
+    *   Arraste e solte para reordenar tarefas na lista principal.
+    *   **Rotina Semanal Configurável:**
+        *   Defina tarefas recorrentes para cada dia da semana em um modal interativo.
+        *   Adicione tarefas a dias específicos ou múltiplos dias selecionados.
+        *   Edite e delete tarefas dentro da rotina.
+        *   Tarefas da rotina são automaticamente adicionadas à lista principal no dia correspondente.
+        *   Arraste e solte tarefas entre os dias dentro do modal de rotina.
 *   **Timer Pomodoro Integrado:**
     *   Configure durações de foco, pausas curtas e longas.
     *   Contador de ciclos de Pomodoro.
@@ -38,9 +47,9 @@ Taskify é um dashboard responsivo e personalizável para acompanhamento de meta
     *   Gráfico Semanal de Tarefas Concluídas.
 *   **Retrospectiva Mensal Interativa:**
     *   Visualize suas principais métricas do mês (questões, tarefas, foco).
-    *   Descubra seu dia mais produtivo e padrões de produtividade.
+    *   Descubra seu dia mais produtivo e padrões de produtividade (horário de pico de foco, distribuição semanal).
     *   Compare seu desempenho com o mês anterior.
-    *   Gere uma imagem da sua retrospectiva para compartilhar.
+    *   Gere uma imagem da sua retrospectiva para compartilhar (com opção de download e cópia para clipboard).
     *   Música ambiente opcional para a experiência.
 *   **Ampla Personalização Visual:**
     *   **Temas:** Escuro (padrão) e Claro.
@@ -50,7 +59,7 @@ Taskify é um dashboard responsivo e personalizável para acompanhamento de meta
         *   Foco Total: Interface minimalista para menos distrações.
         *   Profundo da Noite: Cores escuras e suaves.
         *   Energia Vibrante: Cores dinâmicas e fundo com gradiente.
-*   **Responsivo:** Ótima experiência em desktops, tablets e celulares.
+*   **Responsivo:** Ótima experiência em desktops, tablets e celulares, com ajustes contínuos para diferentes dimensões de tela.
 *   **Persistência Local:** Seus dados e personalizações são salvos no navegador (`localStorage`).
 *   **Favicon Dinâmico:** O ícone do site reflete a cor primária escolhida.
 *   **Guia de Boas-Vindas:** Para novos usuários.
@@ -58,7 +67,7 @@ Taskify é um dashboard responsivo e personalizável para acompanhamento de meta
 ## 🛠️ Tecnologias
 
 *   **HTML5**
-*   **CSS3** (Flexbox, Grid, Variáveis CSS, Animações)
+*   **CSS3** (Flexbox, Grid, Variáveis CSS, Media Queries, Animações)
 *   **JavaScript (ES6+)**
 *   **Chart.js** (para gráficos)
 *   **Flatpickr** (para seleção de data customizada)
@@ -83,6 +92,7 @@ Taskify é um dashboard responsivo e personalizável para acompanhamento de meta
 *   **Aparência (Temas, Cores, Modos Visuais):** Clique no ícone de paleta <i class="bi bi-palette-fill"></i> no header.
 *   **Tema Claro/Escuro:** Use o ícone de lua/sol <i class="bi bi-moon-fill"></i> / <i class="bi bi-sun-fill"></i> no header.
 *   **Metas e Reset:** Clique no ícone de lápis <i class="bi bi-pencil-square"></i> no header.
+*   **Configurar Rotina Semanal:** Clique no botão "<i class="bi bi-calendar-plus"></i> Configurar Rotina" na seção de Tarefas.
 *   **Configurações do Pomodoro:** Clique no ícone de engrenagem <i class="bi bi-gear-fill"></i> na seção do Pomodoro.
 *   **Retrospectiva Mensal:** Clique no ícone de calendário com coração <i class="bi bi-calendar-heart-fill"></i> no canto inferior direito.
 
@@ -102,6 +112,7 @@ Taskify/
 ├── index.html # Página principal da aplicação
 ├── retrospective.html # Estrutura HTML da retrospectiva (carregada dinamicamente)
 └── README.md # Este arquivo
+
 ## 💡 Melhorias Futuras (Ideias)
 
 *   Sincronização de dados online (ex: Firebase, Supabase).
