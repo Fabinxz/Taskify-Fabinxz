@@ -21,17 +21,33 @@ let currentEditingPatternTaskId_v2 = null;
 // Flatpickr instances
 let taskDatePicker = null;
 
+let newPomodoroDetailsModal = null;
+let newPomodoroDetailsModalOverlay = null;
+let newPomodoroDetailsCloseBtnX = null;
+let newPomodoroDetailsSessionsCount = null;
+let newPomodoroDetailsTotalFocusTime = null;
+let newPomodoroCycleList = null;
+let newPomodoroDetailsEmptyMessage = null;
+let newPomodoroDetailsBtnClose = null;
+let newPomodoroDetailsBtnNewCycle = null;
+
 
 window.showCustomAlert = showCustomAlert;
 window.taskifyStateReady = false;
 
-const PREDEFINED_PALETTES = {
-    electricBlue: { name: 'Azul Elétrico', primary: '#0A7CFF' },
-    emeraldGreen: { name: 'Verde Esmeralda', primary: '#00DB4D' },
-    fieryRed: { name: 'Vermelho Ígneo', primary: '#D51818' },
-    royalPurple: { name: 'Roxo Real', primary: '#852DD8' },
-    sunnyOrange: { name: 'Laranja Solar', primary: '#FF8C00' }
-};
+// Garante que PREDEFINED_PALETTES só seja declarada uma vez
+if (typeof PREDEFINED_PALETTES_GLOBAL === 'undefined') {
+    const PREDEFINED_PALETTES = {
+        electricBlue: { name: 'Azul Elétrico', primary: '#0A7CFF' },
+        emeraldGreen: { name: 'Verde Esmeralda', primary: '#00DB4D' },
+        fieryRed: { name: 'Vermelho Ígneo', primary: '#D51818' },
+        royalPurple: { name: 'Roxo Real', primary: '#852DD8' },
+        sunnyOrange: { name: 'Laranja Solar', primary: '#FF8C00' }
+    };
+    window.PREDEFINED_PALETTES_GLOBAL = PREDEFINED_PALETTES;
+}
+const currentPalettes = window.PREDEFINED_PALETTES_GLOBAL;
+
 
 const VISUAL_MODES = {
     default: { name: 'Padrão', icon: 'bi-display', subtitle: 'Experiência padrão Taskify' },
@@ -41,6 +57,19 @@ const VISUAL_MODES = {
 };
 
 const SINGLE_ROUTINE_ID = "minhaUnicaRotinaSemanal";
+
+const CHART_PERIOD_SELECTORS_IDS = {
+    weeklyActivity: 'weeklyActivityChartPeriodSelector',
+    pomodoroFocus: 'weeklyPomodoroFocusChartPeriodSelector',
+    tasksCompleted: 'weeklyTasksCompletedChartPeriodSelector'
+};
+const CHART_PERIOD_STORAGE_KEYS = {
+    weeklyActivity: 'taskify-weeklyActivityChartPeriod',
+    pomodoroFocus: 'taskify-pomodoroFocusChartPeriod',
+    tasksCompleted: 'taskify-tasksCompletedChartPeriod'
+};
+const DEFAULT_CHART_PERIOD = '7days';
+
 
 const initialDefaultState = {
     todayCount: 0,
@@ -96,6 +125,11 @@ const initialDefaultState = {
     visuals: {
         currentPalette: 'electricBlue',
         currentVisualMode: 'default'
+    },
+    chartPeriods: {
+        weeklyActivity: DEFAULT_CHART_PERIOD,
+        pomodoroFocus: DEFAULT_CHART_PERIOD,
+        tasksCompleted: DEFAULT_CHART_PERIOD
     }
 };
 
@@ -106,15 +140,20 @@ function getStartOfWeek(date) {
     const d = new Date(date);
     const day = d.getDay();
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    d.setHours(0,0,0,0);
     return new Date(d.setDate(diff));
 }
 
 function getStartOfMonth(date) {
-    return new Date(date.getFullYear(), date.getMonth(), 1);
+    const d = new Date(date.getFullYear(), date.getMonth(), 1);
+    d.setHours(0,0,0,0);
+    return d;
 }
 
 function getStartOfYear(date) {
-    return new Date(date.getFullYear(), 0, 1);
+    const d = new Date(date.getFullYear(), 0, 1);
+    d.setHours(0,0,0,0);
+    return d;
 }
 
 function getLast7DayLabels() {
@@ -205,7 +244,7 @@ function formatDateToISO(ddmmyyyyString) {
 
 function loadState() {
     let themeToApply = initialDefaultState.isDarkMode;
-    let primaryColorToApply = PREDEFINED_PALETTES[initialDefaultState.visuals.currentPalette].primary;
+    let primaryColorToApply = currentPalettes[initialDefaultState.visuals.currentPalette].primary;
     let currentPaletteName = initialDefaultState.visuals.currentPalette;
     let currentVisualModeName = initialDefaultState.visuals.currentVisualMode;
 
@@ -220,15 +259,15 @@ function loadState() {
     }
 
     const savedPaletteName = localStorage.getItem('taskify-palette');
-    if (savedPaletteName && PREDEFINED_PALETTES[savedPaletteName]) {
+    if (savedPaletteName && currentPalettes[savedPaletteName]) {
         currentPaletteName = savedPaletteName;
-        primaryColorToApply = PREDEFINED_PALETTES[currentPaletteName].primary;
+        primaryColorToApply = currentPalettes[currentPaletteName].primary;
     } else if (savedPaletteName === 'custom' && savedPrimaryColor) {
         currentPaletteName = 'custom';
         primaryColorToApply = savedPrimaryColor;
     } else {
         currentPaletteName = initialDefaultState.visuals.currentPalette;
-        primaryColorToApply = PREDEFINED_PALETTES[currentPaletteName].primary;
+        primaryColorToApply = currentPalettes[currentPaletteName].primary;
     }
 
     const savedVisualMode = localStorage.getItem('taskify-visual-mode');
@@ -295,6 +334,7 @@ function loadState() {
                 ? loadedState.dailyTaskCompletionData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0))
                 : [...initialDefaultState.dailyTaskCompletionData],
             visuals: { ...initialDefaultState.visuals, ...(loadedState.visuals || {}) },
+            chartPeriods: { ...initialDefaultState.chartPeriods, ...(loadedState.chartPeriods || {}) }
         };
 
         if (state.recurringTaskPatterns.length > 0 && state.recurringTaskPatterns[0].id !== SINGLE_ROUTINE_ID) {
@@ -339,6 +379,15 @@ function loadState() {
     state.visuals.currentPalette = currentPaletteName;
     state.visuals.currentVisualMode = currentVisualModeName;
 
+    Object.keys(CHART_PERIOD_STORAGE_KEYS).forEach(key => {
+        const savedPeriod = localStorage.getItem(CHART_PERIOD_STORAGE_KEYS[key]);
+        if (savedPeriod && ['7days', '30days', 'lastYear', 'allTime'].includes(savedPeriod)) {
+            state.chartPeriods[key] = savedPeriod;
+        } else {
+            state.chartPeriods[key] = DEFAULT_CHART_PERIOD;
+        }
+    });
+
     window.state = state;
 }
 
@@ -353,13 +402,19 @@ function saveState() {
 
         if (state.visuals.currentPalette === 'custom') {
             localStorage.setItem('taskify-primary-color', getComputedStyle(document.documentElement).getPropertyValue('--primary-color-dark').trim());
-        } else if (PREDEFINED_PALETTES[state.visuals.currentPalette]) {
-            localStorage.setItem('taskify-primary-color', PREDEFINED_PALETTES[state.visuals.currentPalette].primary);
+        } else if (currentPalettes[state.visuals.currentPalette]) {
+            localStorage.setItem('taskify-primary-color', currentPalettes[state.visuals.currentPalette].primary);
         } else {
-            localStorage.setItem('taskify-primary-color', PREDEFINED_PALETTES.electricBlue.primary);
+            localStorage.setItem('taskify-primary-color', currentPalettes.electricBlue.primary);
         }
         localStorage.setItem('taskify-palette', state.visuals.currentPalette);
         localStorage.setItem('taskify-visual-mode', state.visuals.currentVisualMode);
+
+        Object.keys(CHART_PERIOD_STORAGE_KEYS).forEach(key => {
+            if (state.chartPeriods[key]) {
+                localStorage.setItem(CHART_PERIOD_STORAGE_KEYS[key], state.chartPeriods[key]);
+            }
+        });
 
     } catch (e) {
         console.error("Error saving state to localStorage:", e);
@@ -387,12 +442,6 @@ function checkAllResets() {
         });
     }
 
-    if (state.lastAccessDate !== prevLastAccessDate) {
-        updateUI();
-        updatePomodoroChartDataOnly();
-        updateTasksChartDataOnly();
-        updateWeeklyChartDataOnly();
-    }
 
     if (state.lastAccessDate !== todayStr) {
         state.lastAccessDate = todayStr;
@@ -408,39 +457,6 @@ function checkAndResetDailyCounters(todayStr) {
                 delete task.deletedThisInstanceOfDay;
             }
         });
-
-        const shiftArray = (arr) => {
-            if (arr && Array.isArray(arr) && arr.length === 7) {
-                arr.shift();
-                arr.push(0);
-            } else {
-                return [0, 0, 0, 0, 0, 0, 0];
-            }
-            return arr;
-        };
-
-        state.weeklyActivityData = shiftArray(state.weeklyActivityData);
-        updatePeakActivity();
-
-        const newDailyFocusData = Array(7).fill(0);
-        const todayDate = new Date();
-        for (let d = 0; d < 7; d++) {
-            const dateToCheck = new Date(todayDate);
-            dateToCheck.setDate(todayDate.getDate() - (6 - d));
-            const dateToCheckISO = dateToCheck.toISOString().split('T')[0];
-
-            let focusForThisDay = 0;
-            if (state.pomodoro && state.pomodoro.sessions && Array.isArray(state.pomodoro.sessions)) {
-                state.pomodoro.sessions.forEach(session => {
-                    if (session.type === 'focus' && new Date(session.startTime).toISOString().split('T')[0] === dateToCheckISO) {
-                        focusForThisDay += Math.round((session.duration || 0) / 60);
-                    }
-                });
-            }
-            newDailyFocusData[d] = focusForThisDay;
-        }
-        state.pomodoro.dailyFocusData = newDailyFocusData;
-        state.dailyTaskCompletionData = shiftArray(state.dailyTaskCompletionData);
 
         if (state.recurringTaskPatterns.length > 0) {
             const routine = state.recurringTaskPatterns[0];
@@ -535,16 +551,197 @@ function updateUI() {
     const streakGoalInput = document.getElementById('streak-goal-input');
     if (streakGoalInput) streakGoalInput.value = state.goals.streak;
 
+    Object.keys(CHART_PERIOD_SELECTORS_IDS).forEach(chartKey => {
+        const selector = document.getElementById(CHART_PERIOD_SELECTORS_IDS[chartKey]);
+        if (selector && state.chartPeriods[chartKey]) {
+            selector.value = state.chartPeriods[chartKey];
+        }
+    });
 
-    updateWeeklyChartDataOnly();
-    updatePomodoroChartDataOnly();
-    updateTasksChartDataOnly();
+    updateAllChartsForCurrentPeriods();
 
     updatePomodoroUI();
     renderTasks();
     updateScrollIndicator();
-    updateCounterTooltips(); // Adicionado para atualizar os tooltips do contador
+    updateCounterTooltips();
 }
+
+function getChartDataForPeriod(dataType, period) {
+    let labels = [];
+    let data = [];
+    const today = new Date();
+    const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+    if (period === '7days') {
+        labels = getLast7DayLabels();
+        if (dataType === 'questions') data = state.weeklyActivityData || Array(7).fill(0);
+        else if (dataType === 'focus') data = state.pomodoro.dailyFocusData || Array(7).fill(0);
+        else if (dataType === 'tasks') data = state.dailyTaskCompletionData || Array(7).fill(0);
+    } else if (period === '30days') {
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(today.getDate() - i);
+            labels.push(`${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`);
+            const dateISO = date.toISOString().split('T')[0];
+            if (dataType === 'questions') data.push(state.currentStreak.history[dateISO] || 0);
+            else if (dataType === 'focus') {
+                let focusForDay = 0;
+                state.pomodoro.sessions.forEach(s => {
+                    if (s.type === 'focus' && new Date(s.startTime).toISOString().split('T')[0] === dateISO) {
+                        focusForDay += Math.round(s.duration / 60);
+                    }
+                });
+                data.push(focusForDay);
+            } else if (dataType === 'tasks') {
+                let tasksForDay = 0;
+                state.tasks.forEach(t => {
+                    if (t.completed && t.completionDate && new Date(t.completionDate).toISOString().split('T')[0] === dateISO) {
+                        tasksForDay++;
+                    }
+                });
+                data.push(tasksForDay);
+            }
+        }
+    } else if (period === 'lastYear') {
+        for (let i = 11; i >= 0; i--) {
+            const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+            labels.push(monthNames[date.getMonth()]);
+            let monthlyValue = 0;
+            if (dataType === 'questions') {
+                Object.keys(state.currentStreak.history).forEach(dayISO => {
+                    const entryDate = new Date(dayISO);
+                    if (entryDate.getFullYear() === date.getFullYear() && entryDate.getMonth() === date.getMonth()) {
+                        monthlyValue += state.currentStreak.history[dayISO];
+                    }
+                });
+            } else if (dataType === 'focus') {
+                state.pomodoro.sessions.forEach(s => {
+                    if (s.type === 'focus') {
+                        const entryDate = new Date(s.startTime);
+                        if (entryDate.getFullYear() === date.getFullYear() && entryDate.getMonth() === date.getMonth()) {
+                            monthlyValue += Math.round(s.duration / 60);
+                        }
+                    }
+                });
+            } else if (dataType === 'tasks') {
+                state.tasks.forEach(t => {
+                    if (t.completed && t.completionDate) {
+                        const entryDate = new Date(t.completionDate);
+                        if (entryDate.getFullYear() === date.getFullYear() && entryDate.getMonth() === date.getMonth()) {
+                            monthlyValue++;
+                        }
+                    }
+                });
+            }
+            data.push(monthlyValue);
+        }
+    } else if (period === 'allTime') {
+        let firstDate = new Date();
+        if (dataType === 'questions' && Object.keys(state.currentStreak.history).length > 0) {
+            firstDate = new Date(Math.min(...Object.keys(state.currentStreak.history).map(d => new Date(d).getTime())));
+        } else if (dataType === 'focus' && state.pomodoro.sessions.length > 0) {
+            firstDate = new Date(Math.min(...state.pomodoro.sessions.map(s => new Date(s.startTime).getTime())));
+        } else if (dataType === 'tasks' && state.tasks.some(t => t.completed && t.completionDate)) {
+            firstDate = new Date(Math.min(...state.tasks.filter(t=>t.completed && t.completionDate).map(t => new Date(t.completionDate).getTime())));
+        }
+        
+        const startYear = firstDate.getFullYear();
+        const startMonth = firstDate.getMonth();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+
+        for (let y = startYear; y <= currentYear; y++) {
+            const monthStart = (y === startYear) ? startMonth : 0;
+            const monthEnd = (y === currentYear) ? currentMonth : 11;
+            for (let m = monthStart; m <= monthEnd; m++) {
+                labels.push(`${monthNames[m]}/${String(y).slice(-2)}`);
+                let monthlyValue = 0;
+                 if (dataType === 'questions') {
+                    Object.keys(state.currentStreak.history).forEach(dayISO => {
+                        const entryDate = new Date(dayISO);
+                        if (entryDate.getFullYear() === y && entryDate.getMonth() === m) {
+                            monthlyValue += state.currentStreak.history[dayISO];
+                        }
+                    });
+                } else if (dataType === 'focus') {
+                    state.pomodoro.sessions.forEach(s => {
+                        if (s.type === 'focus') {
+                            const entryDate = new Date(s.startTime);
+                            if (entryDate.getFullYear() === y && entryDate.getMonth() === m) {
+                                monthlyValue += Math.round(s.duration / 60);
+                            }
+                        }
+                    });
+                } else if (dataType === 'tasks') {
+                    state.tasks.forEach(t => {
+                        if (t.completed && t.completionDate) {
+                            const entryDate = new Date(t.completionDate);
+                             if (entryDate.getFullYear() === y && entryDate.getMonth() === m) {
+                                monthlyValue++;
+                            }
+                        }
+                    });
+                }
+                data.push(monthlyValue);
+            }
+        }
+    }
+
+    return { labels, data };
+}
+
+function updateChartWithNewPeriod(chartInstance, chartKey, dataType, yAxisLabel, tooltipLabelPrefix, dataFormatter) {
+    const period = state.chartPeriods[chartKey];
+    const { labels, data } = getChartDataForPeriod(dataType, period);
+
+    if (chartInstance) {
+        chartInstance.data.labels = labels;
+        chartInstance.data.datasets[0].data = data;
+        // Recriar o gradiente para a nova cor do tema
+        const chartCanvas = chartInstance.canvas;
+        const ctx = chartCanvas.getContext('2d');
+        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue(state.isDarkMode ? '--primary-color-dark' : '--primary-color-light').trim();
+        const gradient = ctx.createLinearGradient(0, 0, 0, chartCanvas.height * 0.8);
+        try {
+            gradient.addColorStop(0, hexToRgba(primaryColor, 0.3));
+            gradient.addColorStop(1, hexToRgba(primaryColor, 0));
+        } catch (e) {
+            gradient.addColorStop(0, 'rgba(0,122,255,0.3)');
+            gradient.addColorStop(1, 'rgba(0,122,255,0)');
+        }
+        chartInstance.data.datasets[0].borderColor = primaryColor;
+        chartInstance.data.datasets[0].backgroundColor = gradient;
+        chartInstance.data.datasets[0].pointBackgroundColor = primaryColor;
+        chartInstance.options.plugins.tooltip.borderColor = primaryColor;
+
+
+        chartInstance.options.scales.y.title.text = yAxisLabel;
+        chartInstance.options.plugins.tooltip.callbacks.label = (item) => `${tooltipLabelPrefix}: ${dataFormatter(item.raw)}`;
+        chartInstance.update();
+    }
+}
+
+function updateAllChartsForCurrentPeriods(animate = true) { // Adicionado parâmetro animate
+    const animationDuration = animate ? 800 : 0;
+    if (weeklyChartInstance) weeklyChartInstance.options.animation.duration = animationDuration;
+    if (pomodoroChartInstance) pomodoroChartInstance.options.animation.duration = animationDuration;
+    if (tasksChartInstance) tasksChartInstance.options.animation.duration = animationDuration;
+
+    updateChartWithNewPeriod(weeklyChartInstance, 'weeklyActivity', 'questions', 'Nº de Questões', 'Questões', val => val);
+    updateChartWithNewPeriod(pomodoroChartInstance, 'pomodoroFocus', 'focus', 'Minutos de Foco', 'Foco', val => `${val.toFixed(0)} min`);
+    updateChartWithNewPeriod(tasksChartInstance, 'tasksCompleted', 'tasks', 'Nº de Tarefas', 'Tarefas', val => val);
+}
+
+function handleChartPeriodChange(chartKey) {
+    const selector = document.getElementById(CHART_PERIOD_SELECTORS_IDS[chartKey]);
+    if (selector) {
+        const newPeriod = selector.value;
+        state.chartPeriods[chartKey] = newPeriod;
+        saveState();
+        updateUI();
+    }
+}
+
 
 function updateDailyRecord() {
     const todayLocaleDate = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
@@ -566,7 +763,6 @@ function getStepValue() {
     return step;
 }
 
-// Função para atualizar os tooltips do contador de questões
 function updateCounterTooltips() {
     const step = getStepValue();
     const decrementBtn = document.getElementById('decrement-btn');
@@ -593,9 +789,13 @@ function incrementToday() {
     state.monthlyProgress += step;
     state.yearlyProgress += step;
 
+    const todayISO = getTodayISO();
+    state.currentStreak.history[todayISO] = (state.currentStreak.history[todayISO] || 0) + step;
+
     if (state.weeklyActivityData && state.weeklyActivityData.length === 7) {
-        state.weeklyActivityData[6] += step;
+         state.weeklyActivityData[6] = state.currentStreak.history[todayISO];
     }
+
 
     updateDailyRecord();
     updatePeakActivity();
@@ -617,8 +817,10 @@ function decrementToday() {
         state.monthlyProgress = Math.max(0, state.monthlyProgress - actualDecrementAmount);
         state.yearlyProgress = Math.max(0, state.yearlyProgress - actualDecrementAmount);
 
-        if (state.weeklyActivityData && state.weeklyActivityData.length === 7) {
-            state.weeklyActivityData[6] = Math.max(0, state.weeklyActivityData[6] - actualDecrementAmount);
+        const todayISO = getTodayISO();
+        state.currentStreak.history[todayISO] = Math.max(0, (state.currentStreak.history[todayISO] || 0) - actualDecrementAmount);
+         if (state.weeklyActivityData && state.weeklyActivityData.length === 7) {
+             state.weeklyActivityData[6] = state.currentStreak.history[todayISO];
         }
     }
     updateDailyRecord();
@@ -628,30 +830,27 @@ function decrementToday() {
     updateUI();
 }
 
+
 function updatePeakActivity() {
+    const { data } = getChartDataForPeriod('questions', '7days');
     let maxQuestions = 0;
-    let peakDayOriginalIndex = -1;
+    let peakDayIndexInChart = -1;
 
-    if (!Array.isArray(state.weeklyActivityData) || state.weeklyActivityData.length !== 7) {
-        state.peakActivity = { dayName: "-", questions: 0 };
-        return;
-    }
-
-    state.weeklyActivityData.forEach((count, index) => {
+    data.forEach((count, index) => {
         const numCount = Number(count);
         if (!isNaN(numCount) && numCount >= maxQuestions) {
             maxQuestions = numCount;
-            peakDayOriginalIndex = index;
+            peakDayIndexInChart = index;
         }
     });
 
-    if (peakDayOriginalIndex !== -1 && maxQuestions > 0) {
+    if (peakDayIndexInChart !== -1 && maxQuestions > 0) {
         const today = new Date();
-        const daysAgo = 6 - peakDayOriginalIndex;
+        const daysAgo = 6 - peakDayIndexInChart;
         const peakDate = new Date(today);
         peakDate.setDate(today.getDate() - daysAgo);
-
-        const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+        
+        const dayNames = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
         state.peakActivity.dayName = dayNames[peakDate.getDay()];
         state.peakActivity.questions = maxQuestions;
     } else {
@@ -659,6 +858,7 @@ function updatePeakActivity() {
         state.peakActivity.questions = 0;
     }
 }
+
 
 function updateStreak() {
     const todayISO = new Date().toISOString().split('T')[0];
@@ -855,17 +1055,15 @@ function applyCurrentThemeAndMode() {
         themeIcon.className = state.isDarkMode ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
     }
 
-    let currentPrimaryColor = PREDEFINED_PALETTES.electricBlue.primary;
+    let currentPrimaryColor = currentPalettes.electricBlue.primary;
     if (state.visuals.currentPalette === 'custom') {
-        currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color-dark').trim() || PREDEFINED_PALETTES.electricBlue.primary;
-    } else if (PREDEFINED_PALETTES[state.visuals.currentPalette]) {
-        currentPrimaryColor = PREDEFINED_PALETTES[state.visuals.currentPalette].primary;
+        currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color-dark').trim() || currentPalettes.electricBlue.primary;
+    } else if (currentPalettes[state.visuals.currentPalette]) {
+        currentPrimaryColor = currentPalettes[state.visuals.currentPalette].primary;
     }
 
-    if (getComputedStyle(document.documentElement).getPropertyValue('--primary-color-dark').trim() !== currentPrimaryColor) {
-        applyPrimaryColor(currentPrimaryColor);
-    }
-
+    // Aplica a cor primária às variáveis CSS
+    applyPrimaryColor(currentPrimaryColor); // Esta função já existe e atualiza as vars CSS
 
     if (faviconEl) {
         const faviconBaseColor = currentPrimaryColor;
@@ -873,19 +1071,19 @@ function applyCurrentThemeAndMode() {
         faviconEl.href = `data:image/svg+xml,${encodeURIComponent(faviconSvg)}`;
     }
 
-    if (weeklyChartInstance) weeklyChartInstance.destroy();
-    setupChart(false);
-    if (pomodoroChartInstance) pomodoroChartInstance.destroy();
-    setupPomodoroChart(false);
-    if (tasksChartInstance) tasksChartInstance.destroy();
-    setupTasksChart(false);
+    // RECRIA OS GRÁFICOS PARA APLICAR AS NOVAS CORES COMPLETAMENTE
+    // O parâmetro 'false' evita a animação de entrada ao recriar os gráficos
+    setupChart(false, state.chartPeriods.weeklyActivity);
+    setupPomodoroChart(false, state.chartPeriods.pomodoroFocus);
+    setupTasksChart(false, state.chartPeriods.tasksCompleted);
+    // updateAllChartsForCurrentPeriods(false); // Não é mais necessário aqui se recriamos
 
     updatePomodoroUI();
-    renderTasks();
+    renderTasks(); // Se as tarefas tiverem elementos que dependem de cor, pode ser útil
     updateThemeModalButtons();
 }
 
-function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelPrefix, dataFormatter = (val) => val) {
+function createChartConfig(canvasId, initialData, label, yAxisLabel, tooltipLabelPrefix, dataFormatter = (val) => val) {
     const chartCanvas = document.getElementById(canvasId);
     if (!chartCanvas) return null;
     const ctx = chartCanvas.getContext('2d');
@@ -907,15 +1105,13 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
         console.warn("Chart gradient color fallback used for:", canvasId, e);
     }
 
-    const dayLabels = getLast7DayLabels();
-
     return new Chart(ctx, {
         type: 'line',
         data: {
-            labels: dayLabels,
+            labels: initialData.labels,
             datasets: [{
                 label: label,
-                data: [...chartData],
+                data: initialData.data,
                 borderColor: primaryColor,
                 backgroundColor: gradient,
                 fill: true,
@@ -933,7 +1129,7 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            animation: { duration: 0 },
+            animation: { duration: 800 },
             scales: {
                 y: {
                     beginAtZero: true,
@@ -942,7 +1138,7 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
                     title: { display: true, text: yAxisLabel, color: textColor, font: { size: 10 } },
                     afterDataLimits: (axis) => {
                         if (axis.max === 0 && axis.min === 0) {
-                            axis.max = (yAxisLabel.toLowerCase().includes("minutos")) ? 10 : 1;
+                             axis.max = (yAxisLabel && yAxisLabel.toLowerCase().includes("minutos")) ? 10 : 1;
                         }
                     }
                 },
@@ -970,75 +1166,33 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
     });
 }
 
-function setupChart(animateInitialRender = true) {
+function setupChart(animateInitialRender = true, chartKey = 'weeklyActivity') {
     if (weeklyChartInstance) weeklyChartInstance.destroy();
-    const data = (window.state && Array.isArray(window.state.weeklyActivityData) && window.state.weeklyActivityData.length === 7)
-        ? window.state.weeklyActivityData
-        : [0, 0, 0, 0, 0, 0, 0];
-
-    weeklyChartInstance = createChartConfig('weeklyActivityChart', data, 'Questões', 'Nº de Questões', 'Questões');
+    const period = state.chartPeriods[chartKey] || DEFAULT_CHART_PERIOD;
+    const chartData = getChartDataForPeriod('questions', period);
+    weeklyChartInstance = createChartConfig('weeklyActivityChart', chartData, 'Questões', 'Nº de Questões', 'Questões');
     if (weeklyChartInstance) weeklyChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
 }
-function updateWeeklyChartDataOnly() {
-    if (!window.state || !Array.isArray(window.state.weeklyActivityData) || window.state.weeklyActivityData.length !== 7) {
-        console.warn("TASKIFY_CHART: weeklyActivityData inválido ou ausente. Recriando gráfico.");
-        setupChart(false);
-        return;
-    }
-    if (weeklyChartInstance) {
-        weeklyChartInstance.data.datasets[0].data = [...window.state.weeklyActivityData];
-        weeklyChartInstance.update('none');
-    } else {
-        setupChart(false);
-    }
-}
 
-function setupPomodoroChart(animateInitialRender = true) {
+function setupPomodoroChart(animateInitialRender = true, chartKey = 'pomodoroFocus') {
     if (pomodoroChartInstance) pomodoroChartInstance.destroy();
-    const data = (state.pomodoro && Array.isArray(state.pomodoro.dailyFocusData) && state.pomodoro.dailyFocusData.length === 7)
-        ? state.pomodoro.dailyFocusData
-        : [0, 0, 0, 0, 0, 0, 0];
+    const period = state.chartPeriods[chartKey] || DEFAULT_CHART_PERIOD;
+    const chartData = getChartDataForPeriod('focus', period);
     pomodoroChartInstance = createChartConfig(
-        'weeklyPomodoroFocusChart', data, 'Tempo de Foco', 'Minutos de Foco', 'Foco',
-        (value) => value.toFixed(0) + ' min'
+        'weeklyPomodoroFocusChart', chartData, 'Tempo de Foco', 'Minutos de Foco', 'Foco',
+        (value) => `${parseFloat(value).toFixed(0)} min`
     );
     if (pomodoroChartInstance) pomodoroChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
 }
-function updatePomodoroChartDataOnly() {
-    if (!state.pomodoro || !Array.isArray(state.pomodoro.dailyFocusData) || state.pomodoro.dailyFocusData.length !== 7) {
-        console.warn("TASKIFY_CHART: Pomodoro dailyFocusData inválido ou ausente. Recriando gráfico.");
-        setupPomodoroChart(false);
-        return;
-    }
-    if (pomodoroChartInstance) {
-        pomodoroChartInstance.data.datasets[0].data = [...state.pomodoro.dailyFocusData];
-        pomodoroChartInstance.update('none');
-    } else {
-        setupPomodoroChart(false);
-    }
-}
 
-function setupTasksChart(animateInitialRender = true) {
+function setupTasksChart(animateInitialRender = true, chartKey = 'tasksCompleted') {
     if (tasksChartInstance) tasksChartInstance.destroy();
-    const data = (Array.isArray(state.dailyTaskCompletionData) && state.dailyTaskCompletionData.length === 7)
-        ? state.dailyTaskCompletionData
-        : [0, 0, 0, 0, 0, 0, 0];
-    tasksChartInstance = createChartConfig('weeklyTasksCompletedChart', data, 'Tarefas Concluídas', 'Nº de Tarefas', 'Tarefas');
+    const period = state.chartPeriods[chartKey] || DEFAULT_CHART_PERIOD;
+    const chartData = getChartDataForPeriod('tasks', period);
+    tasksChartInstance = createChartConfig('weeklyTasksCompletedChart', chartData, 'Tarefas Concluídas', 'Nº de Tarefas', 'Tarefas');
     if (tasksChartInstance) tasksChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
 }
-function updateTasksChartDataOnly() {
-    if (!Array.isArray(state.dailyTaskCompletionData) || state.dailyTaskCompletionData.length !== 7) {
-        console.warn("TASKIFY_CHART: dailyTaskCompletionData inválido ou ausente. Recriando gráfico.");
-        setupTasksChart(false);
-        return;
-    }
-    if (tasksChartInstance) {
-        tasksChartInstance.data.datasets[0].data = [...state.dailyTaskCompletionData];
-        tasksChartInstance.update('none');
-    } else {
-        setupTasksChart(false);
-    }
-}
+
 
 function initStreak() {
     const savedData = localStorage.getItem('taskify-streak');
@@ -1170,11 +1324,14 @@ function handlePomodoroCycleEnd() {
 
     if (endedMode === 'focus' && actualDurationSeconds > 0) {
         if (state.pomodoro.dailyFocusData && state.pomodoro.dailyFocusData.length === 7) {
-            state.pomodoro.dailyFocusData[6] += Math.round(actualDurationSeconds / 60);
+             state.pomodoro.dailyFocusData[6] += Math.round(actualDurationSeconds / 60);
         }
         logPomodoroSession(endedMode, actualDurationSeconds);
-        updatePomodoroChartDataOnly();
+        updateChartWithNewPeriod(pomodoroChartInstance, 'pomodoroFocus', 'focus', 'Minutos de Foco', 'Foco', val => `${val.toFixed(0)} min`);
+    } else if (endedMode !== 'focus' && actualDurationSeconds > 0) {
+        logPomodoroSession(endedMode, actualDurationSeconds);
     }
+
 
     state.pomodoro.timerRunning = false;
     if (pomodoroInterval) {
@@ -1256,17 +1413,22 @@ function resetPomodoro() {
             }
             logPomodoroSession(endedMode, timeSpentSeconds);
         }
+    } else if (wasRunning && endedMode !== 'focus') {
+        let timeSpentSeconds = (endedMode === 'shortBreak' ? state.pomodoro.shortBreakDuration : state.pomodoro.longBreakDuration) - timeRemaining;
+        if (timeSpentSeconds > 0) {
+            logPomodoroSession(endedMode, timeSpentSeconds);
+        }
     }
+
 
     state.pomodoro.timerRunning = false;
     clearInterval(pomodoroInterval);
     pomodoroInterval = null;
     state.pomodoro.lastModeEnded = null;
-    if (state.pomodoro.mode === 'focus') state.pomodoro.currentTime = state.pomodoro.focusDuration;
-    else if (state.pomodoro.mode === 'shortBreak') state.pomodoro.currentTime = state.pomodoro.shortBreakDuration;
-    else if (state.pomodoro.mode === 'longBreak') state.pomodoro.currentTime = state.pomodoro.longBreakDuration;
+    state.pomodoro.mode = 'focus';
+    state.pomodoro.currentTime = state.pomodoro.focusDuration;
     updatePomodoroUI();
-    updatePomodoroChartDataOnly();
+    updateChartWithNewPeriod(pomodoroChartInstance, 'pomodoroFocus', 'focus', 'Minutos de Foco', 'Foco', val => `${val.toFixed(0)} min`);
     saveState();
 }
 
@@ -1345,9 +1507,141 @@ function logPomodoroSession(type, durationInSeconds) {
     state.pomodoro.sessions.push(session);
 }
 
+function populateNewPomodoroDetails() {
+    if (!newPomodoroCycleList || !newPomodoroDetailsEmptyMessage || !newPomodoroDetailsSessionsCount || !newPomodoroDetailsTotalFocusTime) return;
+
+    newPomodoroCycleList.innerHTML = '';
+    const todayISO = getTodayISO();
+    const sessionsToday = state.pomodoro.sessions.filter(session => {
+        try {
+            return new Date(session.startTime).toISOString().split('T')[0] === todayISO;
+        } catch (e) { return false; }
+    });
+
+    let totalFocusTimeMinutes = 0;
+    sessionsToday.forEach(session => {
+        if (session.type === 'focus') {
+            totalFocusTimeMinutes += Math.round((session.duration || 0) / 60);
+        }
+    });
+
+    newPomodoroDetailsSessionsCount.textContent = sessionsToday.length;
+    newPomodoroDetailsTotalFocusTime.textContent = `${totalFocusTimeMinutes}min`;
+
+    if (sessionsToday.length === 0) {
+        newPomodoroDetailsEmptyMessage.style.display = 'block';
+        newPomodoroCycleList.style.display = 'none';
+        return;
+    }
+
+    newPomodoroDetailsEmptyMessage.style.display = 'none';
+    newPomodoroCycleList.style.display = 'block';
+
+    sessionsToday.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+
+    sessionsToday.forEach(session => {
+        const li = document.createElement('li');
+        li.className = 'new-pomodoro-cycle-item';
+
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'cycle-item-icon';
+        const icon = document.createElement('i');
+
+        let sessionTypeText = '';
+        if (session.type === 'focus') {
+            icon.className = 'bi bi-stopwatch-fill';
+            sessionTypeText = 'Foco';
+        } else if (session.type === 'shortBreak') {
+            icon.className = 'bi bi-cup-straw';
+            sessionTypeText = 'Pausa Curta';
+        } else if (session.type === 'longBreak') {
+            icon.className = 'bi bi-cup-hot-fill';
+            sessionTypeText = 'Pausa Longa';
+        }
+        iconDiv.appendChild(icon);
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'cycle-item-content';
+
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'cycle-item-header';
+
+        const typeSpan = document.createElement('span');
+        typeSpan.className = 'cycle-item-type';
+        typeSpan.textContent = sessionTypeText;
+
+        headerDiv.appendChild(typeSpan);
+
+        const detailsDiv = document.createElement('div');
+        detailsDiv.className = 'cycle-item-details';
+        const startTimeObj = new Date(session.startTime);
+        const startTimeFormatted = `${String(startTimeObj.getHours()).padStart(2, '0')}:${String(startTimeObj.getMinutes()).padStart(2, '0')}`;
+        
+        let durationText;
+        const durationMinutes = Math.round((session.duration || 0) / 60);
+        
+        if (durationMinutes > 0) {
+            durationText = `${durationMinutes} min`;
+        } else if (session.duration > 0) {
+            durationText = `< 1 min`;
+        } else {
+            durationText = `0 min`;
+        }
+        
+        detailsDiv.textContent = `${startTimeFormatted} · ${durationText}`;
+
+        contentDiv.appendChild(headerDiv);
+        contentDiv.appendChild(detailsDiv);
+
+        li.appendChild(iconDiv);
+        li.appendChild(contentDiv);
+        newPomodoroCycleList.appendChild(li);
+    });
+}
+
+function openNewPomodoroDetailsModal() {
+    if (newPomodoroDetailsModal && newPomodoroDetailsModalOverlay) {
+        populateNewPomodoroDetails();
+        newPomodoroDetailsModalOverlay.classList.add('show');
+        newPomodoroDetailsModal.classList.add('show');
+        document.body.classList.add('modal-open');
+    }
+}
+
+function closeNewPomodoroDetailsModal() {
+    if (newPomodoroDetailsModal && newPomodoroDetailsModalOverlay) {
+        newPomodoroDetailsModal.classList.remove('show');
+        newPomodoroDetailsModalOverlay.classList.remove('show');
+        document.body.classList.remove('modal-open');
+    }
+}
+
+function handleNewCycleFromDetailsModal() {
+    closeNewPomodoroDetailsModal();
+    resetPomodoro();
+    startPomodoro();
+    const pomodoroSectionEl = document.querySelector('.pomodoro-section');
+    if (pomodoroSectionEl) {
+        pomodoroSectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+
 function initPomodoro() {
     focusEndSound = document.getElementById('focus-end-sound');
     breakEndSound = document.getElementById('break-end-sound');
+    
+    newPomodoroDetailsModal = document.getElementById('new-pomodoro-details-modal');
+    newPomodoroDetailsModalOverlay = document.getElementById('new-pomodoro-details-modal-overlay');
+    newPomodoroDetailsCloseBtnX = document.getElementById('new-pomodoro-details-close-btn-x');
+    newPomodoroDetailsSessionsCount = document.getElementById('details-sessions-count');
+    newPomodoroDetailsTotalFocusTime = document.getElementById('details-total-focus-time');
+    newPomodoroCycleList = document.getElementById('new-pomodoro-cycle-list');
+    newPomodoroDetailsEmptyMessage = document.getElementById('new-pomodoro-details-empty-message');
+    newPomodoroDetailsBtnClose = document.getElementById('new-pomodoro-details-btn-close');
+    newPomodoroDetailsBtnNewCycle = document.getElementById('new-pomodoro-details-btn-new-cycle');
+
+
     const pomodoroSettingsForm = document.getElementById('pomodoro-settings-form');
     if (pomodoroSettingsForm) {
         pomodoroSettingsForm.addEventListener('submit', (e) => {
@@ -1359,6 +1653,19 @@ function initPomodoro() {
     if (pomodoroSettingsModalOverlay) {
         pomodoroSettingsModalOverlay.addEventListener('click', closePomodoroSettingsModal);
     }
+
+    const btnViewCycleStats = document.getElementById('btn-view-cycle-stats');
+    if (btnViewCycleStats) btnViewCycleStats.addEventListener('click', openNewPomodoroDetailsModal);
+
+    if (newPomodoroDetailsModalOverlay) {
+        newPomodoroDetailsModalOverlay.addEventListener('click', (e) => {
+            if (e.target === newPomodoroDetailsModalOverlay) closeNewPomodoroDetailsModal();
+        });
+    }
+    if (newPomodoroDetailsCloseBtnX) newPomodoroDetailsCloseBtnX.addEventListener('click', closeNewPomodoroDetailsModal);
+    if (newPomodoroDetailsBtnClose) newPomodoroDetailsBtnClose.addEventListener('click', closeNewPomodoroDetailsModal);
+    if (newPomodoroDetailsBtnNewCycle) newPomodoroDetailsBtnNewCycle.addEventListener('click', handleNewCycleFromDetailsModal);
+
     updatePomodoroUI();
 }
 
@@ -1464,6 +1771,7 @@ function renderTasks() {
         });
     }
     updateTasksCounter();
+    updateTaskProgressBar();
 }
 
 function updateTasksCounter() {
@@ -1477,6 +1785,30 @@ function updateTasksCounter() {
     });
     const completedDisplayedTasks = displayedTasks.filter(task => task.completed).length;
     tasksCounter.textContent = `${completedDisplayedTasks}/${displayedTasks.length}`;
+}
+
+function updateTaskProgressBar() {
+    const progressBarFill = document.getElementById('task-progress-bar-fill');
+    const progressPercentageText = document.getElementById('task-progress-percentage');
+    if (!progressBarFill || !progressPercentageText) return;
+
+    const todayISO = getTodayISO();
+    const tasksForToday = state.tasks.filter(task => {
+        if (task.deletedThisInstanceOfDay && task.assignedDate === todayISO) return false;
+        if (task.isRecurringInstance) return task.assignedDate === todayISO;
+        return true;
+    });
+
+    const totalTasks = tasksForToday.length;
+    const completedTasks = tasksForToday.filter(task => task.completed).length;
+
+    let percentage = 0;
+    if (totalTasks > 0) {
+        percentage = Math.round((completedTasks / totalTasks) * 100);
+    }
+
+    progressBarFill.style.width = `${percentage}%`;
+    progressPercentageText.textContent = `${percentage}%`;
 }
 
 
@@ -1536,20 +1868,19 @@ function toggleTaskComplete(taskId, isRecurringInstance = false, sourcePatternId
         }
 
         updateTasksCounter();
+        updateTaskProgressBar();
 
+        const todayISO = getTodayISO();
         const completionDateForChart = task.completed ? new Date(task.completionDate) : new Date();
-        completionDateForChart.setHours(0, 0, 0, 0);
-        const today = new Date(); today.setHours(0, 0, 0, 0);
-        const oneDay = 24 * 60 * 60 * 1000;
-        const diffDays = Math.round((today.getTime() - completionDateForChart.getTime()) / oneDay);
+        const dateForChartISO = completionDateForChart.toISOString().split('T')[0];
 
-        if (diffDays >= 0 && diffDays < 7) {
-            const dayIndexInChart = 6 - diffDays;
-            if (state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7 && dayIndexInChart >= 0 && dayIndexInChart < 7) {
-                if (task.completed && !wasCompleted) state.dailyTaskCompletionData[dayIndexInChart]++;
-                else if (!task.completed && wasCompleted) state.dailyTaskCompletionData[dayIndexInChart] = Math.max(0, state.dailyTaskCompletionData[dayIndexInChart] - 1);
+        if (dateForChartISO === todayISO) {
+            if (state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7) {
+                if (task.completed && !wasCompleted) state.dailyTaskCompletionData[6]++;
+                else if (!task.completed && wasCompleted) state.dailyTaskCompletionData[6] = Math.max(0, state.dailyTaskCompletionData[6] - 1);
             }
         }
+
 
         if (isRecurringInstance && sourcePatternId === SINGLE_ROUTINE_ID && task.assignedDate === getTodayISO()) {
             const routinePattern = state.recurringTaskPatterns.find(p => p.id === SINGLE_ROUTINE_ID);
@@ -1571,8 +1902,8 @@ function toggleTaskComplete(taskId, isRecurringInstance = false, sourcePatternId
             }
         }
         saveState();
-        updateTasksChartDataOnly();
-        if (task.completed || wasCompleted) renderTasks(); // Re-renderiza para atualizar a ordenação
+        updateChartWithNewPeriod(tasksChartInstance, 'tasksCompleted', 'tasks', 'Nº de Tarefas', 'Tarefas', val => val);
+        if (task.completed || wasCompleted) renderTasks();
     }
 }
 
@@ -1592,18 +1923,17 @@ function deleteTask(taskId) {
         const taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
         if (taskElement) taskElement.remove();
         updateTasksCounter();
+        updateTaskProgressBar();
 
 
         if (deletedTask.completed && deletedTask.completionDate) {
             const completionDateForChart = new Date(deletedTask.completionDate);
-            completionDateForChart.setHours(0, 0, 0, 0);
-            const today = new Date(); today.setHours(0, 0, 0, 0);
-            const oneDay = 24 * 60 * 60 * 1000;
-            const diffDays = Math.round((today.getTime() - completionDateForChart.getTime()) / oneDay);
-            if (diffDays >= 0 && diffDays < 7) {
-                const dayIndexInChart = 6 - diffDays;
-                if (state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7 && dayIndexInChart >= 0 && dayIndexInChart < 7) {
-                    state.dailyTaskCompletionData[dayIndexInChart] = Math.max(0, state.dailyTaskCompletionData[dayIndexInChart] - 1);
+            const dateForChartISO = completionDateForChart.toISOString().split('T')[0];
+            const todayISO = getTodayISO();
+
+            if (dateForChartISO === todayISO) {
+                 if (state.dailyTaskCompletionData && state.dailyTaskCompletionData.length === 7) {
+                    state.dailyTaskCompletionData[6] = Math.max(0, state.dailyTaskCompletionData[6] - 1);
                 }
             }
         }
@@ -1612,7 +1942,7 @@ function deleteTask(taskId) {
         }
 
         saveState();
-        updateTasksChartDataOnly();
+        updateChartWithNewPeriod(tasksChartInstance, 'tasksCompleted', 'tasks', 'Nº de Tarefas', 'Tarefas', val => val);
     }
 }
 
@@ -1985,13 +2315,13 @@ function handleDeletePatternTask_v2(taskItemElement) {
 
 function saveRecurringPatternDefinition_v2(closeModalAfterSave = true) {
     const dayCards = document.querySelectorAll('#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2');
-    const tasksByDay = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }; // 0:Dom, 1:Seg, ..., 6:Sab
+    const tasksByDay = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
 
     dayCards.forEach(card => {
-        const dayIndex = card.dataset.dayIndex; // Este é o dayIndex correto (0-6)
+        const dayIndex = card.dataset.dayIndex;
         const taskList = card.querySelector('.day-card-v2-tasks');
         if (taskList) {
-            tasksByDay[dayIndex] = []; // Limpa para reconstruir com a ordem correta
+            tasksByDay[dayIndex] = [];
             Array.from(taskList.children).forEach((taskItemEl, index) => {
                 if (taskItemEl.classList.contains('task-item-recurrent-v2')) {
                     const taskTextEl = taskItemEl.querySelector('.task-text-recurrent-v2');
@@ -2035,7 +2365,6 @@ function saveRecurringPatternDefinition_v2(closeModalAfterSave = true) {
         closeRecurringTaskPatternModal();
     }
     generateRecurringTaskInstances();
-    renderTasks();
     saveState();
     updateDayTaskCounters_v2();
     updateTotalRoutineTasksCount_v2();
@@ -2123,7 +2452,7 @@ function handleRoutineTaskCheckboxChange_v2(event, routineTaskId) {
             }
         }
         renderTasks();
-        updateTasksChartDataOnly();
+        updateChartWithNewPeriod(tasksChartInstance, 'tasksCompleted', 'tasks', 'Nº de Tarefas', 'Tarefas', val => val);
     }
     saveRecurringPatternDefinition_v2(false);
 }
@@ -2281,7 +2610,11 @@ function generateRecurringTaskInstances() {
             });
         }
     });
-    if (newTasksAddedOrRemoved) renderTasks();
+    if (newTasksAddedOrRemoved) {
+        renderTasks();
+    } else {
+        updateTaskProgressBar();
+    }
 }
 
 function updateDeleteRecurringTaskModalUI(selectedOptionValue) {
@@ -2410,11 +2743,10 @@ function confirmDeleteRecurringTask() {
     if (tasksModified || patternsModified) {
         renderTasks();
         saveState();
-        updateTasksChartDataOnly();
+        updateChartWithNewPeriod(tasksChartInstance, 'tasksCompleted', 'tasks', 'Nº de Tarefas', 'Tarefas', val => val);
     }
 }
 
-// Novas funções para atualizar contadores no modal de rotina
 function updateDayTaskCounters_v2() {
     const dayIndices = { 0: "sunday", 1: "monday", 2: "tuesday", 3: "wednesday", 4: "thursday", 5: "friday", 6: "saturday" };
     for (const dayIndex in dayIndices) {
@@ -2473,8 +2805,8 @@ function populateThemesModal() {
     if (!paletteContainer || !modeContainer) return;
 
     paletteContainer.innerHTML = '';
-    Object.keys(PREDEFINED_PALETTES).forEach(key => {
-        const palette = PREDEFINED_PALETTES[key];
+    Object.keys(currentPalettes).forEach(key => {
+        const palette = currentPalettes[key];
         const btn = document.createElement('button');
         btn.className = 'palette-btn';
         btn.style.backgroundColor = palette.primary;
@@ -2531,8 +2863,8 @@ function updateThemeModalButtons() {
 }
 
 function applyPalette(paletteName) {
-    if (PREDEFINED_PALETTES[paletteName]) {
-        const newPrimaryColor = PREDEFINED_PALETTES[paletteName].primary;
+    if (currentPalettes[paletteName]) {
+        const newPrimaryColor = currentPalettes[paletteName].primary;
         state.visuals.currentPalette = paletteName;
         applyPrimaryColor(newPrimaryColor);
         applyCurrentThemeAndMode();
@@ -2658,6 +2990,7 @@ function performFullReset() {
     localStorage.removeItem('taskify-welcomeGuideDismissed');
     localStorage.removeItem('taskify-palette');
     localStorage.removeItem('taskify-visual-mode');
+    Object.values(CHART_PERIOD_STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
     location.reload();
 }
 
@@ -2730,6 +3063,14 @@ async function init() {
     initStreak();
     initPomodoro();
     initTasks();
+
+    Object.keys(CHART_PERIOD_SELECTORS_IDS).forEach(chartKey => {
+        const selector = document.getElementById(CHART_PERIOD_SELECTORS_IDS[chartKey]);
+        if (selector) {
+            selector.addEventListener('change', () => handleChartPeriodChange(chartKey));
+        }
+    });
+
 
     const btnOpenRecurringModalV2 = document.getElementById('btn-open-recurring-task-modal');
     if (btnOpenRecurringModalV2) {
@@ -2817,14 +3158,11 @@ async function init() {
 
     updateFooterYear();
 
-    if (weeklyChartInstance) weeklyChartInstance.destroy();
-    setupChart(true);
-    if (pomodoroChartInstance) pomodoroChartInstance.destroy();
-    setupPomodoroChart(true);
-    if (tasksChartInstance) tasksChartInstance.destroy();
-    setupTasksChart(true);
+    setupChart(true, 'weeklyActivity');
+    setupPomodoroChart(true, 'pomodoroFocus');
+    setupTasksChart(true, 'tasksCompleted');
 
-    updateUI(); // Inclui a chamada para updateCounterTooltips
+    updateUI();
 
     const goalsForm = document.getElementById('goals-form');
     if (goalsForm) goalsForm.addEventListener('submit', (e) => { e.preventDefault(); saveGoals(); });
@@ -2854,11 +3192,10 @@ async function init() {
         openWelcomeGuideModal();
     }
 
-    // Event listener para o input de step do contador de questões
     const questionsStepInput = document.getElementById('questions-step-input');
     if (questionsStepInput) {
         questionsStepInput.addEventListener('input', updateCounterTooltips);
-        questionsStepInput.addEventListener('change', updateCounterTooltips); // Para caso de setas do navegador
+        questionsStepInput.addEventListener('change', updateCounterTooltips);
     }
 
 
@@ -2871,6 +3208,8 @@ async function init() {
         if (state.lastAccessDate !== new Date().toDateString() || prevTaskCount !== currentTaskCount) {
             renderTasks();
             saveState();
+        } else if (prevTaskCount === currentTaskCount && state.lastAccessDate === new Date().toDateString()) {
+            updateTaskProgressBar();
         }
     }, 60 * 1000);
 

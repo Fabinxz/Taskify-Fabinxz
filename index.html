@@ -45,15 +45,11 @@
                     }
                 }
 
-                // REMOVIDO: docElement.style.setProperty('--logo-icon-bg-color', logoIconColor);
-                // A cor da logo será definida pelo CSS usando --primary-color-dark/light
-
                 if (savedTheme === 'light') {
                     docElement.classList.add('light-theme-active');
                 }
 
-                // Favicon dinâmico com a COR PRIMÁRIA ATUAL
-                const faviconBaseColor = colorToApply; // Usa a cor primária carregada
+                const faviconBaseColor = colorToApply;
                 const faviconSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'><rect width='24' height='24' rx='4' fill='${faviconBaseColor}'/><path fill='white' d='M13.083 3.031a.5.5 0 0 0-.944-.313L5.986 13.41a.5.5 0 0 0 .38.738H11V21a.5.5 0 0 0 .893.33L17.83 10.33a.5.5 0 0 0-.743-.66l-3.087 2.7V3.57a.5.5 0 0 0-.5-.5zM12 4.553v5.377l2.49-2.18L12 4.553zm-1 5.92L8.046 13H11v-2.527z'/></svg>`;
                 const faviconLink = document.getElementById('favicon') || document.createElement('link');
                 faviconLink.id = 'favicon';
@@ -68,7 +64,6 @@
             }
         })();
     </script>
-    <!-- O link do favicon será atualizado pelo script acima -->
     <link id="favicon" rel="icon" href="" type="image/svg+xml">
 
 </head>
@@ -208,11 +203,17 @@
             </div>
         </section>
 
+        <!-- MODIFICAÇÃO ITEM III: Adição do seletor de período -->
         <section class="activity-section">
             <div class="activity-header">
                 <div class="activity-title">Atividade Semanal (Questões)</div>
-                <div class="activity-controls">
-                    <span style="font-size:0.9em; color: #888;" id="weekly-activity-period">Últimos 7 dias</span>
+                <div class="chart-period-selector-container">
+                    <select id="weeklyActivityChartPeriodSelector" class="chart-period-selector" aria-label="Selecionar período para o gráfico de atividade semanal">
+                        <option value="7days">Últimos 7 dias</option>
+                        <option value="30days">Últimos 30 dias</option>
+                        <option value="lastYear">Último Ano</option>
+                        <option value="allTime">Desde o Início</option>
+                    </select>
                 </div>
             </div>
             <div class="chart-container">
@@ -247,11 +248,22 @@
                         <span class="pomodoro-cycles-text-label">Ciclos: </span>
                         <span id="pomodoro-cycles-count-value">0</span>
                     </div>
+                    <button class="btn btn-secondary btn-pomodoro-details" id="btn-view-cycle-stats" onclick="openNewPomodoroDetailsModal()">
+                        <i class="bi bi-bar-chart-line"></i> Ver Estatísticas Detalhadas
+                    </button>
                 </div>
+                <!-- MODIFICAÇÃO ITEM III: Adição do seletor de período -->
                 <div class="chart-section pomodoro-chart-section">
                     <div class="chart-header">
                         <h4 class="chart-title">Tempo de Foco Semanal</h4>
-                        <span class="chart-period-label" id="pomodoro-weekly-period">Últimos 7 dias</span>
+                         <div class="chart-period-selector-container">
+                            <select id="weeklyPomodoroFocusChartPeriodSelector" class="chart-period-selector" aria-label="Selecionar período para o gráfico de tempo de foco">
+                                <option value="7days">Últimos 7 dias</option>
+                                <option value="30days">Últimos 30 dias</option>
+                                <option value="lastYear">Último Ano</option>
+                                <option value="allTime">Desde o Início</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="chart-container">
                         <canvas id="weeklyPomodoroFocusChart"></canvas>
@@ -263,29 +275,46 @@
                 <div class="tasks-section">
                     <div class="tasks-header">
                         <h3 class="tasks-title">Tarefas</h3>
-                        <div class="tasks-header-actions">
-                            <span class="tasks-counter" id="tasks-counter">0/0</span>
-                        </div>
+                        <span class="tasks-counter" id="tasks-counter">0/0</span>
                     </div>
                     <form id="task-form">
                         <input type="text" id="task-input" placeholder="Adicione nova tarefa...">
                         <input type="text" id="task-assigned-date" class="task-date-input" placeholder="DD/MM/AAAA">
 
-                        <button type="submit" id="add-task-btn" class="btn-primary">Adicionar</button>
+                        <button type="submit" id="add-task-btn" class="btn-primary">
+                            <i class="bi bi-plus-lg"></i> Adicionar
+                        </button>
                         <button type="button" id="btn-open-recurring-task-modal" class="btn btn-secondary btn-recurring"
                             onclick="openRecurringTaskPatternModal_v2()" title="Configurar Rotina Semanal">
-                            <i class="bi bi-calendar-plus"></i> Configurar Rotina
+                            <i class="bi bi-arrow-repeat"></i> Configurar Rotina
                         </button>
 
                     </form>
                     <ul id="task-list">
                         <!-- Tarefas serão adicionadas aqui pelo JS -->
                     </ul>
+                    <div class="task-progress-container">
+                        <div class="task-progress-label-group">
+                            <span>Progresso</span>
+                            <span id="task-progress-percentage">0%</span>
+                        </div>
+                        <div class="task-progress-bar">
+                            <div class="task-progress-bar-fill" id="task-progress-bar-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
                 </div>
+                <!-- MODIFICAÇÃO ITEM III: Adição do seletor de período -->
                 <div class="chart-section tasks-chart-section">
                     <div class="chart-header">
                         <h4 class="chart-title">Tarefas Concluídas</h4>
-                        <span class="chart-period-label" id="tasks-weekly-period">Últimos 7 dias</span>
+                        <div class="chart-period-selector-container">
+                            <select id="weeklyTasksCompletedChartPeriodSelector" class="chart-period-selector" aria-label="Selecionar período para o gráfico de tarefas concluídas">
+                                <option value="7days">Últimos 7 dias</option>
+                                <option value="30days">Últimos 30 dias</option>
+                                <option value="lastYear">Último Ano</option>
+                                <option value="allTime">Desde o Início</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="chart-container">
                         <canvas id="weeklyTasksCompletedChart"></canvas>
@@ -514,7 +543,6 @@
     </div>
 
 
-
     <!-- Modal de Confirmação de Reset -->
     <div class="modal-overlay" id="confirm-reset-modal-overlay"></div>
     <div class="modal" id="confirm-reset-modal">
@@ -561,7 +589,7 @@
                         resolvidas hoje. O número entre eles define quantas questões são adicionadas/removidas por
                         clique.</li>
                     <li><strong>Configurar Rotina Semanal:</strong> No formulário de tarefas, clique no botão <span
-                            class="guide-highlight guide-btn-example"><i class="bi bi-calendar-plus"></i> Configurar
+                            class="guide-highlight guide-btn-example"><i class="bi bi-arrow-repeat"></i> Configurar
                             Rotina</span> para definir suas tarefas para cada dia da semana.</li>
                     <li><strong>Editar Metas:</strong> Clique no ícone <i
                             class="bi bi-pencil-square guide-icon-example"></i> no cabeçalho para definir suas metas
@@ -647,10 +675,51 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="new-pomodoro-details-modal-overlay"></div>
+    <div class="modal new-pomodoro-details-modal-container" id="new-pomodoro-details-modal">
+        <div class="new-pomodoro-details-header">
+            <h2 class="new-pomodoro-details-title">Detalhes dos Ciclos de Hoje</h2>
+            <button class="modal-close-btn" id="new-pomodoro-details-close-btn-x" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="new-pomodoro-details-summary">
+            <div class="summary-card">
+                <div class="summary-card-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="summary-card-content">
+                    <span class="summary-card-value" id="details-sessions-count">0</span>
+                    <span class="summary-card-label">Sessões</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-icon">
+                    <i class="bi bi-stopwatch"></i>
+                </div>
+                <div class="summary-card-content">
+                    <span class="summary-card-value" id="details-total-focus-time">0min</span>
+                    <span class="summary-card-label">Foco Total</span>
+                </div>
+            </div>
+        </div>
+        <div class="new-pomodoro-details-list-container">
+            <ul class="new-pomodoro-details-list" id="new-pomodoro-cycle-list">
+                <!-- Itens da lista serão populados pelo JS -->
+            </ul>
+            <p class="new-pomodoro-details-empty" id="new-pomodoro-details-empty-message" style="display:none;">Nenhum ciclo registrado hoje.</p>
+        </div>
+        <div class="new-pomodoro-details-footer">
+            <button type="button" class="btn btn-secondary" id="new-pomodoro-details-btn-close">Fechar</button>
+            <button type="button" class="btn btn-primary" id="new-pomodoro-details-btn-new-cycle">Novo Ciclo</button>
+        </div>
+    </div>
+
+
     <!-- Modal de Temas e Aparência -->
     <div class="modal-overlay" id="themes-modal-overlay"></div>
     <div class="modal" id="themes-modal">
-        <div class="themes-modal-content">
+        <div class="modal-content themes-modal-content">
             <button class="modal-close-btn" id="themes-modal-close-btn" aria-label="Fechar"
                 onclick="closeThemesModal()">
                 <i class="bi bi-x-lg"></i>
@@ -690,6 +759,7 @@
                 </button>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- Alerta Personalizado -->
