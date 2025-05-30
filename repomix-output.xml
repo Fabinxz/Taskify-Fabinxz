@@ -6849,6 +6849,95 @@ body.light.theme-mode-motivational .header {
     }
 }
 
+/* Estilos para a barra de rolagem */
+::-webkit-scrollbar {
+    width: 10px; /* Largura para scrollbars verticais */
+    height: 10px; /* Altura para scrollbars horizontais */
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-bg-dark); /* Cor de fundo do trilho para tema escuro */
+    border-radius: 10px;
+}
+body.light ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-bg-light); /* Cor de fundo do trilho para tema claro */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-bg-dark); /* Cor do polegar para tema escuro */
+    border-radius: 10px;
+    border: 2px solid transparent; /* Cria um "padding" visual */
+    background-clip: content-box;
+}
+body.light ::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-bg-light); /* Cor do polegar para tema claro */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    filter: brightness(1.2); /* Um pouco mais claro ao passar o mouse */
+}
+
+/* Aplica a mesma estilização para elementos específicos com overflow */
+#task-list::-webkit-scrollbar,
+#recurring-patterns-list::-webkit-scrollbar, /* Para o modal antigo, se ainda usado */
+.day-card-v2-tasks::-webkit-scrollbar,
+.modal::-webkit-scrollbar, /* Para todos os modais genéricos */
+.retrospective-screen::-webkit-scrollbar /* Para telas da retrospectiva */
+{
+    width: 8px;
+    height: 8px;
+}
+
+#task-list::-webkit-scrollbar-track,
+#recurring-patterns-list::-webkit-scrollbar-track,
+.day-card-v2-tasks::-webkit-scrollbar-track,
+.modal::-webkit-scrollbar-track,
+.retrospective-screen::-webkit-scrollbar-track
+{
+    background: var(--scrollbar-track-bg-dark);
+    border-radius: 10px;
+}
+body.light #task-list::-webkit-scrollbar-track,
+body.light #recurring-patterns-list::-webkit-scrollbar-track,
+body.light .day-card-v2-tasks::-webkit-scrollbar-track,
+body.light .modal::-webkit-scrollbar-track,
+body.light .retrospective-screen::-webkit-scrollbar-track
+{
+    background: var(--scrollbar-track-bg-light);
+}
+
+
+#task-list::-webkit-scrollbar-thumb,
+#recurring-patterns-list::-webkit-scrollbar-thumb,
+.day-card-v2-tasks::-webkit-scrollbar-thumb,
+.modal::-webkit-scrollbar-thumb,
+.retrospective-screen::-webkit-scrollbar-thumb
+{
+    background-color: var(--scrollbar-thumb-bg-dark);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+body.light #task-list::-webkit-scrollbar-thumb,
+body.light #recurring-patterns-list::-webkit-scrollbar-thumb,
+body.light .day-card-v2-tasks::-webkit-scrollbar-thumb,
+body.light .modal::-webkit-scrollbar-thumb,
+body.light .retrospective-screen::-webkit-scrollbar-thumb
+{
+    background-color: var(--scrollbar-thumb-bg-light);
+}
+
+#task-list::-webkit-scrollbar-thumb:hover,
+#recurring-patterns-list::-webkit-scrollbar-thumb:hover,
+.day-card-v2-tasks::-webkit-scrollbar-thumb:hover,
+.modal::-webkit-scrollbar-thumb:hover,
+.retrospective-screen::-webkit-scrollbar-thumb:hover
+{
+    filter: brightness(1.2);
+}
+
+
 footer {
     text-align: center;
     padding: 20px 0;
@@ -6992,11 +7081,11 @@ body.light .retrospective-final-logo .logo-icon {
 
             <div class="question-counter">
                 <button class="counter-btn" id="decrement-btn" onclick="decrementToday()"
-                    title="Diminuir questões (valor definido ao lado)">−</button>
+                    title="Diminuir 1 questão">−</button>
                 <input type="number" class="counter-display" id="questions-step-input" value="1" min="1"
-                    title="Quantidade de questões por clique (+/-)">
+                    title="Define a quantidade de questões por clique">
                 <button class="counter-btn" id="increment-btn" onclick="incrementToday()"
-                    title="Aumentar questões (valor definido ao lado)">+</button>
+                    title="Aumentar 1 questão">+</button>
             </div>
 
             <div class="header-controls">
@@ -7349,8 +7438,7 @@ body.light .retrospective-final-logo .logo-icon {
             </div>
 
             <div class="recurring-modal-footer">
-                <p class="footer-info-text" id="recurring-modal-footer-tip">Dica: Clique nos dias para selecioná-los e
-                    adicionar tarefas.</p>
+                <p class="footer-info-text" id="recurring-modal-footer-tip">Dica: Clique nos dias para selecioná-los e adicionar tarefas. Você também pode arrastar tarefas entre os dias para reorganizar!</p>
                 <span class="footer-total-tasks-count" id="recurring-modal-total-tasks">Total de tarefas: 0</span>
             </div>
         </div>
@@ -9337,8 +9425,8 @@ function updateCounterTooltips() {
     if (incrementBtn) {
         incrementBtn.title = `Aumentar ${step} ${step === 1 ? 'questão' : 'questões'}`;
     }
-    if (stepInput) { // O title já está definido no HTML, mas poderia ser atualizado aqui se necessário
-        // stepInput.title = "Quantidade de questões por clique (+/-)";
+    if (stepInput) {
+        stepInput.title = "Define a quantidade de questões por clique";
     }
 }
 
@@ -10480,7 +10568,7 @@ function openRecurringTaskPatternModal_v2() {
     modalSubtitle.textContent = "Defina as tarefas para cada dia da sua semana e organize seus estudos de forma eficiente";
     newTaskTextInput.value = '';
     newTaskTextInput.placeholder = "Digite o nome da tarefa...";
-    footerTip.textContent = "Dica: Clique nos dias para selecioná-los e adicionar tarefas.";
+    footerTip.textContent = "Dica: Clique nos dias para selecioná-los e adicionar tarefas. Você também pode arrastar tarefas entre os dias para reorganizar!";
 
 
     document.querySelectorAll('.day-card-v2').forEach(card => {
@@ -11940,7 +12028,29 @@ const path = require('path');
 const inputFile = 'repomix-output.xml'; // Altere se necessário
 const content = fs.readFileSync(inputFile, 'utf-8');
 
-// Regex que captura cada bloco <file path="...">...
+// Regex que captura cada bloco <file path="...">...</file>
+const fileRegex = /<file path="([^"]+)">\s*([\s\S]*?)<\/file>/g;
+
+let match;
+let count = 0;
+
+while ((match = fileRegex.exec(content)) !== null) {
+const filePath = match[1].trim();
+const fileContent = match[2].trim();
+
+// Garante que a pasta de destino existe
+const dir = path.dirname(filePath);
+fs.mkdirSync(dir, { recursive: true });
+
+// Escreve o conteúdo no caminho correto
+fs.writeFileSync(filePath, fileContent, 'utf8');
+console.log(`✅ Arquivo criado: ${filePath}`);
+count++;
+
+
+}
+
+console.log(`\n🎉 Processo finalizado! ${count} arquivo(s) extraído(s).`);
 </file>
 
 <file path="retrospective.html">

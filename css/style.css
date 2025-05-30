@@ -4729,6 +4729,95 @@ body.light.theme-mode-motivational .header {
     }
 }
 
+/* Estilos para a barra de rolagem */
+::-webkit-scrollbar {
+    width: 10px; /* Largura para scrollbars verticais */
+    height: 10px; /* Altura para scrollbars horizontais */
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-bg-dark); /* Cor de fundo do trilho para tema escuro */
+    border-radius: 10px;
+}
+body.light ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-bg-light); /* Cor de fundo do trilho para tema claro */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-bg-dark); /* Cor do polegar para tema escuro */
+    border-radius: 10px;
+    border: 2px solid transparent; /* Cria um "padding" visual */
+    background-clip: content-box;
+}
+body.light ::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-bg-light); /* Cor do polegar para tema claro */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    filter: brightness(1.2); /* Um pouco mais claro ao passar o mouse */
+}
+
+/* Aplica a mesma estilização para elementos específicos com overflow */
+#task-list::-webkit-scrollbar,
+#recurring-patterns-list::-webkit-scrollbar, /* Para o modal antigo, se ainda usado */
+.day-card-v2-tasks::-webkit-scrollbar,
+.modal::-webkit-scrollbar, /* Para todos os modais genéricos */
+.retrospective-screen::-webkit-scrollbar /* Para telas da retrospectiva */
+{
+    width: 8px;
+    height: 8px;
+}
+
+#task-list::-webkit-scrollbar-track,
+#recurring-patterns-list::-webkit-scrollbar-track,
+.day-card-v2-tasks::-webkit-scrollbar-track,
+.modal::-webkit-scrollbar-track,
+.retrospective-screen::-webkit-scrollbar-track
+{
+    background: var(--scrollbar-track-bg-dark);
+    border-radius: 10px;
+}
+body.light #task-list::-webkit-scrollbar-track,
+body.light #recurring-patterns-list::-webkit-scrollbar-track,
+body.light .day-card-v2-tasks::-webkit-scrollbar-track,
+body.light .modal::-webkit-scrollbar-track,
+body.light .retrospective-screen::-webkit-scrollbar-track
+{
+    background: var(--scrollbar-track-bg-light);
+}
+
+
+#task-list::-webkit-scrollbar-thumb,
+#recurring-patterns-list::-webkit-scrollbar-thumb,
+.day-card-v2-tasks::-webkit-scrollbar-thumb,
+.modal::-webkit-scrollbar-thumb,
+.retrospective-screen::-webkit-scrollbar-thumb
+{
+    background-color: var(--scrollbar-thumb-bg-dark);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+body.light #task-list::-webkit-scrollbar-thumb,
+body.light #recurring-patterns-list::-webkit-scrollbar-thumb,
+body.light .day-card-v2-tasks::-webkit-scrollbar-thumb,
+body.light .modal::-webkit-scrollbar-thumb,
+body.light .retrospective-screen::-webkit-scrollbar-thumb
+{
+    background-color: var(--scrollbar-thumb-bg-light);
+}
+
+#task-list::-webkit-scrollbar-thumb:hover,
+#recurring-patterns-list::-webkit-scrollbar-thumb:hover,
+.day-card-v2-tasks::-webkit-scrollbar-thumb:hover,
+.modal::-webkit-scrollbar-thumb:hover,
+.retrospective-screen::-webkit-scrollbar-thumb:hover
+{
+    filter: brightness(1.2);
+}
+
+
 footer {
     text-align: center;
     padding: 20px 0;
