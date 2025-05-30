@@ -9,20 +9,22 @@ let retrospectiveModalOverlayEl;
 let focusEndSound = null;
 let breakEndSound = null;
 
-// Variáveis para Drag and Drop
+// Variáveis para Drag and Drop de tarefas na lista principal
 let draggedItem = null;
+
+// Variáveis para Drag and Drop de tarefas no modal de padrão recorrente v2
+let draggedPatternTaskItem_v2 = null;
+let sourcePatternTaskList_v2 = null;
+let currentEditingPatternTaskId_v2 = null;
+
 
 // Flatpickr instances
 let taskDatePicker = null;
-let recurringTaskStartDatePicker = null;
-let recurringTaskEndDatePicker = null;
 
 
 window.showCustomAlert = showCustomAlert;
-
 window.taskifyStateReady = false;
 
-// Constantes de Temas e Paletas
 const PREDEFINED_PALETTES = {
     electricBlue: { name: 'Azul Elétrico', primary: '#0A7CFF' },
     emeraldGreen: { name: 'Verde Esmeralda', primary: '#00DB4D' },
@@ -37,6 +39,8 @@ const VISUAL_MODES = {
     night: { name: 'Profundo da Noite', icon: 'bi-moon-stars', subtitle: 'Cores escuras e suaves para seus olhos' },
     motivational: { name: 'Energia Vibrante', icon: 'bi-lightning-charge', subtitle: 'Cores dinâmicas para te inspirar' }
 };
+
+const SINGLE_ROUTINE_ID = "minhaUnicaRotinaSemanal";
 
 const initialDefaultState = {
     todayCount: 0,
@@ -98,7 +102,6 @@ const initialDefaultState = {
 let state = JSON.parse(JSON.stringify(initialDefaultState));
 window.state = state;
 
-// Funções Utilitárias de Data, Cor e Formatação
 function getStartOfWeek(date) {
     const d = new Date(date);
     const day = d.getDay();
@@ -200,7 +203,6 @@ function formatDateToISO(ddmmyyyyString) {
 }
 
 
-// Gerenciamento de Estado (LocalStorage)
 function loadState() {
     let themeToApply = initialDefaultState.isDarkMode;
     let primaryColorToApply = PREDEFINED_PALETTES[initialDefaultState.visuals.currentPalette].primary;
@@ -273,13 +275,32 @@ function loadState() {
                 }))
                 : [...initialDefaultState.tasks],
             recurringTaskPatterns: (loadedState.recurringTaskPatterns && Array.isArray(loadedState.recurringTaskPatterns))
-                ? loadedState.recurringTaskPatterns
+                ? loadedState.recurringTaskPatterns.map(p => ({
+                    ...p,
+                    id: SINGLE_ROUTINE_ID,
+                    tasksByDay: p.tasksByDay && typeof p.tasksByDay === 'object'
+                        ? {
+                            0: Array.isArray(p.tasksByDay[0]) ? p.tasksByDay[0].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                            1: Array.isArray(p.tasksByDay[1]) ? p.tasksByDay[1].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                            2: Array.isArray(p.tasksByDay[2]) ? p.tasksByDay[2].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                            3: Array.isArray(p.tasksByDay[3]) ? p.tasksByDay[3].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                            4: Array.isArray(p.tasksByDay[4]) ? p.tasksByDay[4].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                            5: Array.isArray(p.tasksByDay[5]) ? p.tasksByDay[5].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                            6: Array.isArray(p.tasksByDay[6]) ? p.tasksByDay[6].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                        }
+                        : { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }
+                })).slice(0, 1)
                 : [...initialDefaultState.recurringTaskPatterns],
             dailyTaskCompletionData: (loadedState.dailyTaskCompletionData && Array.isArray(loadedState.dailyTaskCompletionData) && loadedState.dailyTaskCompletionData.length === 7)
                 ? loadedState.dailyTaskCompletionData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0))
                 : [...initialDefaultState.dailyTaskCompletionData],
             visuals: { ...initialDefaultState.visuals, ...(loadedState.visuals || {}) },
         };
+
+        if (state.recurringTaskPatterns.length > 0 && state.recurringTaskPatterns[0].id !== SINGLE_ROUTINE_ID) {
+            state.recurringTaskPatterns[0].id = SINGLE_ROUTINE_ID;
+        }
+
 
         const numericKeys = ['todayCount', 'weeklyProgress', 'monthlyProgress', 'yearlyProgress'];
         numericKeys.forEach(key => {
@@ -324,7 +345,9 @@ function loadState() {
 function saveState() {
     try {
         const stateToSave = { ...state };
-
+        if (stateToSave.recurringTaskPatterns && stateToSave.recurringTaskPatterns.length > 0) {
+            stateToSave.recurringTaskPatterns[0].id = SINGLE_ROUTINE_ID;
+        }
         localStorage.setItem('taskify-state', JSON.stringify(stateToSave));
         localStorage.setItem('taskify-theme', state.isDarkMode ? 'dark' : 'light');
 
@@ -343,7 +366,6 @@ function saveState() {
     }
 }
 
-// Lógica de Reset de Contadores
 function checkAllResets() {
     const prevLastAccessDate = state.lastAccessDate;
     const todayStr = new Date().toDateString();
@@ -381,14 +403,11 @@ function checkAllResets() {
 function checkAndResetDailyCounters(todayStr) {
     if (state.lastAccessDate !== todayStr) {
         state.todayCount = 0;
-
-        // Limpa as marcações de 'deletedThisInstanceOfDay' do dia anterior
         state.tasks.forEach(task => {
             if (task.deletedThisInstanceOfDay) {
                 delete task.deletedThisInstanceOfDay;
             }
         });
-
 
         const shiftArray = (arr) => {
             if (arr && Array.isArray(arr) && arr.length === 7) {
@@ -421,10 +440,17 @@ function checkAndResetDailyCounters(todayStr) {
             newDailyFocusData[d] = focusForThisDay;
         }
         state.pomodoro.dailyFocusData = newDailyFocusData;
-
         state.dailyTaskCompletionData = shiftArray(state.dailyTaskCompletionData);
+
+        if (state.recurringTaskPatterns.length > 0) {
+            const routine = state.recurringTaskPatterns[0];
+            for (const dayKey in routine.tasksByDay) {
+                routine.tasksByDay[dayKey].forEach(taskDef => taskDef.completed = false);
+            }
+        }
     }
 }
+
 
 function checkAndResetWeeklyCounters() {
     const currentWeekStartStr = getStartOfWeek(new Date()).toDateString();
@@ -450,7 +476,6 @@ function checkAndResetYearlyCounters() {
     }
 }
 
-// Atualização da UI
 function updateCircularProgress(elementId, current, target) {
     const circle = document.getElementById(elementId);
     if (!circle) return;
@@ -518,6 +543,7 @@ function updateUI() {
     updatePomodoroUI();
     renderTasks();
     updateScrollIndicator();
+    updateCounterTooltips(); // Adicionado para atualizar os tooltips do contador
 }
 
 function updateDailyRecord() {
@@ -530,7 +556,6 @@ function updateDailyRecord() {
     }
 }
 
-// Lógica do Contador de Questões
 function getStepValue() {
     const stepInput = document.getElementById('questions-step-input');
     let step = parseInt(stepInput.value, 10);
@@ -540,6 +565,25 @@ function getStepValue() {
     }
     return step;
 }
+
+// Função para atualizar os tooltips do contador de questões
+function updateCounterTooltips() {
+    const step = getStepValue();
+    const decrementBtn = document.getElementById('decrement-btn');
+    const incrementBtn = document.getElementById('increment-btn');
+    const stepInput = document.getElementById('questions-step-input');
+
+    if (decrementBtn) {
+        decrementBtn.title = `Diminuir ${step} ${step === 1 ? 'questão' : 'questões'}`;
+    }
+    if (incrementBtn) {
+        incrementBtn.title = `Aumentar ${step} ${step === 1 ? 'questão' : 'questões'}`;
+    }
+    if (stepInput) {
+        stepInput.title = "Define a quantidade de questões por clique";
+    }
+}
+
 
 function incrementToday() {
     checkAllResets();
@@ -584,7 +628,6 @@ function decrementToday() {
     updateUI();
 }
 
-// Lógica de Pico de Atividade e Streak
 function updatePeakActivity() {
     let maxQuestions = 0;
     let peakDayOriginalIndex = -1;
@@ -727,7 +770,6 @@ function updateStreakUI() {
     }
 }
 
-// Modal de Metas
 function openGoalsModal() {
     const modal = document.getElementById('goals-modal');
     const overlay = document.getElementById('goals-modal-overlay');
@@ -776,7 +818,6 @@ function saveGoals() {
     closeGoalsModal();
 }
 
-// Gerenciamento de Tema e Cor Primária
 function toggleTheme() {
     state.isDarkMode = !state.isDarkMode;
     applyCurrentThemeAndMode();
@@ -827,7 +868,9 @@ function applyCurrentThemeAndMode() {
 
 
     if (faviconEl) {
-        faviconEl.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='${encodeURIComponent(currentPrimaryColor)}' class='bi bi-check2-square' viewBox='0 0 16 16'><path d='M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8A1.5 1.5 0 0 1 12.5 3v1.5a.5.5 0 0 1-1 0V3a.5.5 0 0 0-.5-.5H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 1 0 1H3z'/><path d='m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z'/></svg>`;
+        const faviconBaseColor = currentPrimaryColor;
+        const faviconSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'><rect width='24' height='24' rx='4' fill='${faviconBaseColor}'/><path fill='white' d='M13.083 3.031a.5.5 0 0 0-.944-.313L5.986 13.41a.5.5 0 0 0 .38.738H11V21a.5.5 0 0 0 .893.33L17.83 10.33a.5.5 0 0 0-.743-.66l-3.087 2.7V3.57a.5.5 0 0 0-.5-.5zM12 4.553v5.377l2.49-2.18L12 4.553zm-1 5.92L8.046 13H11v-2.527z'/></svg>`;
+        faviconEl.href = `data:image/svg+xml,${encodeURIComponent(faviconSvg)}`;
     }
 
     if (weeklyChartInstance) weeklyChartInstance.destroy();
@@ -842,7 +885,6 @@ function applyCurrentThemeAndMode() {
     updateThemeModalButtons();
 }
 
-// Configuração dos Gráficos (Genérica)
 function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelPrefix, dataFormatter = (val) => val) {
     const chartCanvas = document.getElementById(canvasId);
     if (!chartCanvas) return null;
@@ -928,7 +970,6 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
     });
 }
 
-// Funções específicas de setup de gráficos
 function setupChart(animateInitialRender = true) {
     if (weeklyChartInstance) weeklyChartInstance.destroy();
     const data = (window.state && Array.isArray(window.state.weeklyActivityData) && window.state.weeklyActivityData.length === 7)
@@ -999,7 +1040,6 @@ function updateTasksChartDataOnly() {
     }
 }
 
-// Inicialização do Streak
 function initStreak() {
     const savedData = localStorage.getItem('taskify-streak');
     let initialStreakDays = 0;
@@ -1037,7 +1077,6 @@ function initStreak() {
     updateStreakUI();
 }
 
-// --- Funções do Pomodoro ---
 function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -1323,7 +1362,6 @@ function initPomodoro() {
     updatePomodoroUI();
 }
 
-// --- Funções de Tarefas ---
 function renderTasks() {
     const taskList = document.getElementById('task-list');
     if (!taskList) return;
@@ -1334,7 +1372,6 @@ function renderTasks() {
     generateRecurringTaskInstances();
 
     const tasksToDisplay = state.tasks.filter(task => {
-        // CORREÇÃO BUG 1: Não renderiza se deletada para hoje
         if (task.deletedThisInstanceOfDay && task.assignedDate === todayISO) {
             return false;
         }
@@ -1378,7 +1415,7 @@ function renderTasks() {
             checkbox.type = 'checkbox';
             checkbox.className = 'task-item-checkbox';
             checkbox.checked = task.completed;
-            checkbox.addEventListener('change', () => toggleTaskComplete(task.id));
+            checkbox.addEventListener('change', () => toggleTaskComplete(task.id, task.isRecurringInstance, task.sourcePatternId, task.originalPatternTaskId));
 
             const textSpan = document.createElement('span');
             textSpan.className = 'task-item-text';
@@ -1434,7 +1471,7 @@ function updateTasksCounter() {
     if (!tasksCounter) return;
     const todayISO = getTodayISO();
     const displayedTasks = state.tasks.filter(task => {
-        if (task.deletedThisInstanceOfDay && task.assignedDate === todayISO) return false; // CORREÇÃO BUG 1
+        if (task.deletedThisInstanceOfDay && task.assignedDate === todayISO) return false;
         if (task.isRecurringInstance) return task.assignedDate === getTodayISO();
         return true;
     });
@@ -1482,7 +1519,7 @@ function addTask(event) {
 }
 
 
-function toggleTaskComplete(taskId) {
+function toggleTaskComplete(taskId, isRecurringInstance = false, sourcePatternId = null, originalPatternTaskId = null) {
     checkAllResets();
     const taskIndex = state.tasks.findIndex(t => t.id === taskId);
     if (taskIndex > -1) {
@@ -1513,9 +1550,29 @@ function toggleTaskComplete(taskId) {
                 else if (!task.completed && wasCompleted) state.dailyTaskCompletionData[dayIndexInChart] = Math.max(0, state.dailyTaskCompletionData[dayIndexInChart] - 1);
             }
         }
+
+        if (isRecurringInstance && sourcePatternId === SINGLE_ROUTINE_ID && task.assignedDate === getTodayISO()) {
+            const routinePattern = state.recurringTaskPatterns.find(p => p.id === SINGLE_ROUTINE_ID);
+            if (routinePattern) {
+                const dayOfWeekToday = new Date().getDay();
+                if (routinePattern.tasksByDay[dayOfWeekToday]) {
+                    const routineTaskDef = routinePattern.tasksByDay[dayOfWeekToday].find(rt => rt.id === originalPatternTaskId);
+                    if (routineTaskDef) {
+                        routineTaskDef.completed = task.completed;
+                        const modalRecurringTaskModal = document.getElementById('recurring-task-modal');
+                        if (modalRecurringTaskModal && modalRecurringTaskModal.classList.contains('show')) {
+                            const modalRoutineTaskCheckbox = modalRecurringTaskModal.querySelector(`.day-card-v2[data-day-index="${dayOfWeekToday}"] .task-item-recurrent-v2[data-task-id="${originalPatternTaskId}"] .task-routine-checkbox`);
+                            if (modalRoutineTaskCheckbox) {
+                                modalRoutineTaskCheckbox.checked = task.completed;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         saveState();
         updateTasksChartDataOnly();
-        if (task.completed || wasCompleted) renderTasks();
+        if (task.completed || wasCompleted) renderTasks(); // Re-renderiza para atualizar a ordenação
     }
 }
 
@@ -1532,9 +1589,8 @@ function deleteTask(taskId) {
         }
 
         state.tasks.splice(taskIndex, 1);
-        // renderTasks() será chamado por confirmDeleteRecurringTask ou aqui se não for recorrente
         const taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
-        if (taskElement) taskElement.remove(); // Remove da UI imediatamente
+        if (taskElement) taskElement.remove();
         updateTasksCounter();
 
 
@@ -1551,7 +1607,6 @@ function deleteTask(taskId) {
                 }
             }
         }
-        // Só re-renderiza se a lista ficar vazia para mostrar a mensagem
         if (state.tasks.filter(t => !(t.deletedThisInstanceOfDay && t.assignedDate === getTodayISO()) && (t.isRecurringInstance ? t.assignedDate === getTodayISO() : true)).length === 0) {
             renderTasks();
         }
@@ -1561,8 +1616,6 @@ function deleteTask(taskId) {
     }
 }
 
-
-// --- Funções de Drag and Drop para Tarefas ---
 function handleDragStart(e) {
     draggedItem = e.target;
     e.dataTransfer.effectAllowed = 'move';
@@ -1648,304 +1701,532 @@ function initTasks() {
     renderTasks();
 }
 
-// --- Funções de Tarefas Recorrentes ---
-function setupRecurringDaysCheckboxes() {
-    const checkboxes = document.querySelectorAll('.recurring-days-checkbox-group input[type="checkbox"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', (e) => {
-            const label = e.target.closest('label');
-            if (label) {
-                label.classList.toggle('checked', e.target.checked);
-            }
-        });
-    });
-}
+// --- Funções de Tarefas Recorrentes (NOVO MODAL - v2) ---
 
-
-function openRecurringTaskPatternModal(patternId = null) {
+function openRecurringTaskPatternModal_v2() {
     const modal = document.getElementById('recurring-task-modal');
     const overlay = document.getElementById('recurring-task-modal-overlay');
-    const form = document.getElementById('recurring-task-form');
-    const modalTitle = document.getElementById('recurring-task-modal-title');
-    const modalDescription = document.getElementById('recurring-task-modal-description');
-    const submitButton = form.querySelector('button[type="submit"]');
-    const recurringTaskNameInput = document.getElementById('recurring-task-name'); // Input no modal
+    const newTaskTextInput = document.getElementById('new-task-text-input-v2');
+    const modalSubtitle = document.getElementById('recurring-task-def-v2-modal-description');
+    const footerTip = document.getElementById('recurring-modal-footer-tip');
 
 
-    if (!modal || !overlay || !form || !modalTitle || !modalDescription || !submitButton || !recurringTaskNameInput) {
-        console.error("Elementos do modal de tarefa recorrente não encontrados.");
+    if (!modal || !overlay || !newTaskTextInput || !modalSubtitle || !footerTip) {
+        console.error("Elementos do modal v2 não encontrados.");
         return;
     }
-    form.reset();
-    form.dataset.editingPatternId = '';
-    document.querySelectorAll('.recurring-days-checkbox-group input[type="checkbox"]').forEach(cb => {
-        cb.checked = false;
-        const label = cb.closest('label');
-        if (label) label.classList.remove('checked');
+
+    modal.dataset.modalType = "recurring-task-definition-v2";
+    currentEditingPatternTaskId_v2 = null;
+
+    modalSubtitle.textContent = "Defina as tarefas para cada dia da sua semana e organize seus estudos de forma eficiente";
+    newTaskTextInput.value = '';
+    newTaskTextInput.placeholder = "Digite o nome da tarefa...";
+    footerTip.textContent = "Dica: Clique nos dias para selecioná-los e adicionar tarefas. Você também pode arrastar tarefas entre os dias para reorganizar!";
+
+
+    document.querySelectorAll('.day-card-v2').forEach(card => {
+        card.classList.remove('selected');
+        const taskList = card.querySelector('.day-card-v2-tasks');
+        if (taskList) {
+            taskList.innerHTML = '<span class="no-tasks-msg">Nenhuma tarefa</span>';
+        }
+    });
+    updateSelectedDaysCount_v2();
+
+    let patternToLoad = null;
+    if (state.recurringTaskPatterns && state.recurringTaskPatterns.length > 0 && state.recurringTaskPatterns[0].id === SINGLE_ROUTINE_ID) {
+        patternToLoad = state.recurringTaskPatterns[0];
+    }
+
+    if (patternToLoad && patternToLoad.tasksByDay) {
+        renderTasksInDayCards_v2(patternToLoad.tasksByDay);
+    } else {
+        document.querySelectorAll('.day-card-v2-tasks').forEach(list => {
+            if (list) list.innerHTML = '<span class="no-tasks-msg">Nenhuma tarefa</span>';
+        });
+    }
+    updateDayTaskCounters_v2();
+    updateTotalRoutineTasksCount_v2();
+
+
+    const btnConfirmAdd = modal.querySelector('.btn-confirm-add-task-v2');
+    if (btnConfirmAdd && btnConfirmAdd._taskifyListenerAttached !== true) {
+        btnConfirmAdd.addEventListener('click', handleConfirmAddTask_v2);
+        btnConfirmAdd._taskifyListenerAttached = true;
+    }
+
+    if (newTaskTextInput && newTaskTextInput._taskifyEnterListenerAttached !== true) {
+        newTaskTextInput.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                handleConfirmAddTask_v2();
+            }
+        });
+        newTaskTextInput._taskifyEnterListenerAttached = true;
+    }
+
+    modal.querySelectorAll('.day-card-v2').forEach(card => {
+        if (card._taskifyCardListenerAttached !== true) {
+            card.addEventListener('click', handleDayCardClick_v2);
+            card._taskifyCardListenerAttached = true;
+        }
+        const taskListEl = card.querySelector('.day-card-v2-tasks');
+        if (taskListEl && taskListEl._taskifyDragListenerAttached !== true) {
+            taskListEl.addEventListener('dragover', handlePatternTaskDragOver_v2);
+            taskListEl.addEventListener('drop', handlePatternTaskDrop_v2);
+            taskListEl._taskifyDragListenerAttached = true;
+        }
     });
 
-    // MELHORIA 2: Preencher nome da tarefa do input geral
-    if (!patternId) { // Apenas se estiver ADICIONANDO um novo padrão
-        const taskInputGeneral = document.getElementById('task-input');
-        if (taskInputGeneral) {
-            const generalTaskText = taskInputGeneral.value.trim();
-            if (generalTaskText) {
-                recurringTaskNameInput.value = generalTaskText;
-                // Opcional: Limpar o input geral. Por enquanto, vamos deixar como está.
-                // taskInputGeneral.value = '';
-            }
-        }
-    }
-
-
-    const startDateInput = document.getElementById('recurring-task-start-date');
-    const endDateInput = document.getElementById('recurring-task-end-date');
-
-    if (startDateInput && typeof flatpickr === 'function') {
-        if (!recurringTaskStartDatePicker) {
-            recurringTaskStartDatePicker = flatpickr(startDateInput, { dateFormat: "d/m/Y", defaultDate: "today", locale: "pt", allowInput: true });
-        } else {
-            recurringTaskStartDatePicker.setDate(new Date(), true);
-        }
-    }
-
-    if (endDateInput && typeof flatpickr === 'function') {
-        if (!recurringTaskEndDatePicker) {
-            recurringTaskEndDatePicker = flatpickr(endDateInput, { dateFormat: "d/m/Y", locale: "pt", allowInput: true });
-        }
-        recurringTaskEndDatePicker.clear();
-    }
-
-
-    if (patternId) {
-        const pattern = state.recurringTaskPatterns.find(p => p.id === patternId);
-        if (pattern) {
-            modalTitle.textContent = 'Editar Padrão Recorrente';
-            modalDescription.textContent = 'Ajuste sua rotina de estudos ou hábitos existentes.';
-            submitButton.innerHTML = '<i class="bi bi-check-lg"></i> Salvar Alterações';
-            form.dataset.editingPatternId = patternId;
-            recurringTaskNameInput.value = pattern.name; // Já pegamos o elemento acima
-            pattern.daysOfWeek.forEach(dayIndex => {
-                const checkbox = document.getElementById(`recurring-day-${dayIndex}`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                    const label = checkbox.closest('label');
-                    if (label) label.classList.add('checked');
-                }
-            });
-            if (recurringTaskStartDatePicker && pattern.startDate) recurringTaskStartDatePicker.setDate(pattern.startDate, true, "Y-m-d");
-            if (recurringTaskEndDatePicker && pattern.endDate) recurringTaskEndDatePicker.setDate(pattern.endDate, true, "Y-m-d");
-        } else {
-            modalTitle.textContent = 'Adicionar Padrão Recorrente';
-            modalDescription.textContent = 'Configure uma nova rotina de estudos ou hábitos.';
-            submitButton.innerHTML = '<i class="bi bi-plus-lg"></i> Salvar Padrão';
-        }
-    } else {
-        modalTitle.textContent = 'Adicionar Padrão Recorrente';
-        modalDescription.textContent = 'Configure uma nova rotina de estudos ou hábitos.';
-        submitButton.innerHTML = '<i class="bi bi-plus-lg"></i> Salvar Padrão';
-    }
-
-    renderRecurringTaskPatterns();
     overlay.classList.add('show');
     modal.classList.add('show');
     document.body.classList.add('modal-open');
+    newTaskTextInput.focus();
 }
+
 
 function closeRecurringTaskPatternModal() {
     const modal = document.getElementById('recurring-task-modal');
     const overlay = document.getElementById('recurring-task-modal-overlay');
-    if (modal && overlay) {
-        modal.classList.remove('show');
-        overlay.classList.remove('show');
-        document.body.classList.remove('modal-open');
-        const form = document.getElementById('recurring-task-form');
-        if (form) form.reset();
-        document.querySelectorAll('.recurring-days-checkbox-group input[type="checkbox"]').forEach(cb => {
-            cb.checked = false;
-            const label = cb.closest('label');
-            if (label) label.classList.remove('checked');
+    if (!modal || !overlay) return;
+
+    modal.classList.remove('show');
+    overlay.classList.remove('show');
+    document.body.classList.remove('modal-open');
+    currentEditingPatternTaskId_v2 = null;
+
+    if (modal.dataset.modalType === "recurring-task-definition-v2") {
+        const newTaskTextInput = document.getElementById('new-task-text-input-v2');
+        if (newTaskTextInput) newTaskTextInput.value = '';
+
+        document.querySelectorAll('.day-card-v2.selected').forEach(card => card.classList.remove('selected'));
+        updateSelectedDaysCount_v2();
+        document.querySelectorAll('.day-card-v2-tasks').forEach(list => {
+            if (list) list.innerHTML = '<span class="no-tasks-msg">Nenhuma tarefa</span>';
         });
     }
 }
 
-function saveRecurringTaskPattern(event) {
-    event.preventDefault();
-    const form = document.getElementById('recurring-task-form');
-    const patternId = form.dataset.editingPatternId;
-    const name = document.getElementById('recurring-task-name').value.trim();
-    if (!name) { showCustomAlert("O nome da tarefa recorrente é obrigatório.", "Erro de Validação"); return; }
 
-    const daysOfWeek = [];
-    for (let i = 0; i < 7; i++) {
-        const checkbox = document.getElementById(`recurring-day-${i}`);
-        if (checkbox && checkbox.checked) daysOfWeek.push(parseInt(checkbox.value, 10));
+function handleDayCardClick_v2(event) {
+    if (event.target.closest('.btn-icon-recurrent-task-v2') || event.target.closest('.editing-task-input-v2') || event.target.closest('.task-routine-checkbox')) {
+        return;
     }
-    if (daysOfWeek.length === 0) { showCustomAlert("Selecione pelo menos um dia da semana.", "Erro de Validação"); return; }
+    const card = event.currentTarget;
+    card.classList.toggle('selected');
+    updateSelectedDaysCount_v2();
+}
 
-    const startDateSelected = recurringTaskStartDatePicker.selectedDates;
-    if (!startDateSelected || startDateSelected.length === 0) { showCustomAlert("A data de início é obrigatória.", "Erro de Validação"); return; }
-    const startDate = formatDateToISO(recurringTaskStartDatePicker.input.value);
-
-    let endDate = null;
-    const endDateSelected = recurringTaskEndDatePicker.selectedDates;
-    if (endDateSelected && endDateSelected.length > 0) {
-        endDate = formatDateToISO(recurringTaskEndDatePicker.input.value);
-        if (endDate && startDate && new Date(endDate) < new Date(startDate)) {
-            showCustomAlert("A data de término não pode ser anterior à data de início.", "Erro de Validação"); return;
-        }
-    }
-
-    if (patternId) {
-        const patternIndex = state.recurringTaskPatterns.findIndex(p => p.id === patternId);
-        if (patternIndex > -1) {
-            const todayISO = getTodayISO();
-            state.tasks = state.tasks.filter(task => {
-                if (task.sourcePatternId === patternId) {
-                    if (!task.completed && task.assignedDate >= todayISO) {
-                        return false;
-                    }
-                }
-                return true;
-            });
-            state.recurringTaskPatterns[patternIndex] = { ...state.recurringTaskPatterns[patternIndex], name, daysOfWeek, startDate, endDate, updatedAt: new Date().toISOString() };
-        }
+function updateSelectedDaysCount_v2() {
+    const countEl = document.getElementById('recurring-v2-selected-days-count');
+    if (!countEl) return;
+    const selectedCards = document.querySelectorAll('#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2.selected').length;
+    if (selectedCards === 0) {
+        countEl.textContent = "Nenhum dia selecionado";
+    } else if (selectedCards === 1) {
+        countEl.textContent = "1 dia selecionado";
     } else {
-        state.recurringTaskPatterns.push({ id: Date.now().toString(), name, frequency: 'weekly', daysOfWeek, startDate, endDate, createdAt: new Date().toISOString() });
+        countEl.textContent = `${selectedCards} dias selecionados`;
     }
-
-    closeRecurringTaskPatternModal();
-    renderRecurringTaskPatterns();
-    generateRecurringTaskInstances();
-    renderTasks();
-    saveState();
 }
 
-function deleteRecurringTaskPattern(patternId) {
-    showCustomAlert(
-        "Tem certeza que deseja excluir este padrão recorrente?<br><br>Todas as suas ocorrências futuras (não concluídas) também serão removidas.<br>Ocorrências passadas e concluídas serão mantidas.",
-        "Confirmar Exclusão de Padrão",
-        () => {
-            state.recurringTaskPatterns = state.recurringTaskPatterns.filter(p => p.id !== patternId);
-            const todayISO = getTodayISO();
-            state.tasks = state.tasks.filter(task => {
-                if (task.sourcePatternId === patternId) {
-                    if (task.completed) return true;
-                    if (task.assignedDate && task.assignedDate < todayISO) return true;
-                    return false;
-                }
-                return true;
-            });
-            renderRecurringTaskPatterns();
-            renderTasks();
-            saveState();
-        }
-    );
+function handleSelectAllDays_v2() {
+    document.querySelectorAll('#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2').forEach(card => card.classList.add('selected'));
+    updateSelectedDaysCount_v2();
 }
 
+function handleClearDaySelection_v2() {
+    document.querySelectorAll('#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2.selected').forEach(card => card.classList.remove('selected'));
+    updateSelectedDaysCount_v2();
+}
 
-function renderRecurringTaskPatterns() {
-    const patternsListEl = document.getElementById('recurring-patterns-list');
-    const patternsCountEl = document.getElementById('recurring-patterns-count');
+function handleConfirmAddTask_v2() {
+    const taskTextInput = document.getElementById('new-task-text-input-v2');
+    const taskText = taskTextInput.value.trim();
+    const selectedCards = document.querySelectorAll('#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2.selected');
 
-    if (!patternsListEl || !patternsCountEl) {
-        console.error("Elemento da lista de padrões ou contador não encontrado.");
+    if (selectedCards.length === 0 && !currentEditingPatternTaskId_v2) {
+        showCustomAlert("Selecione pelo menos um dia para adicionar a tarefa.", "Nenhum Dia Selecionado");
         return;
     }
 
-    patternsListEl.innerHTML = '';
-    const patterns = state.recurringTaskPatterns;
-
-    if (patterns.length === 0) {
-        patternsListEl.innerHTML = '<li class="recurring-pattern-empty-message">Nenhum padrão recorrente criado.</li>';
-        patternsCountEl.textContent = '0 padrões';
-    } else {
-        patternsCountEl.textContent = `${patterns.length} ${patterns.length === 1 ? 'padrão' : 'padrões'}`;
+    if (!taskText) {
+        showCustomAlert("Por favor, digite o nome da tarefa.", "Tarefa Vazia");
+        return;
     }
 
-    const dayNamesShort = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-    patterns.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (currentEditingPatternTaskId_v2) {
+        const routinePattern = state.recurringTaskPatterns.find(p => p.id === SINGLE_ROUTINE_ID);
+        if (routinePattern && routinePattern.tasksByDay) {
+            let taskUpdated = false;
+            for (const dayIndex in routinePattern.tasksByDay) {
+                const taskIndexToUpdate = routinePattern.tasksByDay[dayIndex].findIndex(t => t.id === currentEditingPatternTaskId_v2);
+                if (taskIndexToUpdate > -1) {
+                    routinePattern.tasksByDay[dayIndex][taskIndexToUpdate].text = taskText;
+                    taskUpdated = true;
+                }
+            }
+            if (taskUpdated) {
+                renderTasksInDayCards_v2(routinePattern.tasksByDay);
+                saveRecurringPatternDefinition_v2(false);
+            }
+        }
+        currentEditingPatternTaskId_v2 = null;
+    } else {
+        selectedCards.forEach(card => {
+            const taskList = card.querySelector('.day-card-v2-tasks');
+            if (taskList) {
+                const noTasksMsg = taskList.querySelector('.no-tasks-msg');
+                if (noTasksMsg) noTasksMsg.remove();
 
-    patterns.forEach(pattern => {
-        const li = document.createElement('li');
-        li.className = 'recurring-pattern-item';
-
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'recurring-pattern-info';
-
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'recurring-pattern-name';
-        nameSpan.textContent = pattern.name;
-
-        const detailsGroup = document.createElement('div');
-        detailsGroup.className = 'recurring-pattern-details-group';
-
-        const daysPillsContainer = document.createElement('div');
-        daysPillsContainer.className = 'recurring-pattern-days';
-        pattern.daysOfWeek.sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b))
-            .map(d => dayNamesShort[d]).forEach(dayText => {
-                const pill = document.createElement('span');
-                pill.className = 'day-pill';
-                pill.textContent = dayText;
-                daysPillsContainer.appendChild(pill);
-            });
-
-
-        const datesSpan = document.createElement('span');
-        datesSpan.className = 'recurring-pattern-dates';
-        let dateText = `<span class="date-label">Início:</span> ${formatDateToDDMMYYYY(pattern.startDate)}`;
-        if (pattern.endDate) dateText += ` • <span class="date-label">Fim:</span> ${formatDateToDDMMYYYY(pattern.endDate)}`;
-        else dateText += " • <span class=\"date-label\">Contínuo</span>";
-        datesSpan.innerHTML = dateText;
-
-        detailsGroup.appendChild(daysPillsContainer);
-        detailsGroup.appendChild(datesSpan);
-
-        infoDiv.appendChild(nameSpan);
-        infoDiv.appendChild(detailsGroup);
-
-
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'recurring-pattern-actions';
-
-        const editBtn = document.createElement('button');
-        editBtn.className = 'btn-icon-recurring edit';
-        editBtn.innerHTML = '<i class="bi bi-pencil-fill"></i>';
-        editBtn.title = "Editar Padrão";
-        editBtn.addEventListener('click', () => openRecurringTaskPatternModal(pattern.id));
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'btn-icon-recurring delete';
-        deleteBtn.innerHTML = '<i class="bi bi-trash3-fill"></i>';
-        deleteBtn.title = "Excluir Padrão";
-        deleteBtn.addEventListener('click', () => deleteRecurringTaskPattern(pattern.id));
-
-        actionsDiv.appendChild(editBtn);
-        actionsDiv.appendChild(deleteBtn);
-
-        li.appendChild(infoDiv);
-        li.appendChild(actionsDiv);
-        patternsListEl.appendChild(li);
-    });
+                const newTaskData = {
+                    id: `patternTask-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                    text: taskText,
+                    completed: false,
+                    order: taskList.children.length
+                };
+                const taskItemEl = createPatternTaskItemElement_v2(newTaskData);
+                taskList.appendChild(taskItemEl);
+            }
+        });
+        saveRecurringPatternDefinition_v2(false);
+    }
+    taskTextInput.value = '';
+    document.querySelectorAll('#recurring-task-modal .day-card-v2.selected').forEach(card => card.classList.remove('selected'));
+    updateSelectedDaysCount_v2();
+    updateDayTaskCounters_v2();
+    updateTotalRoutineTasksCount_v2();
 }
 
+function createPatternTaskItemElement_v2(taskData) {
+    const li = document.createElement('li');
+    li.className = 'task-item-recurrent-v2 draggable';
+    li.setAttribute('draggable', 'true');
+    li.dataset.taskId = taskData.id || `tempId-${Date.now()}-${Math.random()}`;
+    li.dataset.taskText = taskData.text;
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'task-routine-checkbox';
+    checkbox.id = `chk-routine-${taskData.id}`;
+    checkbox.checked = taskData.completed || false;
+    checkbox.addEventListener('change', (e) => handleRoutineTaskCheckboxChange_v2(e, taskData.id));
+
+
+    const textSpan = document.createElement('span');
+    textSpan.className = 'task-text-recurrent-v2';
+    textSpan.textContent = taskData.text;
+    textSpan.addEventListener('click', () => {
+        checkbox.checked = !checkbox.checked;
+        const changeEvent = new Event('change', { bubbles: true });
+        checkbox.dispatchEvent(changeEvent);
+    });
+
+
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'task-actions-recurrent-v2';
+
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'btn-icon-recurrent-task-v2 edit';
+    editBtn.innerHTML = '<i class="bi bi-pencil"></i>';
+    editBtn.title = "Editar Tarefa";
+    editBtn.addEventListener('click', () => handleEditPatternTask_v2(taskData.id, taskData.text));
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'btn-icon-recurrent-task-v2 delete';
+    deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+    deleteBtn.title = "Excluir Tarefa da Rotina";
+    deleteBtn.addEventListener('click', (e) => {
+        handleDeletePatternTask_v2(e.currentTarget.closest('li'));
+        saveRecurringPatternDefinition_v2(false);
+        updateDayTaskCounters_v2();
+        updateTotalRoutineTasksCount_v2();
+    });
+
+    actionsDiv.appendChild(editBtn);
+    actionsDiv.appendChild(deleteBtn);
+
+    li.appendChild(checkbox);
+    li.appendChild(textSpan);
+    li.appendChild(actionsDiv);
+
+    li.addEventListener('dragstart', handlePatternTaskDragStart_v2);
+    li.addEventListener('dragend', handlePatternTaskDragEnd_v2);
+
+    return li;
+}
+
+function handleEditPatternTask_v2(taskId, currentText) {
+    const taskTextInput = document.getElementById('new-task-text-input-v2');
+    taskTextInput.value = currentText;
+    taskTextInput.focus();
+    taskTextInput.select();
+    currentEditingPatternTaskId_v2 = taskId;
+
+    document.querySelectorAll('#recurring-task-modal .day-card-v2.selected').forEach(card => card.classList.remove('selected'));
+    updateSelectedDaysCount_v2();
+}
+
+function handleDeletePatternTask_v2(taskItemElement) {
+    const taskIdToDelete = taskItemElement.dataset.taskId;
+
+    const routinePattern = state.recurringTaskPatterns.find(p => p.id === SINGLE_ROUTINE_ID);
+    if (routinePattern && routinePattern.tasksByDay) {
+        for (const dayIndex in routinePattern.tasksByDay) {
+            routinePattern.tasksByDay[dayIndex] = routinePattern.tasksByDay[dayIndex].filter(t => t.id !== taskIdToDelete);
+        }
+    }
+    renderTasksInDayCards_v2(routinePattern ? routinePattern.tasksByDay : {});
+}
+
+
+function saveRecurringPatternDefinition_v2(closeModalAfterSave = true) {
+    const dayCards = document.querySelectorAll('#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2');
+    const tasksByDay = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }; // 0:Dom, 1:Seg, ..., 6:Sab
+
+    dayCards.forEach(card => {
+        const dayIndex = card.dataset.dayIndex; // Este é o dayIndex correto (0-6)
+        const taskList = card.querySelector('.day-card-v2-tasks');
+        if (taskList) {
+            tasksByDay[dayIndex] = []; // Limpa para reconstruir com a ordem correta
+            Array.from(taskList.children).forEach((taskItemEl, index) => {
+                if (taskItemEl.classList.contains('task-item-recurrent-v2')) {
+                    const taskTextEl = taskItemEl.querySelector('.task-text-recurrent-v2');
+                    const checkboxEl = taskItemEl.querySelector('.task-routine-checkbox');
+                    if (taskTextEl && checkboxEl) {
+                        const text = taskTextEl.textContent;
+                        tasksByDay[dayIndex].push({
+                            id: taskItemEl.dataset.taskId,
+                            text: text,
+                            completed: checkboxEl.checked,
+                            order: index
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+
+    const patternData = {
+        id: SINGLE_ROUTINE_ID,
+        name: "Minha Rotina Semanal",
+        tasksByDay,
+        updatedAt: new Date().toISOString()
+    };
+
+    const existingPatternIndex = state.recurringTaskPatterns.findIndex(p => p.id === SINGLE_ROUTINE_ID);
+
+    if (existingPatternIndex > -1) {
+        state.recurringTaskPatterns[existingPatternIndex] = {
+            ...state.recurringTaskPatterns[existingPatternIndex],
+            ...patternData
+        };
+    } else {
+        patternData.startDate = getTodayISO();
+        patternData.createdAt = new Date().toISOString();
+        state.recurringTaskPatterns.push(patternData);
+    }
+
+    if (closeModalAfterSave) {
+        closeRecurringTaskPatternModal();
+    }
+    generateRecurringTaskInstances();
+    renderTasks();
+    saveState();
+    updateDayTaskCounters_v2();
+    updateTotalRoutineTasksCount_v2();
+}
+
+
+function renderTasksInDayCards_v2(tasksByDay) {
+    if (!tasksByDay || typeof tasksByDay !== 'object') {
+        document.querySelectorAll('.day-card-v2-tasks').forEach(list => {
+            if (list) list.innerHTML = '<span class="no-tasks-msg">Nenhuma tarefa</span>';
+        });
+        return;
+    }
+
+    const dayIndices = ["0", "1", "2", "3", "4", "5", "6"];
+
+    dayIndices.forEach(dayIndex => {
+        const dayCard = document.querySelector(`#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2[data-day-index="${dayIndex}"]`);
+        if (dayCard) {
+            const taskListEl = dayCard.querySelector('.day-card-v2-tasks');
+            if (taskListEl) {
+                taskListEl.innerHTML = '';
+                const tasksForThisDay = tasksByDay[dayIndex];
+                if (tasksForThisDay && Array.isArray(tasksForThisDay) && tasksForThisDay.length > 0) {
+                    tasksForThisDay.sort((a, b) => (a.order || 0) - (b.order || 0)).forEach(taskDef => {
+                        if (taskDef && typeof taskDef.text === 'string') {
+                            if (parseInt(dayIndex) === new Date().getDay() && taskDef.id) {
+                                const mainListTaskId = `${SINGLE_ROUTINE_ID}-${taskDef.id}-${getTodayISO()}`;
+                                const mainListTask = state.tasks.find(t => t.id === mainListTaskId);
+                                if (mainListTask) {
+                                    taskDef.completed = mainListTask.completed;
+                                }
+                            }
+                            const taskItemEl = createPatternTaskItemElement_v2(taskDef);
+                            taskListEl.appendChild(taskItemEl);
+                        }
+                    });
+                } else {
+                    taskListEl.innerHTML = '<span class="no-tasks-msg">Nenhuma tarefa</span>';
+                }
+            }
+        }
+    });
+    updateDayTaskCounters_v2();
+    updateTotalRoutineTasksCount_v2();
+}
+
+function handleRoutineTaskCheckboxChange_v2(event, routineTaskId) {
+    const checkbox = event.target;
+    const isChecked = checkbox.checked;
+    const dayCard = checkbox.closest('.day-card-v2');
+    if (!dayCard) return;
+    const dayIndex = dayCard.dataset.dayIndex;
+
+    const routinePattern = state.recurringTaskPatterns.find(p => p.id === SINGLE_ROUTINE_ID);
+    if (routinePattern && routinePattern.tasksByDay[dayIndex]) {
+        const taskDef = routinePattern.tasksByDay[dayIndex].find(t => t.id === routineTaskId);
+        if (taskDef) {
+            taskDef.completed = isChecked;
+        }
+    }
+
+    if (parseInt(dayIndex) === new Date().getDay()) {
+        const mainListTaskId = `${SINGLE_ROUTINE_ID}-${routineTaskId}-${getTodayISO()}`;
+        let mainListTask = state.tasks.find(t => t.id === mainListTaskId);
+
+        if (mainListTask) {
+            mainListTask.completed = isChecked;
+            mainListTask.completionDate = isChecked ? new Date().toISOString() : null;
+        } else {
+            const taskDefForInstance = routinePattern?.tasksByDay[dayIndex]?.find(t => t.id === routineTaskId);
+            if (taskDefForInstance) {
+                const newTaskInstance = {
+                    id: mainListTaskId,
+                    text: taskDefForInstance.text,
+                    completed: isChecked,
+                    createdAt: new Date().toISOString(),
+                    completionDate: isChecked ? new Date().toISOString() : null,
+                    assignedDate: getTodayISO(),
+                    sourcePatternId: SINGLE_ROUTINE_ID,
+                    originalPatternTaskId: routineTaskId,
+                    isRecurringInstance: true
+                };
+                state.tasks.push(newTaskInstance);
+            }
+        }
+        renderTasks();
+        updateTasksChartDataOnly();
+    }
+    saveRecurringPatternDefinition_v2(false);
+}
+
+
+function handlePatternTaskDragStart_v2(e) {
+    draggedPatternTaskItem_v2 = e.target;
+    sourcePatternTaskList_v2 = e.target.closest('.day-card-v2-tasks');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
+    setTimeout(() => { if (draggedPatternTaskItem_v2) draggedPatternTaskItem_v2.classList.add('dragging'); }, 0);
+}
+
+function handlePatternTaskDragEnd_v2(e) {
+    if (draggedPatternTaskItem_v2) draggedPatternTaskItem_v2.classList.remove('dragging');
+    draggedPatternTaskItem_v2 = null;
+    sourcePatternTaskList_v2 = null;
+    document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
+    saveRecurringPatternDefinition_v2(false);
+    updateDayTaskCounters_v2();
+    updateTotalRoutineTasksCount_v2();
+}
+
+function handlePatternTaskDragOver_v2(e) {
+    e.preventDefault();
+    const targetList = e.target.closest('.day-card-v2-tasks');
+    if (!targetList) {
+        e.dataTransfer.dropEffect = "none";
+        return;
+    }
+    e.dataTransfer.dropEffect = "move";
+
+    document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
+    const placeholder = document.createElement('li');
+    placeholder.classList.add('drag-over-placeholder');
+
+    const afterElement = getPatternTaskDragAfterElement_v2(targetList, e.clientY);
+    if (afterElement == null) {
+        targetList.appendChild(placeholder);
+    } else {
+        targetList.insertBefore(placeholder, afterElement);
+    }
+}
+
+function handlePatternTaskDrop_v2(e) {
+    e.preventDefault();
+    const targetList = e.target.closest('.day-card-v2-tasks');
+    if (!targetList || !draggedPatternTaskItem_v2) {
+        handlePatternTaskDragEnd_v2(); return;
+    }
+
+    document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
+
+    const afterElement = getPatternTaskDragAfterElement_v2(targetList, e.clientY);
+    if (afterElement) {
+        targetList.insertBefore(draggedPatternTaskItem_v2, afterElement);
+    } else {
+        targetList.appendChild(draggedPatternTaskItem_v2);
+    }
+
+    if (sourcePatternTaskList_v2 && sourcePatternTaskList_v2 !== targetList && sourcePatternTaskList_v2.children.length === 0) {
+        const noTasksMsg = document.createElement('span');
+        noTasksMsg.className = 'no-tasks-msg';
+        noTasksMsg.textContent = 'Nenhuma tarefa';
+        sourcePatternTaskList_v2.appendChild(noTasksMsg);
+    }
+    const noTasksMsgInTarget = targetList.querySelector('.no-tasks-msg');
+    if (noTasksMsgInTarget && Array.from(targetList.children).some(child => child.classList.contains('task-item-recurrent-v2'))) {
+        noTasksMsgInTarget.remove();
+    }
+}
+
+function getPatternTaskDragAfterElement_v2(container, y) {
+    const draggableElements = [...container.querySelectorAll('.task-item-recurrent-v2:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
 
 function generateRecurringTaskInstances() {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const todayISO = today.toISOString().split('T')[0];
-    let newTasksAdded = false;
+    let newTasksAddedOrRemoved = false;
 
     const activePatternIds = new Set(state.recurringTaskPatterns.map(p => p.id));
     state.tasks = state.tasks.filter(task => {
         if (task.isRecurringInstance && task.sourcePatternId) {
-            if (!activePatternIds.has(task.sourcePatternId) && task.assignedDate >= todayISO && !task.completed) {
-                newTasksAdded = true;
-                return false;
+            if (!activePatternIds.has(task.sourcePatternId)) {
+                if (task.assignedDate >= todayISO && !task.completed) {
+                    newTasksAddedOrRemoved = true; return false;
+                }
             }
             const pattern = state.recurringTaskPatterns.find(p => p.id === task.sourcePatternId);
-            if (pattern && pattern.endDate && task.assignedDate > pattern.endDate && !task.completed) {
-                newTasksAdded = true;
-                return false;
+            if (pattern && pattern.endDate && task.assignedDate > pattern.endDate) {
+                if (!task.completed) {
+                    newTasksAddedOrRemoved = true; return false;
+                }
             }
         }
         return true;
@@ -1953,7 +2234,14 @@ function generateRecurringTaskInstances() {
 
 
     state.recurringTaskPatterns.forEach(pattern => {
-        const patternStartDate = new Date(pattern.startDate); patternStartDate.setHours(0, 0, 0, 0);
+        if (pattern.id !== SINGLE_ROUTINE_ID) {
+            pattern.id = SINGLE_ROUTINE_ID;
+            newTasksAddedOrRemoved = true;
+        }
+
+        const patternStartDate = pattern.startDate ? new Date(pattern.startDate) : new Date(pattern.createdAt || getTodayISO());
+        patternStartDate.setHours(0, 0, 0, 0);
+
         const patternEndDate = pattern.endDate ? new Date(pattern.endDate) : null;
         if (patternEndDate) patternEndDate.setHours(0, 0, 0, 0);
 
@@ -1962,26 +2250,38 @@ function generateRecurringTaskInstances() {
 
         const dayOfWeekToday = today.getDay();
 
-        if (pattern.daysOfWeek.includes(dayOfWeekToday)) {
-            const existingTask = state.tasks.find(task =>
-                task.sourcePatternId === pattern.id && task.assignedDate === todayISO
-            );
-            // Só cria se não existir NENHUMA versão (nem a marcada como deletedThisInstanceOfDay)
-            if (!existingTask) {
-                state.tasks.push({
-                    id: `${pattern.id}-${todayISO}`,
-                    text: pattern.name,
-                    completed: false,
-                    createdAt: new Date().toISOString(),
-                    assignedDate: todayISO,
-                    sourcePatternId: pattern.id,
-                    isRecurringInstance: true
-                    // Não adicionar deletedThisInstanceOfDay aqui ao criar
-                });
-                newTasksAdded = true;
-            }
+        if (pattern.tasksByDay && pattern.tasksByDay[dayOfWeekToday] && pattern.tasksByDay[dayOfWeekToday].length > 0) {
+            pattern.tasksByDay[dayOfWeekToday].forEach(taskDef => {
+                const taskIdForInstance = `${pattern.id}-${taskDef.id}-${todayISO}`;
+                const existingTask = state.tasks.find(task => task.id === taskIdForInstance);
+
+                if (!existingTask) {
+                    state.tasks.push({
+                        id: taskIdForInstance,
+                        text: taskDef.text,
+                        completed: taskDef.completed || false,
+                        createdAt: new Date().toISOString(),
+                        assignedDate: todayISO,
+                        sourcePatternId: pattern.id,
+                        originalPatternTaskId: taskDef.id,
+                        isRecurringInstance: true
+                    });
+                    newTasksAddedOrRemoved = true;
+                } else {
+                    if (existingTask.completed !== (taskDef.completed || false)) {
+                        existingTask.completed = taskDef.completed || false;
+                        existingTask.completionDate = existingTask.completed ? new Date().toISOString() : null;
+                        newTasksAddedOrRemoved = true;
+                    }
+                    if (existingTask.text !== taskDef.text) {
+                        existingTask.text = taskDef.text;
+                        newTasksAddedOrRemoved = true;
+                    }
+                }
+            });
         }
     });
+    if (newTasksAddedOrRemoved) renderTasks();
 }
 
 function updateDeleteRecurringTaskModalUI(selectedOptionValue) {
@@ -1994,18 +2294,20 @@ function updateDeleteRecurringTaskModalUI(selectedOptionValue) {
     warningMessageContainer.classList.remove('danger');
     warningMessageIconEl.className = 'bi bi-exclamation-triangle-fill';
 
+    const optionFutureEl = document.querySelector('.delete-option-card input[name="delete-recurring-option"][value="future"]');
+    if (optionFutureEl && optionFutureEl.closest('.delete-option-card')) {
+        optionFutureEl.closest('.delete-option-card').style.display = 'none';
+    }
+
+
     switch (selectedOptionValue) {
         case 'this':
             warningMessageTextEl.textContent = 'Apenas esta ocorrência será removida. A tarefa recorrente continuará normalmente.';
             confirmBtn.textContent = 'Excluir Ocorrência';
             break;
-        case 'future':
-            warningMessageTextEl.textContent = 'Removerá esta e as futuras. Ocorrências passadas e concluídas serão mantidas.';
-            confirmBtn.textContent = 'Excluir Futuras';
-            break;
         case 'all':
-            warningMessageTextEl.innerHTML = 'Ação irreversível: Toda a série recorrente será permanentemente excluída.';
-            confirmBtn.textContent = 'Excluir Série Completa';
+            warningMessageTextEl.innerHTML = 'Ação irreversível: Toda a sua rotina semanal será permanentemente excluída.';
+            confirmBtn.textContent = 'Excluir Rotina Completa';
             confirmBtn.classList.add('btn-danger-style');
             warningMessageContainer.classList.add('danger');
             warningMessageIconEl.className = 'bi bi-trash3-fill';
@@ -2019,6 +2321,12 @@ function openDeleteRecurringTaskModal(taskInstance) {
     const overlay = document.getElementById('delete-recurring-task-modal-overlay');
     if (!modal || !overlay) return;
     modal.dataset.deletingTaskId = taskInstance.id;
+
+    const optionFutureEl = modal.querySelector('.delete-option-card input[name="delete-recurring-option"][value="future"]');
+    if (optionFutureEl && optionFutureEl.closest('.delete-option-card')) {
+        optionFutureEl.closest('.delete-option-card').style.display = 'none';
+    }
+
 
     const firstOptionRadio = modal.querySelector('input[name="delete-recurring-option"][value="this"]');
     if (firstOptionRadio) {
@@ -2071,55 +2379,27 @@ function confirmDeleteRecurringTask() {
 
     if (optionValue === 'this') {
         if (taskInstance.isRecurringInstance && taskInstance.assignedDate === getTodayISO()) {
-            // CORREÇÃO BUG 1: Marca a tarefa para não ser renderizada/regerada hoje
             taskInstance.deletedThisInstanceOfDay = true;
         } else {
-            // Se não for recorrente de hoje (ex: tarefa normal ou recorrente de outra data), remove normalmente
             state.tasks.splice(taskIndex, 1);
         }
         tasksModified = true;
-    } else if (optionValue === 'future' && patternId) {
-        const instanceDateObj = new Date(taskInstance.assignedDate);
-        instanceDateObj.setHours(0, 0, 0, 0);
+    }
+    else if (optionValue === 'all' && patternId === SINGLE_ROUTINE_ID) {
+        state.recurringTaskPatterns = [];
+        patternsModified = true;
 
-        const pattern = state.recurringTaskPatterns.find(p => p.id === patternId);
-        if (pattern) {
-            const dayBeforeInstance = new Date(instanceDateObj);
-            dayBeforeInstance.setDate(instanceDateObj.getDate() - 1);
-            const newEndDate = dayBeforeInstance.toISOString().split('T')[0];
-
-            if (!pattern.endDate || new Date(newEndDate) < new Date(pattern.endDate)) {
-                if (new Date(newEndDate) >= new Date(pattern.startDate)) {
-                    pattern.endDate = newEndDate;
-                    patternsModified = true;
-                } else {
-                    state.recurringTaskPatterns = state.recurringTaskPatterns.filter(p => p.id !== patternId);
-                    patternsModified = true;
-                }
-            }
-        }
         state.tasks = state.tasks.filter(t => {
-            if (t.sourcePatternId === patternId) {
-                const tDateObj = new Date(t.assignedDate);
-                tDateObj.setHours(0, 0, 0, 0);
-                if (tDateObj >= instanceDateObj && !t.completed) {
+            if (t.sourcePatternId === SINGLE_ROUTINE_ID) {
+                const taskDate = new Date(t.assignedDate + "T00:00:00");
+                const today = new Date(); today.setHours(0, 0, 0, 0);
+                if (taskDate >= today && !t.completed) {
                     tasksModified = true;
                     return false;
-                }
-            }
-            return true;
-        });
-
-    } else if (optionValue === 'all' && patternId) {
-        state.recurringTaskPatterns = state.recurringTaskPatterns.filter(p => {
-            if (p.id === patternId) { patternsModified = true; return false; }
-            return true;
-        });
-        state.tasks = state.tasks.filter(t => {
-            if (t.sourcePatternId === patternId) {
-                if (!t.completed) {
-                    tasksModified = true;
-                    return false;
+                } else if (taskDate < today) {
+                    return true;
+                } else if (taskDate >= today && t.completed) {
+                    return true;
                 }
             }
             return true;
@@ -2127,18 +2407,45 @@ function confirmDeleteRecurringTask() {
     }
 
     closeDeleteRecurringTaskModal();
-    if (tasksModified || patternsModified) { // Se houve qualquer modificação
-        renderTasks(); // Re-renderiza a lista de tarefas
-        if (patternsModified) renderRecurringTaskPatterns();
+    if (tasksModified || patternsModified) {
+        renderTasks();
         saveState();
-        updateTasksChartDataOnly(); // Atualiza o gráfico de tarefas se necessário
+        updateTasksChartDataOnly();
     }
+}
+
+// Novas funções para atualizar contadores no modal de rotina
+function updateDayTaskCounters_v2() {
+    const dayIndices = { 0: "sunday", 1: "monday", 2: "tuesday", 3: "wednesday", 4: "thursday", 5: "friday", 6: "saturday" };
+    for (const dayIndex in dayIndices) {
+        const dayKey = dayIndices[dayIndex];
+        const taskListEl = document.getElementById(`pattern-v2-tasks-${dayKey}`);
+        const countEl = document.getElementById(`task-count-${dayKey}`);
+        if (taskListEl && countEl) {
+            const taskCount = taskListEl.querySelectorAll('.task-item-recurrent-v2').length;
+            countEl.textContent = taskCount;
+        }
+    }
+}
+
+function updateTotalRoutineTasksCount_v2() {
+    const totalCountEl = document.getElementById('recurring-modal-total-tasks');
+    if (!totalCountEl) return;
+
+    let totalTasks = 0;
+    const routinePattern = state.recurringTaskPatterns.find(p => p.id === SINGLE_ROUTINE_ID);
+    if (routinePattern && routinePattern.tasksByDay) {
+        for (const dayKey in routinePattern.tasksByDay) {
+            if (Array.isArray(routinePattern.tasksByDay[dayKey])) {
+                totalTasks += routinePattern.tasksByDay[dayKey].length;
+            }
+        }
+    }
+    totalCountEl.textContent = `Total de tarefas: ${totalTasks}`;
 }
 
 
 
-
-// --- Funções de Temas e Aparência ---
 function openThemesModal() {
     const modal = document.getElementById('themes-modal');
     const overlay = document.getElementById('themes-modal-overlay');
@@ -2249,7 +2556,6 @@ function initThemes() {
     applyCurrentThemeAndMode();
 }
 
-// --- Custom Alert System ---
 function showCustomAlert(message, title = 'Alerta', onConfirmCallback = null) {
     const alertOverlay = document.getElementById('custom-alert-overlay');
     const alertModal = document.getElementById('custom-alert-modal');
@@ -2296,7 +2602,6 @@ function showCustomAlert(message, title = 'Alerta', onConfirmCallback = null) {
 }
 window.showCustomAlert = showCustomAlert;
 
-// --- Modal do Guia de Boas-Vindas ---
 function openWelcomeGuideModal() {
     const modal = document.getElementById('welcome-guide-modal');
     const overlay = document.getElementById('welcome-guide-modal-overlay');
@@ -2324,7 +2629,6 @@ function closeWelcomeGuideModal() {
     }
 }
 
-// --- Modal de Confirmação de Reset ---
 function openConfirmResetModal() {
     closeGoalsModal();
     const modal = document.getElementById('confirm-reset-modal');
@@ -2366,7 +2670,6 @@ function updateFooterYear() {
     if (yearSpan) yearSpan.textContent = new Date().getFullYear();
 }
 
-// --- Scroll Indicator Logic ---
 function updateScrollIndicator() {
     const scrollIndicator = document.getElementById('scroll-indicator');
     const productivityArea = document.querySelector('.productivity-focus-area');
@@ -2416,7 +2719,6 @@ window.addEventListener('scroll', updateScrollIndicator, { passive: true });
 window.addEventListener('resize', updateScrollIndicator);
 
 
-// Inicialização Principal
 async function init() {
     const loaderElement = document.getElementById('loader');
     if (loaderElement) loaderElement.style.display = 'flex';
@@ -2429,8 +2731,54 @@ async function init() {
     initPomodoro();
     initTasks();
 
-    const recurringTaskForm = document.getElementById('recurring-task-form');
-    if (recurringTaskForm) recurringTaskForm.addEventListener('submit', saveRecurringTaskPattern);
+    const btnOpenRecurringModalV2 = document.getElementById('btn-open-recurring-task-modal');
+    if (btnOpenRecurringModalV2) {
+        btnOpenRecurringModalV2.onclick = () => openRecurringTaskPatternModal_v2();
+    }
+
+    const recurringModalV2 = document.getElementById('recurring-task-modal');
+    if (recurringModalV2) {
+        const btnConfirmAddV2 = recurringModalV2.querySelector('.btn-confirm-add-task-v2');
+        const btnSelectAllDaysV2 = recurringModalV2.querySelector('.btn-select-all-days');
+        const btnClearDaySelectionV2 = recurringModalV2.querySelector('.btn-clear-day-selection');
+        const newTaskTextInputV2 = document.getElementById('new-task-text-input-v2');
+
+        if (btnConfirmAddV2 && btnConfirmAddV2._taskifyListenerAttached !== true) {
+            btnConfirmAddV2.addEventListener('click', handleConfirmAddTask_v2);
+            btnConfirmAddV2._taskifyListenerAttached = true;
+        }
+        if (newTaskTextInputV2 && newTaskTextInputV2._taskifyEnterListenerAttached !== true) {
+            newTaskTextInputV2.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleConfirmAddTask_v2();
+                }
+            });
+            newTaskTextInputV2._taskifyEnterListenerAttached = true;
+        }
+        if (btnSelectAllDaysV2 && btnSelectAllDaysV2._taskifyListenerAttached !== true) {
+            btnSelectAllDaysV2.addEventListener('click', handleSelectAllDays_v2);
+            btnSelectAllDaysV2._taskifyListenerAttached = true;
+        }
+        if (btnClearDaySelectionV2 && btnClearDaySelectionV2._taskifyListenerAttached !== true) {
+            btnClearDaySelectionV2.addEventListener('click', handleClearDaySelection_v2);
+            btnClearDaySelectionV2._taskifyListenerAttached = true;
+        }
+
+        recurringModalV2.querySelectorAll('.day-card-v2').forEach(card => {
+            if (card._taskifyCardListenerAttached !== true) {
+                card.addEventListener('click', handleDayCardClick_v2);
+                card._taskifyCardListenerAttached = true;
+            }
+            const taskListEl = card.querySelector('.day-card-v2-tasks');
+            if (taskListEl && taskListEl._taskifyDragListenerAttached !== true) {
+                taskListEl.addEventListener('dragover', handlePatternTaskDragOver_v2);
+                taskListEl.addEventListener('drop', handlePatternTaskDrop_v2);
+                taskListEl._taskifyDragListenerAttached = true;
+            }
+        });
+    }
+
 
     const recurringTaskModalOverlay = document.getElementById('recurring-task-modal-overlay');
     if (recurringTaskModalOverlay) {
@@ -2438,10 +2786,7 @@ async function init() {
             if (e.target === recurringTaskModalOverlay) closeRecurringTaskPatternModal();
         });
     }
-    const recurringTaskModalCloseBtn = document.querySelector('#recurring-task-modal .modal-close-btn');
-    if (recurringTaskModalCloseBtn) recurringTaskModalCloseBtn.addEventListener('click', closeRecurringTaskPatternModal);
 
-    setupRecurringDaysCheckboxes();
 
     document.querySelectorAll('input[name="delete-recurring-option"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
@@ -2465,11 +2810,7 @@ async function init() {
             if (e.target === deleteRecurringModalOverlay) closeDeleteRecurringTaskModal();
         });
     }
-    const deleteRecurringModalCloseBtn = document.querySelector('#delete-recurring-task-modal .modal-close-btn');
-    if (deleteRecurringModalCloseBtn) deleteRecurringModalCloseBtn.addEventListener('click', closeDeleteRecurringTaskModal);
 
-
-    renderRecurringTaskPatterns();
     generateRecurringTaskInstances();
 
     await loadAndSetupRetrospective();
@@ -2483,7 +2824,7 @@ async function init() {
     if (tasksChartInstance) tasksChartInstance.destroy();
     setupTasksChart(true);
 
-    updateUI();
+    updateUI(); // Inclui a chamada para updateCounterTooltips
 
     const goalsForm = document.getElementById('goals-form');
     if (goalsForm) goalsForm.addEventListener('submit', (e) => { e.preventDefault(); saveGoals(); });
@@ -2512,6 +2853,14 @@ async function init() {
     if (localStorage.getItem('taskify-welcomeGuideDismissed') !== 'true') {
         openWelcomeGuideModal();
     }
+
+    // Event listener para o input de step do contador de questões
+    const questionsStepInput = document.getElementById('questions-step-input');
+    if (questionsStepInput) {
+        questionsStepInput.addEventListener('input', updateCounterTooltips);
+        questionsStepInput.addEventListener('change', updateCounterTooltips); // Para caso de setas do navegador
+    }
+
 
     setInterval(() => {
         checkAllResets();
@@ -2545,7 +2894,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await init();
 });
 
-// Animação de Partículas
 const particleCanvas = document.getElementById('particle-canvas');
 if (particleCanvas) {
     const ctx = particleCanvas.getContext('2d');
@@ -2649,7 +2997,6 @@ if (particleCanvas) {
 }
 
 
-// --- Carregamento e Configuração da Retrospectiva ---
 async function loadAndSetupRetrospective() {
     retrospectiveModalEl = document.getElementById('retrospective-modal');
     retrospectiveModalOverlayEl = document.getElementById('retrospective-modal-overlay');

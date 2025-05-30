@@ -12,10 +12,10 @@
     --pomodoro-break-color-light: color-mix(in srgb, var(--primary-color-light) 65%, #666666 35%);
     --task-delete-btn-hover-bg-dark: rgba(255, 59, 48, 0.2);
     --task-delete-btn-hover-color-dark: #FF3B30;
-    --task-delete-btn-hover-color-dark-rgb: 255, 59, 48; /* Adicionado para warning */
+    --task-delete-btn-hover-color-dark-rgb: 255, 59, 48;
     --task-delete-btn-hover-bg-light: rgba(220, 0, 0, 0.1);
     --task-delete-btn-hover-color-light: #D90000;
-    --task-delete-btn-hover-color-light-rgb: 220, 0, 0; /* Adicionado para warning */
+    --task-delete-btn-hover-color-light-rgb: 220, 0, 0;
     --body-bg-dark: #020306;
     --card-solid-bg-dark: #1C1C1E;
     --card-bg-dark: rgba(30, 32, 37, 0.75);
@@ -26,7 +26,7 @@
     --header-border-dark: var(--card-border-dark);
 
     --body-bg-light: #f4f4f4;
-    --card-solid-bg-light: #ffffff; /* Adicionado para consistência */
+    --card-solid-bg-light: #ffffff;
     --card-bg-light: #ffffff;
     --card-border-light: #e8e8e8;
     --text-color-light: #222;
@@ -34,11 +34,51 @@
     --header-bg-light: var(--card-bg-light);
     --header-border-light: var(--card-border-light);
 
-    /* Cores da scrollbar padrão */
     --scrollbar-thumb-bg-dark: var(--primary-color-dark);
     --scrollbar-track-bg-dark: rgba(255, 255, 255, 0.08);
     --scrollbar-thumb-bg-light: var(--primary-color-light);
     --scrollbar-track-bg-light: rgba(0, 0, 0, 0.08);
+
+    --day-card-v2-bg-dark: #121217;
+    --day-card-v2-border-dark: rgba(255, 255, 255, 0.07);
+    --day-card-v2-selected-bg-dark: var(--primary-color-dark);
+    --day-card-v2-selected-border-dark: var(--primary-color-dark);
+    --day-card-v2-text-dark: #D1D5DB;
+    --day-card-v2-text-selected-dark: white;
+    --day-card-v2-indicator-dark: var(--primary-color-dark);
+
+    --day-card-v2-bg-light: #F0F2F5;
+    --day-card-v2-border-light: #D1D5DB;
+    --day-card-v2-selected-bg-light: var(--primary-color-light);
+    --day-card-v2-selected-border-light: var(--primary-color-light);
+    --day-card-v2-text-light: #374151;
+    --day-card-v2-text-selected-light: white;
+    --day-card-v2-indicator-light: var(--primary-color-light);
+
+    --task-item-recurrent-v2-bg-dark: rgba(var(--primary-color-dark-rgb), 0.08);
+    --task-item-recurrent-v2-border-dark: rgba(var(--primary-color-dark-rgb), 0.15);
+    --task-item-recurrent-v2-text-dark: var(--text-color-dark);
+    --task-item-recurrent-v2-icon-color-dark: var(--text-muted-dark);
+    --task-routine-checkbox-border-dark: var(--text-muted-dark);
+    --task-routine-checkbox-border-hover-dark: var(--primary-color-dark);
+    --task-routine-checkbox-checked-bg-dark: var(--primary-color-dark);
+    --task-routine-checkbox-checked-border-dark: var(--primary-color-dark);
+
+    --task-item-recurrent-v2-bg-light: rgba(var(--primary-color-light-rgb), 0.08);
+    --task-item-recurrent-v2-border-light: rgba(var(--primary-color-light-rgb), 0.15);
+    --task-item-recurrent-v2-text-light: var(--text-color-light);
+    --task-item-recurrent-v2-icon-color-light: var(--text-muted-light);
+    --task-routine-checkbox-border-light: var(--text-muted-light);
+    --task-routine-checkbox-border-hover-light: var(--primary-color-light);
+    --task-routine-checkbox-checked-bg-light: var(--primary-color-light);
+    --task-routine-checkbox-checked-border-light: var(--primary-color-light);
+
+    --task-edit-btn-hover-bg-dark: rgba(var(--primary-color-dark-rgb), 0.2);
+    --task-edit-btn-hover-color-dark: var(--primary-color-dark);
+    --task-edit-btn-hover-bg-light: rgba(var(--primary-color-light-rgb), 0.2);
+    --task-edit-btn-hover-color-light: var(--primary-color-light);
+
+    --logo-icon-color: white;
 }
 
 body.light {
@@ -80,7 +120,6 @@ body.modal-open {
 
 body.modal-open .header {
     z-index: 998;
-    /* Abaixo do overlay do modal */
 }
 
 body.retrospective-open {
@@ -106,7 +145,13 @@ input[type="color"],
 .custom-alert-ok-btn,
 .delete-option-card,
 .btn-icon-recurring,
-.btn-recurring { /* Adicionado .btn-recurring aqui */
+.btn-recurring,
+.btn-icon-recurrent-task,
+.btn-add-task-to-day,
+.day-card-v2,
+.btn-show-add-task-input-v2,
+.btn-confirm-add-task-v2,
+.btn-icon-recurrent-task-v2 {
     cursor: pointer;
 }
 
@@ -229,33 +274,35 @@ body.light .logo {
 }
 
 .logo-icon {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     background: var(--primary-color-dark);
+    /* USA A COR PRIMÁRIA DO TEMA ATUAL */
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 14px;
-    font-weight: bold;
+    color: var(--logo-icon-color);
+    font-size: 16px;
+    font-weight: normal;
     transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-        box-shadow 0.25s ease-out,
-        background-color 0.3s ease, width 0.2s ease, height 0.2s ease, font-size 0.2s ease;
-    margin-top: 2px;
+        box-shadow 0.25s ease-out, background-color 0.3s ease;
+    margin-top: 0;
 }
 
 body.light .logo-icon {
     background: var(--primary-color-light);
-}
-
-.logo:hover .logo-icon {
-    transform: scale(1.15) rotate(-10deg);
-    box-shadow: 0 2px 10px 0 color-mix(in srgb, var(--primary-color-dark) 40%, transparent);
+    /* USA A COR PRIMÁRIA DO TEMA ATUAL (light) */
 }
 
 body.light .logo:hover .logo-icon {
     box-shadow: 0 2px 10px 0 color-mix(in srgb, var(--primary-color-light) 40%, transparent);
+}
+
+.logo:hover .logo-icon {
+    transform: scale(1.15) rotate(-10deg);
+    /* O box-shadow já usa a cor primária dinâmica, então está ok */
+    box-shadow: 0 2px 10px 0 color-mix(in srgb, var(--primary-color-dark) 40%, transparent);
 }
 
 .logo:hover .logo-text {
@@ -341,7 +388,6 @@ body.light .scroll-indicator {
     align-items: stretch;
     width: 100%;
     max-width: 100%;
-    /* Adicionado para animação */
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
@@ -570,7 +616,6 @@ body.light .card-subtitle {
     border-radius: 4px;
     overflow: hidden;
     margin-top: 0;
-    /* Já estava 0, mantido */
 }
 
 body.light .progress-bar-horizontal {
@@ -691,7 +736,6 @@ body.light .activity-value {
 }
 
 .chart-container {
-    /* Mantido para gráfico de atividade semanal */
     height: 200px;
     position: relative;
     overflow: hidden;
@@ -779,7 +823,6 @@ body.light .counter-display {
 .tasks-section-wrapper {
     flex: 1 1 0;
     min-width: 0;
-    /* Para garantir que o flex item possa encolher */
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -789,9 +832,7 @@ body.light .counter-display {
 .tasks-section {
     flex-grow: 1;
     flex-shrink: 0;
-    /* Permite que encolham se necessário, mas tentam manter o tamanho */
     flex-basis: auto;
-    /* Tamanho base automático */
     border-radius: 16px;
     padding: 24px;
     background: var(--card-bg-dark);
@@ -804,9 +845,7 @@ body.light .counter-display {
     display: flex;
     flex-direction: column;
     width: 100%;
-    /* Garante que ocupem a largura do wrapper */
     box-sizing: border-box;
-    /* Para padding não afetar a largura total */
 }
 
 body.light .pomodoro-section,
@@ -868,7 +907,6 @@ body.light .pomodoro-section .pomodoro-settings-btn:hover {
     font-size: 5.5rem;
     font-weight: 700;
     margin: 10px 0 10px 0;
-    /* Ajustado para reduzir espaço se necessário */
     line-height: 1;
     color: var(--pomodoro-focus-color);
     transition: color 0.3s ease;
@@ -888,7 +926,6 @@ body.light .pomodoro-timer-display.break-mode {
     color: var(--text-muted-dark);
     margin-bottom: 15px;
     min-height: 1.5em;
-    /* Para evitar saltos de layout */
 }
 
 body.light .pomodoro-section .pomodoro-status {
@@ -972,7 +1009,6 @@ body.light .pomodoro-controls .btn-reset:hover {
     font-size: 0.9rem;
     color: var(--text-muted-dark);
     margin-top: 10px;
-    /* Ajustado para reduzir espaço se necessário */
 }
 
 body.light .pomodoro-section .pomodoro-cycles {
@@ -1139,7 +1175,7 @@ body.light .task-date-input.flatpickr-input:focus {
 #task-input,
 .task-date-input,
 #add-task-btn,
-.btn-recurring { /* Adicionado .btn-recurring */
+.btn-recurring {
     height: 38px;
 }
 
@@ -1156,19 +1192,17 @@ body.light .task-date-input.flatpickr-input:focus {
     flex-shrink: 0;
 }
 
-/* Estilo para o novo botão de tarefa recorrente */
 .btn-recurring {
-    padding: 0 15px; /* Padding ajustado para ícone + texto */
-    line-height: 38px; /* Para alinhar verticalmente como #add-task-btn */
+    padding: 0 15px;
+    line-height: 38px;
     font-size: 0.9rem;
-    font-weight: 500; /* Um pouco menos que o primário */
+    font-weight: 500;
     flex-shrink: 0;
-    /* Herda .btn e .btn-secondary, então cores e bordas já estão definidas */
 }
 
 .btn-recurring i {
-    margin-right: 6px; /* Espaço entre ícone e texto */
-    font-size: 1em; /* Tamanho do ícone relativo ao texto do botão */
+    margin-right: 6px;
+    font-size: 1em;
 }
 
 
@@ -1226,23 +1260,28 @@ body.light .tasks-section .task-item:hover {
     background-color: rgba(0, 0, 0, 0.02);
 }
 
-.task-item.dragging {
+.task-item.dragging,
+.task-item-recurrent-v2.dragging {
     opacity: 0.5;
     background-color: var(--primary-color-dark) !important;
     color: white !important;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-body.light .task-item.dragging {
+body.light .task-item.dragging,
+body.light .task-item-recurrent-v2.dragging {
     background-color: var(--primary-color-light) !important;
 }
 
 .task-item.dragging .task-item-text,
 .task-item.dragging .task-item-delete-btn,
-.task-item.dragging .task-item-checkbox {
+.task-item.dragging .task-item-checkbox,
+.task-item-recurrent-v2.dragging .task-text-recurrent-v2,
+.task-item-recurrent-v2.dragging .btn-icon-recurrent-task-v2 {
     color: white !important;
     border-color: white !important;
 }
+
 
 .task-item.dragging .task-item-checkbox:checked::before {
     color: var(--primary-color-dark);
@@ -1328,6 +1367,10 @@ body.light .tasks-section .task-item-checkbox:checked {
     position: relative;
     display: flex;
     align-items: center;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .task-recurring-icon {
@@ -1672,17 +1715,567 @@ body.light .modal {
     color: var(--text-color-light);
 }
 
-/* Estilos para o modal de tarefas recorrentes */
-#recurring-task-modal {
+
+/* ==========================================================================
+   Estilos para o MODAL DE TAREFAS RECORRENTES (v2 - novo layout da imagem)
+   ========================================================================== */
+
+#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] {
+    max-width: clamp(90vw, 1600px, 95vw);
+    width: 95vw;
+    height: 85vh;
+    max-height: 85vh;
+    padding: 0;
+    background: var(--card-bg-dark);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--card-border-dark);
+    border-radius: 12px;
+    color: var(--text-color-dark);
+    overflow: hidden;
+}
+
+body.light #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] {
+    background: var(--card-bg-light);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-color: var(--card-border-light);
+    color: var(--text-color-light);
+}
+
+.recurring-pattern-definition-v2-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 24px 28px;
+    gap: 15px;
+}
+
+.recurring-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--card-border-dark);
+    flex-shrink: 0;
+}
+
+body.light .recurring-modal-header {
+    border-bottom-color: var(--card-border-light);
+}
+
+.recurring-modal-title-group .modal-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-align: left;
+    color: var(--text-color-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.light #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-title-group .modal-title {
+    color: var(--text-color-light);
+}
+
+.icon-title-recurring {
+    font-size: 1em;
+    color: var(--primary-color-dark);
+}
+
+body.light .icon-title-recurring {
+    color: var(--primary-color-light);
+}
+
+
+.recurring-modal-title-group .modal-subtitle-description {
+    font-size: 0.85rem;
+    color: var(--text-muted-dark);
+    margin-bottom: 0;
+    text-align: left;
+    line-height: 1.4;
+}
+
+body.light .recurring-modal-title-group .modal-subtitle-description {
+    color: var(--text-muted-light);
+}
+
+#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .modal-close-btn {
+    position: static;
+    padding: 6px;
+    font-size: 1.3rem;
+    color: var(--text-muted-dark);
+    margin-left: 10px;
+}
+
+#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .modal-close-btn:hover {
+    color: var(--text-color-dark);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.light #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .modal-close-btn {
+    color: var(--text-muted-light);
+}
+
+body.light #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .modal-close-btn:hover {
+    color: var(--text-color-light);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.recurring-modal-controls-top {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 8px 0 0 0;
+    flex-shrink: 0;
+}
+
+.new-task-input-container-v2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+#new-task-text-input-v2 {
+    flex-grow: 1;
+    height: 38px;
+    padding: 8px 12px;
+    /* Herda .form-input */
+}
+
+#new-task-text-input-v2::placeholder {
+    color: var(--text-muted-dark);
+    opacity: 0.7;
+}
+
+body.light #new-task-text-input-v2::placeholder {
+    color: var(--text-muted-light);
+}
+
+
+.new-task-input-container-v2 .btn-confirm-add-task-v2 {
+    flex-shrink: 0;
+    padding: 0 12px;
+    height: 38px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    /* Herda .btn e .btn-primary */
+}
+
+.new-task-input-container-v2 .btn-confirm-add-task-v2 i {
+    font-size: 1.1em;
+}
+
+
+.recurring-modal-sub-controls-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 8px;
+    padding-bottom: 8px;
+}
+
+.recurring-modal-controls-top .selected-days-count {
+    font-size: 0.85rem;
+    color: var(--text-muted-dark);
+    margin-left: 0;
+}
+
+body.light .recurring-modal-controls-top .selected-days-count {
+    color: var(--text-muted-light);
+}
+
+.recurring-modal-controls-top .day-selection-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: 0;
+}
+
+.recurring-modal-controls-top .day-selection-actions .btn {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    /* Herda .btn e .btn-secondary */
+}
+
+.recurring-pattern-v2-days-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    flex-grow: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 5px 2px;
+}
+
+.day-card-v2 {
+    background-color: color-mix(in srgb, var(--card-bg-dark) 95%, rgba(255, 255, 255, 0.05) 5%);
+    border: 1px solid var(--card-border-dark);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.15s ease;
+    position: relative;
+    height: 100%;
+    min-width: 150px;
+    overflow: hidden;
+}
+
+body.light .day-card-v2 {
+    background-color: color-mix(in srgb, var(--card-bg-light) 95%, rgba(0, 0, 0, 0.03) 5%);
+    border-color: var(--card-border-light);
+}
+
+.day-card-v2:hover {
+    border-color: var(--primary-color-dark);
+    box-shadow: 0 0 10px rgba(var(--primary-color-dark-rgb), 0.15);
+}
+
+body.light .day-card-v2:hover {
+    border-color: var(--primary-color-light);
+    box-shadow: 0 0 10px rgba(var(--primary-color-light-rgb), 0.1);
+}
+
+.day-card-v2.selected {
+    border-color: var(--day-card-v2-selected-border-dark) !important;
+    background-color: color-mix(in srgb, var(--day-card-v2-selected-bg-dark) 15%, var(--day-card-v2-bg-dark) 85%) !important;
+}
+
+body.light .day-card-v2.selected {
+    border-color: var(--day-card-v2-selected-border-light) !important;
+    background-color: color-mix(in srgb, var(--day-card-v2-selected-bg-light) 20%, var(--day-card-v2-bg-light) 80%) !important;
+}
+
+.day-card-v2.selected .day-card-v2-short,
+.day-card-v2.selected .day-card-task-count-v2 {
+    color: var(--day-card-v2-text-selected-dark);
+}
+
+body.light .day-card-v2.selected .day-card-v2-short,
+body.light .day-card-v2.selected .day-card-task-count-v2 {
+    color: var(--day-card-v2-text-selected-light);
+}
+
+.day-card-header-v2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.day-card-v2-short {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--day-card-v2-text-dark);
+    flex-grow: 1;
+    margin-right: 5px;
+}
+
+body.light .day-card-v2-short {
+    color: var(--day-card-v2-text-light);
+}
+
+.day-card-task-count-v2 {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-muted-dark);
+    background-color: rgba(var(--primary-color-dark-rgb), 0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+body.light .day-card-task-count-v2 {
+    color: var(--text-muted-light);
+    background-color: rgba(var(--primary-color-light-rgb), 0.08);
+}
+
+.day-card-v2.selected .day-card-task-count-v2 {
+    color: var(--day-card-v2-text-selected-dark);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.light .day-card-v2.selected .day-card-task-count-v2 {
+    color: var(--day-card-v2-text-selected-light);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.day-card-v2-full {
+    display: none;
+}
+
+.day-card-v2-tasks {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    overflow-y: auto;
+    min-height: 50px;
+    gap: 6px;
+    padding-right: 5px;
+}
+
+.day-card-v2-tasks .no-tasks-msg {
+    font-size: 0.8rem;
+    color: var(--text-muted-dark);
+    opacity: 0.6;
+    text-align: center;
+    margin-top: auto;
+    margin-bottom: auto;
+    padding: 10px 0;
+}
+
+body.light .day-card-v2-tasks .no-tasks-msg {
+    color: var(--text-muted-light);
+}
+
+.task-item-recurrent-v2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 8px 8px 0;
+    background-color: var(--task-item-recurrent-v2-bg-dark);
+    border: 1px solid var(--task-item-recurrent-v2-border-dark);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--task-item-recurrent-v2-text-dark);
+    cursor: grab;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    position: relative;
+    flex-shrink: 0;
+}
+
+body.light .task-item-recurrent-v2 {
+    background-color: var(--task-item-recurrent-v2-bg-light);
+    border-color: var(--task-item-recurrent-v2-border-light);
+    color: var(--task-item-recurrent-v2-text-light);
+}
+
+.task-item-recurrent-v2:hover {
+    background-color: color-mix(in srgb, var(--task-item-recurrent-v2-bg-dark) 70%, var(--primary-color-dark) 30%);
+    border-color: var(--primary-color-dark);
+}
+
+body.light .task-item-recurrent-v2:hover {
+    background-color: color-mix(in srgb, var(--task-item-recurrent-v2-bg-light) 70%, var(--primary-color-light) 30%);
+    border-color: var(--primary-color-light);
+}
+
+.task-routine-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--task-routine-checkbox-border-dark);
+    border-radius: 4px;
+    margin-left: 8px;
+    margin-right: 8px;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+body.light .task-routine-checkbox {
+    border-color: var(--task-routine-checkbox-border-light);
+}
+
+.task-routine-checkbox:hover {
+    border-color: var(--task-routine-checkbox-border-hover-dark);
+}
+
+body.light .task-routine-checkbox:hover {
+    border-color: var(--task-routine-checkbox-border-hover-light);
+}
+
+.task-routine-checkbox:checked {
+    background-color: var(--task-routine-checkbox-checked-bg-dark);
+    border-color: var(--task-routine-checkbox-checked-border-dark);
+}
+
+body.light .task-routine-checkbox:checked {
+    background-color: var(--task-routine-checkbox-checked-bg-light);
+    border-color: var(--task-routine-checkbox-checked-border-light);
+}
+
+.task-routine-checkbox:checked::before {
+    content: '✔';
+    font-size: 10px;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    line-height: 1;
+}
+
+.task-text-recurrent-v2 {
+    flex-grow: 1;
+    line-height: 1.4;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    text-align: left;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    cursor: pointer;
+    padding-right: 3px;
+}
+
+.task-actions-recurrent-v2 {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    margin-left: 4px;
+}
+
+.task-item-recurrent-v2:hover .task-actions-recurrent-v2 {
+    opacity: 1;
+}
+
+.btn-icon-recurrent-task-v2 {
+    background: transparent;
+    border: none;
+    color: var(--task-item-recurrent-v2-icon-color-dark);
+    font-size: 0.8rem;
+    padding: 2px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.light .btn-icon-recurrent-task-v2 {
+    color: var(--task-item-recurrent-v2-icon-color-light);
+}
+
+.btn-icon-recurrent-task-v2.edit:hover {
+    color: var(--task-edit-btn-hover-color-dark);
+    background-color: var(--task-edit-btn-hover-bg-dark);
+}
+
+body.light .btn-icon-recurrent-task-v2.edit:hover {
+    color: var(--task-edit-btn-hover-color-light);
+    background-color: var(--task-edit-btn-hover-bg-light);
+}
+
+.btn-icon-recurrent-task-v2.save:hover {
+    color: var(--primary-color-dark);
+    background-color: rgba(var(--primary-color-dark-rgb), 0.2);
+}
+
+body.light .btn-icon-recurrent-task-v2.save:hover {
+    color: var(--primary-color-light);
+    background-color: rgba(var(--primary-color-light-rgb), 0.2);
+}
+
+.btn-icon-recurrent-task-v2.delete:hover,
+.btn-icon-recurrent-task-v2.cancel-edit:hover {
+    color: var(--task-delete-btn-hover-color-dark);
+    background-color: var(--task-delete-btn-hover-bg-dark);
+}
+
+body.light .btn-icon-recurrent-task-v2.delete:hover,
+body.light .btn-icon-recurrent-task-v2.cancel-edit:hover {
+    color: var(--task-delete-btn-hover-color-light);
+    background-color: var(--task-delete-btn-hover-bg-light);
+}
+
+
+.day-card-v2-selected-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: transparent;
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.day-card-v2.selected .day-card-v2-selected-indicator {
+    background-color: var(--day-card-v2-indicator-dark);
+}
+
+body.light .day-card-v2.selected .day-card-v2-selected-indicator {
+    background-color: var(--day-card-v2-indicator-light);
+}
+
+.recurring-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid var(--card-border-dark);
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+body.light .recurring-modal-footer {
+    border-top-color: var(--card-border-light);
+}
+
+.recurring-modal-footer .footer-info-text {
+    font-size: 0.8rem;
+    color: var(--text-muted-dark);
+}
+
+body.light .recurring-modal-footer .footer-info-text {
+    color: var(--text-muted-light);
+}
+
+.recurring-modal-footer .footer-total-tasks-count {
+    font-size: 0.8rem;
+    color: var(--text-muted-dark);
+    font-weight: 500;
+}
+
+body.light .recurring-modal-footer .footer-total-tasks-count {
+    color: var(--text-muted-light);
+}
+
+.recurring-modal-footer .modal-buttons {
+    display: none;
+}
+
+
+/* Modal de tarefas recorrentes antigo (v1) - Ocultar se o novo (v2) estiver sendo usado */
+#recurring-task-modal[data-modal-type="recurring-task-definition"] {
+    display: none !important;
+}
+
+#recurring-task-modal[data-modal-type="recurring-task"] {
     max-width: 580px;
     padding: 28px;
     padding-top: 52px;
 }
 
-#recurring-task-modal .modal-content { /* NOVO */
+#recurring-task-modal[data-modal-type="recurring-task"] .modal-content {
     display: flex;
     flex-direction: column;
-    height: 100%; /* Permite que a lista use o espaço disponível */
+    height: 100%;
 }
 
 
@@ -1691,6 +2284,7 @@ body.light .modal {
     font-weight: 700;
     margin-bottom: 8px;
 }
+
 body.light #recurring-task-modal .modal-title {
     color: var(--text-color-light);
 }
@@ -1701,6 +2295,7 @@ body.light #recurring-task-modal .modal-title {
     margin-bottom: 24px;
     text-align: center;
 }
+
 body.light #recurring-task-modal .modal-subtitle-description {
     color: var(--text-muted-light);
 }
@@ -1727,6 +2322,7 @@ body.light #recurring-task-modal .modal-subtitle-description {
     font-weight: bold;
     margin-left: 2px;
 }
+
 body.light .required-asterisk {
     color: var(--task-delete-btn-hover-color-light);
 }
@@ -1736,23 +2332,20 @@ body.light .required-asterisk {
     color: var(--text-muted-dark);
     font-weight: normal;
 }
+
 body.light .label-hint {
     color: var(--text-muted-light);
 }
 
-.form-group-inline {
+.form-group-inline:not(.pattern-meta-inputs) {
     display: flex;
     gap: 15px;
     align-items: flex-start;
 }
 
-.form-group-inline > .form-group {
+.form-group-inline:not(.pattern-meta-inputs)>.form-group {
     flex: 1;
     margin-bottom: 0;
-}
-
-#recurring-task-frequency-group {
-    display: none !important;
 }
 
 
@@ -1780,6 +2373,7 @@ body.light .label-hint {
     text-align: center;
     cursor: pointer;
 }
+
 body.light .recurring-days-checkbox-group label {
     background-color: rgba(var(--primary-color-light-rgb), 0.08);
     border-color: rgba(var(--primary-color-light-rgb), 0.15);
@@ -1791,6 +2385,7 @@ body.light .recurring-days-checkbox-group label {
     background-color: rgba(var(--primary-color-dark-rgb), 0.15);
     color: var(--primary-color-dark);
 }
+
 body.light .recurring-days-checkbox-group label:hover {
     border-color: var(--primary-color-light);
     background-color: rgba(var(--primary-color-light-rgb), 0.15);
@@ -1806,6 +2401,7 @@ body.light .recurring-days-checkbox-group label:hover {
     border-color: var(--primary-color-dark) !important;
     color: white !important;
 }
+
 body.light .recurring-days-checkbox-group label.checked {
     background-color: var(--primary-color-light) !important;
     border-color: var(--primary-color-light) !important;
@@ -1825,19 +2421,23 @@ body.light .recurring-days-checkbox-group label.checked {
     margin-top: 12px;
     margin-bottom: 20px;
 }
+
 body.light .form-info-notice {
     background-color: rgba(var(--primary-color-light-rgb), 0.1);
     border-color: rgba(var(--primary-color-light-rgb), 0.2);
     color: var(--text-muted-light);
 }
+
 .form-info-notice i {
     font-size: 1.2rem;
     color: var(--primary-color-dark);
     flex-shrink: 0;
 }
+
 body.light .form-info-notice i {
     color: var(--primary-color-light);
 }
+
 .form-info-notice span {
     line-height: 1.4;
 }
@@ -1848,6 +2448,7 @@ body.light .form-info-notice i {
     border-color: var(--card-border-dark);
     opacity: 0.5;
 }
+
 body.light .recurring-task-divider {
     border-color: var(--card-border-light);
 }
@@ -1859,8 +2460,9 @@ body.light .recurring-task-divider {
     margin-bottom: 12px;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--card-border-dark);
-    flex-shrink: 0; /* Para não encolher */
+    flex-shrink: 0;
 }
+
 body.light .recurring-patterns-header {
     border-bottom-color: var(--card-border-light);
 }
@@ -1871,6 +2473,7 @@ body.light .recurring-patterns-header {
     margin-bottom: 0;
     color: var(--text-color-dark);
 }
+
 body.light .recurring-patterns-header .modal-subtitle {
     color: var(--text-color-light);
 }
@@ -1883,6 +2486,7 @@ body.light .recurring-patterns-header .modal-subtitle {
     padding: 4px 8px;
     border-radius: 6px;
 }
+
 body.light .recurring-patterns-count {
     color: var(--text-muted-light);
     background-color: rgba(var(--primary-color-light-rgb), 0.1);
@@ -1898,8 +2502,8 @@ body.light .recurring-patterns-count {
     background-color: transparent;
     border: none;
     padding-right: 5px;
-    flex-shrink: 1; /* Permite encolher se necessário, mas overflow-y e max-height controlam o scroll */
-    min-height: 50px; /* Garante um espaço mínimo mesmo vazio */
+    flex-shrink: 1;
+    min-height: 50px;
 }
 
 .recurring-pattern-item {
@@ -1910,23 +2514,26 @@ body.light .recurring-patterns-count {
     padding: 15px;
     margin-bottom: 12px;
     border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: background-color 0.15s ease, box-shadow 0.15s ease;
     background-color: rgba(var(--primary-color-dark-rgb), 0.1);
     border: 1px solid rgba(var(--primary-color-dark-rgb), 0.2);
 }
+
 .recurring-pattern-item:last-child {
     margin-bottom: 0;
 }
+
 body.light .recurring-pattern-item {
     background-color: var(--card-solid-bg-light);
     border-color: var(--card-border-light);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .recurring-pattern-item:hover {
     box-shadow: 0 4px 10px rgba(var(--primary-color-dark-rgb), 0.1) !important;
 }
+
 body.light .recurring-pattern-item:hover {
     box-shadow: 0 4px 10px rgba(var(--primary-color-light-rgb), 0.1);
 }
@@ -1948,6 +2555,7 @@ body.light .recurring-pattern-item:hover {
     text-overflow: ellipsis;
     margin-bottom: 2px;
 }
+
 body.light .recurring-pattern-name {
     color: var(--text-color-light);
 }
@@ -1964,6 +2572,7 @@ body.light .recurring-pattern-name {
     gap: 5px;
     margin-bottom: 2px;
 }
+
 .day-pill {
     font-size: 0.75rem;
     font-weight: 500;
@@ -1974,27 +2583,28 @@ body.light .recurring-pattern-name {
     border: 1px solid rgba(var(--primary-color-dark-rgb), 0.25);
     white-space: nowrap;
 }
+
 body.light .day-pill {
     background-color: rgba(var(--primary-color-light-rgb), 0.15);
     color: var(--primary-color-light);
     border-color: rgba(var(--primary-color-light-rgb), 0.25);
 }
-.recurring-pattern-days::before { content: none; }
-
 
 .recurring-pattern-dates {
     font-size: 0.8rem;
     color: var(--text-muted-dark);
     line-height: 1.3;
 }
+
 body.light .recurring-pattern-dates {
     color: var(--text-muted-light);
 }
-.recurring-pattern-dates::before { content: none; }
+
 .recurring-pattern-dates .date-label {
     font-weight: 500;
     color: var(--text-muted-dark);
 }
+
 body.light .recurring-pattern-dates .date-label {
     color: var(--text-muted-light);
 }
@@ -2021,9 +2631,11 @@ body.light .recurring-pattern-dates .date-label {
     width: 32px;
     height: 32px;
 }
+
 body.light .btn-icon-recurring {
     color: var(--text-muted-light);
 }
+
 .btn-icon-recurring:hover {
     transform: scale(1.1);
 }
@@ -2032,6 +2644,7 @@ body.light .btn-icon-recurring {
     background-color: rgba(var(--primary-color-dark-rgb), 0.15);
     color: var(--primary-color-dark);
 }
+
 body.light .btn-icon-recurring.edit:hover {
     background-color: rgba(var(--primary-color-light-rgb), 0.15);
     color: var(--primary-color-light);
@@ -2041,6 +2654,7 @@ body.light .btn-icon-recurring.edit:hover {
     background-color: var(--task-delete-btn-hover-bg-dark);
     color: var(--task-delete-btn-hover-color-dark);
 }
+
 body.light .btn-icon-recurring.delete:hover {
     background-color: var(--task-delete-btn-hover-bg-light);
     color: var(--task-delete-btn-hover-color-light);
@@ -2054,10 +2668,10 @@ body.light .btn-icon-recurring.delete:hover {
     font-style: italic;
     font-size: 0.9rem;
 }
+
 body.light .recurring-pattern-empty-message {
     color: var(--text-muted-light);
 }
-
 
 /* Modal de Exclusão de Tarefa Recorrente */
 #delete-recurring-task-modal .modal-content {
@@ -2080,6 +2694,7 @@ body.light .recurring-pattern-empty-message {
     color: var(--text-muted-dark);
     margin-bottom: 20px;
 }
+
 body.light #delete-recurring-task-modal .modal-body-text {
     color: var(--text-muted-light);
 }
@@ -2103,6 +2718,7 @@ body.light #delete-recurring-task-modal .modal-body-text {
     transition: border-color 0.2s ease, background-color 0.2s ease;
     cursor: pointer;
 }
+
 body.light .delete-option-card {
     border-color: var(--card-border-light);
     background-color: rgba(var(--primary-color-light-rgb), 0.05);
@@ -2121,6 +2737,7 @@ body.light .delete-option-card {
     outline: none;
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
+
 body.light .delete-option-card input[type="radio"] {
     border-color: var(--text-muted-light);
 }
@@ -2129,6 +2746,7 @@ body.light .delete-option-card input[type="radio"] {
     border-color: var(--primary-color-dark);
     background-color: var(--primary-color-dark);
 }
+
 body.light .delete-option-card input[type="radio"]:checked {
     border-color: var(--primary-color-light);
     background-color: var(--primary-color-light);
@@ -2146,6 +2764,7 @@ body.light .delete-option-card input[type="radio"]:checked {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
 body.light .delete-option-card input[type="radio"]:checked::before {
     background-color: var(--card-solid-bg-light);
 }
@@ -2153,6 +2772,7 @@ body.light .delete-option-card input[type="radio"]:checked::before {
 .delete-option-card:hover input[type="radio"]:not(:checked) {
     border-color: var(--primary-color-dark);
 }
+
 body.light .delete-option-card:hover input[type="radio"]:not(:checked) {
     border-color: var(--primary-color-light);
 }
@@ -2161,6 +2781,7 @@ body.light .delete-option-card:hover input[type="radio"]:not(:checked) {
     border-color: var(--primary-color-dark) !important;
     background-color: rgba(var(--primary-color-dark-rgb), 0.15) !important;
 }
+
 body.light .delete-option-card.selected {
     border-color: var(--primary-color-light) !important;
     background-color: rgba(var(--primary-color-light-rgb), 0.15) !important;
@@ -2170,13 +2791,16 @@ body.light .delete-option-card.selected {
 .delete-option-card.selected .delete-option-text strong {
     color: var(--primary-color-dark);
 }
+
 .delete-option-card.selected .delete-option-text small {
     color: color-mix(in srgb, var(--primary-color-dark) 70%, var(--text-muted-dark) 30%);
 }
+
 body.light .delete-option-card.selected .delete-option-icon i,
 body.light .delete-option-card.selected .delete-option-text strong {
     color: var(--primary-color-light);
 }
+
 body.light .delete-option-card.selected .delete-option-text small {
     color: color-mix(in srgb, var(--primary-color-light) 70%, var(--text-muted-light) 30%);
 }
@@ -2185,21 +2809,26 @@ body.light .delete-option-card.selected .delete-option-text small {
     border-color: var(--task-delete-btn-hover-color-dark) !important;
     background-color: rgba(var(--task-delete-btn-hover-color-dark-rgb), 0.15) !important;
 }
+
 body.light #delete-option-all-card.selected {
     border-color: var(--task-delete-btn-hover-color-light) !important;
     background-color: rgba(var(--task-delete-btn-hover-color-light-rgb), 0.15) !important;
 }
+
 #delete-option-all-card.selected .delete-option-icon i,
 #delete-option-all-card.selected .delete-option-text strong {
     color: var(--task-delete-btn-hover-color-dark) !important;
 }
+
 #delete-option-all-card.selected .delete-option-text small {
     color: color-mix(in srgb, var(--task-delete-btn-hover-color-dark) 70%, var(--text-muted-dark) 30%) !important;
 }
+
 body.light #delete-option-all-card.selected .delete-option-icon i,
 body.light #delete-option-all-card.selected .delete-option-text strong {
     color: var(--task-delete-btn-hover-color-light) !important;
 }
+
 body.light #delete-option-all-card.selected .delete-option-text small {
     color: color-mix(in srgb, var(--task-delete-btn-hover-color-light) 70%, var(--text-muted-light) 30%) !important;
 }
@@ -2231,6 +2860,7 @@ body.light #delete-option-all-card.selected .delete-option-text small {
     font-size: 0.95rem;
     line-height: 1.3;
 }
+
 body.light .delete-option-text strong {
     color: var(--text-color-light);
 }
@@ -2240,6 +2870,7 @@ body.light .delete-option-text strong {
     color: var(--text-muted-dark);
     line-height: 1.3;
 }
+
 body.light .delete-option-text small {
     color: var(--text-muted-light);
 }
@@ -2260,6 +2891,7 @@ body.light .delete-option-text small {
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     text-align: left;
 }
+
 body.light .delete-recurring-warning {
     background-color: rgba(var(--primary-color-light-rgb), 0.08);
     border-color: rgba(var(--primary-color-light-rgb), 0.2);
@@ -2271,6 +2903,7 @@ body.light .delete-recurring-warning {
     color: var(--primary-color-dark);
     flex-shrink: 0;
 }
+
 body.light .delete-recurring-warning i {
     color: var(--primary-color-light);
 }
@@ -2280,6 +2913,7 @@ body.light .delete-recurring-warning i {
     border-color: rgba(var(--task-delete-btn-hover-color-dark-rgb), 0.3);
     color: var(--task-delete-btn-hover-color-dark);
 }
+
 body.light .delete-recurring-warning.danger {
     background-color: rgba(var(--task-delete-btn-hover-color-light-rgb), 0.1);
     border-color: rgba(var(--task-delete-btn-hover-color-light-rgb), 0.3);
@@ -2289,6 +2923,7 @@ body.light .delete-recurring-warning.danger {
 .delete-recurring-warning.danger i {
     color: var(--task-delete-btn-hover-color-dark);
 }
+
 body.light .delete-recurring-warning.danger i {
     color: var(--task-delete-btn-hover-color-light);
 }
@@ -2309,12 +2944,15 @@ body.light .delete-recurring-warning.danger i {
     background-color: var(--task-delete-btn-hover-color-dark) !important;
     color: white !important;
 }
+
 body.light #btn-confirm-delete-recurring-action.btn-danger-style {
     background-color: var(--task-delete-btn-hover-color-light) !important;
 }
+
 #btn-confirm-delete-recurring-action.btn-danger-style:hover {
     background-color: color-mix(in srgb, var(--task-delete-btn-hover-color-dark) 85%, black) !important;
 }
+
 body.light #btn-confirm-delete-recurring-action.btn-danger-style:hover {
     background-color: color-mix(in srgb, var(--task-delete-btn-hover-color-light) 85%, white) !important;
 }
@@ -2326,21 +2964,21 @@ body.light #btn-confirm-delete-recurring-action.btn-danger-style:hover {
     flex-grow: 1;
     font-weight: 500;
 }
+
 body.light #btn-cancel-delete-recurring {
     border-color: var(--card-border-light);
     color: var(--text-muted-light);
 }
+
 #btn-cancel-delete-recurring:hover {
-    background-color: rgba(255,255,255,0.05);
+    background-color: rgba(255, 255, 255, 0.05);
     border-color: var(--text-muted-dark);
 }
+
 body.light #btn-cancel-delete-recurring:hover {
-    background-color: rgba(0,0,0,0.04);
+    background-color: rgba(0, 0, 0, 0.04);
     border-color: var(--text-muted-light);
 }
-
-/* Fim estilos modal tarefas recorrentes */
-
 
 #themes-modal {
     background: var(--card-bg-dark);
@@ -2716,7 +3354,7 @@ body.light .form-input:focus {
     gap: 12px;
     justify-content: flex-end;
     margin-top: 24px;
-    flex-shrink: 0; /* Para não encolher no modal de tarefa recorrente */
+    flex-shrink: 0;
 }
 
 .btn {
@@ -2846,13 +3484,11 @@ body.light .loader::after {
     }
 }
 
-/* Visual Mode Specific Styles */
 body.theme-mode-focus {
     --body-bg-dark: #0A0A0A;
     --card-bg-dark: rgba(40, 40, 42, 0.75);
     --card-solid-bg-dark: #121212;
     --header-bg-dark: var(--card-bg-dark);
-
     --body-bg-light: #EFEFEF;
     --card-bg-light: #FAFAFA;
     --card-solid-bg-light: #FAFAFA;
@@ -2866,7 +3502,6 @@ body.theme-mode-night {
     --card-border-dark: #1F1F1F;
     --header-bg-dark: var(--card-bg-dark);
     --header-border-dark: var(--card-border-dark);
-
     --body-bg-light: #E0E0E0;
     --card-bg-light: #F0F0F0;
     --card-solid-bg-light: #F0F0F0;
@@ -2879,7 +3514,6 @@ body.theme-mode-motivational {
     --body-bg-dark: #020306;
     --card-border-dark: var(--primary-color-dark);
     --card-solid-bg-dark: #1A1A1D;
-
     --body-bg-light: linear-gradient(180deg, color-mix(in srgb, var(--primary-color-light) 20%, #f4f4f4) 0%, #f4f4f4 30%);
     --card-border-light: var(--primary-color-light);
     --card-solid-bg-light: var(--card-bg-light);
@@ -2895,9 +3529,7 @@ body.light.theme-mode-motivational .header {
 
 
 @media (min-width: 769px) {
-    .header {
-        /* Ajustes para header em telas maiores se necessário */
-    }
+    .header {}
 
     .question-counter {
         position: absolute;
@@ -2911,10 +3543,6 @@ body.light.theme-mode-motivational .header {
 
     .scroll-indicator {
         display: flex;
-    }
-
-    .recurring-days-checkbox-group {
-        grid-template-columns: repeat(7, 1fr);
     }
 }
 
@@ -2935,7 +3563,7 @@ body.light.theme-mode-motivational .header {
     .logo-icon {
         width: 22px;
         height: 22px;
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .question-counter {
@@ -3041,23 +3669,17 @@ body.light.theme-mode-motivational .header {
         height: 7px;
     }
 
-    .activity-section {
-        padding: 18px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-    }
-
+    .activity-section,
     .pomodoro-section,
-    .tasks-section {
-        padding: 18px;
-        border-radius: 12px;
-    }
-
+    .tasks-section,
     .chart-section {
         padding: 18px;
         border-radius: 12px;
     }
 
+    .activity-section {
+        margin-bottom: 20px;
+    }
 
     .activity-header,
     .chart-section .chart-header {
@@ -3086,14 +3708,10 @@ body.light.theme-mode-motivational .header {
         font-size: 13px;
     }
 
-    .activity-section .chart-container {
-        height: 130px;
-    }
-
+    .activity-section .chart-container,
     .chart-section .chart-container {
         height: 130px;
     }
-
 
     .pomodoro-settings-btn {
         font-size: 1.2rem;
@@ -3135,16 +3753,17 @@ body.light.theme-mode-motivational .header {
         padding-right: 30px;
     }
 
-    #add-task-btn, .btn-recurring { /* Aplicando a altura correta para o novo botão também */
+    #add-task-btn,
+    .btn-recurring {
         padding: 0 18px;
         font-size: 0.9rem;
         line-height: 36px;
         height: 36px;
     }
-    .btn-recurring {
-        padding: 0 15px; /* Um pouco menos de padding horizontal para o botão recorrente */
-    }
 
+    .btn-recurring {
+        padding: 0 15px;
+    }
 
     #task-list {
         max-height: 220px;
@@ -3157,7 +3776,6 @@ body.light.theme-mode-motivational .header {
     .tasks-counter {
         font-size: 0.85rem;
     }
-
 
     footer {
         padding: 15px 0;
@@ -3211,14 +3829,41 @@ body.light.theme-mode-motivational .header {
         margin-bottom: 20px;
     }
 
-    .pomodoro-section-wrapper,
-    .tasks-section-wrapper {
-        /* Mantém o gap padrão */
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] {
+        width: clamp(850px, 95vw, 1600px);
+        max-height: calc(90vh - 30px);
+    }
+
+    .recurring-pattern-definition-v2-content {
+        padding: 24px 28px;
+    }
+
+    .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+    }
+
+    .day-card-v2 {
+        padding: 12px;
+        height: 100%;
+    }
+
+    .recurring-modal-controls-top .day-selection-actions .btn {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+    }
+
+    #new-task-text-input-v2,
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+        height: 40px;
+    }
+
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+        line-height: normal;
     }
 }
 
 @media (max-width: 992px) {
-
     .productivity-focus-area {
         flex-direction: column;
         gap: 15px;
@@ -3244,15 +3889,70 @@ body.light.theme-mode-motivational .header {
         margin-bottom: 15px;
     }
 
-
     #task-list {
         max-height: 200px;
+    }
+
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] {
+        width: 95vw;
+        max-width: 95vw;
+        height: 90vh;
+        max-height: 90vh;
+    }
+
+    .recurring-pattern-definition-v2-content {
+        padding: 20px;
+        gap: 12px;
+    }
+
+    .recurring-modal-controls-top {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 6px 0 10px 0;
+    }
+
+    .recurring-modal-controls-top .new-task-input-container-v2 {
+        order: 1;
+        max-width: none;
+    }
+
+    .recurring-modal-sub-controls-line {
+        order: 2;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .recurring-modal-controls-top .selected-days-count {
+        margin-left: 0;
+        margin-bottom: 0;
+        width: auto;
+    }
+
+    .recurring-modal-controls-top .day-selection-actions {
+        width: auto;
+        margin-left: 0;
+        justify-content: flex-end;
+    }
+
+    .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+
+    .recurring-modal-footer {
+        flex-direction: row;
+        align-items: center;
+        gap: 15px;
+        padding-top: 15px;
     }
 }
 
 
 @media (max-width: 768px) {
-
     .container {
         padding-left: 15px;
         padding-right: 15px;
@@ -3364,7 +4064,6 @@ body.light.theme-mode-motivational .header {
         font-size: 1.1rem;
     }
 
-
     .activity-section .chart-container,
     .pomodoro-section-wrapper .chart-section .chart-container,
     .tasks-section-wrapper .chart-section .chart-container {
@@ -3392,72 +4091,128 @@ body.light.theme-mode-motivational .header {
         display: none !important;
     }
 
-
     #task-form {
         flex-wrap: wrap;
     }
 
     #task-input {
-        flex-basis: calc(100% - 140px - 10px); /* Input de texto */
+        flex-basis: calc(100% - 140px - 10px);
         min-width: 120px;
     }
+
     .task-date-input.flatpickr-input {
-        flex-basis: 140px; /* Input de data */
+        flex-basis: 140px;
         height: 38px;
     }
-    #add-task-btn, .btn-recurring { /* Botões */
+
+    #add-task-btn,
+    .btn-recurring {
         flex-basis: auto;
     }
-    /* Para telas menores onde os botões podem precisar de largura total se quebrar linha */
-    @media (max-width: 570px) { /* Ponto de quebra para empilhar botões do form */
-        #task-form {
-            /* flex-direction: column; */ /* Não forçar coluna ainda, deixar wrap */
-        }
+
+    @media (max-width: 570px) {
         #task-input {
-            flex-basis: 100%; /* Input de texto ocupa linha inteira */
+            flex-basis: 100%;
             margin-bottom: 8px;
         }
+
         .task-date-input.flatpickr-input {
-             flex-grow: 1; /* Data e recorrente dividem espaço */
-             flex-basis: calc(50% - 5px);
-             min-width: 130px;
-        }
-         .btn-recurring {
             flex-grow: 1;
             flex-basis: calc(50% - 5px);
-            min-width: 0; /* Permite encolher mais */
+            min-width: 130px;
+        }
+
+        .btn-recurring {
+            flex-grow: 1;
+            flex-basis: calc(50% - 5px);
+            min-width: 0;
             padding: 0 10px;
         }
+
         #add-task-btn {
-            flex-basis: 100%; /* Botão adicionar ocupa linha inteira abaixo */
+            flex-basis: 100%;
             margin-top: 8px;
         }
-    }
-
-
-    .recurring-days-checkbox-group {
-        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-    }
-
-    .form-group-inline {
-        flex-direction: column;
-        gap: 18px;
-    }
-
-    .form-group-inline>.form-group {
-        width: 100%;
     }
 
     #delete-recurring-task-modal .modal-content {
         justify-content: flex-start;
         min-height: auto;
     }
+
+    .recurring-pattern-definition-v2-content {
+        padding: 15px 20px;
+    }
+
+    .recurring-modal-title-group .modal-title {
+        font-size: 1.3rem;
+    }
+
+    .recurring-modal-title-group .modal-subtitle-description {
+        font-size: 0.8rem;
+    }
+
+    #new-task-text-input-v2,
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+        height: 38px;
+        font-size: 0.85rem;
+    }
+
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+        padding: 0 10px;
+    }
+
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 i {
+        font-size: 1em;
+    }
+
+    .recurring-modal-controls-top .selected-days-count,
+    .recurring-modal-controls-top .day-selection-actions .btn {
+        font-size: 0.75rem;
+    }
+
+    .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 8px;
+    }
+
+    .day-card-header-v2 {
+        margin-bottom: 6px;
+    }
+
+    .day-card-v2-short {
+        font-size: 0.9rem;
+    }
+
+    .day-card-task-count-v2 {
+        font-size: 0.75rem;
+        padding: 1px 4px;
+    }
+
+    .task-item-recurrent-v2 {
+        font-size: 0.8rem;
+        padding: 6px 6px 6px 0;
+    }
+
+    .task-routine-checkbox {
+        width: 15px;
+        height: 15px;
+        margin-right: 6px;
+    }
+
+    .btn-icon-recurrent-task-v2 {
+        font-size: 0.75rem;
+        width: 18px;
+        height: 18px;
+    }
+
+    .recurring-modal-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
 }
 
-/* Ajuste fino para o form de tarefas em telas menores que 520px,
-   onde os botões Nova Recorrente e Adicionar podem precisar de mais espaço.
-   Aqui, fazemos com que "Nova Recorrente" e "Adicionar" dividam uma linha
-   se o input de data for para a linha de cima. */
 @media (max-width: 520px) {
     #task-form {
         flex-direction: column;
@@ -3474,18 +4229,21 @@ body.light.theme-mode-motivational .header {
         margin-bottom: 8px;
     }
 
-    #add-task-btn { /* Último botão não precisa de margem inferior */
+    #add-task-btn {
         margin-bottom: 0;
     }
 
-    .task-date-input.flatpickr-input { /* Garante altura correta */
+    .task-date-input.flatpickr-input {
         height: 38px;
+    }
+
+    .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     }
 }
 
 
 @media (max-width: 480px) {
-
     .container {
         padding-left: 12px;
         padding-right: 12px;
@@ -3524,7 +4282,6 @@ body.light.theme-mode-motivational .header {
         width: 20px;
         height: 20px;
         font-size: 10px;
-        margin-top: 2px;
     }
 
     .header .logo-text-full {
@@ -3572,7 +4329,6 @@ body.light.theme-mode-motivational .header {
         font-size: 1.2rem;
         padding: 5px;
     }
-
 
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -3664,7 +4420,6 @@ body.light.theme-mode-motivational .header {
         max-height: 180px;
     }
 
-
     .activity-title,
     .pomodoro-title,
     .tasks-title,
@@ -3677,7 +4432,6 @@ body.light.theme-mode-motivational .header {
         font-size: 1rem;
     }
 
-
     .activity-controls .control-btn {
         width: 28px;
         height: 28px;
@@ -3687,7 +4441,6 @@ body.light.theme-mode-motivational .header {
         padding: 4px 8px;
         font-size: 12px;
     }
-
 
     .pomodoro-settings-btn {
         font-size: 1.1rem;
@@ -3726,7 +4479,7 @@ body.light.theme-mode-motivational .header {
     #task-input,
     .task-date-input.flatpickr-input,
     #add-task-btn,
-    .btn-recurring { /* Aplicado a todos os elementos do form */
+    .btn-recurring {
         font-size: 0.9rem;
     }
 
@@ -3734,11 +4487,11 @@ body.light.theme-mode-motivational .header {
         padding: 9px 30px 9px 10px;
     }
 
-    #add-task-btn, .btn-recurring { /* Linha normal para botões */
+    #add-task-btn,
+    .btn-recurring {
         padding: 10px 15px;
         line-height: normal;
     }
-
 
     .task-item-text {
         font-size: 0.9rem;
@@ -3759,7 +4512,6 @@ body.light.theme-mode-motivational .header {
         font-size: 1rem;
         padding: 4px 6px;
     }
-
 
     .modal {
         padding: 20px;
@@ -3832,13 +4584,8 @@ body.light.theme-mode-motivational .header {
         font-size: 12px;
     }
 
-    #recurring-task-modal .form-group-inline {
-        flex-direction: column;
-        gap: 18px;
-    }
-
     #recurring-patterns-list {
-        max-height: 150px; /* Reduzido para telas menores */
+        max-height: 150px;
     }
 
     .recurring-pattern-item {
@@ -3851,23 +4598,134 @@ body.light.theme-mode-motivational .header {
         margin-top: 10px;
     }
 
-    .recurring-days-checkbox-group {
-        grid-template-columns: repeat(auto-fit, minmax(55px, 1fr));
-        gap: 6px;
+    #delete-recurring-task-modal .modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
     }
 
-    .recurring-days-checkbox-group label {
-        padding: 8px 4px;
+    #delete-recurring-task-modal .modal-buttons .btn {
+        width: 100%;
+    }
+
+    .recurring-pattern-definition-v2-content {
+        padding: 12px 15px;
+        gap: 10px;
+    }
+
+    .recurring-modal-header {
+        padding-bottom: 10px;
+    }
+
+    .recurring-modal-title-group .modal-title {
+        font-size: 1.1rem;
+    }
+
+    .recurring-modal-title-group .modal-title .icon-title-recurring {
+        font-size: 0.9em;
+        margin-right: 6px;
+    }
+
+    .recurring-modal-title-group .modal-subtitle-description {
+        font-size: 0.75rem;
+    }
+
+    #new-task-text-input-v2,
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+        height: 34px;
+        font-size: 0.75rem;
+    }
+
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+        padding: 0 8px;
+        gap: 3px;
+    }
+
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 i {
+        font-size: 0.9em;
+    }
+
+    .recurring-modal-sub-controls-line {
+        margin-top: 6px;
+        padding-bottom: 6px;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .recurring-modal-controls-top .selected-days-count {
+        width: 100%;
+        margin-bottom: 6px;
+    }
+
+    .recurring-modal-controls-top .day-selection-actions {
+        width: auto;
+    }
+
+    .recurring-modal-controls-top .day-selection-actions .btn {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+    }
+
+    .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 5px;
+    }
+
+    .day-card-v2 {
+        padding: 6px;
+    }
+
+    .day-card-header-v2 {
+        margin-bottom: 5px;
+    }
+
+    .day-card-v2-short {
         font-size: 0.8rem;
     }
 
-    #delete-recurring-task-modal .modal-buttons {
-       flex-direction: column;
-       gap: 10px;
-       align-items: stretch;
+    .day-card-task-count-v2 {
+        font-size: 0.65rem;
+        padding: 1px 3px;
     }
-    #delete-recurring-task-modal .modal-buttons .btn {
+
+    .task-item-recurrent-v2 {
+        font-size: 0.7rem;
+        gap: 3px;
+        padding: 4px 4px 4px 0;
+    }
+
+    .task-routine-checkbox {
+        width: 13px;
+        height: 13px;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+    .task-routine-checkbox:checked::before {
+        font-size: 8px;
+    }
+
+    .task-actions-recurrent-v2 {
+        gap: 2px;
+        margin-left: 2px;
+    }
+
+    .btn-icon-recurrent-task-v2 {
+        width: 16px;
+        height: 16px;
+        font-size: 0.65rem;
+    }
+
+    .recurring-modal-footer .footer-info-text,
+    .recurring-modal-footer .footer-total-tasks-count {
+        font-size: 0.7rem;
         width: 100%;
+        text-align: center;
+    }
+
+    .recurring-modal-footer .footer-total-tasks-count {
+        margin-top: 4px;
     }
 }
 
@@ -3899,381 +4757,22 @@ body.light .footer-link {
     color: var(--primary-color-light);
 }
 
-
-
-/* ESTILOS PARA FLATPICKR */
-.flatpickr-calendar {
-    background: var(--card-solid-bg-dark, #282a2e);
-    border: 1px solid var(--card-border-dark, rgba(255, 255, 255, 0.2));
-    border-radius: 8px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-    color: var(--text-color-dark, #e0e0e0);
-    font-family: inherit;
+.retrospective-final-logo .logo-icon {
+    width: clamp(20px, 3.2vw, 24px);
+    height: clamp(20px, 3.2vw, 24px);
+    background: var(--primary-color-dark);
+    /* USA A COR PRIMÁRIA DO TEMA ATUAL */
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--logo-icon-color);
+    font-size: clamp(10px, 1.8vw, 12px);
+    font-weight: normal;
+    line-height: 1;
 }
 
-body.light .flatpickr-calendar {
-    background: var(--card-bg-light, #ffffff);
-    border-color: var(--card-border-light, #d1d1d1);
-    color: var(--text-color-light, #333333);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
-}
-
-.flatpickr-weekday {
-    color: var(--text-color-dark) !important;
-    opacity: 0.85 !important;
-    font-weight: 600 !important;
-}
-
-body.light .flatpickr-weekday {
-    color: var(--text-muted-light) !important;
-    opacity: 1 !important;
-    font-weight: 500 !important;
-}
-
-.flatpickr-day {
-    color: var(--text-muted-dark);
-    border-radius: 50%;
-    transition: background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease;
-    border: 1px solid transparent;
-}
-
-body.light .flatpickr-day {
-    color: var(--text-muted-light);
-}
-
-.flatpickr-day:hover,
-.flatpickr-day.flatpickr-focused {
-    background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent);
-    border-color: var(--primary-color-dark);
-    color: var(--primary-color-dark);
-}
-
-body.light .flatpickr-day:hover,
-body.light .flatpickr-day.flatpickr-focused {
-    background: color-mix(in srgb, var(--primary-color-light) 20%, transparent);
-    border-color: var(--primary-color-light);
-    color: var(--primary-color-light);
-}
-
-.flatpickr-day.selected,
-.flatpickr-day.today.selected,
-.flatpickr-day.startRange,
-.flatpickr-day.endRange {
-    background: var(--primary-color-dark) !important;
-    border-color: var(--primary-color-dark) !important;
-    color: white !important;
-    box-shadow: none !important;
-}
-
-body.light .flatpickr-day.selected,
-body.light .flatpickr-day.today.selected,
-body.light .flatpickr-day.startRange,
-body.light .flatpickr-day.endRange {
-    background: var(--primary-color-light) !important;
-    border-color: var(--primary-color-light) !important;
-    color: white !important;
-}
-
-.flatpickr-day.today {
-    border-color: var(--primary-color-dark) !important;
-    color: var(--primary-color-dark) !important;
-    background: transparent !important;
-}
-
-.flatpickr-day.today:hover {
-    background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent) !important;
-    color: var(--primary-color-dark) !important;
-    border-color: var(--primary-color-dark) !important;
-}
-
-body.light .flatpickr-day.today {
-    border-color: var(--primary-color-light) !important;
-    color: var(--primary-color-light) !important;
-    background: transparent !important;
-}
-
-body.light .flatpickr-day.today:hover {
-    background: color-mix(in srgb, var(--primary-color-light) 20%, transparent) !important;
-    color: var(--primary-color-light) !important;
-    border-color: var(--primary-color-light) !important;
-}
-
-.flatpickr-day.prevMonthDay,
-.flatpickr-day.nextMonthDay {
-    color: var(--text-muted-dark);
-    opacity: 0.4;
-}
-
-body.light .flatpickr-day.prevMonthDay,
-body.light .flatpickr-day.nextMonthDay {
-    color: var(--text-muted-light);
-    opacity: 0.4;
-}
-
-.flatpickr-months .flatpickr-month {
-    color: var(--text-color-dark);
-    fill: var(--text-color-dark);
-    height: 38px;
-}
-
-body.light .flatpickr-months .flatpickr-month {
-    color: var(--text-color-light);
-    fill: var(--text-color-light);
-}
-
-.flatpickr-monthDropdown-months {
-    background: var(--card-solid-bg-dark, #282a2e) !important;
-    border: 1px solid var(--card-border-dark, rgba(255, 255, 255, 0.2)) !important;
-    border-radius: 6px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-    padding: 4px !important;
-    max-height: 220px;
-    overflow-y: auto;
-}
-
-body.light .flatpickr-monthDropdown-months {
-    background: var(--card-bg-light, #fff) !important;
-    border-color: var(--card-border-light, #d1d1d1) !important;
-    border-radius: 6px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-}
-
-.flatpickr-monthDropdown-month {
-    color: var(--text-color-dark) !important;
-    padding: 6px 10px !important;
-    border-radius: 4px !important;
-    margin: 0px 2px !important;
-    line-height: 1.5;
-}
-
-body.light .flatpickr-monthDropdown-month {
-    color: var(--text-color-light) !important;
-}
-
-.flatpickr-monthDropdown-month:hover {
-    background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent) !important;
-    color: var(--primary-color-dark) !important;
-}
-
-body.light .flatpickr-monthDropdown-month:hover {
-    background: color-mix(in srgb, var(--primary-color-light) 15%, var(--card-bg-light)) !important;
-    color: var(--primary-color-light) !important;
-}
-
-.flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected,
-span.flatpickr-monthDropdown-month:focus,
-span.flatpickr-monthDropdown-month.flatpickr-current-month
-    {
-    background: var(--primary-color-dark) !important;
-    color: white !important;
-    border-radius: 4px !important;
-}
-
-body.light .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected,
-body.light span.flatpickr-monthDropdown-month:focus,
-body.light span.flatpickr-monthDropdown-month.flatpickr-current-month {
-    background: var(--primary-color-light) !important;
-    color: white !important;
-}
-
-
-.flatpickr-current-month input.cur-year {
-    color: var(--text-color-dark);
-    font-weight: bold;
-}
-
-body.light .flatpickr-current-month input.cur-year {
-    color: var(--text-color-light);
-}
-
-.flatpickr-months .flatpickr-prev-month svg,
-.flatpickr-months .flatpickr-next-month svg {
-    fill: var(--text-color-dark);
-    opacity: 0.8;
-    width: 16px;
-    height: 16px;
-}
-
-body.light .flatpickr-months .flatpickr-prev-month svg,
-body.light .flatpickr-months .flatpickr-next-month svg {
-    fill: var(--text-color-light);
-    opacity: 0.8;
-}
-
-.flatpickr-months .flatpickr-prev-month:hover svg,
-.flatpickr-months .flatpickr-next-month:hover svg {
-    fill: var(--primary-color-dark);
-    opacity: 1;
-}
-
-body.light .flatpickr-months .flatpickr-prev-month:hover svg,
-body.light .flatpickr-months .flatpickr-next-month:hover svg {
-    fill: var(--primary-color-light);
-    opacity: 1;
-}
-
-.flatpickr-input[readonly] {
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-body.light .flatpickr-input[readonly] {
-    background-color: rgba(255, 255, 255, 0.5);
-}
-
-.flatpickr-calendar.dark {
-    background: var(--card-solid-bg-dark, #19191c);
-    border-color: var(--card-border-dark, rgba(255, 255, 255, 0.15));
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-}
-
-.flatpickr-calendar.light {
-    background: var(--card-bg-light, #ffffff);
-    border-color: var(--card-border-light, #e0e0e0);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-
-/* SCROLLBAR STYLES */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg-dark);
-    border-radius: 10px;
-}
-
-body.light ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg-light);
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg-dark);
-    border-radius: 10px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-}
-
-body.light ::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg-light);
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background-color: color-mix(in srgb, var(--scrollbar-thumb-bg-dark) 80%, #000000);
-}
-
-body.light ::-webkit-scrollbar-thumb:hover {
-    background-color: color-mix(in srgb, var(--scrollbar-thumb-bg-light) 80%, #ffffff);
-}
-
-html {
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb-bg-dark) var(--scrollbar-track-bg-dark);
-}
-
-body.light {
-    scrollbar-color: var(--scrollbar-thumb-bg-light) var(--scrollbar-track-bg-light);
-}
-
-body.theme-mode-motivational:not(.light) {
-    scrollbar-color: var(--primary-color-dark) color-mix(in srgb, var(--primary-color-dark) 5%, #020306 95%) !important;
-}
-
-body.theme-mode-motivational:not(.light)::-webkit-scrollbar-track {
-    background: color-mix(in srgb, var(--primary-color-dark) 5%, #020306 95%) !important;
-}
-
-body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb {
-    background-color: var(--primary-color-dark) !important;
-}
-
-body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
-    background-color: color-mix(in srgb, var(--primary-color-dark) 80%, black) !important;
-}
-
-#recurring-task-modal .modal-content {
-   display: flex;
-   flex-direction: column;
-   height: 100%;
-}
-
-
-#recurring-task-modal #recurring-task-form,
-#recurring-task-modal .modal-buttons,
-#recurring-task-modal .recurring-task-divider,
-#recurring-task-modal .recurring-patterns-header {
-    flex-shrink: 0; 
-}
-
-
-#recurring-patterns-list {
-    flex-grow: 1;
-    min-height: 0;
-    overflow-y: auto;
-    max-height: 120px;
-}
-
-/* Correção APRIMORADA para inputs de data no modal de tarefas recorrentes em modo claro */
-body.light #recurring-task-modal .task-date-input.flatpickr-input,
-body.light #recurring-task-modal #recurring-task-start-date,
-body.light #recurring-task-modal #recurring-task-end-date {
-    background-color: var(--card-bg-light); /* Usar um fundo sólido como os outros inputs no modo claro */
-    border-color: var(--card-border-light);
-    color: var(--text-color-light);
-    /* Garante que o ícone correto do modo claro seja usado, herdado da regra geral de .task-date-input.flatpickr-input */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555555' class='bi bi-calendar-event' viewBox='0 0 16 16'%3E%3Cpath d='M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z'/%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z'/%3E%3C/svg%3E");
-}
-
-body.light #recurring-task-modal .task-date-input.flatpickr-input::placeholder,
-body.light #recurring-task-modal #recurring-task-start-date::placeholder,
-body.light #recurring-task-modal #recurring-task-end-date::placeholder {
-    color: var(--text-muted-light);
-    opacity: 1;
-}
-
-body.light #recurring-task-modal .task-date-input.flatpickr-input:focus,
-body.light #recurring-task-modal #recurring-task-start-date:focus,
-body.light #recurring-task-modal #recurring-task-end-date:focus {
-    border-color: var(--primary-color-light);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color-light) 20%, transparent);
-    background-color: var(--card-bg-light); /* Manter o fundo sólido no foco */
-}
-
-
-/* Correção DEFINITIVA para inputs de data no modal de tarefas recorrentes em modo claro */
-body.light #recurring-task-modal .task-date-input.flatpickr-input,
-body.light #recurring-task-modal #recurring-task-start-date.form-input.task-date-input.flatpickr-input,
-body.light #recurring-task-modal #recurring-task-end-date.form-input.task-date-input.flatpickr-input {
-    /* Define um background sólido e o ícone, sobrescrevendo qualquer transparência herdada */
-    background: var(--card-bg-light) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555555' class='bi bi-calendar-event' viewBox='0 0 16 16'%3E%3Cpath d='M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z'/%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z'/%3E%3C/svg%3E") no-repeat right 10px center;
-    background-size: 16px 16px; /* Importante re-declarar após o shorthand 'background' */
-    border: 1px solid var(--card-border-light);
-    color: var(--text-color-light);
-    -webkit-appearance: none; /* Remove estilos padrão do navegador */
-    -moz-appearance: none;
-    appearance: none;
-    padding: 9px 30px 9px 10px; /* Garante o padding correto */
-    font-size: 0.9rem; /* Garante o tamanho da fonte correto */
-    border-radius: 8px; /* Garante o border-radius correto */
-    height: 38px; /* Garante a altura correta */
-    box-shadow: none; /* Remove qualquer box-shadow herdado que possa causar problemas */
-    text-shadow: none; /* Remove qualquer text-shadow */
-}
-
-body.light #recurring-task-modal .task-date-input.flatpickr-input::placeholder,
-body.light #recurring-task-modal #recurring-task-start-date.form-input.task-date-input.flatpickr-input::placeholder,
-body.light #recurring-task-modal #recurring-task-end-date.form-input.task-date-input.flatpickr-input::placeholder {
-    color: var(--text-muted-light);
-    opacity: 1;
-}
-
-body.light #recurring-task-modal .task-date-input.flatpickr-input:focus,
-body.light #recurring-task-modal #recurring-task-start-date.form-input.task-date-input.flatpickr-input:focus,
-body.light #recurring-task-modal #recurring-task-end-date.form-input.task-date-input.flatpickr-input:focus {
-    border-color: var(--primary-color-light);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color-light) 20%, transparent);
-    /* Mantém o background sólido e o ícone no foco */
-    background: var(--card-bg-light) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555555' class='bi bi-calendar-event' viewBox='0 0 16 16'%3E%3Cpath d='M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z'/%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z'/%3E%3C/svg%3E") no-repeat right 10px center;
-    background-size: 16px 16px;
+body.light .retrospective-final-logo .logo-icon {
+    background: var(--primary-color-light);
+    /* USA A COR PRIMÁRIA DO TEMA ATUAL (light) */
 }

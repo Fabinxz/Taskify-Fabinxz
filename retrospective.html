@@ -221,10 +221,12 @@
         <i class="bi bi-x-lg"></i>
     </button>
 
-    <div class="retrospective-final-content-wrapper"> <!-- Este é o elemento que será capturado pelo html2canvas -->
+    <div class="retrospective-final-content-wrapper">
         <div class="retrospective-final-header">
             <div class="retrospective-final-logo">
-                <div class="logo-icon">✓</div>
+                <div class="logo-icon"> <!-- Ícone atualizado aqui -->
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </div>
                 <span class="logo-text">Taskify</span>
             </div>
             <div class="retrospective-final-date" id="retrospective-final-month-year">Maio 2025</div>
@@ -268,7 +270,6 @@
         <div class="retrospective-final-achievements-container" style="display: none;">
             <h3 class="retrospective-final-achievements-title">Conquistas do Mês:</h3>
             <div class="retrospective-final-achievements-list" id="retrospective-achievements-list">
-                <!-- Apenas UMA conquista será adicionada aqui pelo JS -->
             </div>
         </div>
 
@@ -292,8 +293,8 @@
             </button>
             <button id="retrospective-download-button"
                 class="retrospective-button retrospective-action-button retrospective-button-outline">
-                <i class="bi bi-download retrospective-icon-small"></i> <!-- Ícone alterado -->
-                Baixar Imagem <!-- Texto alterado -->
+                <i class="bi bi-download retrospective-icon-small"></i>
+                Baixar Imagem
             </button>
         </div>
     </div>

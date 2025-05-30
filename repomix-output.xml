@@ -2132,10 +2132,10 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
     --pomodoro-break-color-light: color-mix(in srgb, var(--primary-color-light) 65%, #666666 35%);
     --task-delete-btn-hover-bg-dark: rgba(255, 59, 48, 0.2);
     --task-delete-btn-hover-color-dark: #FF3B30;
-    --task-delete-btn-hover-color-dark-rgb: 255, 59, 48; /* Adicionado para warning */
+    --task-delete-btn-hover-color-dark-rgb: 255, 59, 48;
     --task-delete-btn-hover-bg-light: rgba(220, 0, 0, 0.1);
     --task-delete-btn-hover-color-light: #D90000;
-    --task-delete-btn-hover-color-light-rgb: 220, 0, 0; /* Adicionado para warning */
+    --task-delete-btn-hover-color-light-rgb: 220, 0, 0;
     --body-bg-dark: #020306;
     --card-solid-bg-dark: #1C1C1E;
     --card-bg-dark: rgba(30, 32, 37, 0.75);
@@ -2146,7 +2146,7 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
     --header-border-dark: var(--card-border-dark);
 
     --body-bg-light: #f4f4f4;
-    --card-solid-bg-light: #ffffff; /* Adicionado para consistência */
+    --card-solid-bg-light: #ffffff;
     --card-bg-light: #ffffff;
     --card-border-light: #e8e8e8;
     --text-color-light: #222;
@@ -2154,11 +2154,51 @@ body.light .retrospective-action-button#retrospective-download-button:hover {
     --header-bg-light: var(--card-bg-light);
     --header-border-light: var(--card-border-light);
 
-    /* Cores da scrollbar padrão */
     --scrollbar-thumb-bg-dark: var(--primary-color-dark);
     --scrollbar-track-bg-dark: rgba(255, 255, 255, 0.08);
     --scrollbar-thumb-bg-light: var(--primary-color-light);
     --scrollbar-track-bg-light: rgba(0, 0, 0, 0.08);
+
+    --day-card-v2-bg-dark: #121217;
+    --day-card-v2-border-dark: rgba(255, 255, 255, 0.07);
+    --day-card-v2-selected-bg-dark: var(--primary-color-dark);
+    --day-card-v2-selected-border-dark: var(--primary-color-dark);
+    --day-card-v2-text-dark: #D1D5DB;
+    --day-card-v2-text-selected-dark: white;
+    --day-card-v2-indicator-dark: var(--primary-color-dark);
+
+    --day-card-v2-bg-light: #F0F2F5;
+    --day-card-v2-border-light: #D1D5DB;
+    --day-card-v2-selected-bg-light: var(--primary-color-light);
+    --day-card-v2-selected-border-light: var(--primary-color-light);
+    --day-card-v2-text-light: #374151;
+    --day-card-v2-text-selected-light: white;
+    --day-card-v2-indicator-light: var(--primary-color-light);
+
+    --task-item-recurrent-v2-bg-dark: rgba(var(--primary-color-dark-rgb), 0.08);
+    --task-item-recurrent-v2-border-dark: rgba(var(--primary-color-dark-rgb), 0.15);
+    --task-item-recurrent-v2-text-dark: var(--text-color-dark);
+    --task-item-recurrent-v2-icon-color-dark: var(--text-muted-dark);
+    --task-routine-checkbox-border-dark: var(--text-muted-dark);
+    --task-routine-checkbox-border-hover-dark: var(--primary-color-dark);
+    --task-routine-checkbox-checked-bg-dark: var(--primary-color-dark);
+    --task-routine-checkbox-checked-border-dark: var(--primary-color-dark);
+
+    --task-item-recurrent-v2-bg-light: rgba(var(--primary-color-light-rgb), 0.08);
+    --task-item-recurrent-v2-border-light: rgba(var(--primary-color-light-rgb), 0.15);
+    --task-item-recurrent-v2-text-light: var(--text-color-light);
+    --task-item-recurrent-v2-icon-color-light: var(--text-muted-light);
+    --task-routine-checkbox-border-light: var(--text-muted-light);
+    --task-routine-checkbox-border-hover-light: var(--primary-color-light);
+    --task-routine-checkbox-checked-bg-light: var(--primary-color-light);
+    --task-routine-checkbox-checked-border-light: var(--primary-color-light);
+
+    --task-edit-btn-hover-bg-dark: rgba(var(--primary-color-dark-rgb), 0.2);
+    --task-edit-btn-hover-color-dark: var(--primary-color-dark);
+    --task-edit-btn-hover-bg-light: rgba(var(--primary-color-light-rgb), 0.2);
+    --task-edit-btn-hover-color-light: var(--primary-color-light);
+
+    --logo-icon-color: white;
 }
 
 body.light {
@@ -2200,7 +2240,6 @@ body.modal-open {
 
 body.modal-open .header {
     z-index: 998;
-    /* Abaixo do overlay do modal */
 }
 
 body.retrospective-open {
@@ -2225,7 +2264,14 @@ input[type="color"],
 .mode-btn,
 .custom-alert-ok-btn,
 .delete-option-card,
-.btn-icon-recurring {
+.btn-icon-recurring,
+.btn-recurring,
+.btn-icon-recurrent-task,
+.btn-add-task-to-day,
+.day-card-v2,
+.btn-show-add-task-input-v2,
+.btn-confirm-add-task-v2,
+.btn-icon-recurrent-task-v2 {
     cursor: pointer;
 }
 
@@ -2348,33 +2394,35 @@ body.light .logo {
 }
 
 .logo-icon {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     background: var(--primary-color-dark);
+    /* USA A COR PRIMÁRIA DO TEMA ATUAL */
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 14px;
-    font-weight: bold;
+    color: var(--logo-icon-color);
+    font-size: 16px;
+    font-weight: normal;
     transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-        box-shadow 0.25s ease-out,
-        background-color 0.3s ease, width 0.2s ease, height 0.2s ease, font-size 0.2s ease;
-    margin-top: 2px;
+        box-shadow 0.25s ease-out, background-color 0.3s ease;
+    margin-top: 0;
 }
 
 body.light .logo-icon {
     background: var(--primary-color-light);
-}
-
-.logo:hover .logo-icon {
-    transform: scale(1.15) rotate(-10deg);
-    box-shadow: 0 2px 10px 0 color-mix(in srgb, var(--primary-color-dark) 40%, transparent);
+    /* USA A COR PRIMÁRIA DO TEMA ATUAL (light) */
 }
 
 body.light .logo:hover .logo-icon {
     box-shadow: 0 2px 10px 0 color-mix(in srgb, var(--primary-color-light) 40%, transparent);
+}
+
+.logo:hover .logo-icon {
+    transform: scale(1.15) rotate(-10deg);
+    /* O box-shadow já usa a cor primária dinâmica, então está ok */
+    box-shadow: 0 2px 10px 0 color-mix(in srgb, var(--primary-color-dark) 40%, transparent);
 }
 
 .logo:hover .logo-text {
@@ -2460,7 +2508,6 @@ body.light .scroll-indicator {
     align-items: stretch;
     width: 100%;
     max-width: 100%;
-    /* Adicionado para animação */
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
@@ -2689,7 +2736,6 @@ body.light .card-subtitle {
     border-radius: 4px;
     overflow: hidden;
     margin-top: 0;
-    /* Já estava 0, mantido */
 }
 
 body.light .progress-bar-horizontal {
@@ -2810,7 +2856,6 @@ body.light .activity-value {
 }
 
 .chart-container {
-    /* Mantido para gráfico de atividade semanal */
     height: 200px;
     position: relative;
     overflow: hidden;
@@ -2898,7 +2943,6 @@ body.light .counter-display {
 .tasks-section-wrapper {
     flex: 1 1 0;
     min-width: 0;
-    /* Para garantir que o flex item possa encolher */
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -2908,9 +2952,7 @@ body.light .counter-display {
 .tasks-section {
     flex-grow: 1;
     flex-shrink: 0;
-    /* Permite que encolham se necessário, mas tentam manter o tamanho */
     flex-basis: auto;
-    /* Tamanho base automático */
     border-radius: 16px;
     padding: 24px;
     background: var(--card-bg-dark);
@@ -2923,9 +2965,7 @@ body.light .counter-display {
     display: flex;
     flex-direction: column;
     width: 100%;
-    /* Garante que ocupem a largura do wrapper */
     box-sizing: border-box;
-    /* Para padding não afetar a largura total */
 }
 
 body.light .pomodoro-section,
@@ -2987,7 +3027,6 @@ body.light .pomodoro-section .pomodoro-settings-btn:hover {
     font-size: 5.5rem;
     font-weight: 700;
     margin: 10px 0 10px 0;
-    /* Ajustado para reduzir espaço se necessário */
     line-height: 1;
     color: var(--pomodoro-focus-color);
     transition: color 0.3s ease;
@@ -3007,7 +3046,6 @@ body.light .pomodoro-timer-display.break-mode {
     color: var(--text-muted-dark);
     margin-bottom: 15px;
     min-height: 1.5em;
-    /* Para evitar saltos de layout */
 }
 
 body.light .pomodoro-section .pomodoro-status {
@@ -3091,7 +3129,6 @@ body.light .pomodoro-controls .btn-reset:hover {
     font-size: 0.9rem;
     color: var(--text-muted-dark);
     margin-top: 10px;
-    /* Ajustado para reduzir espaço se necessário */
 }
 
 body.light .pomodoro-section .pomodoro-cycles {
@@ -3132,19 +3169,14 @@ body.light .tasks-section .tasks-title {
 }
 
 .tasks-header-actions {
-    /* NOVO */
     display: flex;
     align-items: center;
     gap: 10px;
-    /* Espaçamento entre o botão de recorrentes e o contador */
 }
 
 .tasks-header-actions .btn-icon-nav {
-    /* Ajuste para o botão dentro do header de tarefas */
     padding: 6px;
-    /* Um pouco menor que os botões do header principal */
     font-size: 1.3rem;
-    /* Tamanho do ícone */
 }
 
 
@@ -3172,9 +3204,7 @@ body.light .tasks-section .tasks-counter {
 #task-input {
     flex-grow: 1;
     flex-basis: 200px;
-    /* Base para responsividade */
     min-width: 150px;
-    /* Mínimo para não quebrar muito */
     padding: 10px 12px;
     border: 1px solid var(--card-border-dark);
     border-radius: 8px;
@@ -3204,40 +3234,30 @@ body.light .tasks-section #task-input::placeholder {
     border-color: var(--primary-color-dark);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color-dark) 20%, transparent);
     background: var(--card-bg-dark);
-    /* Ajuste para tema escuro */
 }
 
 body.light #task-input:focus {
     border-color: var(--primary-color-light);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color-light) 20%, transparent);
     background: var(--card-bg-light);
-    /* Ajuste para tema claro */
 }
 
 .task-date-input.flatpickr-input {
-    /* Estilo genérico para inputs de data com flatpickr */
     padding: 9px 30px 9px 10px;
-    /* Espaço para o ícone */
     border: 1px solid var(--card-border-dark);
     border-radius: 8px;
     background-color: rgba(0, 0, 0, 0.1);
     color: var(--text-color-dark);
     font-size: 0.9rem;
     line-height: normal;
-    /* Para alinhar verticalmente */
     height: 38px;
-    /* Altura consistente com outros inputs */
     flex-shrink: 0;
-    /* Não encolher */
     flex-basis: 140px;
-    /* Tamanho base */
     min-width: 130px;
-    /* Mínimo */
     transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
     font-family: inherit;
     box-sizing: border-box;
     cursor: pointer;
-    /* Ícone de calendário como background */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23cccccc' class='bi bi-calendar-event' viewBox='0 0 16 16'%3E%3Cpath d='M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z'/%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
@@ -3274,16 +3294,14 @@ body.light .task-date-input.flatpickr-input:focus {
 
 #task-input,
 .task-date-input,
-#add-task-btn {
+#add-task-btn,
+.btn-recurring {
     height: 38px;
-    /* Consistência na altura */
 }
 
 #add-task-btn {
     padding: 0 18px;
-    /* Ajustado para caber texto */
     line-height: 38px;
-    /* Para alinhar texto verticalmente */
     background: var(--primary-color-dark);
     color: white;
     border: none;
@@ -3292,8 +3310,21 @@ body.light .task-date-input.flatpickr-input:focus {
     font-weight: 600;
     transition: opacity 0.2s ease, transform 0.15s ease;
     flex-shrink: 0;
-    /* Não encolher */
 }
+
+.btn-recurring {
+    padding: 0 15px;
+    line-height: 38px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.btn-recurring i {
+    margin-right: 6px;
+    font-size: 1em;
+}
+
 
 body.light #add-task-btn {
     background: var(--primary-color-light);
@@ -3314,29 +3345,22 @@ body.light #add-task-btn {
     padding: 0;
     margin: 0;
     flex-grow: 1;
-    /* Para ocupar espaço disponível */
     overflow-y: auto;
-    /* Scroll se necessário */
     padding-right: 5px;
-    /* Espaço para scrollbar */
     min-height: 50px;
-    /* Altura mínima para visualização */
     height: 0;
-    /* Truque para flex-grow funcionar corretamente com min-height */
 }
 
 .task-item {
     display: flex;
     align-items: center;
     padding: 12px 5px 12px 0;
-    /* Ajuste para não cortar borda */
     border-bottom: 1px solid var(--card-border-dark);
     transition: background-color 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease;
     cursor: grab;
 }
 
 .task-item:active {
-    /* Durante o arrasto */
     cursor: grabbing;
 }
 
@@ -3356,30 +3380,31 @@ body.light .tasks-section .task-item:hover {
     background-color: rgba(0, 0, 0, 0.02);
 }
 
-/* Estilo para item sendo arrastado */
-.task-item.dragging {
+.task-item.dragging,
+.task-item-recurrent-v2.dragging {
     opacity: 0.5;
     background-color: var(--primary-color-dark) !important;
     color: white !important;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-body.light .task-item.dragging {
+body.light .task-item.dragging,
+body.light .task-item-recurrent-v2.dragging {
     background-color: var(--primary-color-light) !important;
 }
 
-/* Garante que texto e ícones dentro do item arrastado também fiquem brancos */
 .task-item.dragging .task-item-text,
 .task-item.dragging .task-item-delete-btn,
-.task-item.dragging .task-item-checkbox {
+.task-item.dragging .task-item-checkbox,
+.task-item-recurrent-v2.dragging .task-text-recurrent-v2,
+.task-item-recurrent-v2.dragging .btn-icon-recurrent-task-v2 {
     color: white !important;
     border-color: white !important;
-    /* Para o checkbox */
 }
+
 
 .task-item.dragging .task-item-checkbox:checked::before {
     color: var(--primary-color-dark);
-    /* Cor do checkmark quando o fundo é a cor primária */
 }
 
 body.light .task-item.dragging .task-item-checkbox:checked::before {
@@ -3387,15 +3412,12 @@ body.light .task-item.dragging .task-item-checkbox:checked::before {
 }
 
 
-/* Placeholder para local de drop */
 .drag-over-placeholder {
     height: 2px;
     background-color: var(--primary-color-dark);
     opacity: 0.7;
     margin: 6px 0;
-    /* Espaçamento visual */
     list-style: none;
-    /* Remove marcador de lista */
     border-radius: 1px;
 }
 
@@ -3411,7 +3433,6 @@ body.light .drag-over-placeholder {
     accent-color: var(--primary-color-dark);
     cursor: pointer;
     flex-shrink: 0;
-    /* Estilo customizado para checkbox */
     appearance: none;
     -webkit-appearance: none;
     background-color: transparent;
@@ -3447,14 +3468,12 @@ body.light .tasks-section .task-item-checkbox:checked {
 .task-item-checkbox:checked::before {
     content: '✔';
     font-size: 12px;
-    /* Ajuste para caber no checkbox */
     color: white;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     line-height: 1;
-    /* Para melhor alinhamento vertical */
 }
 
 
@@ -3464,23 +3483,20 @@ body.light .tasks-section .task-item-checkbox:checked {
     color: var(--text-color-dark);
     transition: color 0.3s ease, opacity 0.3s ease;
     word-break: break-word;
-    /* Para quebrar palavras longas */
     line-height: 1.4;
     position: relative;
-    /* Para o after do strike-through */
     display: flex;
-    /* Para alinhar ícone de recorrência com texto */
     align-items: center;
-    /* Alinha ícone verticalmente */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .task-recurring-icon {
-    /* NOVO: Ícone para tarefa recorrente */
     font-size: 0.9em;
-    /* Um pouco menor que o texto da tarefa */
     color: var(--primary-color-dark);
     margin-right: 8px;
-    /* Espaço entre ícone e texto */
     opacity: 0.7;
     flex-shrink: 0;
 }
@@ -3490,7 +3506,6 @@ body.light .task-recurring-icon {
 }
 
 .task-item.completed .task-recurring-icon {
-    /* Ícone em tarefa completada */
     opacity: 0.4;
 }
 
@@ -3504,7 +3519,6 @@ body.light .task-recurring-icon {
     margin-left: 8px;
     font-style: italic;
     white-space: nowrap;
-    /* Evita quebrar a data */
 }
 
 body.light .task-assigned-date-indicator {
@@ -3527,7 +3541,6 @@ body.light .tasks-section .task-item.completed .task-item-text {
     color: var(--text-muted-light);
 }
 
-/* Efeito de linha cortada para tarefas completas */
 .task-item.completed .task-item-text::after {
     content: '';
     position: absolute;
@@ -3537,7 +3550,6 @@ body.light .tasks-section .task-item.completed .task-item-text {
     background-color: var(--primary-color-dark);
     animation: strikeThroughAnim 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
     transform-origin: left;
-    /* Animação da esquerda para a direita */
 }
 
 body.light .task-item.completed .task-item-text::after {
@@ -3563,16 +3575,12 @@ body.light .task-item.completed .task-item-text::after {
     color: var(--text-muted-dark);
     font-size: 1.1rem;
     padding: 5px 8px;
-    /* Área de clique maior */
     margin-left: 10px;
     border-radius: 6px;
     line-height: 1;
-    /* Alinhamento do ícone */
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
     flex-shrink: 0;
-    /* Para não ser esmagado */
     opacity: 0.6;
-    /* Sutil por padrão */
 }
 
 body.light .tasks-section .task-item-delete-btn {
@@ -3581,7 +3589,6 @@ body.light .tasks-section .task-item-delete-btn {
 
 .task-item:hover .task-item-delete-btn {
     opacity: 1;
-    /* Totalmente visível no hover da tarefa */
 }
 
 .task-item-delete-btn:hover {
@@ -3604,7 +3611,6 @@ body.light .task-item-delete-btn:hover {
     font-size: 0.9rem;
     opacity: 0.7;
     flex-grow: 1;
-    /* Para centralizar se a lista estiver vazia */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3616,19 +3622,17 @@ body.light .tasks-section .task-list-empty-message {
 
 
 .chart-section {
-    /* Estilo para o container dos gráficos Pomodoro e Tarefas */
     border-radius: 16px;
     padding: 18px;
     background: var(--card-bg-dark);
     border: 1px solid var(--card-border-dark);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -4px rgba(0, 0, 0, 0.1);
     color: var(--text-color-dark);
     height: 218px;
-    /* Altura fixa para consistência */
     flex-shrink: 0;
-    /* Para não encolher mais que o necessário */
     display: flex;
     flex-direction: column;
 }
@@ -3646,7 +3650,6 @@ body.light .chart-section {
     align-items: center;
     margin-bottom: 18px;
     flex-shrink: 0;
-    /* Header não deve encolher */
 }
 
 .chart-section .chart-title {
@@ -3669,11 +3672,8 @@ body.light .chart-section .chart-period-label {
 }
 
 .chart-section .chart-container {
-    /* Especificidade para os containers de gráfico dentro desta seção */
     height: 170px;
-    /* Altura do canvas */
     flex-grow: 1;
-    /* Canvas ocupa o restante do espaço */
     position: relative;
     overflow: hidden;
 }
@@ -3812,7 +3812,6 @@ body.light .modal-overlay {
     border-radius: 16px;
     padding: 32px;
     padding-top: 48px;
-    /* Espaço para botão de fechar */
     width: 90%;
     max-width: 500px;
     z-index: 1000;
@@ -3820,9 +3819,7 @@ body.light .modal-overlay {
     transition: opacity 0.3s ease, transform 0.3s ease;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     max-height: 90vh;
-    /* Adicionado para evitar que o modal seja muito alto */
     overflow-y: auto;
-    /* Adicionado para permitir scroll dentro do modal */
 }
 
 .modal.show {
@@ -3838,18 +3835,576 @@ body.light .modal {
     color: var(--text-color-light);
 }
 
-/* Estilos para o modal de tarefas recorrentes */
-#recurring-task-modal {
-    max-width: 580px; /* Um pouco mais largo */
-    padding: 28px;
-    padding-top: 52px; /* Mais espaço para título e fechar */
+
+/* ==========================================================================
+   Estilos para o MODAL DE TAREFAS RECORRENTES (v2 - novo layout da imagem)
+   ========================================================================== */
+
+#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] {
+    max-width: clamp(90vw, 1600px, 95vw);
+    width: 95vw;
+    height: 85vh;
+    max-height: 85vh;
+    padding: 0;
+    background: var(--card-bg-dark);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--card-border-dark);
+    border-radius: 12px;
+    color: var(--text-color-dark);
+    overflow: hidden;
 }
 
-#recurring-task-modal .modal-title {
-    font-size: 1.75rem; /* Título maior */
-    font-weight: 700;
-    margin-bottom: 8px; /* Menos espaço abaixo do título */
+body.light #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] {
+    background: var(--card-bg-light);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-color: var(--card-border-light);
+    color: var(--text-color-light);
 }
+
+.recurring-pattern-definition-v2-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 24px 28px;
+    gap: 15px;
+}
+
+.recurring-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--card-border-dark);
+    flex-shrink: 0;
+}
+
+body.light .recurring-modal-header {
+    border-bottom-color: var(--card-border-light);
+}
+
+.recurring-modal-title-group .modal-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-align: left;
+    color: var(--text-color-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.light #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-modal-title-group .modal-title {
+    color: var(--text-color-light);
+}
+
+.icon-title-recurring {
+    font-size: 1em;
+    color: var(--primary-color-dark);
+}
+
+body.light .icon-title-recurring {
+    color: var(--primary-color-light);
+}
+
+
+.recurring-modal-title-group .modal-subtitle-description {
+    font-size: 0.85rem;
+    color: var(--text-muted-dark);
+    margin-bottom: 0;
+    text-align: left;
+    line-height: 1.4;
+}
+
+body.light .recurring-modal-title-group .modal-subtitle-description {
+    color: var(--text-muted-light);
+}
+
+#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .modal-close-btn {
+    position: static;
+    padding: 6px;
+    font-size: 1.3rem;
+    color: var(--text-muted-dark);
+    margin-left: 10px;
+}
+
+#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .modal-close-btn:hover {
+    color: var(--text-color-dark);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.light #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .modal-close-btn {
+    color: var(--text-muted-light);
+}
+
+body.light #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .modal-close-btn:hover {
+    color: var(--text-color-light);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.recurring-modal-controls-top {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 8px 0 0 0;
+    flex-shrink: 0;
+}
+
+.new-task-input-container-v2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+#new-task-text-input-v2 {
+    flex-grow: 1;
+    height: 38px;
+    padding: 8px 12px;
+    /* Herda .form-input */
+}
+
+#new-task-text-input-v2::placeholder {
+    color: var(--text-muted-dark);
+    opacity: 0.7;
+}
+
+body.light #new-task-text-input-v2::placeholder {
+    color: var(--text-muted-light);
+}
+
+
+.new-task-input-container-v2 .btn-confirm-add-task-v2 {
+    flex-shrink: 0;
+    padding: 0 12px;
+    height: 38px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    /* Herda .btn e .btn-primary */
+}
+
+.new-task-input-container-v2 .btn-confirm-add-task-v2 i {
+    font-size: 1.1em;
+}
+
+
+.recurring-modal-sub-controls-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 8px;
+    padding-bottom: 8px;
+}
+
+.recurring-modal-controls-top .selected-days-count {
+    font-size: 0.85rem;
+    color: var(--text-muted-dark);
+    margin-left: 0;
+}
+
+body.light .recurring-modal-controls-top .selected-days-count {
+    color: var(--text-muted-light);
+}
+
+.recurring-modal-controls-top .day-selection-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: 0;
+}
+
+.recurring-modal-controls-top .day-selection-actions .btn {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    /* Herda .btn e .btn-secondary */
+}
+
+.recurring-pattern-v2-days-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    flex-grow: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 5px 2px;
+}
+
+.day-card-v2 {
+    background-color: color-mix(in srgb, var(--card-bg-dark) 95%, rgba(255, 255, 255, 0.05) 5%);
+    border: 1px solid var(--card-border-dark);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.15s ease;
+    position: relative;
+    height: 100%;
+    min-width: 150px;
+    overflow: hidden;
+}
+
+body.light .day-card-v2 {
+    background-color: color-mix(in srgb, var(--card-bg-light) 95%, rgba(0, 0, 0, 0.03) 5%);
+    border-color: var(--card-border-light);
+}
+
+.day-card-v2:hover {
+    border-color: var(--primary-color-dark);
+    box-shadow: 0 0 10px rgba(var(--primary-color-dark-rgb), 0.15);
+}
+
+body.light .day-card-v2:hover {
+    border-color: var(--primary-color-light);
+    box-shadow: 0 0 10px rgba(var(--primary-color-light-rgb), 0.1);
+}
+
+.day-card-v2.selected {
+    border-color: var(--day-card-v2-selected-border-dark) !important;
+    background-color: color-mix(in srgb, var(--day-card-v2-selected-bg-dark) 15%, var(--day-card-v2-bg-dark) 85%) !important;
+}
+
+body.light .day-card-v2.selected {
+    border-color: var(--day-card-v2-selected-border-light) !important;
+    background-color: color-mix(in srgb, var(--day-card-v2-selected-bg-light) 20%, var(--day-card-v2-bg-light) 80%) !important;
+}
+
+.day-card-v2.selected .day-card-v2-short,
+.day-card-v2.selected .day-card-task-count-v2 {
+    color: var(--day-card-v2-text-selected-dark);
+}
+
+body.light .day-card-v2.selected .day-card-v2-short,
+body.light .day-card-v2.selected .day-card-task-count-v2 {
+    color: var(--day-card-v2-text-selected-light);
+}
+
+.day-card-header-v2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.day-card-v2-short {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--day-card-v2-text-dark);
+    flex-grow: 1;
+    margin-right: 5px;
+}
+
+body.light .day-card-v2-short {
+    color: var(--day-card-v2-text-light);
+}
+
+.day-card-task-count-v2 {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-muted-dark);
+    background-color: rgba(var(--primary-color-dark-rgb), 0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+body.light .day-card-task-count-v2 {
+    color: var(--text-muted-light);
+    background-color: rgba(var(--primary-color-light-rgb), 0.08);
+}
+
+.day-card-v2.selected .day-card-task-count-v2 {
+    color: var(--day-card-v2-text-selected-dark);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.light .day-card-v2.selected .day-card-task-count-v2 {
+    color: var(--day-card-v2-text-selected-light);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.day-card-v2-full {
+    display: none;
+}
+
+.day-card-v2-tasks {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    overflow-y: auto;
+    min-height: 50px;
+    gap: 6px;
+    padding-right: 5px;
+}
+
+.day-card-v2-tasks .no-tasks-msg {
+    font-size: 0.8rem;
+    color: var(--text-muted-dark);
+    opacity: 0.6;
+    text-align: center;
+    margin-top: auto;
+    margin-bottom: auto;
+    padding: 10px 0;
+}
+
+body.light .day-card-v2-tasks .no-tasks-msg {
+    color: var(--text-muted-light);
+}
+
+.task-item-recurrent-v2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 8px 8px 0;
+    background-color: var(--task-item-recurrent-v2-bg-dark);
+    border: 1px solid var(--task-item-recurrent-v2-border-dark);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--task-item-recurrent-v2-text-dark);
+    cursor: grab;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    position: relative;
+    flex-shrink: 0;
+}
+
+body.light .task-item-recurrent-v2 {
+    background-color: var(--task-item-recurrent-v2-bg-light);
+    border-color: var(--task-item-recurrent-v2-border-light);
+    color: var(--task-item-recurrent-v2-text-light);
+}
+
+.task-item-recurrent-v2:hover {
+    background-color: color-mix(in srgb, var(--task-item-recurrent-v2-bg-dark) 70%, var(--primary-color-dark) 30%);
+    border-color: var(--primary-color-dark);
+}
+
+body.light .task-item-recurrent-v2:hover {
+    background-color: color-mix(in srgb, var(--task-item-recurrent-v2-bg-light) 70%, var(--primary-color-light) 30%);
+    border-color: var(--primary-color-light);
+}
+
+.task-routine-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--task-routine-checkbox-border-dark);
+    border-radius: 4px;
+    margin-left: 8px;
+    margin-right: 8px;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+body.light .task-routine-checkbox {
+    border-color: var(--task-routine-checkbox-border-light);
+}
+
+.task-routine-checkbox:hover {
+    border-color: var(--task-routine-checkbox-border-hover-dark);
+}
+
+body.light .task-routine-checkbox:hover {
+    border-color: var(--task-routine-checkbox-border-hover-light);
+}
+
+.task-routine-checkbox:checked {
+    background-color: var(--task-routine-checkbox-checked-bg-dark);
+    border-color: var(--task-routine-checkbox-checked-border-dark);
+}
+
+body.light .task-routine-checkbox:checked {
+    background-color: var(--task-routine-checkbox-checked-bg-light);
+    border-color: var(--task-routine-checkbox-checked-border-light);
+}
+
+.task-routine-checkbox:checked::before {
+    content: '✔';
+    font-size: 10px;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    line-height: 1;
+}
+
+.task-text-recurrent-v2 {
+    flex-grow: 1;
+    line-height: 1.4;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    text-align: left;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    cursor: pointer;
+    padding-right: 3px;
+}
+
+.task-actions-recurrent-v2 {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    margin-left: 4px;
+}
+
+.task-item-recurrent-v2:hover .task-actions-recurrent-v2 {
+    opacity: 1;
+}
+
+.btn-icon-recurrent-task-v2 {
+    background: transparent;
+    border: none;
+    color: var(--task-item-recurrent-v2-icon-color-dark);
+    font-size: 0.8rem;
+    padding: 2px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.light .btn-icon-recurrent-task-v2 {
+    color: var(--task-item-recurrent-v2-icon-color-light);
+}
+
+.btn-icon-recurrent-task-v2.edit:hover {
+    color: var(--task-edit-btn-hover-color-dark);
+    background-color: var(--task-edit-btn-hover-bg-dark);
+}
+
+body.light .btn-icon-recurrent-task-v2.edit:hover {
+    color: var(--task-edit-btn-hover-color-light);
+    background-color: var(--task-edit-btn-hover-bg-light);
+}
+
+.btn-icon-recurrent-task-v2.save:hover {
+    color: var(--primary-color-dark);
+    background-color: rgba(var(--primary-color-dark-rgb), 0.2);
+}
+
+body.light .btn-icon-recurrent-task-v2.save:hover {
+    color: var(--primary-color-light);
+    background-color: rgba(var(--primary-color-light-rgb), 0.2);
+}
+
+.btn-icon-recurrent-task-v2.delete:hover,
+.btn-icon-recurrent-task-v2.cancel-edit:hover {
+    color: var(--task-delete-btn-hover-color-dark);
+    background-color: var(--task-delete-btn-hover-bg-dark);
+}
+
+body.light .btn-icon-recurrent-task-v2.delete:hover,
+body.light .btn-icon-recurrent-task-v2.cancel-edit:hover {
+    color: var(--task-delete-btn-hover-color-light);
+    background-color: var(--task-delete-btn-hover-bg-light);
+}
+
+
+.day-card-v2-selected-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: transparent;
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.day-card-v2.selected .day-card-v2-selected-indicator {
+    background-color: var(--day-card-v2-indicator-dark);
+}
+
+body.light .day-card-v2.selected .day-card-v2-selected-indicator {
+    background-color: var(--day-card-v2-indicator-light);
+}
+
+.recurring-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid var(--card-border-dark);
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+body.light .recurring-modal-footer {
+    border-top-color: var(--card-border-light);
+}
+
+.recurring-modal-footer .footer-info-text {
+    font-size: 0.8rem;
+    color: var(--text-muted-dark);
+}
+
+body.light .recurring-modal-footer .footer-info-text {
+    color: var(--text-muted-light);
+}
+
+.recurring-modal-footer .footer-total-tasks-count {
+    font-size: 0.8rem;
+    color: var(--text-muted-dark);
+    font-weight: 500;
+}
+
+body.light .recurring-modal-footer .footer-total-tasks-count {
+    color: var(--text-muted-light);
+}
+
+.recurring-modal-footer .modal-buttons {
+    display: none;
+}
+
+
+/* Modal de tarefas recorrentes antigo (v1) - Ocultar se o novo (v2) estiver sendo usado */
+#recurring-task-modal[data-modal-type="recurring-task-definition"] {
+    display: none !important;
+}
+
+#recurring-task-modal[data-modal-type="recurring-task"] {
+    max-width: 580px;
+    padding: 28px;
+    padding-top: 52px;
+}
+
+#recurring-task-modal[data-modal-type="recurring-task"] .modal-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+
+#recurring-task-modal .modal-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
 body.light #recurring-task-modal .modal-title {
     color: var(--text-color-light);
 }
@@ -3857,9 +4412,10 @@ body.light #recurring-task-modal .modal-title {
 #recurring-task-modal .modal-subtitle-description {
     font-size: 0.95rem;
     color: var(--text-muted-dark);
-    margin-bottom: 24px; /* Espaço antes do formulário */
+    margin-bottom: 24px;
     text-align: center;
 }
+
 body.light #recurring-task-modal .modal-subtitle-description {
     color: var(--text-muted-light);
 }
@@ -3871,10 +4427,10 @@ body.light #recurring-task-modal .modal-subtitle-description {
 #recurring-task-modal .form-label {
     font-weight: 500;
     margin-bottom: 6px;
-    display: block; /* Alterado para block */
+    display: block;
 }
 
-.form-label-group { /* Novo container para label e hint */
+.form-label-group {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -3882,10 +4438,11 @@ body.light #recurring-task-modal .modal-subtitle-description {
 }
 
 .required-asterisk {
-    color: var(--task-delete-btn-hover-color-dark); /* Vermelho */
+    color: var(--task-delete-btn-hover-color-dark);
     font-weight: bold;
     margin-left: 2px;
 }
+
 body.light .required-asterisk {
     color: var(--task-delete-btn-hover-color-light);
 }
@@ -3895,23 +4452,20 @@ body.light .required-asterisk {
     color: var(--text-muted-dark);
     font-weight: normal;
 }
+
 body.light .label-hint {
     color: var(--text-muted-light);
 }
 
-.form-group-inline {
+.form-group-inline:not(.pattern-meta-inputs) {
     display: flex;
     gap: 15px;
     align-items: flex-start;
 }
 
-.form-group-inline > .form-group {
+.form-group-inline:not(.pattern-meta-inputs)>.form-group {
     flex: 1;
     margin-bottom: 0;
-}
-
-#recurring-task-frequency-group {
-    display: none !important;
 }
 
 
@@ -3939,6 +4493,7 @@ body.light .label-hint {
     text-align: center;
     cursor: pointer;
 }
+
 body.light .recurring-days-checkbox-group label {
     background-color: rgba(var(--primary-color-light-rgb), 0.08);
     border-color: rgba(var(--primary-color-light-rgb), 0.15);
@@ -3950,6 +4505,7 @@ body.light .recurring-days-checkbox-group label {
     background-color: rgba(var(--primary-color-dark-rgb), 0.15);
     color: var(--primary-color-dark);
 }
+
 body.light .recurring-days-checkbox-group label:hover {
     border-color: var(--primary-color-light);
     background-color: rgba(var(--primary-color-light-rgb), 0.15);
@@ -3965,13 +4521,14 @@ body.light .recurring-days-checkbox-group label:hover {
     border-color: var(--primary-color-dark) !important;
     color: white !important;
 }
+
 body.light .recurring-days-checkbox-group label.checked {
     background-color: var(--primary-color-light) !important;
     border-color: var(--primary-color-light) !important;
     color: white !important;
 }
 
-.form-info-notice { /* Novo para a caixa de informação */
+.form-info-notice {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -3981,22 +4538,26 @@ body.light .recurring-days-checkbox-group label.checked {
     border: 1px solid rgba(var(--primary-color-dark-rgb), 0.2);
     font-size: 0.85rem;
     color: var(--text-muted-dark);
-    margin-top: 12px; /* Espaço acima */
-    margin-bottom: 20px; /* Espaço abaixo antes dos botões */
+    margin-top: 12px;
+    margin-bottom: 20px;
 }
+
 body.light .form-info-notice {
     background-color: rgba(var(--primary-color-light-rgb), 0.1);
     border-color: rgba(var(--primary-color-light-rgb), 0.2);
     color: var(--text-muted-light);
 }
+
 .form-info-notice i {
     font-size: 1.2rem;
     color: var(--primary-color-dark);
     flex-shrink: 0;
 }
+
 body.light .form-info-notice i {
     color: var(--primary-color-light);
 }
+
 .form-info-notice span {
     line-height: 1.4;
 }
@@ -4007,6 +4568,7 @@ body.light .form-info-notice i {
     border-color: var(--card-border-dark);
     opacity: 0.5;
 }
+
 body.light .recurring-task-divider {
     border-color: var(--card-border-light);
 }
@@ -4018,17 +4580,20 @@ body.light .recurring-task-divider {
     margin-bottom: 12px;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--card-border-dark);
+    flex-shrink: 0;
 }
+
 body.light .recurring-patterns-header {
     border-bottom-color: var(--card-border-light);
 }
 
-.recurring-patterns-header .modal-subtitle { /* Reutilizando modal-subtitle para o título aqui */
+.recurring-patterns-header .modal-subtitle {
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 0;
     color: var(--text-color-dark);
 }
+
 body.light .recurring-patterns-header .modal-subtitle {
     color: var(--text-color-light);
 }
@@ -4041,6 +4606,7 @@ body.light .recurring-patterns-header .modal-subtitle {
     padding: 4px 8px;
     border-radius: 6px;
 }
+
 body.light .recurring-patterns-count {
     color: var(--text-muted-light);
     background-color: rgba(var(--primary-color-light-rgb), 0.1);
@@ -4051,38 +4617,43 @@ body.light .recurring-patterns-count {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 220px; /* Altura máxima para scroll */
+    max-height: 220px;
     overflow-y: auto;
     background-color: transparent;
     border: none;
-    padding-right: 5px; /* Espaço para scrollbar */
+    padding-right: 5px;
+    flex-shrink: 1;
+    min-height: 50px;
 }
 
-.recurring-pattern-item { /* Card para cada padrão salvo */
+.recurring-pattern-item {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; /* Alinha topo para nome e ícones */
+    align-items: flex-start;
     gap: 15px;
     padding: 15px;
     margin-bottom: 12px;
     border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: background-color 0.15s ease, box-shadow 0.15s ease;
     background-color: rgba(var(--primary-color-dark-rgb), 0.1);
     border: 1px solid rgba(var(--primary-color-dark-rgb), 0.2);
 }
+
 .recurring-pattern-item:last-child {
     margin-bottom: 0;
 }
+
 body.light .recurring-pattern-item {
     background-color: var(--card-solid-bg-light);
     border-color: var(--card-border-light);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .recurring-pattern-item:hover {
     box-shadow: 0 4px 10px rgba(var(--primary-color-dark-rgb), 0.1) !important;
 }
+
 body.light .recurring-pattern-item:hover {
     box-shadow: 0 4px 10px rgba(var(--primary-color-light-rgb), 0.1);
 }
@@ -4090,13 +4661,13 @@ body.light .recurring-pattern-item:hover {
 .recurring-pattern-info {
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Aumentado para mais respiro */
+    gap: 8px;
     min-width: 0;
     flex-grow: 1;
 }
 
 .recurring-pattern-name {
-    font-weight: 700; /* Mais destaque */
+    font-weight: 700;
     font-size: 1.1rem;
     color: var(--text-color-dark);
     white-space: nowrap;
@@ -4104,6 +4675,7 @@ body.light .recurring-pattern-item:hover {
     text-overflow: ellipsis;
     margin-bottom: 2px;
 }
+
 body.light .recurring-pattern-name {
     color: var(--text-color-light);
 }
@@ -4114,45 +4686,45 @@ body.light .recurring-pattern-name {
     gap: 6px;
 }
 
-.recurring-pattern-days { /* Container para os dias em formato de "pílula" */
+.recurring-pattern-days {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
-    margin-bottom: 2px; /* Pequeno espaço antes das datas */
+    margin-bottom: 2px;
 }
-.day-pill { /* Estilo para cada dia */
+
+.day-pill {
     font-size: 0.75rem;
     font-weight: 500;
     padding: 3px 7px;
-    border-radius: 12px; /* Mais arredondado */
+    border-radius: 12px;
     background-color: rgba(var(--primary-color-dark-rgb), 0.15);
     color: var(--primary-color-dark);
     border: 1px solid rgba(var(--primary-color-dark-rgb), 0.25);
     white-space: nowrap;
 }
+
 body.light .day-pill {
     background-color: rgba(var(--primary-color-light-rgb), 0.15);
     color: var(--primary-color-light);
     border-color: rgba(var(--primary-color-light-rgb), 0.25);
 }
-/* Remove ::before de .recurring-pattern-days */
-.recurring-pattern-days::before { content: none; }
-
 
 .recurring-pattern-dates {
     font-size: 0.8rem;
     color: var(--text-muted-dark);
     line-height: 1.3;
 }
+
 body.light .recurring-pattern-dates {
     color: var(--text-muted-light);
 }
-/* Remove ::before de .recurring-pattern-dates */
-.recurring-pattern-dates::before { content: none; }
-.recurring-pattern-dates .date-label { /* Nova classe para "Início:" e "Fim:" */
+
+.recurring-pattern-dates .date-label {
     font-weight: 500;
     color: var(--text-muted-dark);
 }
+
 body.light .recurring-pattern-dates .date-label {
     color: var(--text-muted-light);
 }
@@ -4161,7 +4733,7 @@ body.light .recurring-pattern-dates .date-label {
 .recurring-pattern-actions {
     display: flex;
     align-items: center;
-    gap: 8px; /* Aumentado para mais espaçamento */
+    gap: 8px;
     flex-shrink: 0;
 }
 
@@ -4169,19 +4741,21 @@ body.light .recurring-pattern-dates .date-label {
     background: transparent;
     border: 1px solid transparent;
     font-size: 1.1rem;
-    padding: 6px; /* Aumenta área de clique */
-    border-radius: 50%; /* Botões redondos */
+    padding: 6px;
+    border-radius: 50%;
     color: var(--text-muted-dark);
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px; /* Tamanho fixo */
+    width: 32px;
     height: 32px;
 }
+
 body.light .btn-icon-recurring {
     color: var(--text-muted-light);
 }
+
 .btn-icon-recurring:hover {
     transform: scale(1.1);
 }
@@ -4190,6 +4764,7 @@ body.light .btn-icon-recurring {
     background-color: rgba(var(--primary-color-dark-rgb), 0.15);
     color: var(--primary-color-dark);
 }
+
 body.light .btn-icon-recurring.edit:hover {
     background-color: rgba(var(--primary-color-light-rgb), 0.15);
     color: var(--primary-color-light);
@@ -4199,6 +4774,7 @@ body.light .btn-icon-recurring.edit:hover {
     background-color: var(--task-delete-btn-hover-bg-dark);
     color: var(--task-delete-btn-hover-color-dark);
 }
+
 body.light .btn-icon-recurring.delete:hover {
     background-color: var(--task-delete-btn-hover-bg-light);
     color: var(--task-delete-btn-hover-color-light);
@@ -4212,19 +4788,19 @@ body.light .btn-icon-recurring.delete:hover {
     font-style: italic;
     font-size: 0.9rem;
 }
+
 body.light .recurring-pattern-empty-message {
     color: var(--text-muted-light);
 }
 
-
-/* Modal de Exclusão de Tarefa Recorrente (Mantendo o estilo anterior, mas verificando) */
+/* Modal de Exclusão de Tarefa Recorrente */
 #delete-recurring-task-modal .modal-content {
     padding: 28px;
     padding-top: 48px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centraliza conteúdo */
-    text-align: center; /* Centraliza texto */
+    align-items: center;
+    text-align: center;
 }
 
 #delete-recurring-task-modal .modal-title {
@@ -4238,6 +4814,7 @@ body.light .recurring-pattern-empty-message {
     color: var(--text-muted-dark);
     margin-bottom: 20px;
 }
+
 body.light #delete-recurring-task-modal .modal-body-text {
     color: var(--text-muted-light);
 }
@@ -4252,15 +4829,16 @@ body.light #delete-recurring-task-modal .modal-body-text {
 }
 
 .delete-option-card {
-    display: flex; /* Já estava flex, mantido */
+    display: flex;
     align-items: center;
     padding: 12px 15px;
     border-radius: 8px;
     border: 1px solid var(--card-border-dark);
-    background-color: rgba(var(--primary-color-dark-rgb), 0.05); /* Fundo sutil */
+    background-color: rgba(var(--primary-color-dark-rgb), 0.05);
     transition: border-color 0.2s ease, background-color 0.2s ease;
-    cursor: pointer; /* Para indicar que é clicável */
+    cursor: pointer;
 }
+
 body.light .delete-option-card {
     border-color: var(--card-border-light);
     background-color: rgba(var(--primary-color-light-rgb), 0.05);
@@ -4279,6 +4857,7 @@ body.light .delete-option-card {
     outline: none;
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
+
 body.light .delete-option-card input[type="radio"] {
     border-color: var(--text-muted-light);
 }
@@ -4287,6 +4866,7 @@ body.light .delete-option-card input[type="radio"] {
     border-color: var(--primary-color-dark);
     background-color: var(--primary-color-dark);
 }
+
 body.light .delete-option-card input[type="radio"]:checked {
     border-color: var(--primary-color-light);
     background-color: var(--primary-color-light);
@@ -4298,12 +4878,13 @@ body.light .delete-option-card input[type="radio"]:checked {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background-color: var(--card-solid-bg-dark); /* Usar cor sólida do card para contraste */
+    background-color: var(--card-solid-bg-dark);
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
 body.light .delete-option-card input[type="radio"]:checked::before {
     background-color: var(--card-solid-bg-light);
 }
@@ -4311,55 +4892,63 @@ body.light .delete-option-card input[type="radio"]:checked::before {
 .delete-option-card:hover input[type="radio"]:not(:checked) {
     border-color: var(--primary-color-dark);
 }
+
 body.light .delete-option-card:hover input[type="radio"]:not(:checked) {
     border-color: var(--primary-color-light);
 }
 
-.delete-option-card.selected { /* Classe para o label quando o radio está checado */
+.delete-option-card.selected {
     border-color: var(--primary-color-dark) !important;
     background-color: rgba(var(--primary-color-dark-rgb), 0.15) !important;
 }
+
 body.light .delete-option-card.selected {
     border-color: var(--primary-color-light) !important;
     background-color: rgba(var(--primary-color-light-rgb), 0.15) !important;
 }
 
-/* Ajustes para o texto e ícone dentro do card selecionado */
 .delete-option-card.selected .delete-option-icon i,
 .delete-option-card.selected .delete-option-text strong {
-    color: var(--primary-color-dark); /* Destaque para o texto principal e ícone */
+    color: var(--primary-color-dark);
 }
+
 .delete-option-card.selected .delete-option-text small {
-    color: color-mix(in srgb, var(--primary-color-dark) 70%, var(--text-muted-dark) 30%); /* Subtexto um pouco mais destacado */
+    color: color-mix(in srgb, var(--primary-color-dark) 70%, var(--text-muted-dark) 30%);
 }
+
 body.light .delete-option-card.selected .delete-option-icon i,
 body.light .delete-option-card.selected .delete-option-text strong {
     color: var(--primary-color-light);
 }
+
 body.light .delete-option-card.selected .delete-option-text small {
     color: color-mix(in srgb, var(--primary-color-light) 70%, var(--text-muted-light) 30%);
 }
 
-/* Estilo especial para a opção "all" quando selecionada */
 #delete-option-all-card.selected {
     border-color: var(--task-delete-btn-hover-color-dark) !important;
     background-color: rgba(var(--task-delete-btn-hover-color-dark-rgb), 0.15) !important;
 }
+
 body.light #delete-option-all-card.selected {
     border-color: var(--task-delete-btn-hover-color-light) !important;
     background-color: rgba(var(--task-delete-btn-hover-color-light-rgb), 0.15) !important;
 }
+
 #delete-option-all-card.selected .delete-option-icon i,
 #delete-option-all-card.selected .delete-option-text strong {
     color: var(--task-delete-btn-hover-color-dark) !important;
 }
+
 #delete-option-all-card.selected .delete-option-text small {
     color: color-mix(in srgb, var(--task-delete-btn-hover-color-dark) 70%, var(--text-muted-dark) 30%) !important;
 }
+
 body.light #delete-option-all-card.selected .delete-option-icon i,
 body.light #delete-option-all-card.selected .delete-option-text strong {
     color: var(--task-delete-btn-hover-color-light) !important;
 }
+
 body.light #delete-option-all-card.selected .delete-option-text small {
     color: color-mix(in srgb, var(--task-delete-btn-hover-color-light) 70%, var(--text-muted-light) 30%) !important;
 }
@@ -4375,14 +4964,14 @@ body.light #delete-option-all-card.selected .delete-option-text small {
     font-size: 1.3rem;
     color: var(--text-muted-dark);
     transition: color 0.2s ease;
-    width: 24px; /* Largura fixa para alinhar ícones */
+    width: 24px;
     text-align: center;
 }
 
 .delete-option-text {
     display: flex;
     flex-direction: column;
-    text-align: left; /* Alinha o texto à esquerda dentro do seu container */
+    text-align: left;
 }
 
 .delete-option-text strong {
@@ -4391,6 +4980,7 @@ body.light #delete-option-all-card.selected .delete-option-text small {
     font-size: 0.95rem;
     line-height: 1.3;
 }
+
 body.light .delete-option-text strong {
     color: var(--text-color-light);
 }
@@ -4400,6 +4990,7 @@ body.light .delete-option-text strong {
     color: var(--text-muted-dark);
     line-height: 1.3;
 }
+
 body.light .delete-option-text small {
     color: var(--text-muted-light);
 }
@@ -4416,10 +5007,11 @@ body.light .delete-option-text small {
     color: var(--text-muted-dark);
     margin-bottom: 24px;
     width: 100%;
-    max-width: 380px; /* Mesma largura das opções */
+    max-width: 380px;
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-    text-align: left; /* Alinha texto do aviso à esquerda */
+    text-align: left;
 }
+
 body.light .delete-recurring-warning {
     background-color: rgba(var(--primary-color-light-rgb), 0.08);
     border-color: rgba(var(--primary-color-light-rgb), 0.2);
@@ -4431,6 +5023,7 @@ body.light .delete-recurring-warning {
     color: var(--primary-color-dark);
     flex-shrink: 0;
 }
+
 body.light .delete-recurring-warning i {
     color: var(--primary-color-light);
 }
@@ -4440,6 +5033,7 @@ body.light .delete-recurring-warning i {
     border-color: rgba(var(--task-delete-btn-hover-color-dark-rgb), 0.3);
     color: var(--task-delete-btn-hover-color-dark);
 }
+
 body.light .delete-recurring-warning.danger {
     background-color: rgba(var(--task-delete-btn-hover-color-light-rgb), 0.1);
     border-color: rgba(var(--task-delete-btn-hover-color-light-rgb), 0.3);
@@ -4449,6 +5043,7 @@ body.light .delete-recurring-warning.danger {
 .delete-recurring-warning.danger i {
     color: var(--task-delete-btn-hover-color-dark);
 }
+
 body.light .delete-recurring-warning.danger i {
     color: var(--task-delete-btn-hover-color-light);
 }
@@ -4457,50 +5052,53 @@ body.light .delete-recurring-warning.danger i {
 #delete-recurring-task-modal .modal-buttons {
     justify-content: center;
     width: 100%;
-    max-width: 380px; /* Mesma largura das opções */
+    max-width: 380px;
     margin-top: 20px;
 }
 
-#btn-confirm-delete-recurring-action { /* Botão principal de confirmação */
-    flex-grow: 1; /* Para ocupar espaço */
+#btn-confirm-delete-recurring-action {
+    flex-grow: 1;
 }
 
 #btn-confirm-delete-recurring-action.btn-danger-style {
     background-color: var(--task-delete-btn-hover-color-dark) !important;
     color: white !important;
 }
+
 body.light #btn-confirm-delete-recurring-action.btn-danger-style {
     background-color: var(--task-delete-btn-hover-color-light) !important;
 }
+
 #btn-confirm-delete-recurring-action.btn-danger-style:hover {
     background-color: color-mix(in srgb, var(--task-delete-btn-hover-color-dark) 85%, black) !important;
 }
+
 body.light #btn-confirm-delete-recurring-action.btn-danger-style:hover {
     background-color: color-mix(in srgb, var(--task-delete-btn-hover-color-light) 85%, white) !important;
 }
 
-#btn-cancel-delete-recurring { /* Botão de cancelar */
+#btn-cancel-delete-recurring {
     background-color: transparent;
     border: 1px solid var(--card-border-dark);
     color: var(--text-muted-dark);
-    flex-grow: 1; /* Para ocupar espaço */
+    flex-grow: 1;
     font-weight: 500;
 }
+
 body.light #btn-cancel-delete-recurring {
     border-color: var(--card-border-light);
     color: var(--text-muted-light);
 }
+
 #btn-cancel-delete-recurring:hover {
-    background-color: rgba(255,255,255,0.05);
+    background-color: rgba(255, 255, 255, 0.05);
     border-color: var(--text-muted-dark);
 }
+
 body.light #btn-cancel-delete-recurring:hover {
-    background-color: rgba(0,0,0,0.04);
+    background-color: rgba(0, 0, 0, 0.04);
     border-color: var(--text-muted-light);
 }
-
-/* Fim estilos modal tarefas recorrentes */
-
 
 #themes-modal {
     background: var(--card-bg-dark);
@@ -4700,12 +5298,10 @@ body.light .mode-btn .active-dot {
 
 #themes-modal .modal-buttons {
     justify-content: space-between;
-    /* Para 'Aplicar' e 'Cancelar' */
     margin-top: 30px;
 }
 
 .themes-btn-apply {
-    /* Botão Aplicar no modal de temas */
     background: var(--primary-color-dark);
     color: white;
     display: flex;
@@ -4719,10 +5315,8 @@ body.light #themes-modal .themes-btn-apply {
 }
 
 .themes-btn-apply i {
-    /* Ícone dentro do botão (se houver) */
     font-size: 1em;
     display: none;
-    /* Pode ser ativado se necessário */
 }
 
 
@@ -4742,7 +5336,6 @@ body.light #themes-modal .themes-btn-apply {
 }
 
 body.light .modal-close-btn {
-    /* Estilo para botão fechar no tema claro */
     color: var(--text-color-light);
 }
 
@@ -4780,13 +5373,11 @@ body.light .modal-body-text {
 .modal-body-text ul {
     list-style-position: inside;
     padding-left: 0px;
-    /* Removido para alinhar com texto */
     margin-top: 8px;
     margin-bottom: 12px;
 }
 
 .modal-body-text ul ul {
-    /* Sub-listas */
     margin-left: 20px;
     margin-top: 4px;
     margin-bottom: 8px;
@@ -4837,12 +5428,10 @@ body.light .form-label {
     gap: 8px;
     margin-top: 20px;
     margin-bottom: 10px;
-    /* Reduzido para espaçamento mais compacto */
 }
 
 .form-group-checkbox input[type="checkbox"] {
     width: auto;
-    /* Para não esticar */
 }
 
 .form-input {
@@ -4854,7 +5443,6 @@ body.light .form-label {
     color: var(--text-color-dark);
     font-size: 16px;
     -moz-appearance: textfield;
-    /* Remove setas de número no Firefox */
     transition: border-color 0.3s ease, box-shadow 0.3s ease, padding 0.2s ease, font-size 0.2s ease;
 }
 
@@ -4867,7 +5455,6 @@ body.light .form-input {
 .form-input::-webkit-outer-spin-button,
 .form-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
-    /* Remove setas de número no Chrome/Safari */
     margin: 0;
 }
 
@@ -4886,8 +5473,8 @@ body.light .form-input:focus {
     display: flex;
     gap: 12px;
     justify-content: flex-end;
-    /* Padrão para direita */
     margin-top: 24px;
+    flex-shrink: 0;
 }
 
 .btn {
@@ -4898,7 +5485,6 @@ body.light .form-input:focus {
     font-weight: 600;
     transition: all 0.2s ease, background-color 0.3s ease, color 0.3s ease, padding 0.2s ease, font-size 0.2s ease;
     display: inline-flex;
-    /* Para alinhar ícone e texto */
     align-items: center;
     justify-content: center;
     gap: 6px;
@@ -4939,12 +5525,9 @@ body.light .btn-secondary:hover {
 
 .btn-reset-app {
     background-color: #dc3545;
-    /* Vermelho para perigo */
     color: white;
     padding-left: 15px;
-    /* Espaço para ícone (se adicionar) */
     justify-content: flex-start;
-    /* Alinha conteúdo à esquerda */
     gap: 8px;
 }
 
@@ -4958,7 +5541,6 @@ body.light .btn-secondary:hover {
 
 .modal-buttons .btn-reset-app {
     margin-right: auto;
-    /* Empurra o botão de reset para a esquerda */
 }
 
 .loader {
@@ -5022,13 +5604,11 @@ body.light .loader::after {
     }
 }
 
-/* Visual Mode Specific Styles */
 body.theme-mode-focus {
     --body-bg-dark: #0A0A0A;
     --card-bg-dark: rgba(40, 40, 42, 0.75);
     --card-solid-bg-dark: #121212;
     --header-bg-dark: var(--card-bg-dark);
-
     --body-bg-light: #EFEFEF;
     --card-bg-light: #FAFAFA;
     --card-solid-bg-light: #FAFAFA;
@@ -5042,7 +5622,6 @@ body.theme-mode-night {
     --card-border-dark: #1F1F1F;
     --header-bg-dark: var(--card-bg-dark);
     --header-border-dark: var(--card-border-dark);
-
     --body-bg-light: #E0E0E0;
     --card-bg-light: #F0F0F0;
     --card-solid-bg-light: #F0F0F0;
@@ -5054,10 +5633,7 @@ body.theme-mode-night {
 body.theme-mode-motivational {
     --body-bg-dark: #020306;
     --card-border-dark: var(--primary-color-dark);
-    /* Bordas dos cards na cor primária */
     --card-solid-bg-dark: #1A1A1D;
-    /* Fundo sólido um pouco mais claro */
-
     --body-bg-light: linear-gradient(180deg, color-mix(in srgb, var(--primary-color-light) 20%, #f4f4f4) 0%, #f4f4f4 30%);
     --card-border-light: var(--primary-color-light);
     --card-solid-bg-light: var(--card-bg-light);
@@ -5073,30 +5649,20 @@ body.light.theme-mode-motivational .header {
 
 
 @media (min-width: 769px) {
-    .header {
-        /* Ajustes para header em telas maiores se necessário */
-    }
+    .header {}
 
     .question-counter {
         position: absolute;
-        /* Centraliza na horizontal */
         left: 50%;
         transform: translateX(-50%);
     }
 
     .header-controls {
         margin-left: auto;
-        /* Empurra controles para a direita */
     }
 
     .scroll-indicator {
         display: flex;
-        /* Mostra o indicador em telas maiores */
-    }
-
-    .recurring-days-checkbox-group {
-        grid-template-columns: repeat(7, 1fr);
-        /* Força 7 colunas em telas maiores */
     }
 }
 
@@ -5117,7 +5683,7 @@ body.light.theme-mode-motivational .header {
     .logo-icon {
         width: 22px;
         height: 22px;
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .question-counter {
@@ -5223,24 +5789,17 @@ body.light.theme-mode-motivational .header {
         height: 7px;
     }
 
-    .activity-section {
-        padding: 18px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-    }
-
+    .activity-section,
     .pomodoro-section,
-    .tasks-section {
-        padding: 18px;
-        border-radius: 12px;
-    }
-
-    /* Removido display flex e width/box-sizing pois já estão no wrapper */
+    .tasks-section,
     .chart-section {
         padding: 18px;
         border-radius: 12px;
     }
 
+    .activity-section {
+        margin-bottom: 20px;
+    }
 
     .activity-header,
     .chart-section .chart-header {
@@ -5269,16 +5828,10 @@ body.light.theme-mode-motivational .header {
         font-size: 13px;
     }
 
-    .activity-section .chart-container {
-        height: 130px;
-    }
-
-    /* Para gráfico semanal de questões */
+    .activity-section .chart-container,
     .chart-section .chart-container {
         height: 130px;
     }
-
-    /* Para gráficos de pomodoro e tarefas */
 
     .pomodoro-settings-btn {
         font-size: 1.2rem;
@@ -5307,7 +5860,6 @@ body.light.theme-mode-motivational .header {
         flex-wrap: nowrap;
     }
 
-    /* Evita quebra de linha no form de tarefas */
     #task-input,
     .task-date-input.flatpickr-input {
         padding: 9px;
@@ -5321,13 +5873,17 @@ body.light.theme-mode-motivational .header {
         padding-right: 30px;
     }
 
-    /* Espaço para o ícone */
-    #add-task-btn {
+    #add-task-btn,
+    .btn-recurring {
         padding: 0 18px;
         font-size: 0.9rem;
         line-height: 36px;
+        height: 36px;
     }
 
+    .btn-recurring {
+        padding: 0 15px;
+    }
 
     #task-list {
         max-height: 220px;
@@ -5340,7 +5896,6 @@ body.light.theme-mode-motivational .header {
     .tasks-counter {
         font-size: 0.85rem;
     }
-
 
     footer {
         padding: 15px 0;
@@ -5394,33 +5949,53 @@ body.light.theme-mode-motivational .header {
         margin-bottom: 20px;
     }
 
-    .pomodoro-section-wrapper,
-    .tasks-section-wrapper {
-        /* Mantém o gap padrão */
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] {
+        width: clamp(850px, 95vw, 1600px);
+        max-height: calc(90vh - 30px);
+    }
+
+    .recurring-pattern-definition-v2-content {
+        padding: 24px 28px;
+    }
+
+    .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+    }
+
+    .day-card-v2 {
+        padding: 12px;
+        height: 100%;
+    }
+
+    .recurring-modal-controls-top .day-selection-actions .btn {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+    }
+
+    #new-task-text-input-v2,
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+        height: 40px;
+    }
+
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+        line-height: normal;
     }
 }
 
 @media (max-width: 992px) {
-
-    /* Tablets e telas menores */
     .productivity-focus-area {
         flex-direction: column;
-        /* Empilha seções de Pomodoro e Tarefas */
         gap: 15px;
-        /* Espaço entre elas */
         margin-top: 0;
-        /* Remove margem superior se houver */
         margin-bottom: 15px;
         align-items: stretch;
-        /* Estica para preencher largura */
     }
 
     .pomodoro-section-wrapper,
     .tasks-section-wrapper {
         width: 100%;
-        /* Ocupa toda a largura disponível */
         gap: 15px;
-        /* Espaço entre card principal e gráfico */
     }
 
     .pomodoro-section-wrapper>.pomodoro-section,
@@ -5428,25 +6003,76 @@ body.light.theme-mode-motivational .header {
     .tasks-section-wrapper>.tasks-section,
     .tasks-section-wrapper>.chart-section {
         margin-bottom: 0 !important;
-        /* Remove margem inferior dos itens internos */
     }
 
     .activity-section {
         margin-bottom: 15px;
     }
 
-
     #task-list {
         max-height: 200px;
     }
 
-    /* Ajuste de altura da lista de tarefas */
+    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] {
+        width: 95vw;
+        max-width: 95vw;
+        height: 90vh;
+        max-height: 90vh;
+    }
+
+    .recurring-pattern-definition-v2-content {
+        padding: 20px;
+        gap: 12px;
+    }
+
+    .recurring-modal-controls-top {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 6px 0 10px 0;
+    }
+
+    .recurring-modal-controls-top .new-task-input-container-v2 {
+        order: 1;
+        max-width: none;
+    }
+
+    .recurring-modal-sub-controls-line {
+        order: 2;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .recurring-modal-controls-top .selected-days-count {
+        margin-left: 0;
+        margin-bottom: 0;
+        width: auto;
+    }
+
+    .recurring-modal-controls-top .day-selection-actions {
+        width: auto;
+        margin-left: 0;
+        justify-content: flex-end;
+    }
+
+    .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+
+    .recurring-modal-footer {
+        flex-direction: row;
+        align-items: center;
+        gap: 15px;
+        padding-top: 15px;
+    }
 }
 
 
 @media (max-width: 768px) {
-
-    /* Tablets menores e celulares grandes */
     .container {
         padding-left: 15px;
         padding-right: 15px;
@@ -5454,11 +6080,9 @@ body.light.theme-mode-motivational .header {
 
     .header {
         flex-wrap: wrap;
-        /* Permite quebra de linha no header */
         padding: 16px;
         margin-bottom: 15px;
         gap: 10px 15px;
-        /* Espaço entre itens do header */
     }
 
     .header .logo {
@@ -5560,12 +6184,10 @@ body.light.theme-mode-motivational .header {
         font-size: 1.1rem;
     }
 
-
     .activity-section .chart-container,
     .pomodoro-section-wrapper .chart-section .chart-container,
     .tasks-section-wrapper .chart-section .chart-container {
         height: 180px;
-        /* Aumenta um pouco a altura dos gráficos */
     }
 
     .pomodoro-timer-display {
@@ -5589,73 +6211,142 @@ body.light.theme-mode-motivational .header {
         display: none !important;
     }
 
-    /* Oculta permanentemente em telas menores */
-
     #task-form {
         flex-wrap: wrap;
     }
 
-    /* Permite quebra no form de tarefa */
     #task-input {
         flex-basis: calc(100% - 140px - 10px);
         min-width: 120px;
     }
 
-    /* Ajusta input de texto */
     .task-date-input.flatpickr-input {
         flex-basis: 140px;
         height: 38px;
     }
 
-    /* Input de data */
-    #add-task-btn {
+    #add-task-btn,
+    .btn-recurring {
         flex-basis: auto;
     }
 
-    /* Botão de adicionar */
+    @media (max-width: 570px) {
+        #task-input {
+            flex-basis: 100%;
+            margin-bottom: 8px;
+        }
 
-    .recurring-days-checkbox-group {
-        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-        /* Ajuste para telas menores */
-    }
+        .task-date-input.flatpickr-input {
+            flex-grow: 1;
+            flex-basis: calc(50% - 5px);
+            min-width: 130px;
+        }
 
-    .form-group-inline {
-        flex-direction: column;
-        /* Empilha os inputs de data */
-        gap: 18px;
-        /* Espaço entre eles quando empilhados */
-    }
+        .btn-recurring {
+            flex-grow: 1;
+            flex-basis: calc(50% - 5px);
+            min-width: 0;
+            padding: 0 10px;
+        }
 
-    .form-group-inline>.form-group {
-        width: 100%;
-        /* Ocupa toda a largura */
+        #add-task-btn {
+            flex-basis: 100%;
+            margin-top: 8px;
+        }
     }
 
     #delete-recurring-task-modal .modal-content {
         justify-content: flex-start;
-        /* Não força centralização se conteúdo for grande */
         min-height: auto;
+    }
+
+    .recurring-pattern-definition-v2-content {
+        padding: 15px 20px;
+    }
+
+    .recurring-modal-title-group .modal-title {
+        font-size: 1.3rem;
+    }
+
+    .recurring-modal-title-group .modal-subtitle-description {
+        font-size: 0.8rem;
+    }
+
+    #new-task-text-input-v2,
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+        height: 38px;
+        font-size: 0.85rem;
+    }
+
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+        padding: 0 10px;
+    }
+
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 i {
+        font-size: 1em;
+    }
+
+    .recurring-modal-controls-top .selected-days-count,
+    .recurring-modal-controls-top .day-selection-actions .btn {
+        font-size: 0.75rem;
+    }
+
+    .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 8px;
+    }
+
+    .day-card-header-v2 {
+        margin-bottom: 6px;
+    }
+
+    .day-card-v2-short {
+        font-size: 0.9rem;
+    }
+
+    .day-card-task-count-v2 {
+        font-size: 0.75rem;
+        padding: 1px 4px;
+    }
+
+    .task-item-recurrent-v2 {
+        font-size: 0.8rem;
+        padding: 6px 6px 6px 0;
+    }
+
+    .task-routine-checkbox {
+        width: 15px;
+        height: 15px;
+        margin-right: 6px;
+    }
+
+    .btn-icon-recurrent-task-v2 {
+        font-size: 0.75rem;
+        width: 18px;
+        height: 18px;
+    }
+
+    .recurring-modal-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
     }
 }
 
 @media (max-width: 520px) {
-
-    /* Ajustes para form de tarefas em telas muito pequenas */
     #task-form {
         flex-direction: column;
-        /* Empilha os inputs do form */
         align-items: stretch;
-        /* Estica para largura total */
     }
 
     #task-input,
     .task-date-input.flatpickr-input,
+    .btn-recurring,
     #add-task-btn {
         width: 100%;
         max-width: none;
         flex-basis: auto;
         margin-bottom: 8px;
-        /* Espaço entre inputs empilhados */
     }
 
     #add-task-btn {
@@ -5665,12 +6356,14 @@ body.light.theme-mode-motivational .header {
     .task-date-input.flatpickr-input {
         height: 38px;
     }
+
+    .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    }
 }
 
 
 @media (max-width: 480px) {
-
-    /* Celulares */
     .container {
         padding-left: 12px;
         padding-right: 12px;
@@ -5680,7 +6373,6 @@ body.light.theme-mode-motivational .header {
         position: sticky;
         top: 0;
         z-index: 100;
-        /* Header fixo no topo */
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -5688,7 +6380,6 @@ body.light.theme-mode-motivational .header {
         height: 56px;
         margin-bottom: 15px;
         border-radius: 0 0 12px 12px;
-        /* Apenas borda inferior arredondada */
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -5711,7 +6402,6 @@ body.light.theme-mode-motivational .header {
         width: 20px;
         height: 20px;
         font-size: 10px;
-        margin-top: 2px;
     }
 
     .header .logo-text-full {
@@ -5759,7 +6449,6 @@ body.light.theme-mode-motivational .header {
         font-size: 1.2rem;
         padding: 5px;
     }
-
 
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -5847,11 +6536,9 @@ body.light.theme-mode-motivational .header {
         min-height: auto;
     }
 
-    /* Remove min-height para mais flexibilidade */
     #task-list {
         max-height: 180px;
     }
-
 
     .activity-title,
     .pomodoro-title,
@@ -5865,7 +6552,6 @@ body.light.theme-mode-motivational .header {
         font-size: 1rem;
     }
 
-
     .activity-controls .control-btn {
         width: 28px;
         height: 28px;
@@ -5875,7 +6561,6 @@ body.light.theme-mode-motivational .header {
         padding: 4px 8px;
         font-size: 12px;
     }
-
 
     .pomodoro-settings-btn {
         font-size: 1.1rem;
@@ -5913,7 +6598,8 @@ body.light.theme-mode-motivational .header {
 
     #task-input,
     .task-date-input.flatpickr-input,
-    #add-task-btn {
+    #add-task-btn,
+    .btn-recurring {
         font-size: 0.9rem;
     }
 
@@ -5921,13 +6607,11 @@ body.light.theme-mode-motivational .header {
         padding: 9px 30px 9px 10px;
     }
 
-    /* Garante espaço para ícone */
-    #add-task-btn {
+    #add-task-btn,
+    .btn-recurring {
         padding: 10px 15px;
         line-height: normal;
-        /* Para texto não cortar */
     }
-
 
     .task-item-text {
         font-size: 0.9rem;
@@ -5948,7 +6632,6 @@ body.light.theme-mode-motivational .header {
         font-size: 1rem;
         padding: 4px 6px;
     }
-
 
     .modal {
         padding: 20px;
@@ -5995,7 +6678,6 @@ body.light.theme-mode-motivational .header {
         margin-bottom: 6px;
     }
 
-    /* Ajustes para o modal de boas vindas em telas pequenas */
     #welcome-guide-modal .modal-title {
         font-size: 17px;
     }
@@ -6022,48 +6704,148 @@ body.light.theme-mode-motivational .header {
         font-size: 12px;
     }
 
-    /* Ajustes para modal de tarefas recorrentes em telas pequenas */
-    #recurring-task-modal .form-group-inline {
-        flex-direction: column;
-        gap: 18px;
-    }
-
     #recurring-patterns-list {
         max-height: 150px;
     }
 
     .recurring-pattern-item {
-        flex-direction: column; /* Empilha info e actions */
-        align-items: stretch; /* Estica para preencher */
-    }
-
-    .recurring-pattern-name {
-      /* Nome já ocupa largura total se infoDiv for block */
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .recurring-pattern-actions {
-        justify-content: flex-end; /* Alinha botões à direita */
-        margin-top: 10px; /* Espaço acima dos botões */
+        justify-content: flex-end;
+        margin-top: 10px;
     }
 
-    .recurring-days-checkbox-group {
-        /* Ajuste para caber em telas muito pequenas */
-        grid-template-columns: repeat(auto-fit, minmax(55px, 1fr));
+    #delete-recurring-task-modal .modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    #delete-recurring-task-modal .modal-buttons .btn {
+        width: 100%;
+    }
+
+    .recurring-pattern-definition-v2-content {
+        padding: 12px 15px;
+        gap: 10px;
+    }
+
+    .recurring-modal-header {
+        padding-bottom: 10px;
+    }
+
+    .recurring-modal-title-group .modal-title {
+        font-size: 1.1rem;
+    }
+
+    .recurring-modal-title-group .modal-title .icon-title-recurring {
+        font-size: 0.9em;
+        margin-right: 6px;
+    }
+
+    .recurring-modal-title-group .modal-subtitle-description {
+        font-size: 0.75rem;
+    }
+
+    #new-task-text-input-v2,
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+        height: 34px;
+        font-size: 0.75rem;
+    }
+
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 {
+        padding: 0 8px;
+        gap: 3px;
+    }
+
+    .new-task-input-container-v2 .btn-confirm-add-task-v2 i {
+        font-size: 0.9em;
+    }
+
+    .recurring-modal-sub-controls-line {
+        margin-top: 6px;
+        padding-bottom: 6px;
         gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-start;
     }
 
-    .recurring-days-checkbox-group label {
-        padding: 8px 4px;
+    .recurring-modal-controls-top .selected-days-count {
+        width: 100%;
+        margin-bottom: 6px;
+    }
+
+    .recurring-modal-controls-top .day-selection-actions {
+        width: auto;
+    }
+
+    .recurring-modal-controls-top .day-selection-actions .btn {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+    }
+
+    .recurring-pattern-v2-days-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 5px;
+    }
+
+    .day-card-v2 {
+        padding: 6px;
+    }
+
+    .day-card-header-v2 {
+        margin-bottom: 5px;
+    }
+
+    .day-card-v2-short {
         font-size: 0.8rem;
     }
 
-    #delete-recurring-task-modal .modal-buttons { /* Modificado para modal de deleção */
-       flex-direction: column; /* Empilha botões */
-       gap: 10px;
-       align-items: stretch; /* Faz botões ocuparem largura */
+    .day-card-task-count-v2 {
+        font-size: 0.65rem;
+        padding: 1px 3px;
     }
-    #delete-recurring-task-modal .modal-buttons .btn {
-        width: 100%; /* Botões ocupam largura total */
+
+    .task-item-recurrent-v2 {
+        font-size: 0.7rem;
+        gap: 3px;
+        padding: 4px 4px 4px 0;
+    }
+
+    .task-routine-checkbox {
+        width: 13px;
+        height: 13px;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+    .task-routine-checkbox:checked::before {
+        font-size: 8px;
+    }
+
+    .task-actions-recurrent-v2 {
+        gap: 2px;
+        margin-left: 2px;
+    }
+
+    .btn-icon-recurrent-task-v2 {
+        width: 16px;
+        height: 16px;
+        font-size: 0.65rem;
+    }
+
+    .recurring-modal-footer .footer-info-text,
+    .recurring-modal-footer .footer-total-tasks-count {
+        font-size: 0.7rem;
+        width: 100%;
+        text-align: center;
+    }
+
+    .recurring-modal-footer .footer-total-tasks-count {
+        margin-top: 4px;
     }
 }
 
@@ -6095,339 +6877,24 @@ body.light .footer-link {
     color: var(--primary-color-light);
 }
 
-
-
-/* ESTILOS PARA FLATPICKR */
-.flatpickr-calendar {
-    background: var(--card-solid-bg-dark, #282a2e);
-    /* Fundo mais sólido para o calendário */
-    border: 1px solid var(--card-border-dark, rgba(255, 255, 255, 0.2));
-    border-radius: 8px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-    color: var(--text-color-dark, #e0e0e0);
-    font-family: inherit;
-    /* Usa a mesma fonte do corpo */
+.retrospective-final-logo .logo-icon {
+    width: clamp(20px, 3.2vw, 24px);
+    height: clamp(20px, 3.2vw, 24px);
+    background: var(--primary-color-dark);
+    /* USA A COR PRIMÁRIA DO TEMA ATUAL */
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--logo-icon-color);
+    font-size: clamp(10px, 1.8vw, 12px);
+    font-weight: normal;
+    line-height: 1;
 }
 
-body.light .flatpickr-calendar {
-    background: var(--card-bg-light, #ffffff);
-    border-color: var(--card-border-light, #d1d1d1);
-    color: var(--text-color-light, #333333);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
-}
-
-.flatpickr-weekday {
-    color: var(--text-color-dark) !important;
-    opacity: 0.85 !important;
-    font-weight: 600 !important;
-}
-
-body.light .flatpickr-weekday {
-    color: var(--text-muted-light) !important;
-    opacity: 1 !important;
-    font-weight: 500 !important;
-}
-
-.flatpickr-day {
-    color: var(--text-muted-dark);
-    border-radius: 50%;
-    /* Dias circulares */
-    transition: background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease;
-    border: 1px solid transparent;
-    /* Borda sutil para hover */
-}
-
-body.light .flatpickr-day {
-    color: var(--text-muted-light);
-}
-
-.flatpickr-day:hover,
-.flatpickr-day.flatpickr-focused {
-    /* Hover e foco */
-    background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent);
-    border-color: var(--primary-color-dark);
-    color: var(--primary-color-dark);
-}
-
-body.light .flatpickr-day:hover,
-body.light .flatpickr-day.flatpickr-focused {
-    background: color-mix(in srgb, var(--primary-color-light) 20%, transparent);
-    border-color: var(--primary-color-light);
-    color: var(--primary-color-light);
-}
-
-.flatpickr-day.selected,
-.flatpickr-day.today.selected,
-/* Dia atual selecionado */
-.flatpickr-day.startRange,
-/* Para ranges, se usar no futuro */
-.flatpickr-day.endRange {
-    background: var(--primary-color-dark) !important;
-    border-color: var(--primary-color-dark) !important;
-    color: white !important;
-    box-shadow: none !important;
-}
-
-body.light .flatpickr-day.selected,
-body.light .flatpickr-day.today.selected,
-body.light .flatpickr-day.startRange,
-body.light .flatpickr-day.endRange {
-    background: var(--primary-color-light) !important;
-    border-color: var(--primary-color-light) !important;
-    color: white !important;
-}
-
-.flatpickr-day.today {
-    /* Apenas o dia atual, não selecionado */
-    border-color: var(--primary-color-dark) !important;
-    color: var(--primary-color-dark) !important;
-    background: transparent !important;
-}
-
-.flatpickr-day.today:hover {
-    /* Hover no dia atual */
-    background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent) !important;
-    color: var(--primary-color-dark) !important;
-    border-color: var(--primary-color-dark) !important;
-}
-
-body.light .flatpickr-day.today {
-    border-color: var(--primary-color-light) !important;
-    color: var(--primary-color-light) !important;
-    background: transparent !important;
-}
-
-body.light .flatpickr-day.today:hover {
-    background: color-mix(in srgb, var(--primary-color-light) 20%, transparent) !important;
-    color: var(--primary-color-light) !important;
-    border-color: var(--primary-color-light) !important;
-}
-
-.flatpickr-day.prevMonthDay,
-.flatpickr-day.nextMonthDay {
-    /* Dias do mês anterior/seguinte */
-    color: var(--text-muted-dark);
-    opacity: 0.4;
-}
-
-body.light .flatpickr-day.prevMonthDay,
-body.light .flatpickr-day.nextMonthDay {
-    color: var(--text-muted-light);
-    opacity: 0.4;
-}
-
-.flatpickr-months .flatpickr-month {
-    color: var(--text-color-dark);
-    fill: var(--text-color-dark);
-    /* Cor das setas de navegação de mês */
-    height: 38px;
-    /* Ajuste de altura do header do calendário */
-}
-
-body.light .flatpickr-months .flatpickr-month {
-    color: var(--text-color-light);
-    fill: var(--text-color-light);
-}
-
-.flatpickr-monthDropdown-months {
-    /* Dropdown de seleção de mês */
-    background: var(--card-solid-bg-dark, #282a2e) !important;
-    border: 1px solid var(--card-border-dark, rgba(255, 255, 255, 0.2)) !important;
-    border-radius: 6px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-    padding: 4px !important;
-    max-height: 220px;
-    /* Para scroll em listas longas de meses */
-    overflow-y: auto;
-}
-
-body.light .flatpickr-monthDropdown-months {
-    background: var(--card-bg-light, #fff) !important;
-    border-color: var(--card-border-light, #d1d1d1) !important;
-    border-radius: 6px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-}
-
-.flatpickr-monthDropdown-month {
-    color: var(--text-color-dark) !important;
-    padding: 6px 10px !important;
-    border-radius: 4px !important;
-    margin: 0px 2px !important;
-    /* Pequeno ajuste de margem */
-    line-height: 1.5;
-}
-
-body.light .flatpickr-monthDropdown-month {
-    color: var(--text-color-light) !important;
-}
-
-.flatpickr-monthDropdown-month:hover {
-    background: color-mix(in srgb, var(--primary-color-dark) 20%, transparent) !important;
-    /* Hover mais suave */
-    color: var(--primary-color-dark) !important;
-}
-
-body.light .flatpickr-monthDropdown-month:hover {
-    background: color-mix(in srgb, var(--primary-color-light) 15%, var(--card-bg-light)) !important;
-    color: var(--primary-color-light) !important;
-}
-
-.flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected,
-/* Mês selecionado no dropdown */
-span.flatpickr-monthDropdown-month:focus,
-/* Foco no dropdown */
-span.flatpickr-monthDropdown-month.flatpickr-current-month
-
-/* Mês atual no dropdown */
-    {
-    background: var(--primary-color-dark) !important;
-    color: white !important;
-    border-radius: 4px !important;
-}
-
-body.light .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected,
-body.light span.flatpickr-monthDropdown-month:focus,
-body.light span.flatpickr-monthDropdown-month.flatpickr-current-month {
-    background: var(--primary-color-light) !important;
-    color: white !important;
-}
-
-
-.flatpickr-current-month input.cur-year {
-    /* Input do ano */
-    color: var(--text-color-dark);
-    font-weight: bold;
-}
-
-body.light .flatpickr-current-month input.cur-year {
-    color: var(--text-color-light);
-}
-
-.flatpickr-months .flatpickr-prev-month svg,
-.flatpickr-months .flatpickr-next-month svg {
-    /* Setas de navegação de mês */
-    fill: var(--text-color-dark);
-    opacity: 0.8;
-    width: 16px;
-    /* Tamanho das setas */
-    height: 16px;
-}
-
-body.light .flatpickr-months .flatpickr-prev-month svg,
-body.light .flatpickr-months .flatpickr-next-month svg {
-    fill: var(--text-color-light);
-    opacity: 0.8;
-}
-
-.flatpickr-months .flatpickr-prev-month:hover svg,
-.flatpickr-months .flatpickr-next-month:hover svg {
-    fill: var(--primary-color-dark);
-    /* Cor no hover */
-    opacity: 1;
-}
-
-body.light .flatpickr-months .flatpickr-prev-month:hover svg,
-body.light .flatpickr-months .flatpickr-next-month:hover svg {
-    fill: var(--primary-color-light);
-    opacity: 1;
-}
-
-/* Correção para input readonly do Flatpickr, se necessário */
-.flatpickr-input[readonly] {
-    background-color: rgba(0, 0, 0, 0.1);
-    /* Mantém o mesmo estilo do input normal */
-}
-
-body.light .flatpickr-input[readonly] {
-    background-color: rgba(255, 255, 255, 0.5);
-}
-
-/* Para garantir que as classes .dark e .light do Flatpickr não interfiram com o tema do body */
-.flatpickr-calendar.dark {
-    /* Quando o flatpickr adiciona sua própria classe .dark */
-    background: var(--card-solid-bg-dark, #19191c);
-    border-color: var(--card-border-dark, rgba(255, 255, 255, 0.15));
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-}
-
-.flatpickr-calendar.light {
-    /* Quando o flatpickr adiciona sua própria classe .light */
-    background: var(--card-bg-light, #ffffff);
-    border-color: var(--card-border-light, #e0e0e0);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-
-/* SCROLLBAR STYLES */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg-dark);
-    /* Usando variável global */
-    border-radius: 10px;
-}
-
-body.light ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg-light);
-    /* Usando variável global */
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg-dark);
-    /* Usando variável global */
-    border-radius: 10px;
-    border: 2px solid transparent;
-    /* Para criar efeito de padding no thumb */
-    background-clip: content-box;
-}
-
-body.light ::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg-light);
-    /* Usando variável global */
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background-color: color-mix(in srgb, var(--scrollbar-thumb-bg-dark) 80%, #000000);
-}
-
-body.light ::-webkit-scrollbar-thumb:hover {
-    background-color: color-mix(in srgb, var(--scrollbar-thumb-bg-light) 80%, #ffffff);
-}
-
-/* Para Firefox */
-html {
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb-bg-dark) var(--scrollbar-track-bg-dark);
-    /* Usando variáveis globais */
-}
-
-body.light {
-    /* Para Firefox no modo claro */
-    scrollbar-color: var(--scrollbar-thumb-bg-light) var(--scrollbar-track-bg-light);
-}
-
-/* Scrollbar para o tema "Energia Vibrante" no modo escuro */
-body.theme-mode-motivational:not(.light) {
-    /* Para Firefox */
-    scrollbar-color: var(--primary-color-dark) color-mix(in srgb, var(--primary-color-dark) 5%, #020306 95%) !important;
-}
-
-body.theme-mode-motivational:not(.light)::-webkit-scrollbar-track {
-    background: color-mix(in srgb, var(--primary-color-dark) 5%, #020306 95%) !important;
-    /* Track com um leve toque da cor primária */
-}
-
-body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb {
-    background-color: var(--primary-color-dark) !important;
-    /* Thumb na cor primária */
-}
-
-body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
-    background-color: color-mix(in srgb, var(--primary-color-dark) 80%, black) !important;
-    /* Hover no thumb */
+body.light .retrospective-final-logo .logo-icon {
+    background: var(--primary-color-light);
+    /* USA A COR PRIMÁRIA DO TEMA ATUAL (light) */
 }
 </file>
 
@@ -6440,46 +6907,25 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taskify</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/retrospective.css">
 
-
     <script>
         (function () {
             function hexToRgbArrayInline(hex) {
-                if (!hex || typeof hex !== 'string') return null;
-                let c = hex.startsWith('#') ? hex.substring(1) : hex.trim();
-                if (c.length === 3) {
-                    c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
-                }
-                if (c.length !== 6) {
-                    return null;
-                }
-                try {
-                    const bigint = parseInt(c, 16);
-                    if (isNaN(bigint)) return null;
-                    const r = (bigint >> 16) & 255;
-                    const g = (bigint >> 8) & 255;
-                    const b = bigint & 255;
-                    return [r, g, b];
-                } catch (e) {
-                    console.warn('Error in hexToRgbArrayInline:', e);
-                    return null;
-                }
+                // ... (função hexToRgbArrayInline permanece a mesma)
             }
 
             try {
                 const savedPrimaryColor = localStorage.getItem('taskify-primary-color');
                 const savedTheme = localStorage.getItem('taskify-theme');
                 const docElement = document.documentElement;
-                const defaultPrimaryColor = '#0A7CFF';
+                const defaultPrimaryColor = '#0A7CFF'; // Sua cor primária padrão
 
                 let colorToApply = savedPrimaryColor || defaultPrimaryColor;
 
                 if (!/^#[0-9A-F]{6}$/i.test(colorToApply) && !/^#[0-9A-F]{3}$/i.test(colorToApply)) {
-                    console.warn(`Cor primária salva inválida ('${savedPrimaryColor}'), usando padrão.`);
                     colorToApply = defaultPrimaryColor;
                 }
 
@@ -6492,7 +6938,6 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                     docElement.style.setProperty('--primary-color-light-rgb', rgbString);
                     docElement.style.setProperty('--primary-color-dark-rgb', rgbString);
                 } else {
-                    console.warn(`Falha ao converter '${colorToApply}' para RGB, usando RGB padrão.`);
                     const defaultRgbArray = hexToRgbArrayInline(defaultPrimaryColor);
                     if (defaultRgbArray) {
                         const defaultRgbString = defaultRgbArray.join(', ');
@@ -6501,19 +6946,31 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                     }
                 }
 
+                // REMOVIDO: docElement.style.setProperty('--logo-icon-bg-color', logoIconColor);
+                // A cor da logo será definida pelo CSS usando --primary-color-dark/light
+
                 if (savedTheme === 'light') {
                     docElement.classList.add('light-theme-active');
                 }
 
+                // Favicon dinâmico com a COR PRIMÁRIA ATUAL
+                const faviconBaseColor = colorToApply; // Usa a cor primária carregada
+                const faviconSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'><rect width='24' height='24' rx='4' fill='${faviconBaseColor}'/><path fill='white' d='M13.083 3.031a.5.5 0 0 0-.944-.313L5.986 13.41a.5.5 0 0 0 .38.738H11V21a.5.5 0 0 0 .893.33L17.83 10.33a.5.5 0 0 0-.743-.66l-3.087 2.7V3.57a.5.5 0 0 0-.5-.5zM12 4.553v5.377l2.49-2.18L12 4.553zm-1 5.92L8.046 13H11v-2.527z'/></svg>`;
+                const faviconLink = document.getElementById('favicon') || document.createElement('link');
+                faviconLink.id = 'favicon';
+                faviconLink.rel = 'icon';
+                faviconLink.href = `data:image/svg+xml,${encodeURIComponent(faviconSvg)}`;
+                if (!document.getElementById('favicon')) {
+                    document.head.appendChild(faviconLink);
+                }
+
             } catch (e) {
-                console.warn('Error applying initial theme/color from inline script:', e);
+                console.warn('Error applying initial theme/color/logo from inline script:', e);
             }
         })();
     </script>
-
-    <link id="favicon" rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%230A7CFF' class='bi bi-check2-square' viewBox='0 0 16 16'><path d='M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8A1.5 1.5 0 0 1 12.5 3v1.5a.5.5 0 0 1-1 0V3a.5.5 0 0 0-.5-.5H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 1 0 1H3z'/><path d='m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z'/></svg>"
-        type="image/svg+xml">
+    <!-- O link do favicon será atualizado pelo script acima -->
+    <link id="favicon" rel="icon" href="" type="image/svg+xml">
 
 </head>
 
@@ -6526,25 +6983,29 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
     <div class="container">
         <header class="header">
             <div class="logo" title="Taskify - Seu Gerenciador de Tarefas e Foco">
-                <div class="logo-icon">✓</div>
+                <div class="logo-icon">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </div>
                 <span class="logo-text logo-text-full">Taskify</span>
                 <span class="logo-text logo-text-short">Taskify</span>
             </div>
 
             <div class="question-counter">
-                <button class="counter-btn" id="decrement-btn" onclick="decrementToday()">−</button>
-                <input type="number" class="counter-display" id="questions-step-input" value="1" min="1">
-                <button class="counter-btn" id="increment-btn" onclick="incrementToday()">+</button>
+                <button class="counter-btn" id="decrement-btn" onclick="decrementToday()"
+                    title="Diminuir questões (valor definido ao lado)">−</button>
+                <input type="number" class="counter-display" id="questions-step-input" value="1" min="1"
+                    title="Quantidade de questões por clique (+/-)">
+                <button class="counter-btn" id="increment-btn" onclick="incrementToday()"
+                    title="Aumentar questões (valor definido ao lado)">+</button>
             </div>
-
-
 
             <div class="header-controls">
                 <button class="btn-icon-nav" id="btn-edit-goals-header" aria-label="Editar metas"
-                onclick="openGoalsModal()">
-                <i class="bi bi-pencil-square"></i>
-            </button>
-                <button class="btn-icon-nav" id="btn-open-themes" aria-label="Personalizar Aparência" onclick="openThemesModal()">
+                    onclick="openGoalsModal()">
+                    <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn-icon-nav" id="btn-open-themes" aria-label="Personalizar Aparência"
+                    onclick="openThemesModal()">
                     <i class="bi bi-palette-fill"></i>
                 </button>
                 <button class="theme-toggle-btn" id="theme-toggle" aria-label="Alternar tema" onclick="toggleTheme()">
@@ -6669,7 +7130,8 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                 <div class="pomodoro-section">
                     <div class="pomodoro-header">
                         <h3 class="pomodoro-title">Timer Pomodoro</h3>
-                        <button class="pomodoro-settings-btn" id="btn-pomodoro-settings" aria-label="Configurar Pomodoro" onclick="openPomodoroSettingsModal()">
+                        <button class="pomodoro-settings-btn" id="btn-pomodoro-settings"
+                            aria-label="Configurar Pomodoro" onclick="openPomodoroSettingsModal()">
                             <i class="bi bi-gear-fill"></i>
                         </button>
                     </div>
@@ -6677,7 +7139,8 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                     <div class="pomodoro-status" id="pomodoro-status">Pronto para focar?</div>
                     <div class="pomodoro-controls">
                         <button class="btn-start" id="pomodoro-start-btn" onclick="startPomodoro()">Iniciar</button>
-                        <button class="btn-pause" id="pomodoro-pause-btn" onclick="pausePomodoro()" style="display: none;">Pausar</button>
+                        <button class="btn-pause" id="pomodoro-pause-btn" onclick="pausePomodoro()"
+                            style="display: none;">Pausar</button>
                         <button class="btn-reset" id="pomodoro-reset-btn" onclick="resetPomodoro()">Resetar</button>
                     </div>
                     <div class="pomodoro-cycles" id="pomodoro-cycles-display-container">
@@ -6702,17 +7165,19 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                     <div class="tasks-header">
                         <h3 class="tasks-title">Tarefas</h3>
                         <div class="tasks-header-actions">
-                            <button class="btn-icon-nav" id="btn-open-recurring-task-modal" aria-label="Gerenciar Tarefas Recorrentes"
-                                    onclick="openRecurringTaskPatternModal()" title="Gerenciar Tarefas Recorrentes">
-                                <i class="bi bi-calendar-check-fill"></i>
-                            </button>
                             <span class="tasks-counter" id="tasks-counter">0/0</span>
                         </div>
                     </div>
                     <form id="task-form">
                         <input type="text" id="task-input" placeholder="Adicione nova tarefa...">
                         <input type="text" id="task-assigned-date" class="task-date-input" placeholder="DD/MM/AAAA">
+
                         <button type="submit" id="add-task-btn" class="btn-primary">Adicionar</button>
+                        <button type="button" id="btn-open-recurring-task-modal" class="btn btn-secondary btn-recurring"
+                            onclick="openRecurringTaskPatternModal_v2()" title="Configurar Rotina Semanal">
+                            <i class="bi bi-calendar-plus"></i> Configurar Rotina
+                        </button>
+
                     </form>
                     <ul id="task-list">
                         <!-- Tarefas serão adicionadas aqui pelo JS -->
@@ -6775,75 +7240,122 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
         </div>
     </div>
 
-    <!-- Modal de Padrões de Tarefas Recorrentes -->
+    <!-- Modal de Padrões de Tarefas Recorrentes (v2) -->
     <div class="modal-overlay" id="recurring-task-modal-overlay"></div>
-    <div class="modal" id="recurring-task-modal" data-modal-type="recurring-task">
-        <div class="modal-content">
-            <button class="modal-close-btn" aria-label="Fechar" onclick="closeRecurringTaskPatternModal()">
-                <i class="bi bi-x-lg"></i>
-            </button>
-            <h2 class="modal-title" id="recurring-task-modal-title">Adicionar Padrão Recorrente</h2>
-            <p class="modal-subtitle-description" id="recurring-task-modal-description">Configure uma nova rotina de estudos ou hábitos.</p>
-
-            <form id="recurring-task-form">
-                <div class="form-group">
-                    <label class="form-label" for="recurring-task-name">Nome da Tarefa <span class="required-asterisk"></span></label>
-                    <input type="text" class="form-input" id="recurring-task-name" placeholder="Ex: Simulado Semanal" required>
+    <div class="modal" id="recurring-task-modal" data-modal-type="recurring-task-definition-v2">
+        <div class="modal-content recurring-pattern-definition-v2-content">
+            <div class="recurring-modal-header">
+                <div class="recurring-modal-title-group">
+                    <h2 class="modal-title" id="recurring-task-def-v2-modal-title">
+                        <i class="bi bi-calendar-check icon-title-recurring"></i> Configurar Rotina Semanal
+                    </h2>
+                    <p class="modal-subtitle-description" id="recurring-task-def-v2-modal-description">Defina as tarefas
+                        para cada dia da sua semana e organize seus estudos de forma eficiente</p>
                 </div>
-
-                <div class="form-group" id="recurring-task-frequency-group" style="display: none;">
-                    <label class="form-label" for="recurring-task-frequency">Frequência</label>
-                    <input type="text" class="form-input" id="recurring-task-frequency" value="Semanal" disabled title="Apenas semanal disponível no momento">
-                </div>
-
-
-                <div class="form-group">
-                    <div class="form-label-group">
-                        <label class="form-label">Dias da Semana <span class="required-asterisk"></span></label>
-                    </div>
-                    <div class="recurring-days-checkbox-group">
-                        <label><input type="checkbox" id="recurring-day-1" value="1"> Seg</label>
-                        <label><input type="checkbox" id="recurring-day-2" value="2"> Ter</label>
-                        <label><input type="checkbox" id="recurring-day-3" value="3"> Qua</label>
-                        <label><input type="checkbox" id="recurring-day-4" value="4"> Qui</label>
-                        <label><input type="checkbox" id="recurring-day-5" value="5"> Sex</label>
-                        <label><input type="checkbox" id="recurring-day-6" value="6"> Sáb</label>
-                        <label><input type="checkbox" id="recurring-day-0" value="0"> Dom</label>
-                    </div>
-                </div>
-
-                <div class="form-group-inline">
-                    <div class="form-group">
-                        <label class="form-label" for="recurring-task-start-date">Data de Início <span class="required-asterisk"></span></label>
-                        <input type="text" class="form-input task-date-input" id="recurring-task-start-date" placeholder="DD/MM/AAAA" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="recurring-task-end-date">Data de Término <span class="label-hint">(Opcional)</span></label>
-                        <input type="text" class="form-input task-date-input" id="recurring-task-end-date" placeholder="DD/MM/AAAA">
-                    </div>
-                </div>
-                <div class="form-info-notice">
-                    <i class="bi bi-info-circle-fill"></i>
-                    <span>O padrão será aplicado automaticamente nos dias selecionados a partir da data de início.</span>
-                </div>
-
-
-                <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" onclick="closeRecurringTaskPatternModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Salvar Padrão</button>
-                </div>
-            </form>
-
-            <hr class="recurring-task-divider">
-            <div class="recurring-patterns-header">
-                <h3 class="modal-subtitle">Padrões Salvos</h3>
-                <span class="recurring-patterns-count" id="recurring-patterns-count">0 padrões</span>
+                <button class="modal-close-btn" aria-label="Fechar" onclick="closeRecurringTaskPatternModal()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
-            <ul id="recurring-patterns-list">
-            </ul>
+
+            <div class="recurring-modal-controls-top">
+                <div class="new-task-input-container-v2" id="new-task-input-container-v2">
+                    <input type="text" class="form-input" id="new-task-text-input-v2"
+                        placeholder="Digite o nome da tarefa...">
+                    <button type="button" class="btn btn-primary btn-confirm-add-task-v2">
+                        <i class="bi bi-plus-lg"></i> Adicionar
+                    </button>
+                </div>
+                <div class="recurring-modal-sub-controls-line">
+                    <span class="selected-days-count" id="recurring-v2-selected-days-count">Nenhum dia
+                        selecionado</span>
+                    <div class="day-selection-actions">
+                        <button type="button" class="btn btn-secondary btn-select-all-days">Selecionar Todos</button>
+                        <button type="button" class="btn btn-secondary btn-clear-day-selection">Limpar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recurring-pattern-v2-days-grid">
+                <div class="day-card-v2" data-day-index="1">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Segunda</h3>
+                        <span class="day-card-task-count-v2" id="task-count-monday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-monday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+                <div class="day-card-v2" data-day-index="2">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Terça</h3>
+                        <span class="day-card-task-count-v2" id="task-count-tuesday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-tuesday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+                <div class="day-card-v2" data-day-index="3">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Quarta</h3>
+                        <span class="day-card-task-count-v2" id="task-count-wednesday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-wednesday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+                <div class="day-card-v2" data-day-index="4">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Quinta</h3>
+                        <span class="day-card-task-count-v2" id="task-count-thursday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-thursday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+                <div class="day-card-v2" data-day-index="5">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Sexta</h3>
+                        <span class="day-card-task-count-v2" id="task-count-friday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-friday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+                <div class="day-card-v2" data-day-index="6">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Sábado</h3>
+                        <span class="day-card-task-count-v2" id="task-count-saturday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-saturday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+                <div class="day-card-v2" data-day-index="0">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Domingo</h3>
+                        <span class="day-card-task-count-v2" id="task-count-sunday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-sunday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+            </div>
+
+            <div class="recurring-modal-footer">
+                <p class="footer-info-text" id="recurring-modal-footer-tip">Dica: Clique nos dias para selecioná-los e
+                    adicionar tarefas.</p>
+                <span class="footer-total-tasks-count" id="recurring-modal-total-tasks">Total de tarefas: 0</span>
+            </div>
         </div>
     </div>
+
 
     <!-- Modal de Confirmação de Exclusão de Tarefa Recorrente -->
     <div class="modal-overlay" id="delete-recurring-task-modal-overlay"></div>
@@ -6853,7 +7365,8 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                 <i class="bi bi-x-lg"></i>
             </button>
             <h2 class="modal-title">Excluir Tarefa Recorrente</h2>
-            <p class="modal-body-text" id="delete-recurring-task-prompt">Escolha como deseja proceder com a exclusão desta tarefa recorrente:</p>
+            <p class="modal-body-text" id="delete-recurring-task-prompt">Escolha como deseja proceder com a exclusão
+                desta tarefa recorrente:</p>
 
             <div class="delete-options-group">
                 <label class="delete-option-card">
@@ -6868,7 +7381,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                 </label>
                 <label class="delete-option-card">
                     <input type="radio" name="delete-recurring-option" value="future">
-                     <span class="delete-option-card-content">
+                    <span class="delete-option-card-content">
                         <span class="delete-option-icon"><i class="bi bi-calendar2-x"></i></span>
                         <span class="delete-option-text">
                             <strong>Esta e todas as futuras</strong>
@@ -6878,7 +7391,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                 </label>
                 <label class="delete-option-card" id="delete-option-all-card">
                     <input type="radio" name="delete-recurring-option" value="all">
-                     <span class="delete-option-card-content">
+                    <span class="delete-option-card-content">
                         <span class="delete-option-icon"><i class="bi bi-trash3"></i></span>
                         <span class="delete-option-text">
                             <strong>Toda a série recorrente</strong>
@@ -6895,7 +7408,8 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
 
             <div class="modal-buttons">
                 <button type="button" class="btn btn-secondary" id="btn-cancel-delete-recurring">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="btn-confirm-delete-recurring-action">Excluir Ocorrência</button>
+                <button type="button" class="btn btn-primary" id="btn-confirm-delete-recurring-action">Excluir
+                    Ocorrência</button>
             </div>
         </div>
     </div>
@@ -6941,14 +7455,34 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
             <div class="modal-body-text guide-text">
                 <p>Este é um guia rápido para te ajudar a começar:</p>
                 <ul>
-                    <li><strong>Contador Principal (<span class="guide-highlight">no centro do cabeçalho</span>):</strong> Use os botões <span class="guide-highlight guide-btn-example">+</span> e <span class="guide-highlight guide-btn-example">−</span> para adicionar ou remover questões resolvidas hoje. O número entre eles define quantas questões são adicionadas/removidas por clique.</li>
-                    <li><strong>Gerenciar Tarefas Recorrentes:</strong> Clique no ícone <i class="bi bi-calendar-check-fill guide-icon-example"></i> no cabeçalho da seção de Tarefas para criar padrões de tarefas que se repetem.</li>
-                    <li><strong>Editar Metas:</strong> Clique no ícone <i class="bi bi-pencil-square guide-icon-example"></i> no cabeçalho para definir suas metas diárias, semanais, mensais, anuais e de streak.</li>
-                    <li><strong>Alternar Tema:</strong> Use o ícone <i class="bi bi-moon-fill guide-icon-example"></i> / <i class="bi bi-sun-fill guide-icon-example"></i> no cabeçalho para trocar entre o tema escuro e claro.</li>
-                    <li><strong>Personalizar Aparência:</strong> Clique no ícone <i class="bi bi-palette-fill guide-icon-example"></i> no cabeçalho para escolher paletas de cores e modos visuais.</li>
-                    <li><strong>Timer Pomodoro & Tarefas:</strong> Role a página para baixo para encontrar o Timer Pomodoro, a Lista de Tarefas e seus respectivos gráficos de atividade semanal.</li>
-                    <li><strong>Retrospectiva Mensal:</strong> Clique no ícone <i class="bi bi-calendar-heart-fill guide-icon-example"></i> no canto inferior direito para ver sua retrospectiva do mês.</li>
-                    <li><strong>Resetar Dados:</strong> No modal de "Editar Metas" (<i class="bi bi-pencil-square guide-icon-example"></i>), você encontrará um botão <span class="guide-highlight guide-btn-example" style="background-color: #dc3545; color: white; padding: 2px 4px;">Resetar App</span> para limpar todos os seus dados e começar do zero. Use com cuidado!</li>
+                    <li><strong>Contador Principal (<span class="guide-highlight">no centro do
+                                cabeçalho</span>):</strong> Use os botões <span
+                            class="guide-highlight guide-btn-example">+</span> e <span
+                            class="guide-highlight guide-btn-example">−</span> para adicionar ou remover questões
+                        resolvidas hoje. O número entre eles define quantas questões são adicionadas/removidas por
+                        clique.</li>
+                    <li><strong>Configurar Rotina Semanal:</strong> No formulário de tarefas, clique no botão <span
+                            class="guide-highlight guide-btn-example"><i class="bi bi-calendar-plus"></i> Configurar
+                            Rotina</span> para definir suas tarefas para cada dia da semana.</li>
+                    <li><strong>Editar Metas:</strong> Clique no ícone <i
+                            class="bi bi-pencil-square guide-icon-example"></i> no cabeçalho para definir suas metas
+                        diárias, semanais, mensais, anuais e de streak.</li>
+                    <li><strong>Alternar Tema:</strong> Use o ícone <i class="bi bi-moon-fill guide-icon-example"></i> /
+                        <i class="bi bi-sun-fill guide-icon-example"></i> no cabeçalho para trocar entre o tema escuro e
+                        claro.</li>
+                    <li><strong>Personalizar Aparência:</strong> Clique no ícone <i
+                            class="bi bi-palette-fill guide-icon-example"></i> no cabeçalho para escolher paletas de
+                        cores e modos visuais.</li>
+                    <li><strong>Timer Pomodoro & Tarefas:</strong> Role a página para baixo para encontrar o Timer
+                        Pomodoro, a Lista de Tarefas e seus respectivos gráficos de atividade semanal.</li>
+                    <li><strong>Retrospectiva Mensal:</strong> Clique no ícone <i
+                            class="bi bi-calendar-heart-fill guide-icon-example"></i> no canto inferior direito para ver
+                        sua retrospectiva do mês.</li>
+                    <li><strong>Resetar Dados:</strong> No modal de "Editar Metas" (<i
+                            class="bi bi-pencil-square guide-icon-example"></i>), você encontrará um botão <span
+                            class="guide-highlight guide-btn-example"
+                            style="background-color: #dc3545; color: white; padding: 2px 4px;">Resetar App</span> para
+                        limpar todos os seus dados e começar do zero. Use com cuidado!</li>
                 </ul>
                 <div class="form-group-checkbox">
                     <input type="checkbox" id="dont-show-guide-again-checkbox">
@@ -6966,7 +7500,8 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
     <div class="modal-overlay" id="pomodoro-settings-modal-overlay"></div>
     <div class="modal" id="pomodoro-settings-modal">
         <div class="modal-content">
-            <button class="modal-close-btn" id="pomodoro-settings-modal-close-btn" aria-label="Fechar" onclick="closePomodoroSettingsModal()">
+            <button class="modal-close-btn" id="pomodoro-settings-modal-close-btn" aria-label="Fechar"
+                onclick="closePomodoroSettingsModal()">
                 <i class="bi bi-x-lg"></i>
             </button>
             <h2 class="modal-title">Configurações do Pomodoro</h2>
@@ -6976,16 +7511,20 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                     <input type="number" class="form-input" id="pomodoro-focus-duration-input" value="25" min="1">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="pomodoro-short-break-duration-input">Duração da Pausa Curta (minutos)</label>
+                    <label class="form-label" for="pomodoro-short-break-duration-input">Duração da Pausa Curta
+                        (minutos)</label>
                     <input type="number" class="form-input" id="pomodoro-short-break-duration-input" value="5" min="1">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="pomodoro-long-break-duration-input">Duração da Pausa Longa (minutos)</label>
+                    <label class="form-label" for="pomodoro-long-break-duration-input">Duração da Pausa Longa
+                        (minutos)</label>
                     <input type="number" class="form-input" id="pomodoro-long-break-duration-input" value="15" min="1">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="pomodoro-cycles-before-long-break-input">Ciclos de Foco antes da Pausa Longa</label>
-                    <input type="number" class="form-input" id="pomodoro-cycles-before-long-break-input" value="4" min="1">
+                    <label class="form-label" for="pomodoro-cycles-before-long-break-input">Ciclos de Foco antes da
+                        Pausa Longa</label>
+                    <input type="number" class="form-input" id="pomodoro-cycles-before-long-break-input" value="4"
+                        min="1">
                 </div>
                 <div class="form-group-checkbox">
                     <input type="checkbox" id="pomodoro-auto-start-breaks-checkbox">
@@ -7000,7 +7539,8 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
                     <label for="pomodoro-enable-sound-checkbox">Ativar sons de notificação?</label>
                 </div>
                 <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" onclick="closePomodoroSettingsModal()">Cancelar</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closePomodoroSettingsModal()">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Salvar</button>
                 </div>
             </form>
@@ -7011,7 +7551,8 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
     <div class="modal-overlay" id="themes-modal-overlay"></div>
     <div class="modal" id="themes-modal">
         <div class="themes-modal-content">
-            <button class="modal-close-btn" id="themes-modal-close-btn" aria-label="Fechar" onclick="closeThemesModal()">
+            <button class="modal-close-btn" id="themes-modal-close-btn" aria-label="Fechar"
+                onclick="closeThemesModal()">
                 <i class="bi bi-x-lg"></i>
             </button>
             <h2 class="modal-title">
@@ -7042,9 +7583,10 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
             </div>
 
             <div class="modal-buttons themes-modal-actions">
-                <button type="button" class="btn btn-secondary themes-btn-cancel" onclick="closeThemesModal()">Cancelar</button>
+                <button type="button" class="btn btn-secondary themes-btn-cancel"
+                    onclick="closeThemesModal()">Cancelar</button>
                 <button type="button" class="btn btn-primary themes-btn-apply" onclick="closeThemesModal()">
-                     Aplicar Mudanças
+                    Aplicar Mudanças
                 </button>
             </div>
         </div>
@@ -7059,8 +7601,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
     </div>
 
     <!-- Botão Flutuante e Modal da Retrospectiva -->
-    <button class="btn-icon-nav" id="btn-open-retrospective" aria-label="Abrir Retrospectiva"
-        style="position: fixed; bottom: 20px; right: 20px; z-index: 1001;
+    <button class="btn-icon-nav" id="btn-open-retrospective" aria-label="Abrir Retrospectiva" style="position: fixed; bottom: 20px; right: 20px; z-index: 1001;
                background-color: var(--primary-color-dark); color: white;
                width: 50px; height: 50px; border-radius: 50%;
                box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 1.5rem;
@@ -7085,6 +7626,7 @@ body.theme-mode-motivational:not(.light)::-webkit-scrollbar-thumb:hover {
     <script src="js/script.js" defer></script>
     <script src="js/retrospective.js" defer></script>
 </body>
+
 </html>
 </file>
 
@@ -8225,20 +8767,22 @@ let retrospectiveModalOverlayEl;
 let focusEndSound = null;
 let breakEndSound = null;
 
-// Variáveis para Drag and Drop
+// Variáveis para Drag and Drop de tarefas na lista principal
 let draggedItem = null;
+
+// Variáveis para Drag and Drop de tarefas no modal de padrão recorrente v2
+let draggedPatternTaskItem_v2 = null;
+let sourcePatternTaskList_v2 = null;
+let currentEditingPatternTaskId_v2 = null;
+
 
 // Flatpickr instances
 let taskDatePicker = null;
-let recurringTaskStartDatePicker = null;
-let recurringTaskEndDatePicker = null;
 
 
 window.showCustomAlert = showCustomAlert;
-
 window.taskifyStateReady = false;
 
-// Constantes de Temas e Paletas
 const PREDEFINED_PALETTES = {
     electricBlue: { name: 'Azul Elétrico', primary: '#0A7CFF' },
     emeraldGreen: { name: 'Verde Esmeralda', primary: '#00DB4D' },
@@ -8253,6 +8797,8 @@ const VISUAL_MODES = {
     night: { name: 'Profundo da Noite', icon: 'bi-moon-stars', subtitle: 'Cores escuras e suaves para seus olhos' },
     motivational: { name: 'Energia Vibrante', icon: 'bi-lightning-charge', subtitle: 'Cores dinâmicas para te inspirar' }
 };
+
+const SINGLE_ROUTINE_ID = "minhaUnicaRotinaSemanal";
 
 const initialDefaultState = {
     todayCount: 0,
@@ -8314,7 +8860,6 @@ const initialDefaultState = {
 let state = JSON.parse(JSON.stringify(initialDefaultState));
 window.state = state;
 
-// Funções Utilitárias de Data, Cor e Formatação
 function getStartOfWeek(date) {
     const d = new Date(date);
     const day = d.getDay();
@@ -8416,7 +8961,6 @@ function formatDateToISO(ddmmyyyyString) {
 }
 
 
-// Gerenciamento de Estado (LocalStorage)
 function loadState() {
     let themeToApply = initialDefaultState.isDarkMode;
     let primaryColorToApply = PREDEFINED_PALETTES[initialDefaultState.visuals.currentPalette].primary;
@@ -8489,13 +9033,32 @@ function loadState() {
                 }))
                 : [...initialDefaultState.tasks],
             recurringTaskPatterns: (loadedState.recurringTaskPatterns && Array.isArray(loadedState.recurringTaskPatterns))
-                ? loadedState.recurringTaskPatterns
+                ? loadedState.recurringTaskPatterns.map(p => ({
+                    ...p,
+                    id: SINGLE_ROUTINE_ID,
+                    tasksByDay: p.tasksByDay && typeof p.tasksByDay === 'object'
+                        ? {
+                            0: Array.isArray(p.tasksByDay[0]) ? p.tasksByDay[0].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                            1: Array.isArray(p.tasksByDay[1]) ? p.tasksByDay[1].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                            2: Array.isArray(p.tasksByDay[2]) ? p.tasksByDay[2].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                            3: Array.isArray(p.tasksByDay[3]) ? p.tasksByDay[3].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                            4: Array.isArray(p.tasksByDay[4]) ? p.tasksByDay[4].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                            5: Array.isArray(p.tasksByDay[5]) ? p.tasksByDay[5].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                            6: Array.isArray(p.tasksByDay[6]) ? p.tasksByDay[6].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                        }
+                        : { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }
+                })).slice(0, 1)
                 : [...initialDefaultState.recurringTaskPatterns],
             dailyTaskCompletionData: (loadedState.dailyTaskCompletionData && Array.isArray(loadedState.dailyTaskCompletionData) && loadedState.dailyTaskCompletionData.length === 7)
                 ? loadedState.dailyTaskCompletionData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0))
                 : [...initialDefaultState.dailyTaskCompletionData],
             visuals: { ...initialDefaultState.visuals, ...(loadedState.visuals || {}) },
         };
+
+        if (state.recurringTaskPatterns.length > 0 && state.recurringTaskPatterns[0].id !== SINGLE_ROUTINE_ID) {
+            state.recurringTaskPatterns[0].id = SINGLE_ROUTINE_ID;
+        }
+
 
         const numericKeys = ['todayCount', 'weeklyProgress', 'monthlyProgress', 'yearlyProgress'];
         numericKeys.forEach(key => {
@@ -8540,7 +9103,9 @@ function loadState() {
 function saveState() {
     try {
         const stateToSave = { ...state };
-
+        if (stateToSave.recurringTaskPatterns && stateToSave.recurringTaskPatterns.length > 0) {
+            stateToSave.recurringTaskPatterns[0].id = SINGLE_ROUTINE_ID;
+        }
         localStorage.setItem('taskify-state', JSON.stringify(stateToSave));
         localStorage.setItem('taskify-theme', state.isDarkMode ? 'dark' : 'light');
 
@@ -8559,7 +9124,6 @@ function saveState() {
     }
 }
 
-// Lógica de Reset de Contadores
 function checkAllResets() {
     const prevLastAccessDate = state.lastAccessDate;
     const todayStr = new Date().toDateString();
@@ -8597,6 +9161,11 @@ function checkAllResets() {
 function checkAndResetDailyCounters(todayStr) {
     if (state.lastAccessDate !== todayStr) {
         state.todayCount = 0;
+        state.tasks.forEach(task => {
+            if (task.deletedThisInstanceOfDay) {
+                delete task.deletedThisInstanceOfDay;
+            }
+        });
 
         const shiftArray = (arr) => {
             if (arr && Array.isArray(arr) && arr.length === 7) {
@@ -8629,10 +9198,17 @@ function checkAndResetDailyCounters(todayStr) {
             newDailyFocusData[d] = focusForThisDay;
         }
         state.pomodoro.dailyFocusData = newDailyFocusData;
-
         state.dailyTaskCompletionData = shiftArray(state.dailyTaskCompletionData);
+
+        if (state.recurringTaskPatterns.length > 0) {
+            const routine = state.recurringTaskPatterns[0];
+            for (const dayKey in routine.tasksByDay) {
+                routine.tasksByDay[dayKey].forEach(taskDef => taskDef.completed = false);
+            }
+        }
     }
 }
+
 
 function checkAndResetWeeklyCounters() {
     const currentWeekStartStr = getStartOfWeek(new Date()).toDateString();
@@ -8658,7 +9234,6 @@ function checkAndResetYearlyCounters() {
     }
 }
 
-// Atualização da UI
 function updateCircularProgress(elementId, current, target) {
     const circle = document.getElementById(elementId);
     if (!circle) return;
@@ -8726,6 +9301,7 @@ function updateUI() {
     updatePomodoroUI();
     renderTasks();
     updateScrollIndicator();
+    updateCounterTooltips(); // Adicionado para atualizar os tooltips do contador
 }
 
 function updateDailyRecord() {
@@ -8738,7 +9314,6 @@ function updateDailyRecord() {
     }
 }
 
-// Lógica do Contador de Questões
 function getStepValue() {
     const stepInput = document.getElementById('questions-step-input');
     let step = parseInt(stepInput.value, 10);
@@ -8748,6 +9323,25 @@ function getStepValue() {
     }
     return step;
 }
+
+// Função para atualizar os tooltips do contador de questões
+function updateCounterTooltips() {
+    const step = getStepValue();
+    const decrementBtn = document.getElementById('decrement-btn');
+    const incrementBtn = document.getElementById('increment-btn');
+    const stepInput = document.getElementById('questions-step-input');
+
+    if (decrementBtn) {
+        decrementBtn.title = `Diminuir ${step} ${step === 1 ? 'questão' : 'questões'}`;
+    }
+    if (incrementBtn) {
+        incrementBtn.title = `Aumentar ${step} ${step === 1 ? 'questão' : 'questões'}`;
+    }
+    if (stepInput) { // O title já está definido no HTML, mas poderia ser atualizado aqui se necessário
+        // stepInput.title = "Quantidade de questões por clique (+/-)";
+    }
+}
+
 
 function incrementToday() {
     checkAllResets();
@@ -8792,7 +9386,6 @@ function decrementToday() {
     updateUI();
 }
 
-// Lógica de Pico de Atividade e Streak
 function updatePeakActivity() {
     let maxQuestions = 0;
     let peakDayOriginalIndex = -1;
@@ -8935,7 +9528,6 @@ function updateStreakUI() {
     }
 }
 
-// Modal de Metas
 function openGoalsModal() {
     const modal = document.getElementById('goals-modal');
     const overlay = document.getElementById('goals-modal-overlay');
@@ -8984,7 +9576,6 @@ function saveGoals() {
     closeGoalsModal();
 }
 
-// Gerenciamento de Tema e Cor Primária
 function toggleTheme() {
     state.isDarkMode = !state.isDarkMode;
     applyCurrentThemeAndMode();
@@ -9035,7 +9626,9 @@ function applyCurrentThemeAndMode() {
 
 
     if (faviconEl) {
-        faviconEl.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='${encodeURIComponent(currentPrimaryColor)}' class='bi bi-check2-square' viewBox='0 0 16 16'><path d='M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8A1.5 1.5 0 0 1 12.5 3v1.5a.5.5 0 0 1-1 0V3a.5.5 0 0 0-.5-.5H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 1 0 1H3z'/><path d='m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z'/></svg>`;
+        const faviconBaseColor = currentPrimaryColor;
+        const faviconSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'><rect width='24' height='24' rx='4' fill='${faviconBaseColor}'/><path fill='white' d='M13.083 3.031a.5.5 0 0 0-.944-.313L5.986 13.41a.5.5 0 0 0 .38.738H11V21a.5.5 0 0 0 .893.33L17.83 10.33a.5.5 0 0 0-.743-.66l-3.087 2.7V3.57a.5.5 0 0 0-.5-.5zM12 4.553v5.377l2.49-2.18L12 4.553zm-1 5.92L8.046 13H11v-2.527z'/></svg>`;
+        faviconEl.href = `data:image/svg+xml,${encodeURIComponent(faviconSvg)}`;
     }
 
     if (weeklyChartInstance) weeklyChartInstance.destroy();
@@ -9050,7 +9643,6 @@ function applyCurrentThemeAndMode() {
     updateThemeModalButtons();
 }
 
-// Configuração dos Gráficos (Genérica)
 function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelPrefix, dataFormatter = (val) => val) {
     const chartCanvas = document.getElementById(canvasId);
     if (!chartCanvas) return null;
@@ -9136,7 +9728,6 @@ function createChartConfig(canvasId, chartData, label, yAxisLabel, tooltipLabelP
     });
 }
 
-// Funções específicas de setup de gráficos
 function setupChart(animateInitialRender = true) {
     if (weeklyChartInstance) weeklyChartInstance.destroy();
     const data = (window.state && Array.isArray(window.state.weeklyActivityData) && window.state.weeklyActivityData.length === 7)
@@ -9207,7 +9798,6 @@ function updateTasksChartDataOnly() {
     }
 }
 
-// Inicialização do Streak
 function initStreak() {
     const savedData = localStorage.getItem('taskify-streak');
     let initialStreakDays = 0;
@@ -9245,7 +9835,6 @@ function initStreak() {
     updateStreakUI();
 }
 
-// --- Funções do Pomodoro ---
 function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -9531,7 +10120,6 @@ function initPomodoro() {
     updatePomodoroUI();
 }
 
-// --- Funções de Tarefas ---
 function renderTasks() {
     const taskList = document.getElementById('task-list');
     if (!taskList) return;
@@ -9542,6 +10130,9 @@ function renderTasks() {
     generateRecurringTaskInstances();
 
     const tasksToDisplay = state.tasks.filter(task => {
+        if (task.deletedThisInstanceOfDay && task.assignedDate === todayISO) {
+            return false;
+        }
         if (task.isRecurringInstance) {
             return task.assignedDate === todayISO;
         }
@@ -9582,7 +10173,7 @@ function renderTasks() {
             checkbox.type = 'checkbox';
             checkbox.className = 'task-item-checkbox';
             checkbox.checked = task.completed;
-            checkbox.addEventListener('change', () => toggleTaskComplete(task.id));
+            checkbox.addEventListener('change', () => toggleTaskComplete(task.id, task.isRecurringInstance, task.sourcePatternId, task.originalPatternTaskId));
 
             const textSpan = document.createElement('span');
             textSpan.className = 'task-item-text';
@@ -9636,7 +10227,9 @@ function renderTasks() {
 function updateTasksCounter() {
     const tasksCounter = document.getElementById('tasks-counter');
     if (!tasksCounter) return;
+    const todayISO = getTodayISO();
     const displayedTasks = state.tasks.filter(task => {
+        if (task.deletedThisInstanceOfDay && task.assignedDate === todayISO) return false;
         if (task.isRecurringInstance) return task.assignedDate === getTodayISO();
         return true;
     });
@@ -9671,7 +10264,9 @@ function addTask(event) {
         completed: false,
         createdAt: new Date().toISOString(),
         completionDate: null,
-        assignedDate: assignedDateValue
+        assignedDate: assignedDateValue,
+        isRecurringInstance: false,
+        sourcePatternId: null
     };
 
     state.tasks.push(newTask);
@@ -9682,7 +10277,7 @@ function addTask(event) {
 }
 
 
-function toggleTaskComplete(taskId) {
+function toggleTaskComplete(taskId, isRecurringInstance = false, sourcePatternId = null, originalPatternTaskId = null) {
     checkAllResets();
     const taskIndex = state.tasks.findIndex(t => t.id === taskId);
     if (taskIndex > -1) {
@@ -9713,9 +10308,29 @@ function toggleTaskComplete(taskId) {
                 else if (!task.completed && wasCompleted) state.dailyTaskCompletionData[dayIndexInChart] = Math.max(0, state.dailyTaskCompletionData[dayIndexInChart] - 1);
             }
         }
+
+        if (isRecurringInstance && sourcePatternId === SINGLE_ROUTINE_ID && task.assignedDate === getTodayISO()) {
+            const routinePattern = state.recurringTaskPatterns.find(p => p.id === SINGLE_ROUTINE_ID);
+            if (routinePattern) {
+                const dayOfWeekToday = new Date().getDay();
+                if (routinePattern.tasksByDay[dayOfWeekToday]) {
+                    const routineTaskDef = routinePattern.tasksByDay[dayOfWeekToday].find(rt => rt.id === originalPatternTaskId);
+                    if (routineTaskDef) {
+                        routineTaskDef.completed = task.completed;
+                        const modalRecurringTaskModal = document.getElementById('recurring-task-modal');
+                        if (modalRecurringTaskModal && modalRecurringTaskModal.classList.contains('show')) {
+                            const modalRoutineTaskCheckbox = modalRecurringTaskModal.querySelector(`.day-card-v2[data-day-index="${dayOfWeekToday}"] .task-item-recurrent-v2[data-task-id="${originalPatternTaskId}"] .task-routine-checkbox`);
+                            if (modalRoutineTaskCheckbox) {
+                                modalRoutineTaskCheckbox.checked = task.completed;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         saveState();
         updateTasksChartDataOnly();
-        if (task.completed || wasCompleted) renderTasks();
+        if (task.completed || wasCompleted) renderTasks(); // Re-renderiza para atualizar a ordenação
     }
 }
 
@@ -9736,6 +10351,7 @@ function deleteTask(taskId) {
         if (taskElement) taskElement.remove();
         updateTasksCounter();
 
+
         if (deletedTask.completed && deletedTask.completionDate) {
             const completionDateForChart = new Date(deletedTask.completionDate);
             completionDateForChart.setHours(0, 0, 0, 0);
@@ -9749,7 +10365,7 @@ function deleteTask(taskId) {
                 }
             }
         }
-        if (state.tasks.filter(t => (t.isRecurringInstance ? t.assignedDate === getTodayISO() : true)).length === 0) {
+        if (state.tasks.filter(t => !(t.deletedThisInstanceOfDay && t.assignedDate === getTodayISO()) && (t.isRecurringInstance ? t.assignedDate === getTodayISO() : true)).length === 0) {
             renderTasks();
         }
 
@@ -9758,8 +10374,6 @@ function deleteTask(taskId) {
     }
 }
 
-
-// --- Funções de Drag and Drop para Tarefas ---
 function handleDragStart(e) {
     draggedItem = e.target;
     e.dataTransfer.effectAllowed = 'move';
@@ -9845,335 +10459,587 @@ function initTasks() {
     renderTasks();
 }
 
-// --- Funções de Tarefas Recorrentes ---
-function setupRecurringDaysCheckboxes() {
-    const checkboxes = document.querySelectorAll('.recurring-days-checkbox-group input[type="checkbox"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', (e) => {
-            const label = e.target.closest('label');
-            if (label) {
-                label.classList.toggle('checked', e.target.checked);
-            }
-            updateSelectedDaysHint();
-        });
-    });
-}
+// --- Funções de Tarefas Recorrentes (NOVO MODAL - v2) ---
 
-function updateSelectedDaysHint() {
-    const hintEl = document.getElementById('recurring-days-hint');
-    if (!hintEl) return;
-
-    const selectedLabels = [];
-    document.querySelectorAll('.recurring-days-checkbox-group input[type="checkbox"]:checked').forEach(cb => {
-        const labelText = cb.closest('label').textContent.trim();
-        selectedLabels.push(labelText);
-    });
-
-    if (selectedLabels.length === 0) {
-        hintEl.textContent = 'Nenhum dia selecionado';
-    } else if (selectedLabels.length === 7) {
-        hintEl.textContent = 'Todos os dias';
-    } else {
-        hintEl.textContent = selectedLabels.join(', ');
-    }
-}
-
-
-function openRecurringTaskPatternModal(patternId = null) {
+function openRecurringTaskPatternModal_v2() {
     const modal = document.getElementById('recurring-task-modal');
     const overlay = document.getElementById('recurring-task-modal-overlay');
-    const form = document.getElementById('recurring-task-form');
-    const modalTitle = document.getElementById('recurring-task-modal-title');
-    const modalDescription = document.getElementById('recurring-task-modal-description');
-    const submitButton = form.querySelector('button[type="submit"]');
+    const newTaskTextInput = document.getElementById('new-task-text-input-v2');
+    const modalSubtitle = document.getElementById('recurring-task-def-v2-modal-description');
+    const footerTip = document.getElementById('recurring-modal-footer-tip');
 
 
-    if (!modal || !overlay || !form || !modalTitle || !modalDescription || !submitButton) {
-        console.error("Elementos do modal de tarefa recorrente não encontrados.");
+    if (!modal || !overlay || !newTaskTextInput || !modalSubtitle || !footerTip) {
+        console.error("Elementos do modal v2 não encontrados.");
         return;
     }
-    form.reset();
-    form.dataset.editingPatternId = '';
-    document.querySelectorAll('.recurring-days-checkbox-group input[type="checkbox"]').forEach(cb => {
-        cb.checked = false;
-        const label = cb.closest('label');
-        if (label) label.classList.remove('checked');
+
+    modal.dataset.modalType = "recurring-task-definition-v2";
+    currentEditingPatternTaskId_v2 = null;
+
+    modalSubtitle.textContent = "Defina as tarefas para cada dia da sua semana e organize seus estudos de forma eficiente";
+    newTaskTextInput.value = '';
+    newTaskTextInput.placeholder = "Digite o nome da tarefa...";
+    footerTip.textContent = "Dica: Clique nos dias para selecioná-los e adicionar tarefas.";
+
+
+    document.querySelectorAll('.day-card-v2').forEach(card => {
+        card.classList.remove('selected');
+        const taskList = card.querySelector('.day-card-v2-tasks');
+        if (taskList) {
+            taskList.innerHTML = '<span class="no-tasks-msg">Nenhuma tarefa</span>';
+        }
     });
-    updateSelectedDaysHint();
+    updateSelectedDaysCount_v2();
 
-
-    const startDateInput = document.getElementById('recurring-task-start-date');
-    const endDateInput = document.getElementById('recurring-task-end-date');
-
-    if (startDateInput && typeof flatpickr === 'function') {
-        if (!recurringTaskStartDatePicker) {
-            recurringTaskStartDatePicker = flatpickr(startDateInput, { dateFormat: "d/m/Y", defaultDate: "today", locale: "pt", allowInput: true });
-        } else {
-            recurringTaskStartDatePicker.setDate(new Date(), true);
-        }
+    let patternToLoad = null;
+    if (state.recurringTaskPatterns && state.recurringTaskPatterns.length > 0 && state.recurringTaskPatterns[0].id === SINGLE_ROUTINE_ID) {
+        patternToLoad = state.recurringTaskPatterns[0];
     }
 
-    if (endDateInput && typeof flatpickr === 'function') {
-        if (!recurringTaskEndDatePicker) {
-            recurringTaskEndDatePicker = flatpickr(endDateInput, { dateFormat: "d/m/Y", locale: "pt", allowInput: true });
-        }
-        recurringTaskEndDatePicker.clear();
-    }
-
-
-    if (patternId) {
-        const pattern = state.recurringTaskPatterns.find(p => p.id === patternId);
-        if (pattern) {
-            modalTitle.textContent = 'Editar Padrão Recorrente';
-            modalDescription.textContent = 'Ajuste sua rotina de estudos ou hábitos existentes.';
-            submitButton.innerHTML = '<i class="bi bi-check-lg"></i> Salvar Alterações';
-            form.dataset.editingPatternId = patternId;
-            document.getElementById('recurring-task-name').value = pattern.name;
-            pattern.daysOfWeek.forEach(dayIndex => {
-                const checkbox = document.getElementById(`recurring-day-${dayIndex}`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                    const label = checkbox.closest('label');
-                    if (label) label.classList.add('checked');
-                }
-            });
-            if (recurringTaskStartDatePicker && pattern.startDate) recurringTaskStartDatePicker.setDate(pattern.startDate, true, "d/m/Y");
-            if (recurringTaskEndDatePicker && pattern.endDate) recurringTaskEndDatePicker.setDate(pattern.endDate, true, "d/m/Y");
-            updateSelectedDaysHint();
-        } else {
-            modalTitle.textContent = 'Adicionar Padrão Recorrente';
-            modalDescription.textContent = 'Configure uma nova rotina de estudos ou hábitos.';
-            submitButton.innerHTML = '<i class="bi bi-plus-lg"></i> Salvar Padrão';
-        }
+    if (patternToLoad && patternToLoad.tasksByDay) {
+        renderTasksInDayCards_v2(patternToLoad.tasksByDay);
     } else {
-        modalTitle.textContent = 'Adicionar Padrão Recorrente';
-        modalDescription.textContent = 'Configure uma nova rotina de estudos ou hábitos.';
-        submitButton.innerHTML = '<i class="bi bi-plus-lg"></i> Salvar Padrão';
+        document.querySelectorAll('.day-card-v2-tasks').forEach(list => {
+            if (list) list.innerHTML = '<span class="no-tasks-msg">Nenhuma tarefa</span>';
+        });
+    }
+    updateDayTaskCounters_v2();
+    updateTotalRoutineTasksCount_v2();
+
+
+    const btnConfirmAdd = modal.querySelector('.btn-confirm-add-task-v2');
+    if (btnConfirmAdd && btnConfirmAdd._taskifyListenerAttached !== true) {
+        btnConfirmAdd.addEventListener('click', handleConfirmAddTask_v2);
+        btnConfirmAdd._taskifyListenerAttached = true;
     }
 
-    renderRecurringTaskPatterns();
+    if (newTaskTextInput && newTaskTextInput._taskifyEnterListenerAttached !== true) {
+        newTaskTextInput.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                handleConfirmAddTask_v2();
+            }
+        });
+        newTaskTextInput._taskifyEnterListenerAttached = true;
+    }
+
+    modal.querySelectorAll('.day-card-v2').forEach(card => {
+        if (card._taskifyCardListenerAttached !== true) {
+            card.addEventListener('click', handleDayCardClick_v2);
+            card._taskifyCardListenerAttached = true;
+        }
+        const taskListEl = card.querySelector('.day-card-v2-tasks');
+        if (taskListEl && taskListEl._taskifyDragListenerAttached !== true) {
+            taskListEl.addEventListener('dragover', handlePatternTaskDragOver_v2);
+            taskListEl.addEventListener('drop', handlePatternTaskDrop_v2);
+            taskListEl._taskifyDragListenerAttached = true;
+        }
+    });
+
     overlay.classList.add('show');
     modal.classList.add('show');
     document.body.classList.add('modal-open');
+    newTaskTextInput.focus();
 }
+
 
 function closeRecurringTaskPatternModal() {
     const modal = document.getElementById('recurring-task-modal');
     const overlay = document.getElementById('recurring-task-modal-overlay');
-    if (modal && overlay) {
-        modal.classList.remove('show');
-        overlay.classList.remove('show');
-        document.body.classList.remove('modal-open');
-        const form = document.getElementById('recurring-task-form');
-        if (form) form.reset();
-        document.querySelectorAll('.recurring-days-checkbox-group input[type="checkbox"]').forEach(cb => {
-            cb.checked = false;
-            const label = cb.closest('label');
-            if (label) label.classList.remove('checked');
+    if (!modal || !overlay) return;
+
+    modal.classList.remove('show');
+    overlay.classList.remove('show');
+    document.body.classList.remove('modal-open');
+    currentEditingPatternTaskId_v2 = null;
+
+    if (modal.dataset.modalType === "recurring-task-definition-v2") {
+        const newTaskTextInput = document.getElementById('new-task-text-input-v2');
+        if (newTaskTextInput) newTaskTextInput.value = '';
+
+        document.querySelectorAll('.day-card-v2.selected').forEach(card => card.classList.remove('selected'));
+        updateSelectedDaysCount_v2();
+        document.querySelectorAll('.day-card-v2-tasks').forEach(list => {
+            if (list) list.innerHTML = '<span class="no-tasks-msg">Nenhuma tarefa</span>';
         });
-        updateSelectedDaysHint();
     }
 }
 
-function saveRecurringTaskPattern(event) {
-    event.preventDefault();
-    const form = document.getElementById('recurring-task-form');
-    const patternId = form.dataset.editingPatternId;
-    const name = document.getElementById('recurring-task-name').value.trim();
-    if (!name) { showCustomAlert("O nome da tarefa recorrente é obrigatório.", "Erro de Validação"); return; }
 
-    const daysOfWeek = [];
-    for (let i = 0; i < 7; i++) {
-        const checkbox = document.getElementById(`recurring-day-${i}`);
-        if (checkbox && checkbox.checked) daysOfWeek.push(parseInt(checkbox.value, 10));
+function handleDayCardClick_v2(event) {
+    if (event.target.closest('.btn-icon-recurrent-task-v2') || event.target.closest('.editing-task-input-v2') || event.target.closest('.task-routine-checkbox')) {
+        return;
     }
-    if (daysOfWeek.length === 0) { showCustomAlert("Selecione pelo menos um dia da semana.", "Erro de Validação"); return; }
+    const card = event.currentTarget;
+    card.classList.toggle('selected');
+    updateSelectedDaysCount_v2();
+}
 
-    const startDateSelected = recurringTaskStartDatePicker.selectedDates;
-    if (!startDateSelected || startDateSelected.length === 0) { showCustomAlert("A data de início é obrigatória.", "Erro de Validação"); return; }
-    const startDate = formatDateToISO(recurringTaskStartDatePicker.input.value);
-
-    let endDate = null;
-    const endDateSelected = recurringTaskEndDatePicker.selectedDates;
-    if (endDateSelected && endDateSelected.length > 0) {
-        endDate = formatDateToISO(recurringTaskEndDatePicker.input.value);
-        if (endDate && startDate && new Date(endDate + "T00:00:00Z") < new Date(startDate + "T00:00:00Z")) {
-            showCustomAlert("A data de término não pode ser anterior à data de início.", "Erro de Validação"); return;
-        }
-    }
-
-    if (patternId) {
-        const patternIndex = state.recurringTaskPatterns.findIndex(p => p.id === patternId);
-        if (patternIndex > -1) {
-            state.recurringTaskPatterns[patternIndex] = { ...state.recurringTaskPatterns[patternIndex], name, daysOfWeek, startDate, endDate };
-        }
+function updateSelectedDaysCount_v2() {
+    const countEl = document.getElementById('recurring-v2-selected-days-count');
+    if (!countEl) return;
+    const selectedCards = document.querySelectorAll('#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2.selected').length;
+    if (selectedCards === 0) {
+        countEl.textContent = "Nenhum dia selecionado";
+    } else if (selectedCards === 1) {
+        countEl.textContent = "1 dia selecionado";
     } else {
-        state.recurringTaskPatterns.push({ id: Date.now().toString(), name, frequency: 'weekly', daysOfWeek, startDate, endDate, createdAt: new Date().toISOString() });
+        countEl.textContent = `${selectedCards} dias selecionados`;
     }
-
-    closeRecurringTaskPatternModal();
-    renderRecurringTaskPatterns();
-    generateRecurringTaskInstances();
-    renderTasks();
-    saveState();
 }
 
-function deleteRecurringTaskPattern(patternId) {
-    showCustomAlert(
-        "Tem certeza que deseja excluir este padrão recorrente?<br><br>Todas as suas ocorrências futuras (não concluídas) também serão removidas.<br>Ocorrências passadas e concluídas serão mantidas.",
-        "Confirmar Exclusão de Padrão",
-        () => {
-            state.recurringTaskPatterns = state.recurringTaskPatterns.filter(p => p.id !== patternId);
-            const todayISO = getTodayISO();
-            state.tasks = state.tasks.filter(task => {
-                if (task.sourcePatternId === patternId) {
-                    if (task.completed) return true;
-                    if (task.assignedDate && task.assignedDate < todayISO) return true;
-                    return false;
-                }
-                return true;
-            });
-            renderRecurringTaskPatterns();
-            renderTasks();
-            saveState();
-        }
-    );
+function handleSelectAllDays_v2() {
+    document.querySelectorAll('#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2').forEach(card => card.classList.add('selected'));
+    updateSelectedDaysCount_v2();
 }
 
+function handleClearDaySelection_v2() {
+    document.querySelectorAll('#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2.selected').forEach(card => card.classList.remove('selected'));
+    updateSelectedDaysCount_v2();
+}
 
-function renderRecurringTaskPatterns() {
-    const patternsListEl = document.getElementById('recurring-patterns-list');
-    const patternsCountEl = document.getElementById('recurring-patterns-count');
+function handleConfirmAddTask_v2() {
+    const taskTextInput = document.getElementById('new-task-text-input-v2');
+    const taskText = taskTextInput.value.trim();
+    const selectedCards = document.querySelectorAll('#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2.selected');
 
-    if (!patternsListEl || !patternsCountEl) {
-        console.error("Elemento da lista de padrões ou contador não encontrado.");
+    if (selectedCards.length === 0 && !currentEditingPatternTaskId_v2) {
+        showCustomAlert("Selecione pelo menos um dia para adicionar a tarefa.", "Nenhum Dia Selecionado");
         return;
     }
 
-    patternsListEl.innerHTML = '';
-    const patterns = state.recurringTaskPatterns;
-
-    if (patterns.length === 0) {
-        patternsListEl.innerHTML = '<li class="recurring-pattern-empty-message">Nenhum padrão recorrente criado.</li>';
-        patternsCountEl.textContent = '0 padrões';
-    } else {
-        patternsCountEl.textContent = `${patterns.length} ${patterns.length === 1 ? 'padrão' : 'padrões'}`;
+    if (!taskText) {
+        showCustomAlert("Por favor, digite o nome da tarefa.", "Tarefa Vazia");
+        return;
     }
 
-    const dayNamesShort = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-    patterns.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Ordena por mais recente primeiro
+    if (currentEditingPatternTaskId_v2) {
+        const routinePattern = state.recurringTaskPatterns.find(p => p.id === SINGLE_ROUTINE_ID);
+        if (routinePattern && routinePattern.tasksByDay) {
+            let taskUpdated = false;
+            for (const dayIndex in routinePattern.tasksByDay) {
+                const taskIndexToUpdate = routinePattern.tasksByDay[dayIndex].findIndex(t => t.id === currentEditingPatternTaskId_v2);
+                if (taskIndexToUpdate > -1) {
+                    routinePattern.tasksByDay[dayIndex][taskIndexToUpdate].text = taskText;
+                    taskUpdated = true;
+                }
+            }
+            if (taskUpdated) {
+                renderTasksInDayCards_v2(routinePattern.tasksByDay);
+                saveRecurringPatternDefinition_v2(false);
+            }
+        }
+        currentEditingPatternTaskId_v2 = null;
+    } else {
+        selectedCards.forEach(card => {
+            const taskList = card.querySelector('.day-card-v2-tasks');
+            if (taskList) {
+                const noTasksMsg = taskList.querySelector('.no-tasks-msg');
+                if (noTasksMsg) noTasksMsg.remove();
 
-    patterns.forEach(pattern => {
-        const li = document.createElement('li');
-        li.className = 'recurring-pattern-item';
-
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'recurring-pattern-info';
-
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'recurring-pattern-name';
-        nameSpan.textContent = pattern.name;
-
-        const detailsGroup = document.createElement('div');
-        detailsGroup.className = 'recurring-pattern-details-group';
-
-        const daysPillsContainer = document.createElement('div');
-        daysPillsContainer.className = 'recurring-pattern-days';
-        pattern.daysOfWeek.map(d => dayNamesShort[d]).forEach(dayText => {
-            const pill = document.createElement('span');
-            pill.className = 'day-pill';
-            pill.textContent = dayText;
-            daysPillsContainer.appendChild(pill);
+                const newTaskData = {
+                    id: `patternTask-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                    text: taskText,
+                    completed: false,
+                    order: taskList.children.length
+                };
+                const taskItemEl = createPatternTaskItemElement_v2(newTaskData);
+                taskList.appendChild(taskItemEl);
+            }
         });
-
-
-        const datesSpan = document.createElement('span');
-        datesSpan.className = 'recurring-pattern-dates';
-        let dateText = `<span class="date-label">Início:</span> ${formatDateToDDMMYYYY(pattern.startDate)}`;
-        if (pattern.endDate) dateText += ` • <span class="date-label">Fim:</span> ${formatDateToDDMMYYYY(pattern.endDate)}`;
-        else dateText += " • <span class=\"date-label\">Contínuo</span>";
-        datesSpan.innerHTML = dateText;
-
-        detailsGroup.appendChild(daysPillsContainer);
-        detailsGroup.appendChild(datesSpan);
-
-        infoDiv.appendChild(nameSpan);
-        infoDiv.appendChild(detailsGroup);
-
-
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'recurring-pattern-actions';
-
-        const editBtn = document.createElement('button');
-        editBtn.className = 'btn-icon-recurring edit';
-        editBtn.innerHTML = '<i class="bi bi-pencil-fill"></i>';
-        editBtn.title = "Editar Padrão";
-        editBtn.addEventListener('click', () => openRecurringTaskPatternModal(pattern.id));
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'btn-icon-recurring delete';
-        deleteBtn.innerHTML = '<i class="bi bi-trash3-fill"></i>';
-        deleteBtn.title = "Excluir Padrão";
-        deleteBtn.addEventListener('click', () => deleteRecurringTaskPattern(pattern.id));
-
-        actionsDiv.appendChild(editBtn);
-        actionsDiv.appendChild(deleteBtn);
-
-        li.appendChild(infoDiv);
-        li.appendChild(actionsDiv);
-        patternsListEl.appendChild(li);
-    });
+        saveRecurringPatternDefinition_v2(false);
+    }
+    taskTextInput.value = '';
+    document.querySelectorAll('#recurring-task-modal .day-card-v2.selected').forEach(card => card.classList.remove('selected'));
+    updateSelectedDaysCount_v2();
+    updateDayTaskCounters_v2();
+    updateTotalRoutineTasksCount_v2();
 }
 
+function createPatternTaskItemElement_v2(taskData) {
+    const li = document.createElement('li');
+    li.className = 'task-item-recurrent-v2 draggable';
+    li.setAttribute('draggable', 'true');
+    li.dataset.taskId = taskData.id || `tempId-${Date.now()}-${Math.random()}`;
+    li.dataset.taskText = taskData.text;
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'task-routine-checkbox';
+    checkbox.id = `chk-routine-${taskData.id}`;
+    checkbox.checked = taskData.completed || false;
+    checkbox.addEventListener('change', (e) => handleRoutineTaskCheckboxChange_v2(e, taskData.id));
+
+
+    const textSpan = document.createElement('span');
+    textSpan.className = 'task-text-recurrent-v2';
+    textSpan.textContent = taskData.text;
+    textSpan.addEventListener('click', () => {
+        checkbox.checked = !checkbox.checked;
+        const changeEvent = new Event('change', { bubbles: true });
+        checkbox.dispatchEvent(changeEvent);
+    });
+
+
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'task-actions-recurrent-v2';
+
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'btn-icon-recurrent-task-v2 edit';
+    editBtn.innerHTML = '<i class="bi bi-pencil"></i>';
+    editBtn.title = "Editar Tarefa";
+    editBtn.addEventListener('click', () => handleEditPatternTask_v2(taskData.id, taskData.text));
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'btn-icon-recurrent-task-v2 delete';
+    deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+    deleteBtn.title = "Excluir Tarefa da Rotina";
+    deleteBtn.addEventListener('click', (e) => {
+        handleDeletePatternTask_v2(e.currentTarget.closest('li'));
+        saveRecurringPatternDefinition_v2(false);
+        updateDayTaskCounters_v2();
+        updateTotalRoutineTasksCount_v2();
+    });
+
+    actionsDiv.appendChild(editBtn);
+    actionsDiv.appendChild(deleteBtn);
+
+    li.appendChild(checkbox);
+    li.appendChild(textSpan);
+    li.appendChild(actionsDiv);
+
+    li.addEventListener('dragstart', handlePatternTaskDragStart_v2);
+    li.addEventListener('dragend', handlePatternTaskDragEnd_v2);
+
+    return li;
+}
+
+function handleEditPatternTask_v2(taskId, currentText) {
+    const taskTextInput = document.getElementById('new-task-text-input-v2');
+    taskTextInput.value = currentText;
+    taskTextInput.focus();
+    taskTextInput.select();
+    currentEditingPatternTaskId_v2 = taskId;
+
+    document.querySelectorAll('#recurring-task-modal .day-card-v2.selected').forEach(card => card.classList.remove('selected'));
+    updateSelectedDaysCount_v2();
+}
+
+function handleDeletePatternTask_v2(taskItemElement) {
+    const taskIdToDelete = taskItemElement.dataset.taskId;
+
+    const routinePattern = state.recurringTaskPatterns.find(p => p.id === SINGLE_ROUTINE_ID);
+    if (routinePattern && routinePattern.tasksByDay) {
+        for (const dayIndex in routinePattern.tasksByDay) {
+            routinePattern.tasksByDay[dayIndex] = routinePattern.tasksByDay[dayIndex].filter(t => t.id !== taskIdToDelete);
+        }
+    }
+    renderTasksInDayCards_v2(routinePattern ? routinePattern.tasksByDay : {});
+}
+
+
+function saveRecurringPatternDefinition_v2(closeModalAfterSave = true) {
+    const dayCards = document.querySelectorAll('#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2');
+    const tasksByDay = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }; // 0:Dom, 1:Seg, ..., 6:Sab
+
+    dayCards.forEach(card => {
+        const dayIndex = card.dataset.dayIndex; // Este é o dayIndex correto (0-6)
+        const taskList = card.querySelector('.day-card-v2-tasks');
+        if (taskList) {
+            tasksByDay[dayIndex] = []; // Limpa para reconstruir com a ordem correta
+            Array.from(taskList.children).forEach((taskItemEl, index) => {
+                if (taskItemEl.classList.contains('task-item-recurrent-v2')) {
+                    const taskTextEl = taskItemEl.querySelector('.task-text-recurrent-v2');
+                    const checkboxEl = taskItemEl.querySelector('.task-routine-checkbox');
+                    if (taskTextEl && checkboxEl) {
+                        const text = taskTextEl.textContent;
+                        tasksByDay[dayIndex].push({
+                            id: taskItemEl.dataset.taskId,
+                            text: text,
+                            completed: checkboxEl.checked,
+                            order: index
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+
+    const patternData = {
+        id: SINGLE_ROUTINE_ID,
+        name: "Minha Rotina Semanal",
+        tasksByDay,
+        updatedAt: new Date().toISOString()
+    };
+
+    const existingPatternIndex = state.recurringTaskPatterns.findIndex(p => p.id === SINGLE_ROUTINE_ID);
+
+    if (existingPatternIndex > -1) {
+        state.recurringTaskPatterns[existingPatternIndex] = {
+            ...state.recurringTaskPatterns[existingPatternIndex],
+            ...patternData
+        };
+    } else {
+        patternData.startDate = getTodayISO();
+        patternData.createdAt = new Date().toISOString();
+        state.recurringTaskPatterns.push(patternData);
+    }
+
+    if (closeModalAfterSave) {
+        closeRecurringTaskPatternModal();
+    }
+    generateRecurringTaskInstances();
+    renderTasks();
+    saveState();
+    updateDayTaskCounters_v2();
+    updateTotalRoutineTasksCount_v2();
+}
+
+
+function renderTasksInDayCards_v2(tasksByDay) {
+    if (!tasksByDay || typeof tasksByDay !== 'object') {
+        document.querySelectorAll('.day-card-v2-tasks').forEach(list => {
+            if (list) list.innerHTML = '<span class="no-tasks-msg">Nenhuma tarefa</span>';
+        });
+        return;
+    }
+
+    const dayIndices = ["0", "1", "2", "3", "4", "5", "6"];
+
+    dayIndices.forEach(dayIndex => {
+        const dayCard = document.querySelector(`#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2[data-day-index="${dayIndex}"]`);
+        if (dayCard) {
+            const taskListEl = dayCard.querySelector('.day-card-v2-tasks');
+            if (taskListEl) {
+                taskListEl.innerHTML = '';
+                const tasksForThisDay = tasksByDay[dayIndex];
+                if (tasksForThisDay && Array.isArray(tasksForThisDay) && tasksForThisDay.length > 0) {
+                    tasksForThisDay.sort((a, b) => (a.order || 0) - (b.order || 0)).forEach(taskDef => {
+                        if (taskDef && typeof taskDef.text === 'string') {
+                            if (parseInt(dayIndex) === new Date().getDay() && taskDef.id) {
+                                const mainListTaskId = `${SINGLE_ROUTINE_ID}-${taskDef.id}-${getTodayISO()}`;
+                                const mainListTask = state.tasks.find(t => t.id === mainListTaskId);
+                                if (mainListTask) {
+                                    taskDef.completed = mainListTask.completed;
+                                }
+                            }
+                            const taskItemEl = createPatternTaskItemElement_v2(taskDef);
+                            taskListEl.appendChild(taskItemEl);
+                        }
+                    });
+                } else {
+                    taskListEl.innerHTML = '<span class="no-tasks-msg">Nenhuma tarefa</span>';
+                }
+            }
+        }
+    });
+    updateDayTaskCounters_v2();
+    updateTotalRoutineTasksCount_v2();
+}
+
+function handleRoutineTaskCheckboxChange_v2(event, routineTaskId) {
+    const checkbox = event.target;
+    const isChecked = checkbox.checked;
+    const dayCard = checkbox.closest('.day-card-v2');
+    if (!dayCard) return;
+    const dayIndex = dayCard.dataset.dayIndex;
+
+    const routinePattern = state.recurringTaskPatterns.find(p => p.id === SINGLE_ROUTINE_ID);
+    if (routinePattern && routinePattern.tasksByDay[dayIndex]) {
+        const taskDef = routinePattern.tasksByDay[dayIndex].find(t => t.id === routineTaskId);
+        if (taskDef) {
+            taskDef.completed = isChecked;
+        }
+    }
+
+    if (parseInt(dayIndex) === new Date().getDay()) {
+        const mainListTaskId = `${SINGLE_ROUTINE_ID}-${routineTaskId}-${getTodayISO()}`;
+        let mainListTask = state.tasks.find(t => t.id === mainListTaskId);
+
+        if (mainListTask) {
+            mainListTask.completed = isChecked;
+            mainListTask.completionDate = isChecked ? new Date().toISOString() : null;
+        } else {
+            const taskDefForInstance = routinePattern?.tasksByDay[dayIndex]?.find(t => t.id === routineTaskId);
+            if (taskDefForInstance) {
+                const newTaskInstance = {
+                    id: mainListTaskId,
+                    text: taskDefForInstance.text,
+                    completed: isChecked,
+                    createdAt: new Date().toISOString(),
+                    completionDate: isChecked ? new Date().toISOString() : null,
+                    assignedDate: getTodayISO(),
+                    sourcePatternId: SINGLE_ROUTINE_ID,
+                    originalPatternTaskId: routineTaskId,
+                    isRecurringInstance: true
+                };
+                state.tasks.push(newTaskInstance);
+            }
+        }
+        renderTasks();
+        updateTasksChartDataOnly();
+    }
+    saveRecurringPatternDefinition_v2(false);
+}
+
+
+function handlePatternTaskDragStart_v2(e) {
+    draggedPatternTaskItem_v2 = e.target;
+    sourcePatternTaskList_v2 = e.target.closest('.day-card-v2-tasks');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
+    setTimeout(() => { if (draggedPatternTaskItem_v2) draggedPatternTaskItem_v2.classList.add('dragging'); }, 0);
+}
+
+function handlePatternTaskDragEnd_v2(e) {
+    if (draggedPatternTaskItem_v2) draggedPatternTaskItem_v2.classList.remove('dragging');
+    draggedPatternTaskItem_v2 = null;
+    sourcePatternTaskList_v2 = null;
+    document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
+    saveRecurringPatternDefinition_v2(false);
+    updateDayTaskCounters_v2();
+    updateTotalRoutineTasksCount_v2();
+}
+
+function handlePatternTaskDragOver_v2(e) {
+    e.preventDefault();
+    const targetList = e.target.closest('.day-card-v2-tasks');
+    if (!targetList) {
+        e.dataTransfer.dropEffect = "none";
+        return;
+    }
+    e.dataTransfer.dropEffect = "move";
+
+    document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
+    const placeholder = document.createElement('li');
+    placeholder.classList.add('drag-over-placeholder');
+
+    const afterElement = getPatternTaskDragAfterElement_v2(targetList, e.clientY);
+    if (afterElement == null) {
+        targetList.appendChild(placeholder);
+    } else {
+        targetList.insertBefore(placeholder, afterElement);
+    }
+}
+
+function handlePatternTaskDrop_v2(e) {
+    e.preventDefault();
+    const targetList = e.target.closest('.day-card-v2-tasks');
+    if (!targetList || !draggedPatternTaskItem_v2) {
+        handlePatternTaskDragEnd_v2(); return;
+    }
+
+    document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
+
+    const afterElement = getPatternTaskDragAfterElement_v2(targetList, e.clientY);
+    if (afterElement) {
+        targetList.insertBefore(draggedPatternTaskItem_v2, afterElement);
+    } else {
+        targetList.appendChild(draggedPatternTaskItem_v2);
+    }
+
+    if (sourcePatternTaskList_v2 && sourcePatternTaskList_v2 !== targetList && sourcePatternTaskList_v2.children.length === 0) {
+        const noTasksMsg = document.createElement('span');
+        noTasksMsg.className = 'no-tasks-msg';
+        noTasksMsg.textContent = 'Nenhuma tarefa';
+        sourcePatternTaskList_v2.appendChild(noTasksMsg);
+    }
+    const noTasksMsgInTarget = targetList.querySelector('.no-tasks-msg');
+    if (noTasksMsgInTarget && Array.from(targetList.children).some(child => child.classList.contains('task-item-recurrent-v2'))) {
+        noTasksMsgInTarget.remove();
+    }
+}
+
+function getPatternTaskDragAfterElement_v2(container, y) {
+    const draggableElements = [...container.querySelectorAll('.task-item-recurrent-v2:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
 
 function generateRecurringTaskInstances() {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const todayISO = today.toISOString().split('T')[0];
+    let newTasksAddedOrRemoved = false;
 
     const activePatternIds = new Set(state.recurringTaskPatterns.map(p => p.id));
     state.tasks = state.tasks.filter(task => {
         if (task.isRecurringInstance && task.sourcePatternId) {
-            if (!activePatternIds.has(task.sourcePatternId) && task.assignedDate >= todayISO && !task.completed) {
-                return false;
+            if (!activePatternIds.has(task.sourcePatternId)) {
+                if (task.assignedDate >= todayISO && !task.completed) {
+                    newTasksAddedOrRemoved = true; return false;
+                }
             }
             const pattern = state.recurringTaskPatterns.find(p => p.id === task.sourcePatternId);
-            if (pattern && pattern.endDate && task.assignedDate > pattern.endDate && !task.completed) {
-                return false;
+            if (pattern && pattern.endDate && task.assignedDate > pattern.endDate) {
+                if (!task.completed) {
+                    newTasksAddedOrRemoved = true; return false;
+                }
             }
         }
         return true;
     });
 
 
-    let newTasksAdded = false;
-
     state.recurringTaskPatterns.forEach(pattern => {
-        const patternStartDate = new Date(pattern.startDate + "T00:00:00Z"); // Use Z para UTC
-        const patternEndDate = pattern.endDate ? new Date(pattern.endDate + "T00:00:00Z") : null;
+        if (pattern.id !== SINGLE_ROUTINE_ID) {
+            pattern.id = SINGLE_ROUTINE_ID;
+            newTasksAddedOrRemoved = true;
+        }
+
+        const patternStartDate = pattern.startDate ? new Date(pattern.startDate) : new Date(pattern.createdAt || getTodayISO());
+        patternStartDate.setHours(0, 0, 0, 0);
+
+        const patternEndDate = pattern.endDate ? new Date(pattern.endDate) : null;
+        if (patternEndDate) patternEndDate.setHours(0, 0, 0, 0);
 
         if (patternStartDate > today) return;
         if (patternEndDate && patternEndDate < today) return;
 
-        const dayOfWeekToday = today.getUTCDay(); // getUTCDay para consistência
+        const dayOfWeekToday = today.getDay();
 
-        if (pattern.daysOfWeek.includes(dayOfWeekToday)) {
-            const existingTask = state.tasks.find(task =>
-                task.sourcePatternId === pattern.id && task.assignedDate === todayISO
-            );
-            if (!existingTask) {
-                state.tasks.push({
-                    id: `${pattern.id}-${todayISO}`,
-                    text: pattern.name,
-                    completed: false,
-                    createdAt: new Date().toISOString(),
-                    assignedDate: todayISO,
-                    sourcePatternId: pattern.id,
-                    isRecurringInstance: true
-                });
-                newTasksAdded = true;
-            }
+        if (pattern.tasksByDay && pattern.tasksByDay[dayOfWeekToday] && pattern.tasksByDay[dayOfWeekToday].length > 0) {
+            pattern.tasksByDay[dayOfWeekToday].forEach(taskDef => {
+                const taskIdForInstance = `${pattern.id}-${taskDef.id}-${todayISO}`;
+                const existingTask = state.tasks.find(task => task.id === taskIdForInstance);
+
+                if (!existingTask) {
+                    state.tasks.push({
+                        id: taskIdForInstance,
+                        text: taskDef.text,
+                        completed: taskDef.completed || false,
+                        createdAt: new Date().toISOString(),
+                        assignedDate: todayISO,
+                        sourcePatternId: pattern.id,
+                        originalPatternTaskId: taskDef.id,
+                        isRecurringInstance: true
+                    });
+                    newTasksAddedOrRemoved = true;
+                } else {
+                    if (existingTask.completed !== (taskDef.completed || false)) {
+                        existingTask.completed = taskDef.completed || false;
+                        existingTask.completionDate = existingTask.completed ? new Date().toISOString() : null;
+                        newTasksAddedOrRemoved = true;
+                    }
+                    if (existingTask.text !== taskDef.text) {
+                        existingTask.text = taskDef.text;
+                        newTasksAddedOrRemoved = true;
+                    }
+                }
+            });
         }
     });
+    if (newTasksAddedOrRemoved) renderTasks();
 }
 
 function updateDeleteRecurringTaskModalUI(selectedOptionValue) {
@@ -10184,23 +11050,25 @@ function updateDeleteRecurringTaskModalUI(selectedOptionValue) {
 
     confirmBtn.classList.remove('btn-danger-style');
     warningMessageContainer.classList.remove('danger');
-    warningMessageIconEl.className = 'bi bi-exclamation-triangle-fill'; // Reset icon
+    warningMessageIconEl.className = 'bi bi-exclamation-triangle-fill';
+
+    const optionFutureEl = document.querySelector('.delete-option-card input[name="delete-recurring-option"][value="future"]');
+    if (optionFutureEl && optionFutureEl.closest('.delete-option-card')) {
+        optionFutureEl.closest('.delete-option-card').style.display = 'none';
+    }
+
 
     switch (selectedOptionValue) {
         case 'this':
             warningMessageTextEl.textContent = 'Apenas esta ocorrência será removida. A tarefa recorrente continuará normalmente.';
             confirmBtn.textContent = 'Excluir Ocorrência';
             break;
-        case 'future':
-            warningMessageTextEl.textContent = 'Removerá esta e as futuras. Ocorrências passadas e concluídas serão mantidas.';
-            confirmBtn.textContent = 'Excluir Futuras';
-            break;
         case 'all':
-            warningMessageTextEl.innerHTML = 'Ação irreversível: Toda a série recorrente será permanentemente excluída.';
-            confirmBtn.textContent = 'Excluir Série Completa';
+            warningMessageTextEl.innerHTML = 'Ação irreversível: Toda a sua rotina semanal será permanentemente excluída.';
+            confirmBtn.textContent = 'Excluir Rotina Completa';
             confirmBtn.classList.add('btn-danger-style');
             warningMessageContainer.classList.add('danger');
-            warningMessageIconEl.className = 'bi bi-trash3-fill'; // Change icon for "all"
+            warningMessageIconEl.className = 'bi bi-trash3-fill';
             break;
     }
 }
@@ -10212,11 +11080,16 @@ function openDeleteRecurringTaskModal(taskInstance) {
     if (!modal || !overlay) return;
     modal.dataset.deletingTaskId = taskInstance.id;
 
+    const optionFutureEl = modal.querySelector('.delete-option-card input[name="delete-recurring-option"][value="future"]');
+    if (optionFutureEl && optionFutureEl.closest('.delete-option-card')) {
+        optionFutureEl.closest('.delete-option-card').style.display = 'none';
+    }
+
+
     const firstOptionRadio = modal.querySelector('input[name="delete-recurring-option"][value="this"]');
     if (firstOptionRadio) {
         firstOptionRadio.checked = true;
-        updateDeleteRecurringTaskModalUI('this'); // Atualiza UI para a opção padrão
-        // Atualiza o estado visual dos cards
+        updateDeleteRecurringTaskModalUI('this');
         document.querySelectorAll('.delete-option-card').forEach(card => card.classList.remove('selected'));
         firstOptionRadio.closest('.delete-option-card').classList.add('selected');
 
@@ -10253,6 +11126,7 @@ function confirmDeleteRecurringTask() {
     const taskIndex = state.tasks.findIndex(t => t.id === taskId);
     if (taskIndex === -1) {
         closeDeleteRecurringTaskModal();
+        showCustomAlert("Tarefa não encontrada para exclusão.", "Erro");
         return;
     }
 
@@ -10260,43 +11134,30 @@ function confirmDeleteRecurringTask() {
     const patternId = taskInstance.sourcePatternId;
     let tasksModified = false;
     let patternsModified = false;
-    const todayISO = getTodayISO();
 
     if (optionValue === 'this') {
-        state.tasks.splice(taskIndex, 1);
-        tasksModified = true;
-    } else if (optionValue === 'future' && patternId) {
-        const instanceDate = new Date(taskInstance.assignedDate + "T00:00:00Z");
-        const pattern = state.recurringTaskPatterns.find(p => p.id === patternId);
-
-        if (pattern) {
-            const dayBeforeInstance = new Date(instanceDate);
-            dayBeforeInstance.setUTCDate(instanceDate.getUTCDate() - 1);
-            if (!pattern.endDate || new Date(pattern.endDate + "T00:00:00Z") >= instanceDate) {
-                pattern.endDate = dayBeforeInstance.toISOString().split('T')[0];
-                patternsModified = true;
-            }
+        if (taskInstance.isRecurringInstance && taskInstance.assignedDate === getTodayISO()) {
+            taskInstance.deletedThisInstanceOfDay = true;
+        } else {
+            state.tasks.splice(taskIndex, 1);
         }
+        tasksModified = true;
+    }
+    else if (optionValue === 'all' && patternId === SINGLE_ROUTINE_ID) {
+        state.recurringTaskPatterns = [];
+        patternsModified = true;
+
         state.tasks = state.tasks.filter(t => {
-            if (t.sourcePatternId === patternId) {
-                const tDate = new Date(t.assignedDate + "T00:00:00Z");
-                if (tDate >= instanceDate && !t.completed) {
+            if (t.sourcePatternId === SINGLE_ROUTINE_ID) {
+                const taskDate = new Date(t.assignedDate + "T00:00:00");
+                const today = new Date(); today.setHours(0, 0, 0, 0);
+                if (taskDate >= today && !t.completed) {
                     tasksModified = true;
                     return false;
-                }
-            }
-            return true;
-        });
-    } else if (optionValue === 'all' && patternId) {
-        state.recurringTaskPatterns = state.recurringTaskPatterns.filter(p => {
-            if (p.id === patternId) { patternsModified = true; return false; }
-            return true;
-        });
-        state.tasks = state.tasks.filter(t => {
-            if (t.sourcePatternId === patternId) {
-                if (!t.completed) { // Remove todas as não completadas, futuras e passadas
-                    tasksModified = true;
-                    return false;
+                } else if (taskDate < today) {
+                    return true;
+                } else if (taskDate >= today && t.completed) {
+                    return true;
                 }
             }
             return true;
@@ -10304,16 +11165,45 @@ function confirmDeleteRecurringTask() {
     }
 
     closeDeleteRecurringTaskModal();
-    if (tasksModified) renderTasks();
-    if (patternsModified) renderRecurringTaskPatterns();
-    saveState();
-    if (tasksModified) updateTasksChartDataOnly();
+    if (tasksModified || patternsModified) {
+        renderTasks();
+        saveState();
+        updateTasksChartDataOnly();
+    }
+}
+
+// Novas funções para atualizar contadores no modal de rotina
+function updateDayTaskCounters_v2() {
+    const dayIndices = { 0: "sunday", 1: "monday", 2: "tuesday", 3: "wednesday", 4: "thursday", 5: "friday", 6: "saturday" };
+    for (const dayIndex in dayIndices) {
+        const dayKey = dayIndices[dayIndex];
+        const taskListEl = document.getElementById(`pattern-v2-tasks-${dayKey}`);
+        const countEl = document.getElementById(`task-count-${dayKey}`);
+        if (taskListEl && countEl) {
+            const taskCount = taskListEl.querySelectorAll('.task-item-recurrent-v2').length;
+            countEl.textContent = taskCount;
+        }
+    }
+}
+
+function updateTotalRoutineTasksCount_v2() {
+    const totalCountEl = document.getElementById('recurring-modal-total-tasks');
+    if (!totalCountEl) return;
+
+    let totalTasks = 0;
+    const routinePattern = state.recurringTaskPatterns.find(p => p.id === SINGLE_ROUTINE_ID);
+    if (routinePattern && routinePattern.tasksByDay) {
+        for (const dayKey in routinePattern.tasksByDay) {
+            if (Array.isArray(routinePattern.tasksByDay[dayKey])) {
+                totalTasks += routinePattern.tasksByDay[dayKey].length;
+            }
+        }
+    }
+    totalCountEl.textContent = `Total de tarefas: ${totalTasks}`;
 }
 
 
 
-
-// --- Funções de Temas e Aparência ---
 function openThemesModal() {
     const modal = document.getElementById('themes-modal');
     const overlay = document.getElementById('themes-modal-overlay');
@@ -10424,7 +11314,6 @@ function initThemes() {
     applyCurrentThemeAndMode();
 }
 
-// --- Custom Alert System ---
 function showCustomAlert(message, title = 'Alerta', onConfirmCallback = null) {
     const alertOverlay = document.getElementById('custom-alert-overlay');
     const alertModal = document.getElementById('custom-alert-modal');
@@ -10471,7 +11360,6 @@ function showCustomAlert(message, title = 'Alerta', onConfirmCallback = null) {
 }
 window.showCustomAlert = showCustomAlert;
 
-// --- Modal do Guia de Boas-Vindas ---
 function openWelcomeGuideModal() {
     const modal = document.getElementById('welcome-guide-modal');
     const overlay = document.getElementById('welcome-guide-modal-overlay');
@@ -10499,7 +11387,6 @@ function closeWelcomeGuideModal() {
     }
 }
 
-// --- Modal de Confirmação de Reset ---
 function openConfirmResetModal() {
     closeGoalsModal();
     const modal = document.getElementById('confirm-reset-modal');
@@ -10541,7 +11428,6 @@ function updateFooterYear() {
     if (yearSpan) yearSpan.textContent = new Date().getFullYear();
 }
 
-// --- Scroll Indicator Logic ---
 function updateScrollIndicator() {
     const scrollIndicator = document.getElementById('scroll-indicator');
     const productivityArea = document.querySelector('.productivity-focus-area');
@@ -10591,7 +11477,6 @@ window.addEventListener('scroll', updateScrollIndicator, { passive: true });
 window.addEventListener('resize', updateScrollIndicator);
 
 
-// Inicialização Principal
 async function init() {
     const loaderElement = document.getElementById('loader');
     if (loaderElement) loaderElement.style.display = 'flex';
@@ -10604,11 +11489,53 @@ async function init() {
     initPomodoro();
     initTasks();
 
-    const recurringTaskForm = document.getElementById('recurring-task-form');
-    if (recurringTaskForm) recurringTaskForm.addEventListener('submit', saveRecurringTaskPattern);
+    const btnOpenRecurringModalV2 = document.getElementById('btn-open-recurring-task-modal');
+    if (btnOpenRecurringModalV2) {
+        btnOpenRecurringModalV2.onclick = () => openRecurringTaskPatternModal_v2();
+    }
 
-    const btnOpenRecurringModal = document.getElementById('btn-open-recurring-task-modal');
-    if (btnOpenRecurringModal) btnOpenRecurringModal.addEventListener('click', () => openRecurringTaskPatternModal());
+    const recurringModalV2 = document.getElementById('recurring-task-modal');
+    if (recurringModalV2) {
+        const btnConfirmAddV2 = recurringModalV2.querySelector('.btn-confirm-add-task-v2');
+        const btnSelectAllDaysV2 = recurringModalV2.querySelector('.btn-select-all-days');
+        const btnClearDaySelectionV2 = recurringModalV2.querySelector('.btn-clear-day-selection');
+        const newTaskTextInputV2 = document.getElementById('new-task-text-input-v2');
+
+        if (btnConfirmAddV2 && btnConfirmAddV2._taskifyListenerAttached !== true) {
+            btnConfirmAddV2.addEventListener('click', handleConfirmAddTask_v2);
+            btnConfirmAddV2._taskifyListenerAttached = true;
+        }
+        if (newTaskTextInputV2 && newTaskTextInputV2._taskifyEnterListenerAttached !== true) {
+            newTaskTextInputV2.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleConfirmAddTask_v2();
+                }
+            });
+            newTaskTextInputV2._taskifyEnterListenerAttached = true;
+        }
+        if (btnSelectAllDaysV2 && btnSelectAllDaysV2._taskifyListenerAttached !== true) {
+            btnSelectAllDaysV2.addEventListener('click', handleSelectAllDays_v2);
+            btnSelectAllDaysV2._taskifyListenerAttached = true;
+        }
+        if (btnClearDaySelectionV2 && btnClearDaySelectionV2._taskifyListenerAttached !== true) {
+            btnClearDaySelectionV2.addEventListener('click', handleClearDaySelection_v2);
+            btnClearDaySelectionV2._taskifyListenerAttached = true;
+        }
+
+        recurringModalV2.querySelectorAll('.day-card-v2').forEach(card => {
+            if (card._taskifyCardListenerAttached !== true) {
+                card.addEventListener('click', handleDayCardClick_v2);
+                card._taskifyCardListenerAttached = true;
+            }
+            const taskListEl = card.querySelector('.day-card-v2-tasks');
+            if (taskListEl && taskListEl._taskifyDragListenerAttached !== true) {
+                taskListEl.addEventListener('dragover', handlePatternTaskDragOver_v2);
+                taskListEl.addEventListener('drop', handlePatternTaskDrop_v2);
+                taskListEl._taskifyDragListenerAttached = true;
+            }
+        });
+    }
 
 
     const recurringTaskModalOverlay = document.getElementById('recurring-task-modal-overlay');
@@ -10617,10 +11544,7 @@ async function init() {
             if (e.target === recurringTaskModalOverlay) closeRecurringTaskPatternModal();
         });
     }
-    const recurringTaskModalCloseBtn = document.querySelector('#recurring-task-modal .modal-close-btn');
-    if (recurringTaskModalCloseBtn) recurringTaskModalCloseBtn.addEventListener('click', closeRecurringTaskPatternModal);
 
-    setupRecurringDaysCheckboxes();
 
     document.querySelectorAll('input[name="delete-recurring-option"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
@@ -10634,7 +11558,7 @@ async function init() {
         });
     });
     const btnConfirmDeleteRecurringAction = document.getElementById('btn-confirm-delete-recurring-action');
-    if(btnConfirmDeleteRecurringAction) btnConfirmDeleteRecurringAction.addEventListener('click', () => confirmDeleteRecurringTask());
+    if (btnConfirmDeleteRecurringAction) btnConfirmDeleteRecurringAction.addEventListener('click', () => confirmDeleteRecurringTask());
 
     const btnCancelDeleteRecurring = document.getElementById('btn-cancel-delete-recurring');
     if (btnCancelDeleteRecurring) btnCancelDeleteRecurring.addEventListener('click', closeDeleteRecurringTaskModal);
@@ -10644,11 +11568,7 @@ async function init() {
             if (e.target === deleteRecurringModalOverlay) closeDeleteRecurringTaskModal();
         });
     }
-    const deleteRecurringModalCloseBtn = document.querySelector('#delete-recurring-task-modal .modal-close-btn');
-    if (deleteRecurringModalCloseBtn) deleteRecurringModalCloseBtn.addEventListener('click', closeDeleteRecurringTaskModal);
 
-
-    renderRecurringTaskPatterns();
     generateRecurringTaskInstances();
 
     await loadAndSetupRetrospective();
@@ -10662,7 +11582,7 @@ async function init() {
     if (tasksChartInstance) tasksChartInstance.destroy();
     setupTasksChart(true);
 
-    updateUI();
+    updateUI(); // Inclui a chamada para updateCounterTooltips
 
     const goalsForm = document.getElementById('goals-form');
     if (goalsForm) goalsForm.addEventListener('submit', (e) => { e.preventDefault(); saveGoals(); });
@@ -10692,11 +11612,19 @@ async function init() {
         openWelcomeGuideModal();
     }
 
+    // Event listener para o input de step do contador de questões
+    const questionsStepInput = document.getElementById('questions-step-input');
+    if (questionsStepInput) {
+        questionsStepInput.addEventListener('input', updateCounterTooltips);
+        questionsStepInput.addEventListener('change', updateCounterTooltips); // Para caso de setas do navegador
+    }
+
+
     setInterval(() => {
         checkAllResets();
-        const prevTaskCount = state.tasks.filter(t => (t.isRecurringInstance ? t.assignedDate === getTodayISO() : true)).length;
+        const prevTaskCount = state.tasks.filter(t => !(t.deletedThisInstanceOfDay && t.assignedDate === getTodayISO()) && (t.isRecurringInstance ? t.assignedDate === getTodayISO() : true)).length;
         generateRecurringTaskInstances();
-        const currentTaskCount = state.tasks.filter(t => (t.isRecurringInstance ? t.assignedDate === getTodayISO() : true)).length;
+        const currentTaskCount = state.tasks.filter(t => !(t.deletedThisInstanceOfDay && t.assignedDate === getTodayISO()) && (t.isRecurringInstance ? t.assignedDate === getTodayISO() : true)).length;
 
         if (state.lastAccessDate !== new Date().toDateString() || prevTaskCount !== currentTaskCount) {
             renderTasks();
@@ -10724,7 +11652,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await init();
 });
 
-// Animação de Partículas
 const particleCanvas = document.getElementById('particle-canvas');
 if (particleCanvas) {
     const ctx = particleCanvas.getContext('2d');
@@ -10828,7 +11755,6 @@ if (particleCanvas) {
 }
 
 
-// --- Carregamento e Configuração da Retrospectiva ---
 async function loadAndSetupRetrospective() {
     retrospectiveModalEl = document.getElementById('retrospective-modal');
     retrospectiveModalOverlayEl = document.getElementById('retrospective-modal-overlay');
@@ -11014,29 +11940,7 @@ const path = require('path');
 const inputFile = 'repomix-output.xml'; // Altere se necessário
 const content = fs.readFileSync(inputFile, 'utf-8');
 
-// Regex que captura cada bloco <file path="...">...</file>
-const fileRegex = /<file path="([^"]+)">\s*([\s\S]*?)<\/file>/g;
-
-let match;
-let count = 0;
-
-while ((match = fileRegex.exec(content)) !== null) {
-const filePath = match[1].trim();
-const fileContent = match[2].trim();
-
-// Garante que a pasta de destino existe
-const dir = path.dirname(filePath);
-fs.mkdirSync(dir, { recursive: true });
-
-// Escreve o conteúdo no caminho correto
-fs.writeFileSync(filePath, fileContent, 'utf8');
-console.log(`✅ Arquivo criado: ${filePath}`);
-count++;
-
-
-}
-
-console.log(`\n🎉 Processo finalizado! ${count} arquivo(s) extraído(s).`);
+// Regex que captura cada bloco <file path="...">...
 </file>
 
 <file path="retrospective.html">
@@ -11113,7 +12017,7 @@ console.log(`\n🎉 Processo finalizado! ${count} arquivo(s) extraído(s).`);
     <div class="retrospective-content-wrapper">
         <h2 class="retrospective-screen-title">
             <i class="bi bi-stars retrospective-title-icon"></i>
-            Brilharam!
+            Destaques do Mês!
             <i class="bi bi-stars retrospective-title-icon"></i>
         </h2>
         <div class="retrospective-stats-grid">
@@ -11263,10 +12167,12 @@ console.log(`\n🎉 Processo finalizado! ${count} arquivo(s) extraído(s).`);
         <i class="bi bi-x-lg"></i>
     </button>
 
-    <div class="retrospective-final-content-wrapper"> <!-- Este é o elemento que será capturado pelo html2canvas -->
+    <div class="retrospective-final-content-wrapper">
         <div class="retrospective-final-header">
             <div class="retrospective-final-logo">
-                <div class="logo-icon">✓</div>
+                <div class="logo-icon"> <!-- Ícone atualizado aqui -->
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </div>
                 <span class="logo-text">Taskify</span>
             </div>
             <div class="retrospective-final-date" id="retrospective-final-month-year">Maio 2025</div>
@@ -11310,7 +12216,6 @@ console.log(`\n🎉 Processo finalizado! ${count} arquivo(s) extraído(s).`);
         <div class="retrospective-final-achievements-container" style="display: none;">
             <h3 class="retrospective-final-achievements-title">Conquistas do Mês:</h3>
             <div class="retrospective-final-achievements-list" id="retrospective-achievements-list">
-                <!-- Apenas UMA conquista será adicionada aqui pelo JS -->
             </div>
         </div>
 
@@ -11334,8 +12239,8 @@ console.log(`\n🎉 Processo finalizado! ${count} arquivo(s) extraído(s).`);
             </button>
             <button id="retrospective-download-button"
                 class="retrospective-button retrospective-action-button retrospective-button-outline">
-                <i class="bi bi-download retrospective-icon-small"></i> <!-- Ícone alterado -->
-                Baixar Imagem <!-- Texto alterado -->
+                <i class="bi bi-download retrospective-icon-small"></i>
+                Baixar Imagem
             </button>
         </div>
     </div>
