@@ -13,7 +13,25 @@
     <script>
         (function () {
             function hexToRgbArrayInline(hex) {
-                // ... (função hexToRgbArrayInline permanece a mesma)
+                if (!hex || typeof hex !== 'string') return null;
+                let c = hex.startsWith('#') ? hex.substring(1) : hex.trim();
+                if (c.length === 3) {
+                    c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+                }
+                if (c.length !== 6) {
+                    return null;
+                }
+                try {
+                    const bigint = parseInt(c, 16);
+                    if (isNaN(bigint)) return null;
+                    const r = (bigint >> 16) & 255;
+                    const g = (bigint >> 8) & 255;
+                    const b = bigint & 255;
+                    return [r, g, b];
+                } catch (e) {
+                    console.warn('Error in hexToRgbArrayInline:', e);
+                    return null;
+                }
             }
 
             try {
