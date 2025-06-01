@@ -1,7 +1,8 @@
 // js/redacoes.js
 
 // Variáveis globais de UI
-let redacoesSection, redacoesHeader, redacoesTitle, btnAddRedacaoMain,
+let redacoesSectionContent, // <<<<<<< ALTERADO DE redacoesSection
+    redacoesHeader, redacoesTitle, btnAddRedacaoMain,
     redacoesFiltersContainer, btnManageRedacaoEixos,
     redacoesCategorySectionsContainer, redacoesEmptyMessage;
 
@@ -54,16 +55,20 @@ function formatRedacaoStatus(statusKey) {
 
 function initRedacoesModule() {
     console.log("Taskify - Módulo Redações: Iniciando initRedacoesModule...");
-    redacoesSection = document.getElementById('redacoes-section');
-    if (!redacoesSection) {
-        console.error("Taskify - Módulo Redações: Seção principal 'redacoes-section' não encontrada.");
+    redacoesSectionContent = document.getElementById('redacoes-section-content'); // <<<<<<< ALTERADO DE 'redacoes-section'
+    if (!redacoesSectionContent) { // <<<<<<< ALTERADO DE redacoesSection
+        console.error("Taskify - Módulo Redações: Seção principal 'redacoes-section-content' não encontrada.");
         return;
     }
+    // O restante dos seletores de ID dentro da seção 'redacoes-section-content' devem funcionar
+    // desde que seus IDs não tenham sido alterados e eles estejam dentro de #tab-redacoes
     btnAddRedacaoMain = document.getElementById('btn-add-redacao-main');
     redacoesFiltersContainer = document.getElementById('redacoes-filters-container');
     btnManageRedacaoEixos = document.getElementById('btn-manage-redacao-eixos');
     redacoesCategorySectionsContainer = document.getElementById('redacoes-category-sections-container');
     redacoesEmptyMessage = document.getElementById('redacoes-empty-message');
+
+    // Modais (presumivelmente fora da estrutura da aba, então os IDs originais devem funcionar)
     redacaoFormModal = document.getElementById('redacao-form-modal');
     redacaoFormModalOverlay = document.getElementById('redacao-form-modal-overlay');
     redacaoFormModalCloseBtn = document.getElementById('redacao-form-modal-close-btn');
@@ -638,25 +643,22 @@ function populateRedacaoCardDetails(detailsContainer, redacao) {
 }
 
 
+
 function toggleRedacaoCardExpansionLocal(clickedCard, eixoId) {
     const gridContainer = clickedCard.closest('.redacoes-grid');
     if (!gridContainer) return;
 
     const rowIndexOfClickedCard = parseInt(clickedCard.dataset.gridRow, 10);
-    const isCurrentlyExpanded = clickedCard.classList.contains('expanded');
-    const detailsDivClicked = clickedCard.querySelector('.redacao-card-details');
+    const shouldBeExpanded = !clickedCard.classList.contains('expanded');
 
     if (!redacoesState.expandedRowTracker[eixoId]) {
         redacoesState.expandedRowTracker[eixoId] = {};
     }
 
-    // Determina se o card clicado deve ser expandido ou colapsado
-    const shouldBeExpanded = !isCurrentlyExpanded;
-
-    // Atualiza o estado de rastreamento para o card clicado
+    // Atualiza o estado de rastreamento para a linha do card clicado
     redacoesState.expandedRowTracker[eixoId][rowIndexOfClickedCard] = shouldBeExpanded;
 
-    // Se estamos expandindo, fecha outros cards em outras linhas
+    // Se estamos expandindo o card clicado, colapsa outros cards em OUTRAS linhas
     if (shouldBeExpanded) {
         for (const row in redacoesState.expandedRowTracker[eixoId]) {
             if (parseInt(row, 10) !== rowIndexOfClickedCard) {
@@ -665,55 +667,54 @@ function toggleRedacaoCardExpansionLocal(clickedCard, eixoId) {
         }
     }
 
-    // Itera por todos os cards para aplicar o estado
     const cardsInGrid = Array.from(gridContainer.querySelectorAll('.redacao-card'));
     cardsInGrid.forEach(card => {
         const cardRow = parseInt(card.dataset.gridRow, 10);
         const detailsDiv = card.querySelector('.redacao-card-details');
+        const redacaoId = card.dataset.redacaoId;
+        const redacao = redacoesState.redacoes.find(r => r.id === redacaoId);
 
         if (detailsDiv) {
-            // Se o card atual deve ser expandido (ou é o clicado ou está na mesma linha e a linha está marcada para expandir)
-            if (redacoesState.expandedRowTracker[eixoId][cardRow]) {
-                if (!card.classList.contains('expanded')) { // Se ainda não está expandido
-                    const redacaoId = card.dataset.redacaoId;
-                    const redacao = redacoesState.redacoes.find(r => r.id === redacaoId);
-                    if (redacao) {
-                        detailsDiv.innerHTML = ''; // Limpa antes de popular
-                        populateRedacaoCardDetails(detailsDiv, redacao);
-                    }
-                    card.classList.add('expanded');
-                    detailsDiv.style.display = 'flex';
-                    // Força reflow para cálculo correto do scrollHeight
-                    void detailsDiv.offsetWidth;
-                    requestAnimationFrame(() => {
-                        detailsDiv.style.maxHeight = detailsDiv.scrollHeight + "px";
-                        detailsDiv.style.opacity = '1';
-                        detailsDiv.style.paddingTop = '20px';
-                        detailsDiv.style.paddingBottom = '20px';
-                    });
-                } else if (card === clickedCard && shouldBeExpanded) {
-                    // Se é o card clicado e está sendo expandido (já populado)
-                    // Apenas garante que maxHeight está correto (caso o conteúdo tenha mudado sutilmente)
-                    requestAnimationFrame(() => {
-                         detailsDiv.style.maxHeight = detailsDiv.scrollHeight + "px";
-                    });
+            if (redacoesState.expandedRowTracker[eixoId][cardRow]) { // Se este card (ou sua linha) deve ser expandido
+                if (redacao) {
+                    detailsDiv.innerHTML = ''; // Limpa antes de popular para garantir scrollHeight correto
+                    populateRedacaoCardDetails(detailsDiv, redacao);
+                } else if (detailsDiv.innerHTML.trim() === '' && card === clickedCard) {
+                    // Isso pode acontecer se os dados não foram encontrados, mas ainda tentamos expandir
+                    console.warn(`Dados da redação ${redacaoId} não encontrados para popular detalhes no momento da expansão.`);
+                    // Poderia adicionar um placeholder aqui se quisesse
                 }
-            } else { // Se o card atual NÃO deve estar expandido
+
+                card.classList.add('expanded');
+                detailsDiv.style.display = 'flex'; // Garante que está visível para cálculo de scrollHeight
+                void detailsDiv.offsetWidth; // Força reflow
+
+                requestAnimationFrame(() => {
+                    // O scrollHeight agora deve incluir o padding se ele for aplicado pela classe .expanded
+                    detailsDiv.style.maxHeight = detailsDiv.scrollHeight + "px";
+                    detailsDiv.style.opacity = '1';
+                    // REMOVIDO: A aplicação de padding via JS. Deixe o CSS cuidar disso com a classe .expanded
+                    // detailsDiv.style.paddingTop = '20px';
+                    // detailsDiv.style.paddingBottom = '20px';
+                });
+
+            } else { // Se este card (ou sua linha) deve ser colapsado
                 if (card.classList.contains('expanded')) {
                     card.classList.remove('expanded');
                     detailsDiv.style.maxHeight = '0';
                     detailsDiv.style.opacity = '0';
-                    detailsDiv.style.paddingTop = '0';
-                    detailsDiv.style.paddingBottom = '0';
-                    // Limpa o conteúdo após a transição para economizar memória
-                    // e garantir que o scrollHeight seja 0 na próxima vez que for contraído
-                    detailsDiv.addEventListener('transitionend', function handler() {
+                    // REMOVIDO: padding via JS
+                    // detailsDiv.style.paddingTop = '0';
+                    // detailsDiv.style.paddingBottom = '0';
+
+                    // Lógica de limpeza e display:none similar ao simulados.js
+                    setTimeout(() => {
+                        // Verifica novamente caso o estado tenha mudado rapidamente
                         if (!card.classList.contains('expanded')) {
-                           detailsDiv.style.display = 'none';
-                           detailsDiv.innerHTML = '';
+                            detailsDiv.style.display = 'none';
+                            detailsDiv.innerHTML = ''; // Limpa o conteúdo para resetar scrollHeight
                         }
-                        detailsDiv.removeEventListener('transitionend', handler);
-                    }, { once: true });
+                    }, 360); // Duração um pouco maior que a transição CSS (geralmente 0.3s ou 0.35s)
                 }
             }
         }
@@ -722,11 +723,11 @@ function toggleRedacaoCardExpansionLocal(clickedCard, eixoId) {
 
 
 function showRedacaoCardOptionsMenu(buttonElement, redacaoId) {
-    const existingMenu = document.querySelector('.simulado-card-options-menu');
+    const existingMenu = document.querySelector('.simulado-card-options-menu'); // Reutiliza a classe do menu de simulados
     if (existingMenu) existingMenu.remove();
 
     const menu = document.createElement('div');
-    menu.className = 'simulado-card-options-menu';
+    menu.className = 'simulado-card-options-menu'; // Reutiliza a classe do menu de simulados
 
     const editButton = document.createElement('button');
     editButton.innerHTML = '<i class="bi bi-pencil-fill"></i> Editar';

@@ -9,12 +9,31 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/retrospective.css">
-    <link rel="stylesheet" href="css/simulados.css"> <!-- NOVO ARQUIVO CSS -->
+    <link rel="stylesheet" href="css/simulados.css">
+    <link rel="stylesheet" href="css/redacoes.css">
 
     <script>
         (function () {
             function hexToRgbArrayInline(hex) {
-                // ... (função hexToRgbArrayInline permanece a mesma)
+                if (!hex || typeof hex !== 'string') return null;
+                let c = hex.startsWith('#') ? hex.substring(1) : hex.trim();
+                if (c.length === 3) {
+                    c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+                }
+                if (c.length !== 6) {
+                    return null;
+                }
+                try {
+                    const bigint = parseInt(c, 16);
+                    if (isNaN(bigint)) return null;
+                    const r = (bigint >> 16) & 255;
+                    const g = (bigint >> 8) & 255;
+                    const b = bigint & 255;
+                    return [r, g, b];
+                } catch (e) {
+                    console.warn('Error in hexToRgbArrayInline:', e);
+                    return null;
+                }
             }
 
             try {
@@ -77,22 +96,25 @@
 
     <div class="container">
         <header class="header">
-            <div class="logo" title="Taskify - Seu Gerenciador de Tarefas e Foco">
-                <div class="logo-icon">
-                    <i class="bi bi-lightning-charge-fill"></i>
+            <a href="https://x.com/fabinxz" target="_blank" class="logo-link">
+                <div class="logo" title="Taskify - Seu Gerenciador de Tarefas e Foco">
+                    <div class="logo-icon">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                    </div>
+                    <span class="logo-text logo-text-full">Taskify</span>
+                    <span class="logo-text logo-text-short">Taskify</span>
                 </div>
-                <span class="logo-text logo-text-full">Taskify</span>
-                <span class="logo-text logo-text-short">Taskify</span>
-            </div>
+            </a>
 
-            <div class="question-counter">
-                <button class="counter-btn" id="decrement-btn" onclick="decrementToday()"
-                    title="Diminuir 1 questão">−</button>
-                <input type="number" class="counter-display" id="questions-step-input" value="1" min="1"
-                    title="Define a quantidade de questões por clique">
-                <button class="counter-btn" id="increment-btn" onclick="incrementToday()"
-                    title="Aumentar 1 questão">+</button>
-            </div>
+            <nav class="header-tabs">
+                <button class="header-tab-btn active" data-tab="tab-painel-principal">Painel de Questões</button>
+                <button class="header-tab-btn" data-tab="tab-foco-tarefas">Foco & Tarefas</button>
+                <button class="header-tab-btn" data-tab="tab-simulados">Simulados</button>
+                <button class="header-tab-btn" data-tab="tab-redacoes">Redações</button>
+            </nav>
+            <button class="header-menu-btn" id="header-menu-btn" aria-label="Abrir menu de navegação" style="display: none;">
+                <i class="bi bi-list"></i>
+            </button>
 
             <div class="header-controls">
                 <button class="btn-icon-nav" id="btn-edit-goals-header" aria-label="Editar metas"
@@ -109,204 +131,117 @@
             </div>
         </header>
 
-
-        <section class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-title">Hoje</div>
-                <div class="circular-progress">
-                    <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-                        <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
-                        <circle class="progress-ring-circle progress-ring-fill" id="today-progress" cx="60" cy="60"
-                            r="52" stroke-width="8"
-                            style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
-                    </svg>
-                    <div class="progress-number" id="today-count">0</div>
-                </div>
-                <div class="progress-target">Meta: <span id="today-target">20</span></div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-title">Semana</div>
-                <div class="circular-progress">
-                    <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-                        <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
-                        <circle class="progress-ring-circle progress-ring-fill" id="week-progress" cx="60" cy="60"
-                            r="52" stroke-width="8"
-                            style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
-                    </svg>
-                    <div class="progress-number" id="week-count">0</div>
-                </div>
-                <div class="progress-target">Meta: <span id="week-target">50</span></div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-title">Mês</div>
-                <div class="circular-progress">
-                    <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-                        <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
-                        <circle class="progress-ring-circle progress-ring-fill" id="month-progress" cx="60" cy="60"
-                            r="52" stroke-width="8"
-                            style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
-                    </svg>
-                    <div class="progress-number" id="month-count">0</div>
-                </div>
-                <div class="progress-target">Meta: <span id="month-target">1200</span></div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-title">Ano</div>
-                <div class="circular-progress">
-                    <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-                        <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
-                        <circle class="progress-ring-circle progress-ring-fill" id="year-progress" cx="60" cy="60"
-                            r="52" stroke-width="8"
-                            style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
-                    </svg>
-                    <div class="progress-number" id="year-count">0</div>
-                </div>
-                <div class="progress-target">Meta: <span id="year-target">20000</span></div>
-            </div>
-        </section>
-
-        <section class="bottom-cards">
-            <div class="info-card">
-                <div class="card-title">
-                    <span>Recorde Diário</span>
-                    <i class="bi bi-trophy card-title-icon"></i>
-                </div>
-                <div class="card-value" id="daily-record-value">0 questões</div>
-                <div class="card-subtitle" id="daily-record-date">-</div>
-            </div>
-
-            <div class="info-card">
-                <div class="card-title">
-                    <span>Streak Atual</span>
-                    <i class="bi bi-fire card-title-icon"></i>
+        <main class="tab-content-container">
+            <section id="tab-painel-principal" class="tab-content active">
+                <div class="question-counter-tab">
+                    <button class="counter-btn" id="decrement-btn" onclick="decrementToday()"
+                        title="Diminuir 1 questão">−</button>
+                    <input type="number" class="counter-display" id="questions-step-input" value="1" min="1"
+                        title="Define a quantidade de questões por clique">
+                    <button class="counter-btn" id="increment-btn" onclick="incrementToday()"
+                        title="Aumentar 1 questão">+</button>
                 </div>
 
-                <div class="streak-value-meta-container">
-                    <div class="card-value" id="current-streak-value">0 dias</div>
-                    <div class="card-streak-target">Meta: <span id="streak-target-value">30</span></div>
-                </div>
-
-                <div class="progress-bar-horizontal">
-                    <div class="progress-fill" id="streak-progress-fill" style="width: 0%;"></div>
-                </div>
-            </div>
-
-            <div class="info-card">
-                <div class="card-title">
-                    <span>Pico de Atividade Semanal</span>
-                    <i class="bi bi-graph-up-arrow card-title-icon"></i>
-                </div>
-                <div class="card-value" id="peak-activity-day">-</div>
-                <div class="card-subtitle" id="peak-activity-questions">0 questões</div>
-            </div>
-        </section>
-
-        <section class="activity-section">
-            <div class="activity-header">
-                <div class="activity-title">Atividade Semanal (Questões)</div>
-                <div class="chart-period-selector-container">
-                    <select id="weeklyActivityChartPeriodSelector" class="chart-period-selector" aria-label="Selecionar período para o gráfico de atividade semanal">
-                        <option value="7days">Últimos 7 dias</option>
-                        <option value="30days">Últimos 30 dias</option>
-                        <option value="lastYear">Último Ano</option>
-                        <option value="allTime">Desde o Início</option>
-                    </select>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="weeklyActivityChart"></canvas>
-            </div>
-        </section>
-
-        <div class="scroll-indicator" id="scroll-indicator">
-            <i class="bi bi-chevron-down"></i>
-        </div>
-
-        <section class="productivity-focus-area">
-            <div class="pomodoro-section-wrapper">
-                <div class="pomodoro-section">
-                    <div class="pomodoro-header">
-                        <h3 class="pomodoro-title">Timer Pomodoro</h3>
-                        <button class="pomodoro-settings-btn" id="btn-pomodoro-settings"
-                            aria-label="Configurar Pomodoro" onclick="openPomodoroSettingsModal()">
-                            <i class="bi bi-gear-fill"></i>
-                        </button>
+                <section class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">Hoje</div>
+                        <div class="circular-progress">
+                            <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                                <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                                <circle class="progress-ring-circle progress-ring-fill" id="today-progress" cx="60" cy="60"
+                                    r="52" stroke-width="8"
+                                    style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                            </svg>
+                            <div class="progress-number" id="today-count">0</div>
+                        </div>
+                        <div class="progress-target">Meta: <span id="today-target">20</span></div>
                     </div>
-                    <div class="pomodoro-timer-display" id="pomodoro-timer-display">25:00</div>
-                    <div class="pomodoro-status" id="pomodoro-status">Pronto para focar?</div>
-                    <div class="pomodoro-controls">
-                        <button class="btn-start" id="pomodoro-start-btn" onclick="startPomodoro()">Iniciar</button>
-                        <button class="btn-pause" id="pomodoro-pause-btn" onclick="pausePomodoro()"
-                            style="display: none;">Pausar</button>
-                        <button class="btn-reset" id="pomodoro-reset-btn" onclick="resetPomodoro()">Resetar</button>
+
+                    <div class="stat-card">
+                        <div class="stat-title">Semana</div>
+                        <div class="circular-progress">
+                            <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                                <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                                <circle class="progress-ring-circle progress-ring-fill" id="week-progress" cx="60" cy="60"
+                                    r="52" stroke-width="8"
+                                    style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                            </svg>
+                            <div class="progress-number" id="week-count">0</div>
+                        </div>
+                        <div class="progress-target">Meta: <span id="week-target">50</span></div>
                     </div>
-                    <div class="pomodoro-cycles" id="pomodoro-cycles-display-container">
-                        <i class="bi bi-arrow-repeat"></i>
-                        <span class="pomodoro-cycles-text-label">Ciclos: </span>
-                        <span id="pomodoro-cycles-count-value">0</span>
+
+                    <div class="stat-card">
+                        <div class="stat-title">Mês</div>
+                        <div class="circular-progress">
+                            <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                                <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                                <circle class="progress-ring-circle progress-ring-fill" id="month-progress" cx="60" cy="60"
+                                    r="52" stroke-width="8"
+                                    style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                            </svg>
+                            <div class="progress-number" id="month-count">0</div>
+                        </div>
+                        <div class="progress-target">Meta: <span id="month-target">1200</span></div>
                     </div>
-                    <button class="btn btn-secondary btn-pomodoro-details" id="btn-view-cycle-stats" onclick="openNewPomodoroDetailsModal()">
-                        <i class="bi bi-bar-chart-line"></i> Ver Estatísticas Detalhadas
-                    </button>
-                </div>
-                <div class="chart-section pomodoro-chart-section">
-                    <div class="chart-header">
-                        <h4 class="chart-title">Tempo de Foco Semanal</h4>
-                         <div class="chart-period-selector-container">
-                            <select id="weeklyPomodoroFocusChartPeriodSelector" class="chart-period-selector" aria-label="Selecionar período para o gráfico de tempo de foco">
-                                <option value="7days">Últimos 7 dias</option>
-                                <option value="30days">Últimos 30 dias</option>
-                                <option value="lastYear">Último Ano</option>
-                                <option value="allTime">Desde o Início</option>
-                            </select>
+
+                    <div class="stat-card">
+                        <div class="stat-title">Ano</div>
+                        <div class="circular-progress">
+                            <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                                <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                                <circle class="progress-ring-circle progress-ring-fill" id="year-progress" cx="60" cy="60"
+                                    r="52" stroke-width="8"
+                                    style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                            </svg>
+                            <div class="progress-number" id="year-count">0</div>
+                        </div>
+                        <div class="progress-target">Meta: <span id="year-target">20000</span></div>
+                    </div>
+                </section>
+
+                <section class="bottom-cards">
+                    <div class="info-card">
+                        <div class="card-title">
+                            <span>Recorde Diário</span>
+                            <i class="bi bi-trophy card-title-icon"></i>
+                        </div>
+                        <div class="card-value" id="daily-record-value">0 questões</div>
+                        <div class="card-subtitle" id="daily-record-date">-</div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="card-title">
+                            <span>Streak Atual</span>
+                            <i class="bi bi-fire card-title-icon"></i>
+                        </div>
+
+                        <div class="streak-value-meta-container">
+                            <div class="card-value" id="current-streak-value">0 dias</div>
+                            <div class="card-streak-target">Meta: <span id="streak-target-value">30</span></div>
+                        </div>
+
+                        <div class="progress-bar-horizontal">
+                            <div class="progress-fill" id="streak-progress-fill" style="width: 0%;"></div>
                         </div>
                     </div>
-                    <div class="chart-container">
-                        <canvas id="weeklyPomodoroFocusChart"></canvas>
-                    </div>
-                </div>
-            </div>
 
-            <div class="tasks-section-wrapper">
-                <div class="tasks-section">
-                    <div class="tasks-header">
-                        <h3 class="tasks-title">Tarefas</h3>
-                        <span class="tasks-counter" id="tasks-counter">0/0</span>
-                    </div>
-                    <form id="task-form">
-                        <input type="text" id="task-input" placeholder="Adicione nova tarefa...">
-                        <input type="text" id="task-assigned-date" class="task-date-input" placeholder="DD/MM/AAAA">
-
-                        <button type="submit" id="add-task-btn" class="btn-primary">
-                            <i class="bi bi-plus-lg"></i> Adicionar
-                        </button>
-                        <button type="button" id="btn-open-recurring-task-modal" class="btn btn-secondary btn-recurring"
-                            onclick="openRecurringTaskPatternModal_v2()" title="Configurar Rotina Semanal">
-                            <i class="bi bi-arrow-repeat"></i> Configurar Rotina
-                        </button>
-
-                    </form>
-                    <ul id="task-list">
-                        <!-- Tarefas serão adicionadas aqui pelo JS -->
-                    </ul>
-                    <div class="task-progress-container">
-                        <div class="task-progress-label-group">
-                            <span>Progresso</span>
-                            <span id="task-progress-percentage">0%</span>
+                    <div class="info-card">
+                        <div class="card-title">
+                            <span>Pico de Atividade Semanal</span>
+                            <i class="bi bi-graph-up-arrow card-title-icon"></i>
                         </div>
-                        <div class="task-progress-bar">
-                            <div class="task-progress-bar-fill" id="task-progress-bar-fill" style="width: 0%;"></div>
-                        </div>
+                        <div class="card-value" id="peak-activity-day">-</div>
+                        <div class="card-subtitle" id="peak-activity-questions">0 questões</div>
                     </div>
-                </div>
-                <div class="chart-section tasks-chart-section">
-                    <div class="chart-header">
-                        <h4 class="chart-title">Tarefas Concluídas</h4>
+                </section>
+
+                <section class="activity-section">
+                    <div class="activity-header">
+                        <div class="activity-title">Atividade Semanal (Questões)</div>
                         <div class="chart-period-selector-container">
-                            <select id="weeklyTasksCompletedChartPeriodSelector" class="chart-period-selector" aria-label="Selecionar período para o gráfico de tarefas concluídas">
+                            <select id="weeklyActivityChartPeriodSelector" class="chart-period-selector"
+                                aria-label="Selecionar período para o gráfico de atividade semanal">
                                 <option value="7days">Últimos 7 dias</option>
                                 <option value="30days">Últimos 30 dias</option>
                                 <option value="lastYear">Último Ano</option>
@@ -315,64 +250,158 @@
                         </div>
                     </div>
                     <div class="chart-container">
-                        <canvas id="weeklyTasksCompletedChart"></canvas>
+                        <canvas id="weeklyActivityChart"></canvas>
                     </div>
+                </section>
+            </section>
+
+            <section id="tab-foco-tarefas" class="tab-content">
+                <section class="productivity-focus-area">
+                    <!-- Performance Overview (Gráfico de Foco Semanal) -->
+                    <div class="chart-section pomodoro-chart-section" style="grid-area: performance-overview;">
+                        <div class="chart-header">
+                            <h4 class="chart-title">Tempo de Foco Semanal</h4>
+                            <div class="chart-period-selector-container">
+                                <select id="weeklyPomodoroFocusChartPeriodSelector" class="chart-period-selector"
+                                    aria-label="Selecionar período para o gráfico de tempo de foco">
+                                    <option value="7days">Últimos 7 dias</option>
+                                    <option value="30days">Últimos 30 dias</option>
+                                    <option value="lastYear">Último Ano</option>
+                                    <option value="allTime">Desde o Início</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weeklyPomodoroFocusChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Focus Timer (Pomodoro) -->
+                    <div class="pomodoro-section" style="grid-area: focus-timer;">
+                        <div class="pomodoro-header">
+                            <h3 class="pomodoro-title">Timer Pomodoro</h3>
+                            <button class="pomodoro-settings-btn" id="btn-pomodoro-settings"
+                                aria-label="Configurar Pomodoro" onclick="openPomodoroSettingsModal()">
+                                <i class="bi bi-gear-fill"></i>
+                            </button>
+                        </div>
+                        <div class="pomodoro-timer-display" id="pomodoro-timer-display">25:00</div>
+                        <div class="pomodoro-status" id="pomodoro-status">Pronto para focar?</div>
+                        <div class="pomodoro-controls">
+                            <button class="btn-start" id="pomodoro-start-btn" onclick="startPomodoro()">Iniciar</button>
+                            <button class="btn-pause" id="pomodoro-pause-btn" onclick="pausePomodoro()"
+                                style="display: none;">Pausar</button>
+                            <button class="btn-reset" id="pomodoro-reset-btn" onclick="resetPomodoro()">Resetar</button>
+                        </div>
+                        <div class="pomodoro-cycles" id="pomodoro-cycles-display-container">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <span class="pomodoro-cycles-text-label">Ciclos: </span>
+                            <span id="pomodoro-cycles-count-value">0</span>
+                        </div>
+                        <button class="btn btn-secondary btn-pomodoro-details" id="btn-view-cycle-stats"
+                            onclick="openNewPomodoroDetailsModal()">
+                            <i class="bi bi-bar-chart-line"></i> Ver Estatísticas Detalhadas
+                        </button>
+                    </div>
+
+                    <!-- Today's Tasks -->
+                    <div class="tasks-section" style="grid-area: today-tasks;">
+                        <div class="tasks-header">
+                            <h3 class="tasks-title">Tarefas</h3>
+                            <span class="tasks-counter" id="tasks-counter">0/0</span>
+                        </div>
+                        <form id="task-form">
+                            <input type="text" id="task-input" placeholder="Adicione nova tarefa...">
+                            <input type="text" id="task-assigned-date" class="task-date-input" placeholder="DD/MM/AAAA">
+
+                            <button type="submit" id="add-task-btn" class="btn-primary">
+                                <i class="bi bi-plus-lg"></i> Adicionar
+                            </button>
+                            <button type="button" id="btn-open-recurring-task-modal" class="btn btn-secondary btn-recurring"
+                                onclick="openRecurringTaskPatternModal_v2()" title="Configurar Rotina Semanal">
+                                <i class="bi bi-arrow-repeat"></i> Configurar Rotina
+                            </button>
+                        </form>
+                        <ul id="task-list">
+                            <!-- Tarefas serão adicionadas aqui pelo JS -->
+                        </ul>
+                        <div class="task-progress-container">
+                            <div class="task-progress-label-group">
+                                <span>Progresso</span>
+                                <span id="task-progress-percentage">0%</span>
+                            </div>
+                            <div class="task-progress-bar">
+                                <div class="task-progress-bar-fill" id="task-progress-bar-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weekly Performance (Tarefas Concluídas) -->
+                    <div class="chart-section tasks-chart-section" style="grid-area: weekly-performance;">
+                        <div class="chart-header">
+                            <h4 class="chart-title">Tarefas Concluídas</h4>
+                            <div class="chart-period-selector-container">
+                                <select id="weeklyTasksCompletedChartPeriodSelector" class="chart-period-selector"
+                                    aria-label="Selecionar período para o gráfico de tarefas concluídas">
+                                    <option value="7days">Últimos 7 dias</option>
+                                    <option value="30days">Últimos 30 dias</option>
+                                    <option value="lastYear">Último Ano</option>
+                                    <option value="allTime">Desde o Início</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weeklyTasksCompletedChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+                <!-- O scroll-indicator pode ser removido ou ajustado futuramente -->
+                <div class="scroll-indicator" id="scroll-indicator" style="display: none;">
+                    <i class="bi bi-chevron-down"></i>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- NOVA SEÇÃO DE SIMULADOS -->
-        <section class="simulados-section" id="simulados-section">
-            <div class="simulados-header">
-                <h2 class="simulados-title"><i class="bi bi-bar-chart-line-fill"></i> Desempenho em Simulados</h2>
-                <button class="btn btn-primary btn-add-simulado-main" id="btn-add-simulado-main">
-                    <i class="bi bi-plus-circle-fill"></i> Adicionar Simulado
-                </button>
-            </div>
+            <section id="tab-simulados" class="tab-content">
+                <section class="simulados-section" id="simulados-section-content"> <!-- ID alterado para evitar conflito -->
+                    <div class="simulados-header">
+                        <h2 class="simulados-title"><i class="bi bi-bar-chart-line-fill"></i> Desempenho em Simulados</h2>
+                        <button class="btn btn-primary btn-add-simulado-main" id="btn-add-simulado-main">
+                            <i class="bi bi-plus-circle-fill"></i> Adicionar Simulado
+                        </button>
+                    </div>
+                    <div class="simulados-filters" id="simulados-filters-container">
+                        <button class="btn btn-manage-categories" id="btn-manage-simulado-categories">
+                            <i class="bi bi-tags-fill"></i> Gerenciar Categorias
+                        </button>
+                    </div>
+                    <div id="simulados-category-sections-container"></div>
+                    <p class="simulados-empty-message" id="simulados-empty-message" style="display: none;">Nenhum simulado
+                        registrado ainda. Que tal adicionar o primeiro?</p>
+                </section>
+            </section>
 
-            <div class="simulados-filters" id="simulados-filters-container">
-                <button class="btn btn-filter active" data-category-id="all">Todos</button>
-                <!-- Outros filtros de categoria serão adicionados pelo JS -->
-                <button class="btn btn-manage-categories" id="btn-manage-simulado-categories">
-                    <i class="bi bi-tags-fill"></i> Gerenciar Categorias
-                </button>
-            </div>
+            <section id="tab-redacoes" class="tab-content">
+                <section class="redacoes-section" id="redacoes-section-content"> <!-- ID alterado para evitar conflito -->
+                    <div class="redacoes-header">
+                        <h2 class="redacoes-title"><i class="bi bi-pencil-square"></i> Minhas Redações</h2>
+                        <button class="btn btn-primary btn-add-redacao-main" id="btn-add-redacao-main">
+                            <i class="bi bi-plus-circle-fill"></i> Adicionar Redação
+                        </button>
+                    </div>
+                    <div class="redacoes-filters" id="redacoes-filters-container">
+                        <button class="btn btn-manage-eixos" id="btn-manage-redacao-eixos">
+                            <i class="bi bi-diagram-3-fill"></i> Gerenciar Eixos Temáticos
+                        </button>
+                    </div>
+                    <div id="redacoes-category-sections-container">
+                        <!-- Conteúdo da seção de redações será gerado pelo JS -->
+                    </div>
+                    <p class="redacoes-empty-message" id="redacoes-empty-message" style="display: none;">Nenhuma redação
+                        registrada ainda. Que tal adicionar a primeira?</p>
+                </section>
+            </section>
+        </main>
 
-            <div class="simulados-grid" id="simulados-grid-container">
-                <!-- Cards de simulados serão inseridos aqui pelo JS -->
-                 <p class="simulados-empty-message" id="simulados-empty-message">Nenhum simulado registrado ainda. Que tal adicionar o primeiro?</p>
-            </div>
-
-            <div class="simulados-summary-bar" id="simulados-summary-bar">
-                <div class="summary-item">
-                    <i class="bi bi-file-earmark-text-fill"></i>
-                    <span class="summary-value" id="simulados-total-count">0</span>
-                    <span class="summary-label">Total de Simulados</span>
-                </div>
-                <div class="summary-item">
-                    <i class="bi bi-graph-up"></i>
-                    <span class="summary-value" id="simulados-avg-accuracy">0.0%</span>
-                    <span class="summary-label">Média de Acertos</span>
-                </div>
-                <div class="summary-item">
-                    <i class="bi bi-clock-fill"></i>
-                    <span class="summary-value" id="simulados-avg-time">0h00</span>
-                    <span class="summary-label">Tempo Médio</span>
-                </div>
-                <div class="summary-item">
-                    <i class="bi bi-calendar-week-fill"></i>
-                    <span class="summary-value" id="simulados-pending-count">0</span>
-                    <span class="summary-label">Simulados Pendentes</span>
-                </div>
-            </div>
-        </section>
-        <!-- FIM NOVA SEÇÃO DE SIMULADOS -->
-
-
-        <footer class="main-footer">
-            Criado por <a href="https://x.com/fabinxz" target="_blank" class="footer-link">@fabinxz</a>
-            <span class="footer-separator">•</span> © <span id="current-year">2025</span>
-        </footer>
     </div> <!-- Fim .container -->
 
     <!-- MODAIS PARA SIMULADOS -->
@@ -386,36 +415,40 @@
             <form id="simulado-form">
                 <input type="hidden" id="simulado-id-input">
                 <div class="form-group">
-                    <label class="form-label" for="simulado-nome-input">Nome da Prova/Simulado <span class="required-asterisk">*</span></label>
-                    <input type="text" class="form-input" id="simulado-nome-input" required placeholder="Ex: ENEM 2023 - 1ª Aplicação">
+                    <label class="form-label" for="simulado-nome-input">Nome da Prova/Simulado <span
+                            class="required-asterisk">*</span></label>
+                    <input type="text" class="form-input" id="simulado-nome-input" required
+                        placeholder="Ex: ENEM 2023 - 1ª Aplicação">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="simulado-categoria-select">Categoria <span class="required-asterisk">*</span></label>
+                    <label class="form-label" for="simulado-categoria-select">Categoria <span
+                            class="required-asterisk">*</span></label>
                     <select class="form-input" id="simulado-categoria-select" required>
                         <!-- Opções de categoria serão populadas pelo JS -->
                     </select>
                 </div>
-                 <div class="form-group">
-                    <label class="form-label" for="simulado-data-input">Data de Realização <span class="required-asterisk">*</span></label>
-                    <input type="text" class="form-input simulado-date-picker" id="simulado-data-input" required placeholder="DD/MM/AAAA">
+                <div class="form-group">
+                    <label class="form-label" for="simulado-data-input">Data de Realização <span
+                            class="required-asterisk">*</span></label>
+                    <input type="text" class="form-input simulado-date-picker" id="simulado-data-input" required
+                        placeholder="DD/MM/AAAA">
                 </div>
                 <div class="form-group-inline">
                     <div class="form-group">
-                        <label class="form-label" for="simulado-acertos-input">Nº de Acertos <span class="required-asterisk">*</span></label>
+                        <label class="form-label" for="simulado-acertos-input">Nº de Acertos <span
+                                class="required-asterisk">*</span></label>
                         <input type="number" class="form-input" id="simulado-acertos-input" min="0" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="simulado-total-questoes-input">Total de Questões <span class="required-asterisk">*</span></label>
+                        <label class="form-label" for="simulado-total-questoes-input">Total de Questões <span
+                                class="required-asterisk">*</span></label>
                         <input type="number" class="form-input" id="simulado-total-questoes-input" min="1" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="simulado-tempo-gasto-input">Tempo Gasto (HH:MM)</label>
-                    <input type="text" class="form-input" id="simulado-tempo-gasto-input" placeholder="Ex: 03:30">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="simulado-nota-input">Nota (Opcional)</label>
-                    <input type="number" step="0.01" class="form-input" id="simulado-nota-input" placeholder="Ex: 780.50">
+                    <label class="form-label" for="simulado-tempo-gasto-input">Tempo Gasto</label>
+                    <input type="text" class="form-input" id="simulado-tempo-gasto-input"
+                        placeholder="Ex: 03:30 ou 3h30">
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="simulado-status-select">Status</label>
@@ -424,10 +457,6 @@
                         <option value="aguardando_correcao">Realizado - Aguardando Correção</option>
                         <option value="pendente_realizacao">Pendente de Realização</option>
                     </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="simulado-observacoes-input">Observações</label>
-                    <textarea class="form-input" id="simulado-observacoes-input" rows="3" placeholder="Pontos fortes, fracos, áreas para revisar..."></textarea>
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-secondary" id="simulado-form-cancel-btn">Cancelar</button>
@@ -445,13 +474,13 @@
             </button>
             <h2 class="modal-title">Gerenciar Categorias de Simulados</h2>
             <form id="simulado-add-category-form" class="category-add-form">
-                <input type="text" class="form-input" id="simulado-new-category-name-input" placeholder="Nome da nova categoria" required>
+                <input type="text" class="form-input" id="simulado-new-category-name-input"
+                    placeholder="Nome da nova categoria" required>
                 <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Adicionar</button>
             </form>
             <ul id="simulado-categories-list" class="categories-list">
-                <!-- Lista de categorias será populada aqui -->
             </ul>
-             <div class="modal-buttons" style="margin-top: 20px;">
+            <div class="modal-buttons" style="margin-top: 20px;">
                 <button type="button" class="btn btn-primary" id="simulado-categories-done-btn">Concluído</button>
             </div>
         </div>
@@ -460,25 +489,158 @@
     <div class="modal-overlay" id="simulado-confirm-delete-modal-overlay"></div>
     <div class="modal simulado-modal" id="simulado-confirm-delete-modal">
         <div class="modal-content">
-             <button class="modal-close-btn" id="simulado-confirm-delete-close-btn" aria-label="Fechar">
+            <button class="modal-close-btn" id="simulado-confirm-delete-close-btn" aria-label="Fechar">
                 <i class="bi bi-x-lg"></i>
             </button>
             <h2 class="modal-title" id="simulado-confirm-delete-title">Confirmar Exclusão</h2>
             <p class="modal-body-text" id="simulado-confirm-delete-message">Você tem certeza?</p>
             <div class="modal-buttons">
-                <button type="button" class="btn btn-secondary" id="simulado-btn-cancel-delete-confirmation">Cancelar</button>
-                <button type="button" class="btn btn-danger-style" id="simulado-btn-confirm-delete-action">Excluir</button>
+                <button type="button" class="btn btn-secondary"
+                    id="simulado-btn-cancel-delete-confirmation">Cancelar</button>
+                <button type="button" class="btn btn-danger-style"
+                    id="simulado-btn-confirm-delete-action">Excluir</button>
             </div>
         </div>
     </div>
-    <!-- FIM MODAIS PARA SIMULADOS -->
+
+    <!-- MODAIS PARA REDAÇÕES -->
+    <div class="modal-overlay" id="redacao-form-modal-overlay"></div>
+    <div class="modal redacao-modal" id="redacao-form-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="redacao-form-modal-close-btn" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title" id="redacao-modal-title">Adicionar Redação</h2>
+            <form id="redacao-form">
+                <input type="hidden" id="redacao-id-input">
+                <div class="form-group">
+                    <label class="form-label" for="redacao-tema-input">Tema da Redação <span
+                            class="required-asterisk">*</span></label>
+                    <input type="text" class="form-input" id="redacao-tema-input" required
+                        placeholder="Ex: Os desafios da educação a distância no Brasil">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="redacao-eixo-select">Eixo Temático <span
+                            class="required-asterisk">*</span></label>
+                    <select class="form-input" id="redacao-eixo-select" required>
+                        <!-- Opções de eixos serão populadas pelo JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="redacao-data-input">Data <span
+                            class="required-asterisk">*</span></label>
+                    <input type="text" class="form-input redacao-date-picker" id="redacao-data-input" required
+                        placeholder="DD/MM/AAAA">
+                </div>
+
+                <fieldset class="form-group-competencias">
+                    <legend class="form-label">Notas das Competências</legend>
+                    <div class="competencias-grid">
+                        <div class="form-group">
+                            <label class="form-label-competencia" for="redacao-c1-input">C1</label>
+                            <select class="form-input" id="redacao-c1-input">
+                                <option value="0">0</option> <option value="40">40</option> <option value="80">80</option>
+                                <option value="120">120</option> <option value="160">160</option> <option value="200">200</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label-competencia" for="redacao-c2-input">C2</label>
+                            <select class="form-input" id="redacao-c2-input">
+                                <option value="0">0</option> <option value="40">40</option> <option value="80">80</option>
+                                <option value="120">120</option> <option value="160">160</option> <option value="200">200</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label-competencia" for="redacao-c3-input">C3</label>
+                            <select class="form-input" id="redacao-c3-input">
+                                <option value="0">0</option> <option value="40">40</option> <option value="80">80</option>
+                                <option value="120">120</option> <option value="160">160</option> <option value="200">200</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label-competencia" for="redacao-c4-input">C4</label>
+                            <select class="form-input" id="redacao-c4-input">
+                                <option value="0">0</option> <option value="40">40</option> <option value="80">80</option>
+                                <option value="120">120</option> <option value="160">160</option> <option value="200">200</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label-competencia" for="redacao-c5-input">C5</label>
+                            <select class="form-input" id="redacao-c5-input">
+                                <option value="0">0</option> <option value="40">40</option> <option value="80">80</option>
+                                <option value="120">120</option> <option value="160">160</option> <option value="200">200</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="form-group">
+                    <label class="form-label" for="redacao-tempo-gasto-input">Tempo Gasto</label>
+                    <input type="text" class="form-input" id="redacao-tempo-gasto-input"
+                        placeholder="Ex: 01:30 ou 1h30m">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="redacao-status-select">Status</label>
+                    <select class="form-input" id="redacao-status-select">
+                        <option value="corrigida">Corrigida</option>
+                        <option value="aguardando_correcao">Aguardando Correção</option>
+                        <option value="rascunho">Rascunho Inicial</option>
+                    </select>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" id="redacao-form-cancel-btn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Redação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="redacao-eixos-modal-overlay"></div>
+    <div class="modal redacao-modal" id="redacao-eixos-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="redacao-eixos-modal-close-btn" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Gerenciar Eixos Temáticos</h2>
+            <form id="redacao-add-eixo-form" class="category-add-form">
+                <input type="text" class="form-input" id="redacao-new-eixo-name-input"
+                    placeholder="Nome do novo eixo temático" required>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Adicionar</button>
+            </form>
+            <ul id="redacao-eixos-list" class="categories-list">
+                <!-- Lista de eixos temáticos será populada aqui -->
+            </ul>
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button type="button" class="btn btn-primary" id="redacao-eixos-done-btn">Concluído</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="redacao-confirm-delete-modal-overlay"></div>
+    <div class="modal redacao-modal" id="redacao-confirm-delete-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="redacao-confirm-delete-close-btn" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title" id="redacao-confirm-delete-title">Confirmar Exclusão</h2>
+            <p class="modal-body-text" id="redacao-confirm-delete-message">Você tem certeza?</p>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary"
+                    id="redacao-btn-cancel-delete-confirmation">Cancelar</button>
+                <button type="button" class="btn btn-danger-style"
+                    id="redacao-btn-confirm-delete-action">Excluir</button>
+            </div>
+        </div>
+    </div>
 
 
     <!-- Modal de Edição de Metas -->
     <div class="modal-overlay" id="goals-modal-overlay"></div>
     <div class="modal" id="goals-modal">
         <div class="modal-content">
-            <button class="modal-close-btn" aria-label="Fechar" onclick="closeGoalsModal()">
+            <button class="modal-close-btn" aria-label="Fechar" onclick="closeModal('goals-modal')">
                 <i class="bi bi-x-lg"></i>
             </button>
             <h2 class="modal-title">Editar Metas</h2>
@@ -505,7 +667,8 @@
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-reset-app" id="btn-reset-app-data">Resetar App</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeGoalsModal()">Cancelar</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('goals-modal')">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Salvar</button>
                 </div>
             </form>
@@ -691,7 +854,8 @@
     <div class="modal-overlay" id="confirm-reset-modal-overlay"></div>
     <div class="modal" id="confirm-reset-modal">
         <div class="modal-content">
-            <button class="modal-close-btn" id="confirm-reset-modal-close-btn" aria-label="Fechar">
+            <button class="modal-close-btn" id="confirm-reset-modal-close-btn" aria-label="Fechar"
+                onclick="closeModal('confirm-reset-modal')">
                 <i class="bi bi-x-lg"></i>
             </button>
             <h2 class="modal-title">Confirmar Reset de Dados</h2>
@@ -705,11 +869,14 @@
                     <li>Suas metas personalizadas (serão revertidas para o padrão)</li>
                     <li>Sua preferência de tema e cor primária (serão revertidas para o padrão)</li>
                     <li>Suas configurações, histórico do Pomodoro, lista de tarefas e padrões recorrentes</li>
+                    <li>Seus dados de simulados (categorias e registros)</li>
+                    <li>Seus dados de redações (eixos temáticos e registros)</li>
                 </ul>
                 <p>A página será recarregada com as configurações de fábrica.</p>
             </div>
             <div class="modal-buttons">
-                <button type="button" class="btn btn-secondary" id="btn-cancel-reset-confirmation">Cancelar</button>
+                <button type="button" class="btn btn-secondary" id="btn-cancel-reset-confirmation"
+                    onclick="closeModal('confirm-reset-modal')">Cancelar</button>
                 <button type="button" class="btn btn-reset-app" id="btn-confirm-reset-action">Confirmar Reset</button>
             </div>
         </div>
@@ -719,22 +886,25 @@
     <div class="modal-overlay" id="welcome-guide-modal-overlay"></div>
     <div class="modal" id="welcome-guide-modal">
         <div class="modal-content">
-            <button class="modal-close-btn" id="welcome-guide-modal-close-btn" aria-label="Fechar">
+            <button class="modal-close-btn" id="welcome-guide-modal-close-btn" aria-label="Fechar"
+                onclick="closeModal('welcome-guide-modal')">
                 <i class="bi bi-x-lg"></i>
             </button>
             <h2 class="modal-title">Bem-vindo ao Taskify!</h2>
             <div class="modal-body-text guide-text">
                 <p>Este é um guia rápido para te ajudar a começar:</p>
                 <ul>
-                    <li><strong>Contador Principal (<span class="guide-highlight">no centro do
-                                cabeçalho</span>):</strong> Use os botões <span
+                    <li><strong>Contador Principal (<span class="guide-highlight">na aba "Painel Principal"</span>):</strong> Use os botões <span
                             class="guide-highlight guide-btn-example">+</span> e <span
                             class="guide-highlight guide-btn-example">−</span> para adicionar ou remover questões
                         resolvidas hoje. O número entre eles define quantas questões são adicionadas/removidas por
                         clique.</li>
-                    <li><strong>Configurar Rotina Semanal:</strong> No formulário de tarefas, clique no botão <span
+                    <li><strong>Navegação por Abas (<span class="guide-highlight">no cabeçalho</span>):</strong> Clique nas abas (Painel Principal, Foco & Tarefas, Simulados, Redações) para navegar entre as seções.</li>
+                    <li><strong>Configurar Rotina Semanal:</strong> Na aba "Foco & Tarefas", no formulário de tarefas, clique no botão <span
                             class="guide-highlight guide-btn-example"><i class="bi bi-arrow-repeat"></i> Configurar
                             Rotina</span> para definir suas tarefas para cada dia da semana.</li>
+                    <li><strong>Desempenho em Simulados e Redações:</strong> Acesse as abas "Simulados" e "Redações" para registrar, visualizar e analisar seu desempenho.
+                    </li>
                     <li><strong>Editar Metas:</strong> Clique no ícone <i
                             class="bi bi-pencil-square guide-icon-example"></i> no cabeçalho para definir suas metas
                         diárias, semanais, mensais, anuais e de streak.</li>
@@ -745,8 +915,7 @@
                     <li><strong>Personalizar Aparência:</strong> Clique no ícone <i
                             class="bi bi-palette-fill guide-icon-example"></i> no cabeçalho para escolher paletas de
                         cores e modos visuais.</li>
-                    <li><strong>Timer Pomodoro & Tarefas:</strong> Role a página para baixo para encontrar o Timer
-                        Pomodoro, a Lista de Tarefas e seus respectivos gráficos de atividade semanal.</li>
+                    <li><strong>Timer Pomodoro & Tarefas:</strong> Acesse a aba "Foco & Tarefas" para encontrar o Timer Pomodoro, a Lista de Tarefas e seus respectivos gráficos de atividade semanal.</li>
                     <li><strong>Retrospectiva Mensal:</strong> Clique no ícone <i
                             class="bi bi-calendar-heart-fill guide-icon-example"></i> no canto inferior direito para ver
                         sua retrospectiva do mês.</li>
@@ -762,7 +931,8 @@
                 </div>
             </div>
             <div class="modal-buttons" style="justify-content: flex-end;">
-                <button type="button" class="btn btn-primary" id="btn-close-welcome-guide">Entendi!</button>
+                <button type="button" class="btn btn-primary" id="btn-close-welcome-guide"
+                    onclick="closeModal('welcome-guide-modal')">Entendi!</button>
             </div>
         </div>
     </div>
@@ -773,7 +943,7 @@
     <div class="modal" id="pomodoro-settings-modal">
         <div class="modal-content">
             <button class="modal-close-btn" id="pomodoro-settings-modal-close-btn" aria-label="Fechar"
-                onclick="closePomodoroSettingsModal()">
+                onclick="closeModal('pomodoro-settings-modal')">
                 <i class="bi bi-x-lg"></i>
             </button>
             <h2 class="modal-title">Configurações do Pomodoro</h2>
@@ -812,7 +982,7 @@
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-secondary"
-                        onclick="closePomodoroSettingsModal()">Cancelar</button>
+                        onclick="closeModal('pomodoro-settings-modal')">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Salvar</button>
                 </div>
             </form>
@@ -823,7 +993,8 @@
     <div class="modal new-pomodoro-details-modal-container" id="new-pomodoro-details-modal">
         <div class="new-pomodoro-details-header">
             <h2 class="new-pomodoro-details-title">Detalhes dos Ciclos de Hoje</h2>
-            <button class="modal-close-btn" id="new-pomodoro-details-close-btn-x" aria-label="Fechar">
+            <button class="modal-close-btn" id="new-pomodoro-details-close-btn-x" aria-label="Fechar"
+                onclick="closeModal('new-pomodoro-details-modal')">
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
@@ -851,10 +1022,12 @@
             <ul class="new-pomodoro-details-list" id="new-pomodoro-cycle-list">
                 <!-- Itens da lista serão populados pelo JS -->
             </ul>
-            <p class="new-pomodoro-details-empty" id="new-pomodoro-details-empty-message" style="display:none;">Nenhum ciclo registrado hoje.</p>
+            <p class="new-pomodoro-details-empty" id="new-pomodoro-details-empty-message" style="display:none;">Nenhum
+                ciclo registrado hoje.</p>
         </div>
         <div class="new-pomodoro-details-footer">
-            <button type="button" class="btn btn-secondary" id="new-pomodoro-details-btn-close">Fechar</button>
+            <button type="button" class="btn btn-secondary" id="new-pomodoro-details-btn-close"
+                onclick="closeModal('new-pomodoro-details-modal')">Fechar</button>
             <button type="button" class="btn btn-primary" id="new-pomodoro-details-btn-new-cycle">Novo Ciclo</button>
         </div>
     </div>
@@ -865,7 +1038,7 @@
     <div class="modal" id="themes-modal">
         <div class="modal-content themes-modal-content">
             <button class="modal-close-btn" id="themes-modal-close-btn" aria-label="Fechar"
-                onclick="closeThemesModal()">
+                onclick="closeModal('themes-modal')">
                 <i class="bi bi-x-lg"></i>
             </button>
             <h2 class="modal-title">
@@ -897,14 +1070,14 @@
 
             <div class="modal-buttons themes-modal-actions">
                 <button type="button" class="btn btn-secondary themes-btn-cancel"
-                    onclick="closeThemesModal()">Cancelar</button>
-                <button type="button" class="btn btn-primary themes-btn-apply" onclick="closeThemesModal()">
+                    onclick="closeModal('themes-modal')">Cancelar</button>
+                <button type="button" class="btn btn-primary themes-btn-apply" onclick="closeModal('themes-modal')">
                     Aplicar Mudanças
                 </button>
             </div>
         </div>
     </div>
-    </div>
+
 
     <!-- Alerta Personalizado -->
     <div class="custom-alert-overlay" id="custom-alert-overlay"></div>
@@ -939,7 +1112,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="js/script.js" defer></script>
     <script src="js/retrospective.js" defer></script>
-    <script src="js/simulados.js" defer></script> <!-- NOVO ARQUIVO JS -->
+    <script src="js/simulados.js" defer></script>
+    <script src="js/redacoes.js" defer></script>
 </body>
 
 </html>

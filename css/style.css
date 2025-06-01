@@ -1,3 +1,4 @@
+
 :root {
     --nav-icon-btn-color-light: #333;
     --nav-icon-btn-color-dark: #fff;
@@ -95,6 +96,18 @@
     --new-pomodoro-modal-text-muted-dark: #718096;
 
     /* Removidas as variáveis de badge de concluído, pois o badge foi removido */
+
+    /* Variáveis para as Abas no Header */
+    --header-tab-text-color-dark: var(--text-muted-dark);
+    --header-tab-text-color-light: var(--text-muted-light);
+    --header-tab-active-text-color-dark: var(--primary-color-dark);
+    --header-tab-active-text-color-light: var(--primary-color-light);
+    --header-tab-active-border-color-dark: var(--primary-color-dark);
+    --header-tab-active-border-color-light: var(--primary-color-light);
+    --header-tab-hover-bg-dark: rgba(var(--primary-color-dark-rgb), 0.1);
+    --header-tab-hover-bg-light: rgba(var(--primary-color-light-rgb), 0.1);
+    --header-tab-font-size: 0.9rem;
+    --header-tab-padding: 8px 12px;
 }
 
 body.light {
@@ -167,7 +180,9 @@ input[type="color"],
 .day-card-v2,
 .btn-show-add-task-input-v2,
 .btn-confirm-add-task-v2,
-.btn-icon-recurrent-task-v2 {
+.btn-icon-recurrent-task-v2,
+.header-tab-btn,
+.header-menu-btn { /* Adicionado .header-tab-btn e .header-menu-btn */
     cursor: pointer;
 }
 
@@ -217,8 +232,8 @@ body.light .loader-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 31px;
-    padding: 22px 22px 22px 17px;
+    margin-bottom: 20px; /* Reduzido para acomodar o conteúdo das abas */
+    padding: 15px 20px; /* Ajustado o padding */
     background: var(--header-bg-dark);
     border: 1px solid var(--header-border-dark);
     border-radius: 16px;
@@ -264,7 +279,6 @@ body.light .btn-icon-nav:hover,
 body.light .theme-toggle-btn:hover {
     background-color: rgba(0, 0, 0, 0.05);
 }
-
 .logo {
     display: flex;
     align-items: center;
@@ -274,11 +288,22 @@ body.light .theme-toggle-btn:hover {
     transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), font-size 0.2s ease;
     user-select: none;
     flex-shrink: 0;
+    margin-right: 20px;
+    color: var(--text-color-dark); /* Adicione se não estiver herdando corretamente */
+    text-decoration: none; /* Garante que o link não tenha sublinhado por padrão */
+}
+
+/* ADICIONE esta nova regra para o elemento 'a' que envolve o logo */
+.logo-link {
+    text-decoration: none; /* Remove sublinhado do link */
+    color: inherit; /* Herda a cor do texto do elemento pai */
+    cursor: pointer; /* Define o cursor para o link */
 }
 
 body.light .logo {
     color: var(--text-color-light);
 }
+
 
 .logo-text {
     line-height: 1;
@@ -322,6 +347,109 @@ body.light .logo:hover .logo-icon {
     transform: translateX(3px) scale(1.02);
 }
 
+.header-tabs {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Reduzido o gap entre as abas */
+    flex-grow: 1; /* Permite que as abas ocupem espaço */
+    justify-content: center; /* Centraliza as abas se houver espaço */
+    overflow-x: auto; /* Permite scroll horizontal em telas pequenas se necessário */
+    -webkit-overflow-scrolling: touch; /* Scroll suave em iOS */
+    scrollbar-width: none; /* Esconde scrollbar no Firefox */
+}
+.header-tabs::-webkit-scrollbar { /* Esconde scrollbar no Chrome/Safari */
+    display: none;
+}
+
+
+.header-tab-btn {
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--header-tab-text-color-dark);
+    padding: var(--header-tab-padding);
+    font-size: var(--header-tab-font-size);
+    font-weight: 500;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    white-space: nowrap; /* Evita que o texto da aba quebre linha */
+    border-radius: 6px 6px 0 0; /* Leve arredondamento no topo */
+}
+body.light .header-tab-btn {
+    color: var(--header-tab-text-color-light);
+}
+.header-tab-btn:hover {
+    color: var(--header-tab-active-text-color-dark);
+    background-color: var(--header-tab-hover-bg-dark);
+}
+body.light .header-tab-btn:hover {
+    color: var(--header-tab-active-text-color-light);
+    background-color: var(--header-tab-hover-bg-light);
+}
+.header-tab-btn.active {
+    color: var(--header-tab-active-text-color-dark);
+    border-bottom-color: var(--header-tab-active-border-color-dark);
+    font-weight: 600;
+}
+body.light .header-tab-btn.active {
+    color: var(--header-tab-active-text-color-light);
+    border-bottom-color: var(--header-tab-active-border-color-light);
+}
+
+.header-menu-btn { /* Botão hamburguer para abas em telas pequenas */
+    background: none;
+    border: none;
+    font-size: 1.8rem; /* Tamanho similar aos outros botões de controle */
+    padding: 8px;
+    border-radius: 50%;
+    color: var(--primary-color-dark);
+    display: none; /* Inicialmente escondido */
+    margin-left: auto; /* Para alinhar à direita quando as abas são escondidas */
+    transition: background-color 0.2s ease, color 0.3s ease;
+}
+body.light .header-menu-btn {
+    color: var(--primary-color-light);
+}
+.header-menu-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+body.light .header-menu-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+/* Dropdown das abas (para mobile) */
+.tabs-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 5px); /* Abaixo do botão hamburguer */
+    right: 0;
+    background-color: var(--card-solid-bg-dark);
+    border: 1px solid var(--card-border-dark);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1050;
+    min-width: 200px;
+    padding: 5px 0;
+}
+body.light .tabs-dropdown {
+    background-color: var(--card-solid-bg-light);
+    border-color: var(--card-border-light);
+}
+.tabs-dropdown .header-tab-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 15px;
+    border-bottom: none; /* Remove a borda inferior no dropdown */
+    border-radius: 0;
+}
+.tabs-dropdown .header-tab-btn.active {
+    background-color: var(--header-tab-hover-bg-dark);
+    color: var(--header-tab-active-text-color-dark);
+}
+body.light .tabs-dropdown .header-tab-btn.active {
+    background-color: var(--header-tab-hover-bg-light);
+    color: var(--header-tab-active-text-color-light);
+}
+
 
 .header-controls {
     display: flex;
@@ -329,7 +457,29 @@ body.light .logo:hover .logo-icon {
     align-items: center;
     transition: gap 0.2s ease;
     flex-shrink: 0;
+    margin-left: 20px; /* Espaço das abas para os controles */
 }
+
+/* Estilos para o contador de questões dentro da aba */
+.question-counter-tab {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px; /* Espaçamento antes dos cards de metas */
+    padding: 15px;
+    background: var(--card-bg-dark);
+    border: 1px solid var(--card-border-dark);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.07);
+}
+body.light .question-counter-tab {
+    background: var(--card-bg-light);
+    border-color: var(--card-border-light);
+}
+
 
 .scroll-indicator {
     display: none;
@@ -393,23 +543,111 @@ body.light .scroll-indicator {
     }
 }
 
-
-.productivity-focus-area {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-    align-items: stretch;
-    width: 100%;
-    max-width: 100%;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+/* Estilos para Conteúdo das Abas */
+.tab-content-container {
+    position: relative;
 }
-
-.productivity-focus-area.visible {
+.tab-content {
+    display: none; /* Esconde todas as abas por padrão */
+    opacity: 0;
+    transform: translateY(15px);
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+    animation: fadeInTab 0.5s forwards;
+}
+.tab-content.active {
+    display: block; /* Mostra apenas a aba ativa */
     opacity: 1;
     transform: translateY(0);
 }
+@keyframes fadeInTab {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ==========================================================================
+   Reestruturação da Aba "Foco & Tarefas" - INÍCIO
+   ========================================================================== */
+.productivity-focus-area {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Coluna esquerda mais larga */
+    grid-template-rows: auto auto; /* Ou alturas específicas, ex: minmax(350px, auto) minmax(400px, auto) */
+    grid-template-areas:
+        "performance-overview focus-timer"
+        "today-tasks        weekly-performance";
+    gap: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* Os elementos filhos diretos de .productivity-focus-area serão .chart-section.pomodoro-chart-section,
+   .pomodoro-section, .tasks-section, e .chart-section.tasks-chart-section
+   Eles serão posicionados usando grid-area no HTML (ou aqui se necessário) */
+
+/* Estilos para os itens da grade */
+.chart-section.pomodoro-chart-section { /* Performance Overview */
+    grid-area: performance-overview;
+    min-height: 280px; /* Ajuste conforme necessário */
+    height: 100%; /* Para preencher a célula do grid se a linha tiver altura definida */
+}
+
+.pomodoro-section { /* Focus Timer */
+    grid-area: focus-timer;
+    min-height: 280px; /* Ajuste para ser similar ao gráfico ao lado */
+    height: 100%;
+    justify-content: center; /* Centralizar conteúdo verticalmente */
+}
+
+.tasks-section { /* Today's Tasks */
+    grid-area: today-tasks;
+    min-height: 350px; /* Altura maior para a lista de tarefas */
+    height: 100%;
+}
+
+.chart-section.tasks-chart-section { /* Weekly Performance */
+    grid-area: weekly-performance;
+    min-height: 350px; /* Altura maior para o gráfico de barras */
+    height: 100%;
+}
+
+/* Ajustes nos componentes internos para o novo layout */
+.pomodoro-section .pomodoro-timer-display {
+    font-size: 4.5rem; /* Reduzido do original 5.5rem */
+    margin: 15px 0;
+}
+
+.pomodoro-section .pomodoro-controls {
+    margin-bottom: 10px;
+}
+.pomodoro-section .pomodoro-cycles {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+.pomodoro-section .btn-pomodoro-details {
+    margin-top: 10px; /* Reduzido para menos espaço se necessário */
+}
+
+.tasks-section #task-list {
+    height: auto; /* Remove altura fixa */
+    min-height: 120px; /* Altura mínima */
+    flex-grow: 1; /* Permite que a lista cresça */
+    max-height: 200px; /* Limita a altura máxima, para não empurrar demais */
+}
+
+
+/* Remover/Ajustar os wrappers antigos se não forem mais usados diretamente por .productivity-focus-area */
+.pomodoro-section-wrapper,
+.tasks-section-wrapper {
+    /* Se estes wrappers ainda existirem no HTML como pais diretos dos cards, eles devem ser display: contents ou similar
+       OU, o HTML deve ser alterado para que os 4 cards sejam filhos diretos de .productivity-focus-area */
+    /* Por agora, vou assumir que o HTML será alterado e estes não são mais os containers flex diretos */
+    /* display: contents; /* Faz o wrapper se comportar como se não existisse para fins de layout do pai */
+}
+
+/* ==========================================================================
+   Reestruturação da Aba "Foco & Tarefas" - FIM
+   ========================================================================== */
+
 
 .stats-grid {
     display: grid;
@@ -659,7 +897,7 @@ body.light .card-streak-target {
 .activity-section {
     border-radius: 16px;
     padding: 24px;
-    margin-bottom: 20px;
+    margin-bottom: 20px; /* Ajustado para garantir espaço para o footer */
     transition: all 0.3s ease;
     background: var(--card-bg-dark);
     border: 1px solid var(--card-border-dark);
@@ -808,22 +1046,20 @@ body.light .activity-value {
     color: white;
 }
 
+/* Reduzindo altura do chart-container da aba "Painel Principal" */
 .chart-container {
-    height: 200px;
+    height: 140px; /* Reduzido de 200px */
     position: relative;
     overflow: hidden;
     transition: height 0.2s ease;
+    flex-grow: 1; /* Para que o canvas possa usar height: 100% */
+}
+/* Ajuste para o canvas dentro do chart-container */
+.chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
 
-.question-counter {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    transition: gap 0.2s ease;
-    flex-shrink: 1;
-    min-width: 120px;
-}
 
 .counter-btn {
     width: 36px;
@@ -892,20 +1128,17 @@ body.light .counter-display {
     -moz-appearance: textfield;
 }
 
-.pomodoro-section-wrapper,
+/* .pomodoro-section-wrapper,
 .tasks-section-wrapper {
     flex: 1 1 0;
     min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 20px;
-}
+} */ /* Removido pois os elementos serão filhos diretos do grid */
 
-.pomodoro-section,
-.tasks-section {
-    flex-grow: 1;
-    flex-shrink: 1;
-    flex-basis: 0;
+.pomodoro-section, /* Estilos base mantidos, mas min-height será ajustado abaixo */
+.tasks-section {   /* Estilos base mantidos, mas min-height será ajustado abaixo */
     border-radius: 16px;
     padding: 24px;
     background: var(--card-bg-dark);
@@ -917,9 +1150,9 @@ body.light .counter-display {
     color: var(--text-color-dark);
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: 100%; /* Para preencher a célula do grid */
+    height: 100%; /* Para preencher a célula do grid */
     box-sizing: border-box;
-    min-height: 400px;
 }
 
 body.light .pomodoro-section,
@@ -932,7 +1165,8 @@ body.light .tasks-section {
 .pomodoro-section {
     align-items: center;
     text-align: center;
-    justify-content: space-between;
+    justify-content: center; /* Alterado para melhor centralização no novo layout */
+    /* min-height: 400px; */ /* Removido min-height fixo, será controlado pelo grid e conteúdo */
 }
 
 .pomodoro-header {
@@ -979,7 +1213,7 @@ body.light .pomodoro-section .pomodoro-settings-btn:hover {
 
 
 .pomodoro-timer-display {
-    font-size: 5.5rem;
+    font-size: 4.5rem; /* Ajustado para corresponder ao protótipo */
     font-weight: 700;
     margin: 10px 0 10px 0;
     line-height: 1;
@@ -1105,7 +1339,7 @@ body.light .pomodoro-section .pomodoro-cycles i {
 }
 
 .btn-pomodoro-details {
-    margin-top: auto;
+    margin-top: auto; /* Empurra para baixo se houver espaço */
     padding: 8px 15px;
     font-size: 0.85rem;
     width: auto;
@@ -1315,13 +1549,15 @@ body.light #add-task-btn {
     margin: 0;
     overflow-y: auto;
     padding-right: 5px;
-    height: 160px;
+    /* height: 160px; */ /* Removido para permitir crescimento flexível */
     margin-bottom: 15px;
+    flex-grow: 1; /* Adicionado para ocupar espaço disponível */
+    min-height: 100px; /* Para não sumir se vazia */
 }
 
 
 .task-progress-container {
-    margin-top: auto;
+    margin-top: auto; /* Empurra para o final do card flexível */
     padding-top: 10px;
 }
 
@@ -1638,9 +1874,9 @@ body.light .tasks-section .task-list-empty-message {
 }
 
 
-.chart-section {
+.chart-section { /* Estilo base para todos os cards de gráfico */
     border-radius: 16px;
-    padding: 18px;
+    padding: 18px; /* Reduzido padding para dar mais espaço ao gráfico */
     background: var(--card-bg-dark);
     border: 1px solid var(--card-border-dark);
     backdrop-filter: blur(12px);
@@ -1648,11 +1884,11 @@ body.light .tasks-section .task-list-empty-message {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
         0 4px 6px -4px rgba(0, 0, 0, 0.1);
     color: var(--text-color-dark);
-    height: auto;
-    min-height: 218px;
-    flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    width: 100%; /* Para preencher a célula do grid */
+    height: 100%; /* Para preencher a célula do grid */
+    box-sizing: border-box;
 }
 
 body.light .chart-section {
@@ -1662,11 +1898,30 @@ body.light .chart-section {
     color: var(--text-color-light);
 }
 
+/* Ajustes específicos para o gráfico de Foco Semanal (Performance Overview) */
+.chart-section.pomodoro-chart-section {
+    /* min-height: 280px; Altura será definida pela linha do grid ou conteúdo */
+}
+.chart-section.pomodoro-chart-section .chart-container {
+    /* height: auto; Permite que o gráfico cresça */
+    min-height: 200px; /* Altura mínima para o gráfico de linha */
+}
+
+/* Ajustes específicos para o gráfico de Tarefas Concluídas (Weekly Performance) */
+.chart-section.tasks-chart-section {
+    /* min-height: 350px; Altura será definida pela linha do grid ou conteúdo */
+}
+.chart-section.tasks-chart-section .chart-container {
+    /* height: auto; Permite que o gráfico cresça */
+    min-height: 250px; /* Altura mínima para o gráfico de barras */
+}
+
+
 .chart-section .chart-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 12px; /* Reduzido para mais espaço ao gráfico */
     flex-shrink: 0;
 }
 
@@ -1680,72 +1935,9 @@ body.light .chart-section .chart-title {
     color: var(--text-color-light);
 }
 
-.chart-period-selector-container {
-    position: relative;
-}
+/* ... (restante do CSS não relacionado diretamente com a aba Foco & Tarefas) ... */
 
-.chart-period-selector {
-    background-color: rgba(var(--primary-color-dark-rgb), 0.1);
-    color: var(--text-muted-dark);
-    border: 1px solid rgba(var(--primary-color-dark-rgb), 0.2);
-    border-radius: 6px;
-    padding: 6px 28px 6px 10px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    outline: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23cccccc80' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-    background-size: 14px 14px;
-    min-width: 150px;
-}
-
-body.light .chart-period-selector {
-    background-color: rgba(var(--primary-color-light-rgb), 0.08);
-    color: var(--text-muted-light);
-    border-color: rgba(var(--primary-color-light-rgb), 0.15);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2355555580' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-}
-
-.chart-period-selector:hover {
-    background-color: rgba(var(--primary-color-dark-rgb), 0.15);
-    border-color: rgba(var(--primary-color-dark-rgb), 0.3);
-}
-body.light .chart-period-selector:hover {
-    background-color: rgba(var(--primary-color-light-rgb), 0.12);
-    border-color: rgba(var(--primary-color-light-rgb), 0.25);
-}
-
-.chart-period-selector:focus {
-    border-color: var(--primary-color-dark);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color-dark) 20%, transparent);
-}
-body.light .chart-period-selector:focus {
-    border-color: var(--primary-color-light);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color-light) 20%, transparent);
-}
-
-.chart-period-selector option {
-    background-color: var(--card-bg-dark);
-    color: var(--text-color-dark);
-}
-body.light .chart-period-selector option {
-    background-color: var(--card-bg-light);
-    color: var(--text-color-light);
-}
-
-.chart-section .chart-container {
-    flex-grow: 1;
-    position: relative;
-    overflow: hidden;
-    min-height: 150px;
-}
-
+/* Modal styles */
 .custom-alert-overlay {
     display: none;
     position: fixed;
@@ -2553,12 +2745,16 @@ body.light .task-routine-checkbox:checked {
     word-break: break-word;
     overflow-wrap: break-word;
     text-align: left;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    cursor: pointer;
+    cursor: pointer; /* Mantém o cursor de clique para o checkbox */
     padding-right: 3px;
+
+    /* >>> NOVAS PROPRIEDADES PARA IMPEDIR SELEÇÃO E ARRASTE DE TEXTO <<< */
+    user-select: none; /* Padrão para a maioria dos navegadores modernos */
+    -webkit-user-select: none; /* Safari, Chrome, Opera */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Internet Explorer/Edge mais antigos */
+    -webkit-user-drag: none; /* Impede o arraste no Safari/Chrome */
+    /* Para outros navegadores, user-select: none geralmente já impede o arraste de texto */
 }
 
 .task-actions-recurrent-v2 {
@@ -3257,47 +3453,6 @@ body.light #delete-option-all-card.selected .delete-option-text small {
 }
 
 
-.delete-option-card-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.delete-option-icon i {
-    font-size: 1.3rem;
-    color: var(--text-muted-dark);
-    transition: color 0.2s ease;
-    width: 24px;
-    text-align: center;
-}
-
-.delete-option-text {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-}
-
-.delete-option-text strong {
-    font-weight: 600;
-    color: var(--text-color-dark);
-    font-size: 0.95rem;
-    line-height: 1.3;
-}
-
-body.light .delete-option-text strong {
-    color: var(--text-color-light);
-}
-
-.delete-option-text small {
-    font-size: 0.8rem;
-    color: var(--text-muted-dark);
-    line-height: 1.3;
-}
-
-body.light .delete-option-text small {
-    color: var(--text-muted-light);
-}
-
 .delete-recurring-warning {
     display: flex;
     align-items: center;
@@ -3955,15 +4110,9 @@ body.light.theme-mode-motivational .header {
 
 @media (min-width: 769px) {
     .header {}
-
-    .question-counter {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-
+    /* .question-counter foi removido do header global */
     .header-controls {
-        margin-left: auto;
+        margin-left: auto; /* Mantido, pois as abas ocuparão o centro */
     }
 
     .scroll-indicator {
@@ -3977,12 +4126,13 @@ body.light.theme-mode-motivational .header {
     }
 
     .header {
-        padding: 18px 20px 18px 15px;
+        padding: 15px 20px; /* Ajustado o padding vertical */
         margin-bottom: 20px;
     }
 
     .logo {
         font-size: 22px;
+        margin-right: 15px; /* Ajustado o espaço */
     }
 
     .logo-icon {
@@ -3991,10 +4141,7 @@ body.light.theme-mode-motivational .header {
         font-size: 12px;
     }
 
-    .question-counter {
-        gap: 6px;
-    }
-
+    /* Estilos do question-counter original removidos */
     .counter-btn {
         width: 32px;
         height: 32px;
@@ -4011,6 +4158,11 @@ body.light.theme-mode-motivational .header {
         max-width: 60px;
     }
 
+    .header-tab-btn {
+        --header-tab-font-size: 0.85rem;
+        --header-tab-padding: 7px 10px;
+    }
+
     .btn-icon-nav,
     .theme-toggle-btn {
         font-size: 1.4rem;
@@ -4019,6 +4171,7 @@ body.light.theme-mode-motivational .header {
 
     .header-controls {
         gap: 10px;
+        margin-left: 15px; /* Ajustado o espaço */
     }
 
     .stats-grid {
@@ -4095,9 +4248,8 @@ body.light.theme-mode-motivational .header {
     }
 
     .activity-section,
-    .pomodoro-section,
-    .tasks-section,
-    .chart-section {
+    /* .pomodoro-section, .tasks-section, */ /* Ajustes para esses serão feitos no contexto do grid */
+    .chart-section { /* Estilo base para cards de gráfico */
         padding: 18px;
         border-radius: 12px;
     }
@@ -4134,17 +4286,25 @@ body.light.theme-mode-motivational .header {
         font-size: 13px;
     }
 
-    .activity-section .chart-container,
-    .chart-section .chart-container {
+    /* Altura específica para o gráfico de atividade semanal nesta faixa de resolução */
+    .activity-section .chart-container {
         height: 130px;
     }
+    /* Altura para outros gráficos (Pomodoro, Tarefas) nesta faixa - AJUSTAR CONFORME NECESSÁRIO */
+    .chart-section.pomodoro-chart-section .chart-container { /* Gráfico Foco Semanal */
+        min-height: 200px; /* Ou a altura desejada para o gráfico maior */
+    }
+    .chart-section.tasks-chart-section .chart-container { /* Tarefas Concluídas */
+        min-height: 250px; /* Ou a altura desejada para o gráfico de barras */
+    }
+
 
     .pomodoro-settings-btn {
         font-size: 1.2rem;
     }
 
     .pomodoro-timer-display {
-        font-size: 3.5rem;
+        font-size: 4rem; /* Ajustado */
         margin-bottom: 12px;
     }
 
@@ -4192,7 +4352,7 @@ body.light.theme-mode-motivational .header {
     }
 
     #task-list {
-        height: 160px;
+        /* height: 160px; */ /* Removido, será flexível */
     }
 
     .task-item-text {
@@ -4286,103 +4446,32 @@ body.light.theme-mode-motivational .header {
     }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 992px) { /* Ajustes para tablets e telas menores onde o grid pode quebrar */
     .productivity-focus-area {
-        flex-direction: column;
-        gap: 15px;
-        margin-top: 0;
-        margin-bottom: 15px;
-        align-items: stretch;
-    }
-
-    .pomodoro-section-wrapper,
-    .tasks-section-wrapper {
-        width: 100%;
+        grid-template-columns: 1fr; /* Empilha tudo em uma coluna */
+        grid-template-areas: /* Redefine as áreas para empilhamento */
+            "performance-overview"
+            "focus-timer"
+            "today-tasks"
+            "weekly-performance";
         gap: 15px;
     }
-    .pomodoro-section-wrapper > .pomodoro-section,
-    .tasks-section-wrapper > .tasks-section {
-        flex-grow: 1;
-    }
-    .pomodoro-section-wrapper > .chart-section,
-    .tasks-section-wrapper > .chart-section {
-        flex-shrink: 0;
-        height: 230px;
-    }
-    .pomodoro-section-wrapper > .chart-section .chart-container,
-    .tasks-section-wrapper > .chart-section .chart-container {
-         min-height: 160px;
-    }
 
-
-    .pomodoro-section, .tasks-section {
-        min-height: 340px;
+    .chart-section.pomodoro-chart-section,
+    .pomodoro-section,
+    .tasks-section,
+    .chart-section.tasks-chart-section {
+        min-height: 250px; /* Altura mínima para todos os cards empilhados */
     }
-    #task-list {
-        height: 160px;
+    .pomodoro-section {
+        min-height: 300px; /* Timer pode precisar de um pouco mais de altura */
     }
-
-
-    .activity-section {
-        margin-bottom: 15px;
+    .tasks-section #task-list {
+        max-height: 180px; /* Aumenta um pouco o max-height da lista de tarefas */
     }
-
-
-    #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] {
-        width: 95vw;
-        max-width: 95vw;
-        height: 90vh;
-        max-height: 90vh;
-    }
-
-    .recurring-pattern-definition-v2-content {
-        padding: 20px;
-        gap: 12px;
-    }
-
-    .recurring-modal-controls-top {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-        padding: 6px 0 10px 0;
-    }
-
-    .recurring-modal-controls-top .new-task-input-container-v2 {
-        order: 1;
-        max-width: none;
-    }
-
-    .recurring-modal-sub-controls-line {
-        order: 2;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        margin-top: 8px;
-    }
-
-    .recurring-modal-controls-top .selected-days-count {
-        margin-left: 0;
-        margin-bottom: 0;
-        width: auto;
-    }
-
-    .recurring-modal-controls-top .day-selection-actions {
-        width: auto;
-        margin-left: 0;
-        justify-content: flex-end;
-    }
-
-    .recurring-pattern-v2-days-grid {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 10px;
-    }
-
-    .recurring-modal-footer {
-        flex-direction: row;
-        align-items: center;
-        gap: 15px;
-        padding-top: 15px;
+    .chart-section.pomodoro-chart-section .chart-container,
+    .chart-section.tasks-chart-section .chart-container {
+        min-height: 180px; /* Altura para os gráficos empilhados */
     }
 }
 
@@ -4395,37 +4484,69 @@ body.light.theme-mode-motivational .header {
 
     .header {
         flex-wrap: wrap;
-        padding: 16px;
+        padding: 10px 15px; /* Reduzido o padding */
         margin-bottom: 15px;
-        gap: 10px 15px;
+        gap: 10px;
+        align-items: center; /* Alinhamento vertical */
     }
 
     .header .logo {
         order: 1;
-        flex-grow: 1;
-        font-size: 24px;
+        font-size: 22px; /* Reduzido um pouco */
+        margin-right: 10px;
     }
-
     .header .logo-icon {
-        width: 22px;
-        height: 22px;
-        font-size: 11px;
+        width: 20px; height: 20px; font-size: 10px;
     }
 
-    .header .question-counter {
-        position: static;
-        transform: none;
-        justify-content: center;
-        order: 2;
-        flex-grow: 2;
-        min-width: 150px;
+    .header .header-tabs {
+        order: 3; /* Abas vão para baixo em telas menores */
+        width: 100%;
+        justify-content: flex-start; /* Alinhar à esquerda */
+        margin-top: 8px;
+        padding-bottom: 5px; /* Espaço para a borda inferior da aba ativa */
+        border-top: 1px solid var(--header-border-dark); /* Linha divisória */
+        padding-top: 8px;
     }
+    body.light .header .header-tabs {
+        border-top-color: var(--header-border-light);
+    }
+    .header-tab-btn {
+        --header-tab-font-size: 0.8rem;
+        --header-tab-padding: 6px 8px;
+    }
+    .header-menu-btn { /* Botão hamburguer */
+        display: none; /* Não usado por enquanto, mas mantido para futuras implementações */
+        order: 2;
+        font-size: 1.6rem;
+    }
+
 
     .header .header-controls {
-        justify-content: flex-end;
-        order: 3;
-        flex-grow: 1;
+        order: 2; /* Controles à direita do logo */
+        margin-left: auto; /* Empurra para a direita */
+        gap: 8px;
     }
+     .header .btn-icon-nav, .header .theme-toggle-btn {
+        font-size: 1.3rem; padding: 6px;
+    }
+
+
+    /* Estilos do question-counter na aba */
+    .question-counter-tab {
+        flex-wrap: wrap; /* Permite quebra de linha em telas muito pequenas */
+        gap: 8px;
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+    .question-counter-tab .counter-btn {
+        width: 32px; height: 32px; font-size: 16px;
+    }
+    .question-counter-tab .counter-display,
+    .question-counter-tab #questions-step-input.counter-display {
+        font-size: 20px; min-width: 35px; max-width: 50px;
+    }
+
 
     .stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -4449,19 +4570,11 @@ body.light.theme-mode-motivational .header {
     .activity-section {
         margin-bottom: 15px;
     }
-     .pomodoro-section, .tasks-section {
-        min-height: 340px;
-    }
-    #task-list {
-        height: 160px;
-    }
-     .pomodoro-section-wrapper > .chart-section,
-    .tasks-section-wrapper > .chart-section {
-        height: 210px;
-    }
-    .pomodoro-section-wrapper > .chart-section .chart-container,
-    .tasks-section-wrapper > .chart-section .chart-container {
-         min-height: 140px;
+
+    /* Ajustes para .pomodoro-section, .tasks-section, .chart-section no grid */
+    .pomodoro-section, .tasks-section, .chart-section {
+        padding: 16px;
+        border-radius: 12px;
     }
 
 
@@ -4513,14 +4626,19 @@ body.light.theme-mode-motivational .header {
         font-size: 0.9rem;
     }
 
-    .activity-section .chart-container,
-    .pomodoro-section-wrapper .chart-section .chart-container,
-    .tasks-section-wrapper .chart-section .chart-container {
-        height: 180px;
+    /* Altura do gráfico de atividade semanal em Tablet */
+    .activity-section .chart-container {
+        height: 120px; /* Reduzido de 180px */
+    }
+    /* Alturas dos outros gráficos em Tablet */
+    .chart-section.pomodoro-chart-section .chart-container,
+    .chart-section.tasks-chart-section .chart-container {
+        min-height: 150px; /* Ajuste para consistência */
     }
 
+
     .pomodoro-timer-display {
-        font-size: 3rem;
+        font-size: 3.5rem; /* Ajustado */
     }
 
     .pomodoro-controls button {
@@ -4661,11 +4779,11 @@ body.light.theme-mode-motivational .header {
     #task-form #add-task-btn {
         flex-basis: 100%;
     }
-    .pomodoro-section, .tasks-section {
-        min-height: 300px;
-    }
+    /* .pomodoro-section, .tasks-section {
+        min-height: 300px; // Não é mais necessário com grid e height: 100%
+    } */
     #task-list {
-        height: 160px;
+        /* height: 160px; */ /* Removido */
     }
 }
 
@@ -4681,87 +4799,52 @@ body.light.theme-mode-motivational .header {
     .container {
         padding-left: 12px;
         padding-right: 12px;
+        padding-top: 10px; /* Reduzido para acomodar header sticky */
     }
 
     .header {
         position: sticky;
-        top: 0;
+        top: 10px; /* Espaço do topo da viewport */
         z-index: 100;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0 10px;
-        height: 56px;
+        padding: 10px 12px; /* Padding interno do header */
+        height: auto; /* Altura automática para acomodar conteúdo */
         margin-bottom: 15px;
-        border-radius: 0 0 12px 12px;
+        border-radius: 12px; /* Mantém bordas arredondadas */
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        flex-wrap: wrap; /* Permite quebra de linha dos elementos */
     }
-
-    body.light .header {
-        border-bottom: 1px solid var(--header-border-light);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
     .header .logo {
-        width: auto;
         font-size: 20px;
-        flex-shrink: 0;
-        gap: 6px;
+        margin-right: auto; /* Empurra o logo para a esquerda */
         order: 1;
     }
-
     .header .logo-icon {
-        width: 20px;
-        height: 20px;
-        font-size: 10px;
+        width: 20px; height: 20px; font-size: 10px;
     }
+    .header .logo-text-full { display: none; }
+    .header .logo-text-short { display: inline; }
 
-    .header .logo-text-full {
-        display: none;
+    .header .header-tabs {
+        display: none; /* Esconde abas normais */
     }
-
-    .header .logo-text-short {
-        display: inline;
-    }
-
-    .header .question-counter {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        width: auto;
-        gap: 6px;
+    .header .header-menu-btn {
+        display: flex; /* Mostra botão hamburguer */
         order: 2;
-    }
-
-    .header .counter-btn {
-        width: 30px;
-        height: 30px;
-        font-size: 16px;
-    }
-
-    .header .counter-display,
-    #questions-step-input.counter-display {
-        font-size: 18px;
-        min-width: 30px;
-        max-width: 45px;
-        padding: 0 2px;
-        line-height: 1.2;
+        margin-left: 10px; /* Espaço do logo */
     }
 
     .header .header-controls {
-        width: auto;
-        gap: 6px;
-        flex-shrink: 0;
         order: 3;
-        margin-left: auto;
+        gap: 6px;
+        margin-left: 10px; /* Espaço do botão de menu */
     }
-
-    .header .btn-icon-nav,
-    .header .theme-toggle-btn {
-        font-size: 1.2rem;
-        padding: 5px;
+    .header .btn-icon-nav, .header .theme-toggle-btn {
+        font-size: 1.2rem; padding: 5px;
     }
 
     .stats-grid {
@@ -4787,25 +4870,16 @@ body.light.theme-mode-motivational .header {
         margin-top: 0;
         gap: 15px;
         margin-bottom: 15px;
+        /* grid-template-columns: 1fr; // Já definido em @media (max-width: 992px) */
     }
-
-    .pomodoro-section-wrapper,
-    .tasks-section-wrapper {
-        gap: 15px;
+    .pomodoro-section, .tasks-section, .chart-section {
+        min-height: 220px; /* Altura mínima para os cards empilhados */
     }
-     .pomodoro-section, .tasks-section {
-        min-height: 300px;
-    }
-    #task-list {
-        height: 160px;
-    }
-     .pomodoro-section-wrapper > .chart-section,
-    .tasks-section-wrapper > .chart-section {
-        height: 190px;
-    }
-    .pomodoro-section-wrapper > .chart-section .chart-container,
-    .tasks-section-wrapper > .chart-section .chart-container {
-         min-height: 120px;
+    .pomodoro-section { min-height: 280px; }
+    .tasks-section #task-list { max-height: 150px; }
+    .chart-section.pomodoro-chart-section .chart-container,
+    .chart-section.tasks-chart-section .chart-container {
+        min-height: 150px;
     }
 
 
@@ -4854,16 +4928,21 @@ body.light.theme-mode-motivational .header {
         font-size: 11px;
     }
 
-    .activity-section .chart-container,
-    .pomodoro-section-wrapper .chart-section .chart-container,
+    /* Altura do gráfico de atividade semanal em Mobile */
+    .activity-section .chart-container {
+        height: 110px; /* Reduzido de 150px */
+    }
+    /* Alturas dos outros gráficos em Mobile */
+    /* .pomodoro-section-wrapper .chart-section .chart-container,
     .tasks-section-wrapper .chart-section .chart-container {
-        height: 150px;
-    }
+        height: 150px; // Já tratado pelos seletores mais específicos acima
+    } */
 
-    .pomodoro-section,
+
+    /* .pomodoro-section,
     .tasks-section {
-        min-height: auto;
-    }
+        min-height: auto; // Removido, o grid e conteúdo controlarão
+    } */
 
 
     .activity-title,
@@ -4893,7 +4972,7 @@ body.light.theme-mode-motivational .header {
     }
 
     .pomodoro-timer-display {
-        font-size: 2.5rem;
+        font-size: 3rem; /* Ajustado */
         margin-bottom: 10px;
     }
 
@@ -5173,6 +5252,23 @@ body.light.theme-mode-motivational .header {
 }
 
 @media (max-width: 420px) {
+    .header .logo {
+        margin-right: 5px;
+    }
+    .header .header-menu-btn {
+        margin-left: 5px;
+    }
+    .header .header-controls {
+        margin-left: 5px;
+    }
+    .header .header-tabs { /* Ajuste adicional para o scroll das abas */
+        margin-left: -12px; /* Compensa o padding do container */
+        margin-right: -12px; /* Compensa o padding do container */
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+
     #recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .recurring-pattern-v2-days-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 8px;
@@ -5242,7 +5338,8 @@ body.light ::-webkit-scrollbar-thumb {
 .modal::-webkit-scrollbar,
 .retrospective-screen::-webkit-scrollbar,
 .new-pomodoro-details-list-container::-webkit-scrollbar,
-.pomodoro-details-list::-webkit-scrollbar
+.pomodoro-details-list::-webkit-scrollbar,
+.header-tabs::-webkit-scrollbar /* Adicionado para abas */
     {
     width: 8px;
     height: 8px;
@@ -5254,7 +5351,9 @@ body.light ::-webkit-scrollbar-thumb {
 .modal::-webkit-scrollbar-track,
 .retrospective-screen::-webkit-scrollbar-track,
 .new-pomodoro-details-list-container::-webkit-scrollbar-track,
-.pomodoro-details-list::-webkit-scrollbar-track {
+.pomodoro-details-list::-webkit-scrollbar-track,
+.header-tabs::-webkit-scrollbar-track /* Adicionado para abas */
+ {
     background: var(--scrollbar-track-bg-dark);
     border-radius: 10px;
 }
@@ -5265,7 +5364,9 @@ body.light .day-card-v2-tasks::-webkit-scrollbar-track,
 body.light .modal::-webkit-scrollbar-track,
 body.light .retrospective-screen::-webkit-scrollbar-track,
 body.light .new-pomodoro-details-list-container::-webkit-scrollbar-track,
-body.light .pomodoro-details-list::-webkit-scrollbar-track {
+body.light .pomodoro-details-list::-webkit-scrollbar-track,
+body.light .header-tabs::-webkit-scrollbar-track /* Adicionado para abas */
+ {
     background: var(--scrollbar-track-bg-light);
 }
 
@@ -5276,30 +5377,9 @@ body.light .pomodoro-details-list::-webkit-scrollbar-track {
 .modal::-webkit-scrollbar-thumb,
 .retrospective-screen::-webkit-scrollbar-thumb,
 .new-pomodoro-details-list-container::-webkit-scrollbar-thumb,
-.pomodoro-details-list::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg-dark);
-    border-radius: 10px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-}
-
-body.light #task-list::-webkit-scrollbar-thumb,
-body.light #recurring-patterns-list::-webkit-scrollbar-thumb,
-body.light .day-card-v2-tasks::-webkit-scrollbar-thumb,
-body.light .modal::-webkit-scrollbar-thumb,
-body.light .retrospective-screen::-webkit-scrollbar-thumb,
-body.light .new-pomodoro-details-list-container::-webkit-scrollbar-thumb,
-body.light .pomodoro-details-list::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg-light);
-}
-
-#task-list::-webkit-scrollbar-thumb:hover,
-#recurring-patterns-list::-webkit-scrollbar-thumb:hover,
-.day-card-v2-tasks::-webkit-scrollbar-thumb:hover,
-.modal::-webkit-scrollbar-thumb:hover,
-.retrospective-screen::-webkit-scrollbar-thumb:hover,
-.new-pomodoro-details-list-container::-webkit-scrollbar-thumb:hover,
-.pomodoro-details-list::-webkit-scrollbar-thumb:hover {
+.pomodoro-details-list::-webkit-scrollbar-thumb:hover,
+.header-tabs::-webkit-scrollbar-thumb:hover /* Adicionado para abas */
+ {
     filter: brightness(1.2);
 }
 
@@ -5349,3 +5429,203 @@ body.light .footer-link {
 body.light .retrospective-final-logo .logo-icon {
     background: var(--primary-color-light);
 }
+
+/* Ajuste para o modo responsivo das abas e menu hamburguer */
+@media (max-width: 900px) { /* Ponto de quebra ajustável */
+    .header .header-tabs {
+        display: none; /* Esconde as abas normais */
+    }
+    .header .header-menu-btn {
+        display: flex; /* Mostra o botão hamburguer */
+        order: 2; /* Posição do botão de menu */
+        margin-left: 10px; /* Ajuste para não colar no logo */
+    }
+    .header .header-controls {
+        order: 3;
+    }
+    .header .logo {
+        margin-right: auto; /* Garante que o logo fique à esquerda */
+    }
+    /* Ajuste para que o container principal não sobreponha o header sticky */
+    .container {
+        padding-top: 80px; /* Altura aproximada do header em telas pequenas + margem */
+    }
+    .header {
+        position: sticky;
+        top: 10px;
+        z-index: 101; /* Maior que o conteúdo, menor que modais */
+    }
+    /* Estilo para o dropdown, quando visível */
+    .tabs-dropdown.show {
+        display: block;
+    }
+}
+@media (min-width: 901px) {
+    .header .header-menu-btn {
+        display: none;
+    }
+}
+
+
+footer { /* Ou .main-footer se você usou essa classe no HTML */
+    text-align: center;
+    padding: 20px 0; /* Mantém o padding vertical para espaçamento interno */
+    font-size: 0.85rem;
+    color: #777;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 10px; /* REDUZIDO DE 20px para 10px */
+}
+
+body.light footer { /* Ou body.light .main-footer */
+    color: #888;
+    border-top-color: rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 480px) {
+    .pomodoro-section, .tasks-section, .chart-section {
+        min-height: auto; /* Permite que os cards encolham mais em telas muito pequenas */
+    }
+    .chart-section.pomodoro-chart-section .chart-container,
+    .chart-section.tasks-chart-section .chart-container {
+        min-height: 120px; /* Reduz a altura mínima dos gráficos ainda mais */
+    }
+    .pomodoro-timer-display {
+        font-size: 2.8rem;
+    }
+    .tasks-section #task-list {
+        max-height: 120px;
+    }
+}
+
+
+/* Scrollbar para a lista de tarefas no novo layout */
+.tasks-section #task-list::-webkit-scrollbar {
+    width: 6px; /* Largura mais fina para listas internas */
+}
+.tasks-section #task-list::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-bg-dark); /* Cor do tema */
+    border-radius: 3px;
+}
+body.light .tasks-section #task-list::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-bg-light);
+}
+.tasks-section #task-list::-webkit-scrollbar-track {
+    background: transparent; /* Trilha transparente para listas internas */
+}
+
+/* Ajustes finais para o layout do grid em telas muito pequenas */
+@media (max-width: 420px) {
+    .productivity-focus-area {
+        gap: 12px; /* Menor espaçamento entre os cards */
+    }
+
+    .pomodoro-timer-display {
+        font-size: 2.5rem;
+    }
+
+    .pomodoro-controls button {
+        font-size: 0.8rem;
+        padding: 7px 10px;
+        min-width: 70px;
+    }
+
+    #task-input,
+    .task-date-input.flatpickr-input,
+    #add-task-btn,
+    .btn-recurring {
+        font-size: 0.85rem;
+        height: 36px;
+    }
+    #add-task-btn i, .btn-recurring i {
+        font-size: 0.9em;
+    }
+
+    .task-item-text {
+        font-size: 0.85rem;
+    }
+    .task-item-checkbox {
+        width: 15px;
+        height: 15px;
+    }
+     .task-item-checkbox:checked::before {
+        font-size: 10px;
+    }
+    .task-item-delete-btn {
+        font-size: 0.9rem;
+    }
+}
+
+.tasks-section { /* Today's Tasks */
+    grid-area: today-tasks;
+    /* min-height: 350px;  Comentado ou removido para usar height fixa */
+    height: 386px; /* ALTURA FIXA - AJUSTE ESTE VALOR PARA CORRESPONDER À ALTURA COM 3 TAREFAS */
+                     /* Exemplo: Se com 3 tarefas o card tem 390px, use height: 390px; */
+                     /* Você pode usar a ferramenta de desenvolvedor do navegador para medir a altura do card com 3 tarefas */
+    display: flex; /* Garante que é um container flex */
+    flex-direction: column; /* Organiza os filhos em coluna */
+    /* Outros estilos do .tasks-section que já existiam (border-radius, padding, etc.) devem ser mantidos */
+}
+
+.tasks-section #task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto; /* Habilita o scroll vertical quando necessário */
+    padding-right: 5px;
+    margin-bottom: 15px;
+    flex-grow: 1; /* Faz a lista ocupar o espaço vertical disponível dentro do .tasks-section */
+    min-height: 80px;  /* Uma altura mínima para quando estiver vazia, para não sumir */
+    /* max-height: 200px;  Removido ou ajustado, pois a altura do card pai vai controlar */
+}
+
+
+/* Ajustes para responsividade, se necessário, para a altura fixa do .tasks-section */
+@media (max-width: 992px) { /* Tablets e telas menores, onde o layout empilha */
+    .tasks-section {
+        height: 380px; /* Pode precisar de um valor diferente aqui se o layout mudar muito */
+                        /* Ou mantenha o mesmo se quiser consistência */
+    }
+    .tasks-section #task-list {
+        /* max-height: 180px; Removido, pois flex-grow cuidará disso */
+    }
+}
+
+@media (max-width: 768px) { /* Telas ainda menores */
+    .tasks-section {
+        height: 360px; /* Exemplo de ajuste para telas menores */
+    }
+}
+
+@media (max-width: 480px) { /* Mobile */
+    .tasks-section {
+         height: 340px; /* Exemplo de ajuste para mobile */
+    }
+    .tasks-section #task-list {
+         /* max-height: 150px;  Removido */
+    }
+}
+
+
+/* Scrollbar para a lista de tarefas (mantido como estava) */
+.tasks-section #task-list::-webkit-scrollbar {
+    width: 6px;
+}
+.tasks-section #task-list::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-bg-dark);
+    border-radius: 3px;
+}
+body.light .tasks-section #task-list::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-bg-light);
+}
+.tasks-section #task-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chart-container {
+    height: 150px; /* AUMENTADO DE 140px para 160px (ou o valor que desejar) */
+    position: relative;
+    overflow: hidden;
+    transition: height 0.2s ease;
+    flex-grow: 1; 
+}
+

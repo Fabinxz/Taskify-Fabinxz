@@ -446,3 +446,73 @@ body.light #redacao-eixos-modal .category-item-actions button.delete-category-bt
     .redacao-eixo-chart-filters { flex-direction: column; align-items: stretch; }
     .redacao-eixo-chart-filters select { width: 100%; }
 }
+
+.redacao-card.expanded .redacao-card-details {
+    padding-top: 20px; /* Ou o valor que você deseja */
+    padding-bottom: 20px; /* Ou o valor que você deseja */
+    /* Outros paddings (left/right) se necessário */
+}
+
+.redacao-card-details {
+    /* ... outros estilos ... */
+    padding-top: 0; /* Padding inicial quando colapsado */
+    padding-bottom: 0; /* Padding inicial quando colapsado */
+    transition: max-height 0.35s ease-out, opacity 0.3s ease-out, padding-top 0.35s ease-out, padding-bottom 0.35s ease-out;
+    /* Adicione padding-top e padding-bottom à transição */
+}
+
+.redacao-card.expanded .redacao-card-expand-icon { transform: rotate(180deg); }
+ .redacao-card-details {
+    padding: 0;
+    padding: 0 20px; /* Padding horizontal constante, padding vertical 0 por padrão (colapsado) */
+     display: none;
+     flex-direction: column;
+     gap: 18px;
+     border-top: 1px solid var(--card-border-dark);
+     margin-top: 10px;
+     opacity: 0;
+     max-height: 0;
+    transition: opacity 0.3s ease-in-out, max-height 0.35s ease-in-out, padding-top 0.3s ease-in-out, padding-bottom 0.3s ease-in-out;
+    overflow: hidden; /* Garante que conteúdo extra não afete scrollHeight quando max-height é 0 */
+    transition: opacity 0.3s ease-out, /* mudado para ease-out para consistência */
+                max-height 0.35s ease-out,
+                padding-top 0.35s ease-out,
+                padding-bottom 0.35s ease-out;
+ }
+ body.light .redacao-card-details { border-top-color: var(--card-border-light); }
+ .redacao-card.expanded .redacao-card-details {
+     display: flex;
+     opacity: 1;
+    max-height: 500px;
+    padding: 20px;
+    flex-direction: column;
+    gap: 18px;
+    max-height: 700px; /* AUMENTADO de 500px para 700px (pode ser ajustado para 1000px se necessário) */
+    padding-top: 20px;    /* Padding vertical no expandido */
+    padding-bottom: 20px; /* Padding vertical no expandido */
+    /* padding-left e padding-right permanecem 20px da regra base .redacao-card-details */
+    /* flex-direction e gap são herdados da regra base .redacao-card-details,
+       mas podem ser reafirmados aqui se necessário por especificidade ou clareza.
+       Dado que o .simulado-card-details não os repete, vamos omiti-los para alinhar. */
+ }
+ .redacao-details-grid-v2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; }
+ .redacao-metric-display-v2 { background-color: var(--card-bg-dark); border-radius: 8px; padding: 12px 15px; text-align: left; border: 1px solid var(--card-border-dark); display: flex; flex-direction: column; justify-content: center; }
+     .redacao-eixo-chart-filters select { width: 100%; } 
+ 
+.redacao-card.expanded .redacao-card-details {
+    padding-top: 20px; /* Ou o valor que você deseja */
+    padding-bottom: 20px; /* Ou o valor que você deseja */
+    /* Outros paddings (left/right) se necessário */
+}
+
+.redacao-card-details {
+    /* ... outros estilos ... */
+    padding-top: 0; /* Padding inicial quando colapsado */
+    padding-bottom: 0; /* Padding inicial quando colapsado */
+    transition: max-height 0.35s ease-out, opacity 0.3s ease-out, padding-top 0.35s ease-out, padding-bottom 0.35s ease-out;
+    /* Adicione padding-top e padding-bottom à transição */
+}
+/* As regras redundantes de padding e transição que estavam no final do arquivo
+   para .redacao-card-details e .redacao-card.expanded .redacao-card-details
+   foram removidas. Suas intenções foram incorporadas nas definições principais
++   acima para maior clareza e para evitar conflitos. */
