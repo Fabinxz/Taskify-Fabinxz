@@ -1,3 +1,4 @@
+
 let weeklyChartInstance = null;
 let pomodoroChartInstance = null;
 let tasksChartInstance = null;
@@ -35,7 +36,6 @@ let newPomodoroDetailsBtnNewCycle = null;
 window.showCustomAlert = showCustomAlert;
 window.taskifyStateReady = false;
 
-// Garante que PREDEFINED_PALETTES só seja declarada uma vez
 if (typeof PREDEFINED_PALETTES_GLOBAL === 'undefined') {
     const PREDEFINED_PALETTES = {
         electricBlue: { name: 'Azul Elétrico', primary: '#0A7CFF' },
@@ -130,6 +130,14 @@ const initialDefaultState = {
         weeklyActivity: DEFAULT_CHART_PERIOD,
         pomodoroFocus: DEFAULT_CHART_PERIOD,
         tasksCompleted: DEFAULT_CHART_PERIOD
+    },
+    simuladosApp: {
+        simulados: [],
+        categorias: []
+    },
+    redacoesApp: { // NOVO: Estado para redações
+        redacoes: [],
+        eixosTematicos: []
     }
 };
 
@@ -208,7 +216,6 @@ function hexToRgbArray(hex) {
     }
 }
 
-
 function formatUnit(value, singularUnit, pluralUnit) {
     const val = parseInt(value, 10);
     if (isNaN(val)) return `0 ${pluralUnit}`;
@@ -239,6 +246,18 @@ function formatDateToISO(ddmmyyyyString) {
         return `${parts[2]}-${parts[1]}-${parts[0]}`;
     }
     return null;
+}
+
+// Função para obter o número de colunas de um grid (usada em simulados.js)
+function getNumColumnsForGrid(gridElement) {
+    if (!gridElement) return 1;
+    const gridComputedStyle = window.getComputedStyle(gridElement);
+    const gridTemplateColumns = gridComputedStyle.getPropertyValue('grid-template-columns');
+    const repeatMatch = gridTemplateColumns.match(/repeat\((\d+),/);
+    if (repeatMatch && repeatMatch[1]) {
+        return parseInt(repeatMatch[1], 10);
+    }
+    return (gridTemplateColumns.split(' ').filter(s => s.trim() !== '')).length || 1;
 }
 
 
@@ -283,7 +302,6 @@ function loadState() {
         document.documentElement.style.setProperty('--primary-color-dark-rgb', rgbArray.join(', '));
     }
 
-
     let loadedState = null;
     try {
         const savedStateString = localStorage.getItem('taskify-state');
@@ -296,66 +314,71 @@ function loadState() {
     }
 
     if (loadedState) {
-        state = {
-            ...JSON.parse(JSON.stringify(initialDefaultState)),
-            ...loadedState,
-            goals: { ...initialDefaultState.goals, ...(loadedState.goals || {}) },
-            dailyRecord: { ...initialDefaultState.dailyRecord, ...(loadedState.dailyRecord || {}) },
-            peakActivity: { ...initialDefaultState.peakActivity, ...(loadedState.peakActivity || {}) },
-            weeklyActivityData: (loadedState.weeklyActivityData && Array.isArray(loadedState.weeklyActivityData) && loadedState.weeklyActivityData.length === 7)
-                ? loadedState.weeklyActivityData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0))
-                : [...initialDefaultState.weeklyActivityData],
-            tasks: (loadedState.tasks && Array.isArray(loadedState.tasks))
-                ? loadedState.tasks.map(task => ({
-                    ...task,
-                    assignedDate: task.assignedDate || null,
-                    sourcePatternId: task.sourcePatternId || null,
-                    isRecurringInstance: task.isRecurringInstance || false
-                }))
-                : [...initialDefaultState.tasks],
-            recurringTaskPatterns: (loadedState.recurringTaskPatterns && Array.isArray(loadedState.recurringTaskPatterns))
-                ? loadedState.recurringTaskPatterns.map(p => ({
-                    ...p,
-                    id: SINGLE_ROUTINE_ID,
-                    tasksByDay: p.tasksByDay && typeof p.tasksByDay === 'object'
-                        ? {
-                            0: Array.isArray(p.tasksByDay[0]) ? p.tasksByDay[0].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
-                            1: Array.isArray(p.tasksByDay[1]) ? p.tasksByDay[1].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
-                            2: Array.isArray(p.tasksByDay[2]) ? p.tasksByDay[2].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
-                            3: Array.isArray(p.tasksByDay[3]) ? p.tasksByDay[3].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
-                            4: Array.isArray(p.tasksByDay[4]) ? p.tasksByDay[4].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
-                            5: Array.isArray(p.tasksByDay[5]) ? p.tasksByDay[5].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
-                            6: Array.isArray(p.tasksByDay[6]) ? p.tasksByDay[6].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
-                        }
-                        : { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }
-                })).slice(0, 1)
-                : [...initialDefaultState.recurringTaskPatterns],
-            dailyTaskCompletionData: (loadedState.dailyTaskCompletionData && Array.isArray(loadedState.dailyTaskCompletionData) && loadedState.dailyTaskCompletionData.length === 7)
-                ? loadedState.dailyTaskCompletionData.map(v => (typeof v === 'number' && !isNaN(v) ? v : 0))
-                : [...initialDefaultState.dailyTaskCompletionData],
-            visuals: { ...initialDefaultState.visuals, ...(loadedState.visuals || {}) },
-            chartPeriods: { ...initialDefaultState.chartPeriods, ...(loadedState.chartPeriods || {}) }
+        const mergeDeep = (target, source) => {
+            for (const key in source) {
+                if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                    if (!target[key]) Object.assign(target, { [key]: {} });
+                    mergeDeep(target[key], source[key]);
+                } else if (source[key] !== undefined) {
+                    Object.assign(target, { [key]: source[key] });
+                }
+            }
         };
+        state = JSON.parse(JSON.stringify(initialDefaultState));
+        mergeDeep(state, loadedState);
 
-        if (state.recurringTaskPatterns.length > 0 && state.recurringTaskPatterns[0].id !== SINGLE_ROUTINE_ID) {
-            state.recurringTaskPatterns[0].id = SINGLE_ROUTINE_ID;
+        state.tasks = (state.tasks && Array.isArray(state.tasks))
+            ? state.tasks.map(task => ({
+                ...initialDefaultState.tasks[0],
+                ...task,
+                assignedDate: task.assignedDate || null,
+                sourcePatternId: task.sourcePatternId || null,
+                isRecurringInstance: task.isRecurringInstance || false
+            }))
+            : [...initialDefaultState.tasks];
+
+        state.recurringTaskPatterns = (state.recurringTaskPatterns && Array.isArray(state.recurringTaskPatterns))
+            ? state.recurringTaskPatterns.map(p => ({
+                ...initialDefaultState.recurringTaskPatterns[0],
+                ...p,
+                id: SINGLE_ROUTINE_ID,
+                tasksByDay: p.tasksByDay && typeof p.tasksByDay === 'object'
+                    ? {
+                        0: Array.isArray(p.tasksByDay[0]) ? p.tasksByDay[0].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                        1: Array.isArray(p.tasksByDay[1]) ? p.tasksByDay[1].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                        2: Array.isArray(p.tasksByDay[2]) ? p.tasksByDay[2].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                        3: Array.isArray(p.tasksByDay[3]) ? p.tasksByDay[3].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                        4: Array.isArray(p.tasksByDay[4]) ? p.tasksByDay[4].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                        5: Array.isArray(p.tasksByDay[5]) ? p.tasksByDay[5].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                        6: Array.isArray(p.tasksByDay[6]) ? p.tasksByDay[6].map(taskDef => ({ ...taskDef, completed: taskDef.completed || false })) : [],
+                    }
+                    : { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }
+            })).slice(0, 1)
+            : [...initialDefaultState.recurringTaskPatterns];
+
+        if (loadedState.simuladosApp) {
+            state.simuladosApp.simulados = (Array.isArray(loadedState.simuladosApp.simulados)) ? loadedState.simuladosApp.simulados : [];
+            state.simuladosApp.categorias = (Array.isArray(loadedState.simuladosApp.categorias)) ? loadedState.simuladosApp.categorias : [];
+        } else {
+            state.simuladosApp = JSON.parse(JSON.stringify(initialDefaultState.simuladosApp));
+        }
+        // NOVO: Carregar estado de redações
+        if (loadedState.redacoesApp) {
+            state.redacoesApp.redacoes = (Array.isArray(loadedState.redacoesApp.redacoes)) ? loadedState.redacoesApp.redacoes : [];
+            state.redacoesApp.eixosTematicos = (Array.isArray(loadedState.redacoesApp.eixosTematicos)) ? loadedState.redacoesApp.eixosTematicos : [];
+        } else {
+            state.redacoesApp = JSON.parse(JSON.stringify(initialDefaultState.redacoesApp));
         }
 
 
         const numericKeys = ['todayCount', 'weeklyProgress', 'monthlyProgress', 'yearlyProgress'];
         numericKeys.forEach(key => {
             if (typeof state[key] !== 'number' || isNaN(state[key])) {
-                console.warn(`Sanitizing state.${key}: was ${state[key]}, setting to ${initialDefaultState[key]}`);
                 state[key] = initialDefaultState[key];
             }
         });
 
-        state.lastAccessDate = loadedState.lastAccessDate || initialDefaultState.lastAccessDate;
-        state.lastWeekStartDate = loadedState.lastWeekStartDate || initialDefaultState.lastWeekStartDate;
-        state.lastMonthStartDate = loadedState.lastMonthStartDate || initialDefaultState.lastMonthStartDate;
-        state.lastYearStartDate = loadedState.lastYearStartDate || initialDefaultState.lastYearStartDate;
-
-        const pomodoroLoadedState = loadedState.pomodoro || {};
+        const pomodoroLoadedState = state.pomodoro || {};
         state.pomodoro = {
             ...initialDefaultState.pomodoro,
             ...pomodoroLoadedState,
@@ -371,7 +394,6 @@ function loadState() {
             else if (state.pomodoro.mode === 'longBreak') state.pomodoro.currentTime = state.pomodoro.longBreakDuration;
             state.pomodoro.lastModeEnded = pomodoroLoadedState.lastModeEnded || null;
         }
-
     } else {
         state = JSON.parse(JSON.stringify(initialDefaultState));
     }
@@ -397,6 +419,10 @@ function saveState() {
         if (stateToSave.recurringTaskPatterns && stateToSave.recurringTaskPatterns.length > 0) {
             stateToSave.recurringTaskPatterns[0].id = SINGLE_ROUTINE_ID;
         }
+        // Garantir que simuladosApp e redacoesApp existam antes de tentar acessá-los
+        if (!stateToSave.simuladosApp) stateToSave.simuladosApp = { simulados: [], categorias: [] };
+        if (!stateToSave.redacoesApp) stateToSave.redacoesApp = { redacoes: [], eixosTematicos: [] };
+
         localStorage.setItem('taskify-state', JSON.stringify(stateToSave));
         localStorage.setItem('taskify-theme', state.isDarkMode ? 'dark' : 'light');
 
@@ -442,7 +468,6 @@ function checkAllResets() {
         });
     }
 
-
     if (state.lastAccessDate !== todayStr) {
         state.lastAccessDate = todayStr;
     }
@@ -466,7 +491,6 @@ function checkAndResetDailyCounters(todayStr) {
         }
     }
 }
-
 
 function checkAndResetWeeklyCounters() {
     const currentWeekStartStr = getStartOfWeek(new Date()).toDateString();
@@ -627,7 +651,7 @@ function getChartDataForPeriod(dataType, period) {
                 state.tasks.forEach(t => {
                     if (t.completed && t.completionDate) {
                         const entryDate = new Date(t.completionDate);
-                        if (entryDate.getFullYear() === date.getFullYear() && entryDate.getMonth() === date.getMonth()) {
+                         if (entryDate.getFullYear() === date.getFullYear() && entryDate.getMonth() === date.getMonth()) {
                             monthlyValue++;
                         }
                     }
@@ -697,7 +721,6 @@ function updateChartWithNewPeriod(chartInstance, chartKey, dataType, yAxisLabel,
     if (chartInstance) {
         chartInstance.data.labels = labels;
         chartInstance.data.datasets[0].data = data;
-        // Recriar o gradiente para a nova cor do tema
         const chartCanvas = chartInstance.canvas;
         const ctx = chartCanvas.getContext('2d');
         const primaryColor = getComputedStyle(document.documentElement).getPropertyValue(state.isDarkMode ? '--primary-color-dark' : '--primary-color-light').trim();
@@ -714,14 +737,13 @@ function updateChartWithNewPeriod(chartInstance, chartKey, dataType, yAxisLabel,
         chartInstance.data.datasets[0].pointBackgroundColor = primaryColor;
         chartInstance.options.plugins.tooltip.borderColor = primaryColor;
 
-
         chartInstance.options.scales.y.title.text = yAxisLabel;
         chartInstance.options.plugins.tooltip.callbacks.label = (item) => `${tooltipLabelPrefix}: ${dataFormatter(item.raw)}`;
         chartInstance.update();
     }
 }
 
-function updateAllChartsForCurrentPeriods(animate = true) { // Adicionado parâmetro animate
+function updateAllChartsForCurrentPeriods(animate = true) {
     const animationDuration = animate ? 800 : 0;
     if (weeklyChartInstance) weeklyChartInstance.options.animation.duration = animationDuration;
     if (pomodoroChartInstance) pomodoroChartInstance.options.animation.duration = animationDuration;
@@ -742,14 +764,11 @@ function handleChartPeriodChange(chartKey) {
     }
 }
 
-
 function updateDailyRecord() {
     const todayLocaleDate = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
     if (state.todayCount > state.dailyRecord.value) {
         state.dailyRecord.value = state.todayCount;
         state.dailyRecord.date = todayLocaleDate;
-    } else if (state.dailyRecord.date === todayLocaleDate && state.todayCount < state.dailyRecord.value) {
-        state.dailyRecord.value = state.todayCount;
     }
 }
 
@@ -780,7 +799,6 @@ function updateCounterTooltips() {
     }
 }
 
-
 function incrementToday() {
     checkAllResets();
     const step = getStepValue();
@@ -795,7 +813,6 @@ function incrementToday() {
     if (state.weeklyActivityData && state.weeklyActivityData.length === 7) {
          state.weeklyActivityData[6] = state.currentStreak.history[todayISO];
     }
-
 
     updateDailyRecord();
     updatePeakActivity();
@@ -830,7 +847,6 @@ function decrementToday() {
     updateUI();
 }
 
-
 function updatePeakActivity() {
     const { data } = getChartDataForPeriod('questions', '7days');
     let maxQuestions = 0;
@@ -858,7 +874,6 @@ function updatePeakActivity() {
         state.peakActivity.questions = 0;
     }
 }
-
 
 function updateStreak() {
     const todayISO = new Date().toISOString().split('T')[0];
@@ -894,8 +909,8 @@ function updateStreak() {
     if (streakData.lastValidDate && streakData.lastValidDate !== todayISO) {
         const lastValid = new Date(streakData.lastValidDate);
         const todayDateObj = new Date(todayISO);
-        lastValid.setHours(0, 0, 0, 0);
-        todayDateObj.setHours(0, 0, 0, 0);
+        lastValid.setHours(0,0,0,0);
+        todayDateObj.setHours(0,0,0,0);
 
         const diffTime = todayDateObj - lastValid;
         const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
@@ -908,7 +923,6 @@ function updateStreak() {
         streakData.current = 1;
         streakData.lastValidDate = todayISO;
     }
-
 
     state.currentStreak.days = streakData.current;
     state.currentStreak.lastCompletionDate = streakData.lastValidDate;
@@ -939,18 +953,22 @@ function addDayToStreak(streakData, dateISO, questions) {
 function removeDayFromStreak(streakData, dateISO) {
     if (streakData.lastValidDate === dateISO) {
         streakData.current = Math.max(0, streakData.current - 1);
+
         if (streakData.current === 0) {
             streakData.lastValidDate = null;
         } else {
             const yesterday = new Date(dateISO);
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayISO = yesterday.toISOString().split('T')[0];
-            streakData.lastValidDate = yesterdayISO;
+            if (streakData.history[yesterdayISO] && Number(streakData.history[yesterdayISO]) >= state.goals.daily) {
+                 streakData.lastValidDate = yesterdayISO;
+            } else {
+                streakData.lastValidDate = yesterdayISO;
+            }
         }
     }
     delete streakData.history[dateISO];
 }
-
 
 function saveStreakData(data) {
     localStorage.setItem('taskify-streak', JSON.stringify(data));
@@ -970,35 +988,46 @@ function updateStreakUI() {
     }
 }
 
-function openGoalsModal() {
-    const modal = document.getElementById('goals-modal');
-    const overlay = document.getElementById('goals-modal-overlay');
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    const overlay = document.getElementById(`${modalId}-overlay`);
     if (modal && overlay) {
-        const dailyGoalInput = document.getElementById('daily-goal-input');
-        if (dailyGoalInput) dailyGoalInput.value = state.goals.daily;
-        const weeklyGoalInput = document.getElementById('weekly-goal-input');
-        if (weeklyGoalInput) weeklyGoalInput.value = state.goals.weekly;
-        const monthlyGoalInput = document.getElementById('monthly-goal-input');
-        if (monthlyGoalInput) monthlyGoalInput.value = state.goals.monthly;
-        const yearlyGoalInput = document.getElementById('yearly-goal-input');
-        if (yearlyGoalInput) yearlyGoalInput.value = state.goals.yearly;
-        const streakGoalInput = document.getElementById('streak-goal-input');
-        if (streakGoalInput) streakGoalInput.value = state.goals.streak;
-
         overlay.classList.add('show');
         modal.classList.add('show');
         document.body.classList.add('modal-open');
+        const focusable = modal.querySelector('input:not([type=hidden]), textarea, select, button');
+        if (focusable) focusable.focus();
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) modalContent.scrollTop = 0;
+    } else {
+        console.error(`Modal ou Overlay não encontrado para ID: ${modalId}`);
     }
 }
 
-function closeGoalsModal() {
-    const modal = document.getElementById('goals-modal');
-    const overlay = document.getElementById('goals-modal-overlay');
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    const overlay = document.getElementById(`${modalId}-overlay`);
     if (modal && overlay) {
         modal.classList.remove('show');
         overlay.classList.remove('show');
-        document.body.classList.remove('modal-open');
+        if (!document.querySelector('.modal.show')) { // Só remove se nenhum outro modal estiver aberto
+            document.body.classList.remove('modal-open');
+        }
     }
+}
+
+function openGoalsModal() {
+    const dailyGoalInput = document.getElementById('daily-goal-input');
+    if (dailyGoalInput) dailyGoalInput.value = state.goals.daily;
+    const weeklyGoalInput = document.getElementById('weekly-goal-input');
+    if (weeklyGoalInput) weeklyGoalInput.value = state.goals.weekly;
+    const monthlyGoalInput = document.getElementById('monthly-goal-input');
+    if (monthlyGoalInput) monthlyGoalInput.value = state.goals.monthly;
+    const yearlyGoalInput = document.getElementById('yearly-goal-input');
+    if (yearlyGoalInput) yearlyGoalInput.value = state.goals.yearly;
+    const streakGoalInput = document.getElementById('streak-goal-input');
+    if (streakGoalInput) streakGoalInput.value = state.goals.streak;
+    openModal('goals-modal');
 }
 
 function saveGoals() {
@@ -1015,13 +1044,14 @@ function saveGoals() {
     saveState();
     updateUI();
     updateStreak();
-    closeGoalsModal();
+    closeModal('goals-modal');
 }
 
 function toggleTheme() {
     state.isDarkMode = !state.isDarkMode;
     applyCurrentThemeAndMode();
     saveState();
+    document.dispatchEvent(new CustomEvent('taskifyThemeChanged', { detail: { isDarkMode: state.isDarkMode } }));
 }
 
 function applyPrimaryColor(color) {
@@ -1062,8 +1092,7 @@ function applyCurrentThemeAndMode() {
         currentPrimaryColor = currentPalettes[state.visuals.currentPalette].primary;
     }
 
-    // Aplica a cor primária às variáveis CSS
-    applyPrimaryColor(currentPrimaryColor); // Esta função já existe e atualiza as vars CSS
+    applyPrimaryColor(currentPrimaryColor);
 
     if (faviconEl) {
         const faviconBaseColor = currentPrimaryColor;
@@ -1071,15 +1100,12 @@ function applyCurrentThemeAndMode() {
         faviconEl.href = `data:image/svg+xml,${encodeURIComponent(faviconSvg)}`;
     }
 
-    // RECRIA OS GRÁFICOS PARA APLICAR AS NOVAS CORES COMPLETAMENTE
-    // O parâmetro 'false' evita a animação de entrada ao recriar os gráficos
     setupChart(false, state.chartPeriods.weeklyActivity);
     setupPomodoroChart(false, state.chartPeriods.pomodoroFocus);
     setupTasksChart(false, state.chartPeriods.tasksCompleted);
-    // updateAllChartsForCurrentPeriods(false); // Não é mais necessário aqui se recriamos
 
     updatePomodoroUI();
-    renderTasks(); // Se as tarefas tiverem elementos que dependem de cor, pode ser útil
+    renderTasks();
     updateThemeModalButtons();
 }
 
@@ -1192,7 +1218,6 @@ function setupTasksChart(animateInitialRender = true, chartKey = 'tasksCompleted
     tasksChartInstance = createChartConfig('weeklyTasksCompletedChart', chartData, 'Tarefas Concluídas', 'Nº de Tarefas', 'Tarefas');
     if (tasksChartInstance) tasksChartInstance.options.animation.duration = animateInitialRender ? 800 : 0;
 }
-
 
 function initStreak() {
     const savedData = localStorage.getItem('taskify-streak');
@@ -1332,7 +1357,6 @@ function handlePomodoroCycleEnd() {
         logPomodoroSession(endedMode, actualDurationSeconds);
     }
 
-
     state.pomodoro.timerRunning = false;
     if (pomodoroInterval) {
         clearInterval(pomodoroInterval);
@@ -1379,7 +1403,6 @@ function handlePomodoroCycleEnd() {
     );
 }
 
-
 function startPomodoro() {
     if (state.pomodoro.timerRunning) return;
     checkAllResets();
@@ -1420,7 +1443,6 @@ function resetPomodoro() {
         }
     }
 
-
     state.pomodoro.timerRunning = false;
     clearInterval(pomodoroInterval);
     pomodoroInterval = null;
@@ -1433,30 +1455,18 @@ function resetPomodoro() {
 }
 
 function openPomodoroSettingsModal() {
-    const modal = document.getElementById('pomodoro-settings-modal');
-    const overlay = document.getElementById('pomodoro-settings-modal-overlay');
-    if (modal && overlay) {
-        document.getElementById('pomodoro-focus-duration-input').value = state.pomodoro.focusDuration / 60;
-        document.getElementById('pomodoro-short-break-duration-input').value = state.pomodoro.shortBreakDuration / 60;
-        document.getElementById('pomodoro-long-break-duration-input').value = state.pomodoro.longBreakDuration / 60;
-        document.getElementById('pomodoro-cycles-before-long-break-input').value = state.pomodoro.cyclesBeforeLongBreak;
-        document.getElementById('pomodoro-auto-start-breaks-checkbox').checked = state.pomodoro.autoStartBreaks;
-        document.getElementById('pomodoro-auto-start-focus-checkbox').checked = state.pomodoro.autoStartFocus;
-        document.getElementById('pomodoro-enable-sound-checkbox').checked = state.pomodoro.enableSound;
-        overlay.classList.add('show');
-        modal.classList.add('show');
-        document.body.classList.add('modal-open');
-    }
+    document.getElementById('pomodoro-focus-duration-input').value = state.pomodoro.focusDuration / 60;
+    document.getElementById('pomodoro-short-break-duration-input').value = state.pomodoro.shortBreakDuration / 60;
+    document.getElementById('pomodoro-long-break-duration-input').value = state.pomodoro.longBreakDuration / 60;
+    document.getElementById('pomodoro-cycles-before-long-break-input').value = state.pomodoro.cyclesBeforeLongBreak;
+    document.getElementById('pomodoro-auto-start-breaks-checkbox').checked = state.pomodoro.autoStartBreaks;
+    document.getElementById('pomodoro-auto-start-focus-checkbox').checked = state.pomodoro.autoStartFocus;
+    document.getElementById('pomodoro-enable-sound-checkbox').checked = state.pomodoro.enableSound;
+    openModal('pomodoro-settings-modal');
 }
 
 function closePomodoroSettingsModal() {
-    const modal = document.getElementById('pomodoro-settings-modal');
-    const overlay = document.getElementById('pomodoro-settings-modal-overlay');
-    if (modal && overlay) {
-        modal.classList.remove('show');
-        overlay.classList.remove('show');
-        document.body.classList.remove('modal-open');
-    }
+    closeModal('pomodoro-settings-modal');
 }
 
 function savePomodoroSettings() {
@@ -1600,20 +1610,12 @@ function populateNewPomodoroDetails() {
 }
 
 function openNewPomodoroDetailsModal() {
-    if (newPomodoroDetailsModal && newPomodoroDetailsModalOverlay) {
-        populateNewPomodoroDetails();
-        newPomodoroDetailsModalOverlay.classList.add('show');
-        newPomodoroDetailsModal.classList.add('show');
-        document.body.classList.add('modal-open');
-    }
+    populateNewPomodoroDetails();
+    openModal('new-pomodoro-details-modal');
 }
 
 function closeNewPomodoroDetailsModal() {
-    if (newPomodoroDetailsModal && newPomodoroDetailsModalOverlay) {
-        newPomodoroDetailsModal.classList.remove('show');
-        newPomodoroDetailsModalOverlay.classList.remove('show');
-        document.body.classList.remove('modal-open');
-    }
+    closeModal('new-pomodoro-details-modal');
 }
 
 function handleNewCycleFromDetailsModal() {
@@ -1625,7 +1627,6 @@ function handleNewCycleFromDetailsModal() {
         pomodoroSectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 }
-
 
 function initPomodoro() {
     focusEndSound = document.getElementById('focus-end-sound');
@@ -1641,7 +1642,6 @@ function initPomodoro() {
     newPomodoroDetailsBtnClose = document.getElementById('new-pomodoro-details-btn-close');
     newPomodoroDetailsBtnNewCycle = document.getElementById('new-pomodoro-details-btn-new-cycle');
 
-
     const pomodoroSettingsForm = document.getElementById('pomodoro-settings-form');
     if (pomodoroSettingsForm) {
         pomodoroSettingsForm.addEventListener('submit', (e) => {
@@ -1651,7 +1651,7 @@ function initPomodoro() {
     }
     const pomodoroSettingsModalOverlay = document.getElementById('pomodoro-settings-modal-overlay');
     if (pomodoroSettingsModalOverlay) {
-        pomodoroSettingsModalOverlay.addEventListener('click', closePomodoroSettingsModal);
+        pomodoroSettingsModalOverlay.addEventListener('click', (e) => { if (e.target === pomodoroSettingsModalOverlay) closePomodoroSettingsModal(); });
     }
 
     const btnViewCycleStats = document.getElementById('btn-view-cycle-stats');
@@ -1683,11 +1683,10 @@ function renderTasks() {
             return false;
         }
         if (task.isRecurringInstance) {
-            return task.assignedDate === todayISO;
+            return task.assignedDate === getTodayISO();
         }
         return true;
     });
-
 
     const sortedTasks = [...tasksToDisplay].sort((a, b) => {
         if (a.completed !== b.completed) return a.completed ? 1 : -1;
@@ -1701,7 +1700,6 @@ function renderTasks() {
         if (aDateStr > bDateStr) return 1;
         return new Date(a.createdAt) - new Date(b.createdAt);
     });
-
 
     if (sortedTasks.length === 0) {
         const emptyTaskMessage = document.createElement('li');
@@ -1735,7 +1733,6 @@ function renderTasks() {
                 textSpan.prepend(recurringIcon);
             }
 
-
             if (task.assignedDate && task.assignedDate !== todayISO) {
                 const dateIndicator = document.createElement('span');
                 dateIndicator.className = 'task-assigned-date-indicator';
@@ -1756,7 +1753,6 @@ function renderTasks() {
                 dateIndicator.textContent = 'Hoje';
                 textSpan.appendChild(dateIndicator);
             }
-
 
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'task-item-delete-btn';
@@ -1811,7 +1807,6 @@ function updateTaskProgressBar() {
     progressPercentageText.textContent = `${percentage}%`;
 }
 
-
 function addTask(event) {
     event.preventDefault();
     checkAllResets();
@@ -1850,7 +1845,6 @@ function addTask(event) {
     saveState();
 }
 
-
 function toggleTaskComplete(taskId, isRecurringInstance = false, sourcePatternId = null, originalPatternTaskId = null) {
     checkAllResets();
     const taskIndex = state.tasks.findIndex(t => t.id === taskId);
@@ -1881,7 +1875,6 @@ function toggleTaskComplete(taskId, isRecurringInstance = false, sourcePatternId
             }
         }
 
-
         if (isRecurringInstance && sourcePatternId === SINGLE_ROUTINE_ID && task.assignedDate === getTodayISO()) {
             const routinePattern = state.recurringTaskPatterns.find(p => p.id === SINGLE_ROUTINE_ID);
             if (routinePattern) {
@@ -1907,7 +1900,6 @@ function toggleTaskComplete(taskId, isRecurringInstance = false, sourcePatternId
     }
 }
 
-
 function deleteTask(taskId) {
     checkAllResets();
     const taskIndex = state.tasks.findIndex(t => t.id === taskId);
@@ -1924,7 +1916,6 @@ function deleteTask(taskId) {
         if (taskElement) taskElement.remove();
         updateTasksCounter();
         updateTaskProgressBar();
-
 
         if (deletedTask.completed && deletedTask.completionDate) {
             const completionDateForChart = new Date(deletedTask.completionDate);
@@ -2000,7 +1991,6 @@ function handleDrop(e) {
     saveState();
 }
 
-
 function getDragAfterElement(container, y) {
     const draggableElements = [...container.querySelectorAll('.task-item:not(.dragging)')];
     return draggableElements.reduce((closest, child) => {
@@ -2010,7 +2000,6 @@ function getDragAfterElement(container, y) {
         else return closest;
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
-
 
 function initTasks() {
     const taskForm = document.getElementById('task-form');
@@ -2031,29 +2020,24 @@ function initTasks() {
     renderTasks();
 }
 
-// --- Funções de Tarefas Recorrentes (NOVO MODAL - v2) ---
-
 function openRecurringTaskPatternModal_v2() {
-    const modal = document.getElementById('recurring-task-modal');
-    const overlay = document.getElementById('recurring-task-modal-overlay');
+    const modalId = "recurring-task-modal";
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
     const newTaskTextInput = document.getElementById('new-task-text-input-v2');
     const modalSubtitle = document.getElementById('recurring-task-def-v2-modal-description');
     const footerTip = document.getElementById('recurring-modal-footer-tip');
 
-
-    if (!modal || !overlay || !newTaskTextInput || !modalSubtitle || !footerTip) {
-        console.error("Elementos do modal v2 não encontrados.");
-        return;
-    }
-
     modal.dataset.modalType = "recurring-task-definition-v2";
     currentEditingPatternTaskId_v2 = null;
 
-    modalSubtitle.textContent = "Defina as tarefas para cada dia da sua semana e organize seus estudos de forma eficiente";
-    newTaskTextInput.value = '';
-    newTaskTextInput.placeholder = "Digite o nome da tarefa...";
-    footerTip.textContent = "Dica: Clique nos dias para selecioná-los e adicionar tarefas. Você também pode arrastar tarefas entre os dias para reorganizar!";
-
+    if (modalSubtitle) modalSubtitle.textContent = "Defina as tarefas para cada dia da sua semana e organize seus estudos de forma eficiente";
+    if (newTaskTextInput) {
+        newTaskTextInput.value = '';
+        newTaskTextInput.placeholder = "Digite o nome da tarefa...";
+    }
+    if (footerTip) footerTip.textContent = "Dica: Clique nos dias para selecioná-los e adicionar tarefas. Você também pode arrastar tarefas entre os dias para reorganizar!";
 
     document.querySelectorAll('.day-card-v2').forEach(card => {
         card.classList.remove('selected');
@@ -2078,7 +2062,6 @@ function openRecurringTaskPatternModal_v2() {
     }
     updateDayTaskCounters_v2();
     updateTotalRoutineTasksCount_v2();
-
 
     const btnConfirmAdd = modal.querySelector('.btn-confirm-add-task-v2');
     if (btnConfirmAdd && btnConfirmAdd._taskifyListenerAttached !== true) {
@@ -2108,22 +2091,15 @@ function openRecurringTaskPatternModal_v2() {
             taskListEl._taskifyDragListenerAttached = true;
         }
     });
-
-    overlay.classList.add('show');
-    modal.classList.add('show');
-    document.body.classList.add('modal-open');
-    newTaskTextInput.focus();
+    openModal(modalId);
+    if (newTaskTextInput) newTaskTextInput.focus();
 }
 
-
 function closeRecurringTaskPatternModal() {
-    const modal = document.getElementById('recurring-task-modal');
-    const overlay = document.getElementById('recurring-task-modal-overlay');
-    if (!modal || !overlay) return;
+    const modalId = "recurring-task-modal";
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
 
-    modal.classList.remove('show');
-    overlay.classList.remove('show');
-    document.body.classList.remove('modal-open');
     currentEditingPatternTaskId_v2 = null;
 
     if (modal.dataset.modalType === "recurring-task-definition-v2") {
@@ -2136,8 +2112,8 @@ function closeRecurringTaskPatternModal() {
             if (list) list.innerHTML = '<span class="no-tasks-msg">Nenhuma tarefa</span>';
         });
     }
+    closeModal(modalId);
 }
-
 
 function handleDayCardClick_v2(event) {
     if (event.target.closest('.btn-icon-recurrent-task-v2') || event.target.closest('.editing-task-input-v2') || event.target.closest('.task-routine-checkbox')) {
@@ -2243,7 +2219,6 @@ function createPatternTaskItemElement_v2(taskData) {
     checkbox.checked = taskData.completed || false;
     checkbox.addEventListener('change', (e) => handleRoutineTaskCheckboxChange_v2(e, taskData.id));
 
-
     const textSpan = document.createElement('span');
     textSpan.className = 'task-text-recurrent-v2';
     textSpan.textContent = taskData.text;
@@ -2252,7 +2227,6 @@ function createPatternTaskItemElement_v2(taskData) {
         const changeEvent = new Event('change', { bubbles: true });
         checkbox.dispatchEvent(changeEvent);
     });
-
 
     const actionsDiv = document.createElement('div');
     actionsDiv.className = 'task-actions-recurrent-v2';
@@ -2312,7 +2286,6 @@ function handleDeletePatternTask_v2(taskItemElement) {
     renderTasksInDayCards_v2(routinePattern ? routinePattern.tasksByDay : {});
 }
 
-
 function saveRecurringPatternDefinition_v2(closeModalAfterSave = true) {
     const dayCards = document.querySelectorAll('#recurring-task-modal[data-modal-type="recurring-task-definition-v2"] .day-card-v2');
     const tasksByDay = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
@@ -2339,7 +2312,6 @@ function saveRecurringPatternDefinition_v2(closeModalAfterSave = true) {
             });
         }
     });
-
 
     const patternData = {
         id: SINGLE_ROUTINE_ID,
@@ -2369,7 +2341,6 @@ function saveRecurringPatternDefinition_v2(closeModalAfterSave = true) {
     updateDayTaskCounters_v2();
     updateTotalRoutineTasksCount_v2();
 }
-
 
 function renderTasksInDayCards_v2(tasksByDay) {
     if (!tasksByDay || typeof tasksByDay !== 'object') {
@@ -2457,7 +2428,6 @@ function handleRoutineTaskCheckboxChange_v2(event, routineTaskId) {
     saveRecurringPatternDefinition_v2(false);
 }
 
-
 function handlePatternTaskDragStart_v2(e) {
     draggedPatternTaskItem_v2 = e.target;
     sourcePatternTaskList_v2 = e.target.closest('.day-card-v2-tasks');
@@ -2501,7 +2471,8 @@ function handlePatternTaskDrop_v2(e) {
     e.preventDefault();
     const targetList = e.target.closest('.day-card-v2-tasks');
     if (!targetList || !draggedPatternTaskItem_v2) {
-        handlePatternTaskDragEnd_v2(); return;
+        handlePatternTaskDragEnd_v2();
+        return;
     }
 
     document.querySelectorAll('.drag-over-placeholder').forEach(p => p.remove());
@@ -2561,7 +2532,6 @@ function generateRecurringTaskInstances() {
         return true;
     });
 
-
     state.recurringTaskPatterns.forEach(pattern => {
         if (pattern.id !== SINGLE_ROUTINE_ID) {
             pattern.id = SINGLE_ROUTINE_ID;
@@ -2598,9 +2568,15 @@ function generateRecurringTaskInstances() {
                     newTasksAddedOrRemoved = true;
                 } else {
                     if (existingTask.completed !== (taskDef.completed || false)) {
-                        existingTask.completed = taskDef.completed || false;
-                        existingTask.completionDate = existingTask.completed ? new Date().toISOString() : null;
-                        newTasksAddedOrRemoved = true;
+                        const modalRecurringTaskModal = document.getElementById('recurring-task-modal');
+                        const isModalOpenForThisDay = modalRecurringTaskModal && modalRecurringTaskModal.classList.contains('show') &&
+                                                    document.querySelector(`.day-card-v2[data-day-index="${dayOfWeekToday}"] .task-item-recurrent-v2[data-task-id="${taskDef.id}"]`);
+
+                        if(!isModalOpenForThisDay){
+                            existingTask.completed = taskDef.completed || false;
+                            existingTask.completionDate = existingTask.completed ? new Date().toISOString() : null;
+                            newTasksAddedOrRemoved = true;
+                        }
                     }
                     if (existingTask.text !== taskDef.text) {
                         existingTask.text = taskDef.text;
@@ -2632,7 +2608,6 @@ function updateDeleteRecurringTaskModalUI(selectedOptionValue) {
         optionFutureEl.closest('.delete-option-card').style.display = 'none';
     }
 
-
     switch (selectedOptionValue) {
         case 'this':
             warningMessageTextEl.textContent = 'Apenas esta ocorrência será removida. A tarefa recorrente continuará normalmente.';
@@ -2648,11 +2623,10 @@ function updateDeleteRecurringTaskModalUI(selectedOptionValue) {
     }
 }
 
-
 function openDeleteRecurringTaskModal(taskInstance) {
-    const modal = document.getElementById('delete-recurring-task-modal');
-    const overlay = document.getElementById('delete-recurring-task-modal-overlay');
-    if (!modal || !overlay) return;
+    const modalId = 'delete-recurring-task-modal';
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
     modal.dataset.deletingTaskId = taskInstance.id;
 
     const optionFutureEl = modal.querySelector('.delete-option-card input[name="delete-recurring-option"][value="future"]');
@@ -2660,30 +2634,20 @@ function openDeleteRecurringTaskModal(taskInstance) {
         optionFutureEl.closest('.delete-option-card').style.display = 'none';
     }
 
-
     const firstOptionRadio = modal.querySelector('input[name="delete-recurring-option"][value="this"]');
     if (firstOptionRadio) {
         firstOptionRadio.checked = true;
         updateDeleteRecurringTaskModalUI('this');
         document.querySelectorAll('.delete-option-card').forEach(card => card.classList.remove('selected'));
         firstOptionRadio.closest('.delete-option-card').classList.add('selected');
-
     }
-
-    overlay.classList.add('show');
-    modal.classList.add('show');
-    document.body.classList.add('modal-open');
+    openModal(modalId);
 }
 
 function closeDeleteRecurringTaskModal() {
     const modal = document.getElementById('delete-recurring-task-modal');
-    const overlay = document.getElementById('delete-recurring-task-modal-overlay');
-    if (modal && overlay) {
-        modal.classList.remove('show');
-        overlay.classList.remove('show');
-        document.body.classList.remove('modal-open');
-        delete modal.dataset.deletingTaskId;
-    }
+    delete modal.dataset.deletingTaskId;
+    closeModal('delete-recurring-task-modal');
 }
 
 function confirmDeleteRecurringTask() {
@@ -2725,14 +2689,14 @@ function confirmDeleteRecurringTask() {
         state.tasks = state.tasks.filter(t => {
             if (t.sourcePatternId === SINGLE_ROUTINE_ID) {
                 const taskDate = new Date(t.assignedDate + "T00:00:00");
-                const today = new Date(); today.setHours(0, 0, 0, 0);
+                const today = new Date(); today.setHours(0,0,0,0);
                 if (taskDate >= today && !t.completed) {
                     tasksModified = true;
                     return false;
                 } else if (taskDate < today) {
                     return true;
-                } else if (taskDate >= today && t.completed) {
-                    return true;
+                } else if (taskDate >= today && t.completed){
+                     return true;
                 }
             }
             return true;
@@ -2776,27 +2740,13 @@ function updateTotalRoutineTasksCount_v2() {
     totalCountEl.textContent = `Total de tarefas: ${totalTasks}`;
 }
 
-
-
 function openThemesModal() {
-    const modal = document.getElementById('themes-modal');
-    const overlay = document.getElementById('themes-modal-overlay');
-    if (modal && overlay) {
-        populateThemesModal();
-        overlay.classList.add('show');
-        modal.classList.add('show');
-        document.body.classList.add('modal-open');
-    }
+    populateThemesModal();
+    openModal('themes-modal');
 }
 
 function closeThemesModal() {
-    const modal = document.getElementById('themes-modal');
-    const overlay = document.getElementById('themes-modal-overlay');
-    if (modal && overlay) {
-        modal.classList.remove('show');
-        overlay.classList.remove('show');
-        document.body.classList.remove('modal-open');
-    }
+    closeModal('themes-modal');
 }
 
 function populateThemesModal() {
@@ -2870,6 +2820,7 @@ function applyPalette(paletteName) {
         applyCurrentThemeAndMode();
         saveState();
         updateThemeModalButtons();
+        document.dispatchEvent(new CustomEvent('taskifyThemeChanged', { detail: { isDarkMode: state.isDarkMode, primaryColor: newPrimaryColor } }));
     }
 }
 
@@ -2879,12 +2830,13 @@ function applyVisualMode(modeName) {
         applyCurrentThemeAndMode();
         saveState();
         updateThemeModalButtons();
+        document.dispatchEvent(new CustomEvent('taskifyThemeChanged', { detail: { isDarkMode: state.isDarkMode, visualMode: modeName } }));
     }
 }
 
 function initThemes() {
     const themesModalOverlay = document.getElementById('themes-modal-overlay');
-    if (themesModalOverlay) themesModalOverlay.addEventListener('click', closeThemesModal);
+    if (themesModalOverlay) themesModalOverlay.addEventListener('click', (e) => { if (e.target === themesModalOverlay) closeModal('themes-modal'); });
     applyCurrentThemeAndMode();
 }
 
@@ -2935,51 +2887,26 @@ function showCustomAlert(message, title = 'Alerta', onConfirmCallback = null) {
 window.showCustomAlert = showCustomAlert;
 
 function openWelcomeGuideModal() {
-    const modal = document.getElementById('welcome-guide-modal');
-    const overlay = document.getElementById('welcome-guide-modal-overlay');
-    if (modal && overlay) {
-        const checkbox = document.getElementById('dont-show-guide-again-checkbox');
-        if (checkbox) checkbox.checked = false;
-        overlay.classList.add('show');
-        modal.classList.add('show');
-        document.body.classList.add('modal-open');
-    }
+    const checkbox = document.getElementById('dont-show-guide-again-checkbox');
+    if (checkbox) checkbox.checked = false;
+    openModal('welcome-guide-modal');
 }
 
 function closeWelcomeGuideModal() {
-    const modal = document.getElementById('welcome-guide-modal');
-    const overlay = document.getElementById('welcome-guide-modal-overlay');
     const checkbox = document.getElementById('dont-show-guide-again-checkbox');
-
     if (checkbox && checkbox.checked) {
         localStorage.setItem('taskify-welcomeGuideDismissed', 'true');
     }
-    if (modal && overlay) {
-        modal.classList.remove('show');
-        overlay.classList.remove('show');
-        document.body.classList.remove('modal-open');
-    }
+    closeModal('welcome-guide-modal');
 }
 
 function openConfirmResetModal() {
     closeGoalsModal();
-    const modal = document.getElementById('confirm-reset-modal');
-    const overlay = document.getElementById('confirm-reset-modal-overlay');
-    if (modal && overlay) {
-        overlay.classList.add('show');
-        modal.classList.add('show');
-        document.body.classList.add('modal-open');
-    }
+    openModal('confirm-reset-modal');
 }
 
 function closeConfirmResetModal() {
-    const modal = document.getElementById('confirm-reset-modal');
-    const overlay = document.getElementById('confirm-reset-modal-overlay');
-    if (modal && overlay) {
-        modal.classList.remove('show');
-        overlay.classList.remove('show');
-        document.body.classList.remove('modal-open');
-    }
+    closeModal('confirm-reset-modal');
 }
 
 function performFullReset() {
@@ -2991,6 +2918,10 @@ function performFullReset() {
     localStorage.removeItem('taskify-palette');
     localStorage.removeItem('taskify-visual-mode');
     Object.values(CHART_PERIOD_STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
+    localStorage.removeItem('taskify-simulados');
+    localStorage.removeItem('taskify-simulados-categorias');
+    localStorage.removeItem('taskify-simulados-app');
+
     location.reload();
 }
 
@@ -3040,7 +2971,6 @@ function updateScrollIndicator() {
         } else {
             productivityArea.classList.remove('visible');
         }
-
     } else {
         scrollIndicator.classList.remove('visible');
         scrollIndicator.classList.add('collapsed');
@@ -3051,13 +2981,11 @@ function updateScrollIndicator() {
 window.addEventListener('scroll', updateScrollIndicator, { passive: true });
 window.addEventListener('resize', updateScrollIndicator);
 
-
 async function init() {
     const loaderElement = document.getElementById('loader');
     if (loaderElement) loaderElement.style.display = 'flex';
 
     loadState();
-
     initThemes();
     checkAllResets();
     initStreak();
@@ -3070,7 +2998,6 @@ async function init() {
             selector.addEventListener('change', () => handleChartPeriodChange(chartKey));
         }
     });
-
 
     const btnOpenRecurringModalV2 = document.getElementById('btn-open-recurring-task-modal');
     if (btnOpenRecurringModalV2) {
@@ -3120,14 +3047,17 @@ async function init() {
         });
     }
 
-
     const recurringTaskModalOverlay = document.getElementById('recurring-task-modal-overlay');
     if (recurringTaskModalOverlay) {
         recurringTaskModalOverlay.addEventListener('click', (e) => {
-            if (e.target === recurringTaskModalOverlay) closeRecurringTaskPatternModal();
+            if (e.target === recurringTaskModalOverlay) {
+                const modal = document.getElementById('recurring-task-modal');
+                if (modal && modal.classList.contains('show')) {
+                    closeRecurringTaskPatternModal();
+                }
+            }
         });
     }
-
 
     document.querySelectorAll('input[name="delete-recurring-option"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
@@ -3153,36 +3083,32 @@ async function init() {
     }
 
     generateRecurringTaskInstances();
-
     await loadAndSetupRetrospective();
-
     updateFooterYear();
-
     setupChart(true, 'weeklyActivity');
     setupPomodoroChart(true, 'pomodoroFocus');
     setupTasksChart(true, 'tasksCompleted');
-
     updateUI();
 
     const goalsForm = document.getElementById('goals-form');
     if (goalsForm) goalsForm.addEventListener('submit', (e) => { e.preventDefault(); saveGoals(); });
     const goalsOverlay = document.getElementById('goals-modal-overlay');
-    if (goalsOverlay) goalsOverlay.addEventListener('click', closeGoalsModal);
+    if (goalsOverlay) goalsOverlay.addEventListener('click', (e) => { if (e.target === goalsOverlay) closeModal('goals-modal'); });
 
     const btnResetAppData = document.getElementById('btn-reset-app-data');
     if (btnResetAppData) btnResetAppData.addEventListener('click', handleResetAppData);
 
     const confirmResetModalOverlay = document.getElementById('confirm-reset-modal-overlay');
-    if (confirmResetModalOverlay) confirmResetModalOverlay.addEventListener('click', closeConfirmResetModal);
+    if (confirmResetModalOverlay) confirmResetModalOverlay.addEventListener('click', (e) => { if (e.target === confirmResetModalOverlay) closeModal('confirm-reset-modal'); });
     const confirmResetModalCloseBtn = document.getElementById('confirm-reset-modal-close-btn');
-    if (confirmResetModalCloseBtn) confirmResetModalCloseBtn.addEventListener('click', closeConfirmResetModal);
+    if (confirmResetModalCloseBtn) confirmResetModalCloseBtn.addEventListener('click', () => closeModal('confirm-reset-modal'));
     const btnCancelResetConfirmation = document.getElementById('btn-cancel-reset-confirmation');
-    if (btnCancelResetConfirmation) btnCancelResetConfirmation.addEventListener('click', closeConfirmResetModal);
+    if (btnCancelResetConfirmation) btnCancelResetConfirmation.addEventListener('click', () => closeModal('confirm-reset-modal'));
     const btnConfirmResetAction = document.getElementById('btn-confirm-reset-action');
     if (btnConfirmResetAction) btnConfirmResetAction.addEventListener('click', performFullReset);
 
     const welcomeGuideModalOverlay = document.getElementById('welcome-guide-modal-overlay');
-    if (welcomeGuideModalOverlay) welcomeGuideModalOverlay.addEventListener('click', closeWelcomeGuideModal);
+    if (welcomeGuideModalOverlay) welcomeGuideModalOverlay.addEventListener('click', (e) => { if (e.target === welcomeGuideModalOverlay) closeWelcomeGuideModal(); });
     const welcomeGuideModalCloseBtn = document.getElementById('welcome-guide-modal-close-btn');
     if (welcomeGuideModalCloseBtn) welcomeGuideModalCloseBtn.addEventListener('click', closeWelcomeGuideModal);
     const btnCloseWelcomeGuide = document.getElementById('btn-close-welcome-guide');
@@ -3198,7 +3124,6 @@ async function init() {
         questionsStepInput.addEventListener('change', updateCounterTooltips);
     }
 
-
     setInterval(() => {
         checkAllResets();
         const prevTaskCount = state.tasks.filter(t => !(t.deletedThisInstanceOfDay && t.assignedDate === getTodayISO()) && (t.isRecurringInstance ? t.assignedDate === getTodayISO() : true)).length;
@@ -3212,6 +3137,21 @@ async function init() {
             updateTaskProgressBar();
         }
     }, 60 * 1000);
+
+    if (typeof window.initSimuladosModule === 'function') {
+        console.log("Taskify - Script.js: Chamando initSimuladosModule...");
+        window.initSimuladosModule();
+    } else {
+        console.error("Taskify - Módulo Simulados (initSimuladosModule) não foi encontrado no escopo global.");
+    }
+
+    // NOVO: Inicializar o módulo de Redações
+    if (typeof window.initRedacoesModule === 'function') {
+        console.log("Taskify - Script.js: Chamando initRedacoesModule..."); // Log para depuração
+        window.initRedacoesModule();
+    } else {
+        console.error("Taskify - Módulo Redações (initRedacoesModule) não foi encontrado no escopo global. Verifique se js/redacoes.js está carregado ANTES de script.js ou se a função está exportada corretamente.");
+    }
 
 
     window.taskifyStateReady = true;
@@ -3335,7 +3275,6 @@ if (particleCanvas) {
     console.warn("Elemento #particle-canvas não encontrado. Animação de partículas desabilitada.");
 }
 
-
 async function loadAndSetupRetrospective() {
     retrospectiveModalEl = document.getElementById('retrospective-modal');
     retrospectiveModalOverlayEl = document.getElementById('retrospective-modal-overlay');
@@ -3391,3 +3330,4 @@ async function loadAndSetupRetrospective() {
         }
     }
 }
+
