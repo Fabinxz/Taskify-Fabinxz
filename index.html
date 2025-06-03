@@ -435,14 +435,13 @@
                 </div>
                 <div class="form-group-inline">
                     <div class="form-group">
-                        <label class="form-label" for="simulado-acertos-input">Nº de Acertos <span
-                                class="required-asterisk">*</span></label>
-                        <input type="number" class="form-input" id="simulado-acertos-input" min="0" required>
+                        <label class="form-label" for="simulado-acertos-input">Nº de Acertos <span class="required-asterisk">*</span></label>
+                        <input type="number" class="form-input" id="simulado-acertos-input" min="0"> <!-- Removido 'required' daqui -->
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="simulado-total-questoes-input">Total de Questões <span
                                 class="required-asterisk">*</span></label>
-                        <input type="number" class="form-input" id="simulado-total-questoes-input" min="1" required>
+                        <input type="number" class="form-input" id="simulado-total-questoes-input" min="1"> <!-- Removido 'required' daqui -->
                     </div>
                 </div>
                 <div class="form-group">
@@ -534,7 +533,7 @@
                 </div>
 
                 <fieldset class="form-group-competencias">
-                    <legend class="form-label">Notas das Competências</legend>
+                    <legend class="form-label">Notas das Competências <span id="competencias-required-asterisk-redacao" class="required-asterisk" style="display: none;">*</span></legend>
                     <div class="competencias-grid">
                         <div class="form-group">
                             <label class="form-label-competencia" for="redacao-c1-input">C1</label>
