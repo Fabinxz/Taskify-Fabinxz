@@ -5585,7 +5585,7 @@ body.light .tasks-section #task-list::-webkit-scrollbar-thumb {
 .tasks-section { /* Today's Tasks */
     grid-area: today-tasks;
     /* min-height: 350px;  Comentado ou removido para usar height fixa */
-    height: 386px; /* ALTURA FIXA - AJUSTE ESTE VALOR PARA CORRESPONDER À ALTURA COM 3 TAREFAS */
+    /* height: 386px;  */
                      /* Exemplo: Se com 3 tarefas o card tem 390px, use height: 390px; */
                      /* Você pode usar a ferramenta de desenvolvedor do navegador para medir a altura do card com 3 tarefas */
     display: flex; /* Garante que é um container flex */
@@ -5719,4 +5719,9 @@ body.light .tasks-section #task-list::-webkit-scrollbar-thumb {
     box-sizing: border-box;
     overflow: hidden; /* Adicione esta linha */
 }
+
+
+
+
+
 
