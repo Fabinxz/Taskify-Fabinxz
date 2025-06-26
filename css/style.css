@@ -470,8 +470,6 @@ body.light .tabs-dropdown .header-tab-btn.active {
     padding: 15px;
     background: var(--card-bg-dark);
     border: 1px solid var(--card-border-dark);
-    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease,
-    padding 0.3s ease, height 0.3s ease;
     border-radius: 12px;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -480,31 +478,6 @@ body.light .tabs-dropdown .header-tab-btn.active {
 body.light .question-counter-tab {
     background: var(--card-bg-light);
     border-color: var(--card-border-light);
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px; /* Reduzido para acomodar o conteúdo das abas */
-    padding: 15px 20px; /* Ajustado o padding */
-    background: var(--header-bg-dark);
-    border: 1px solid var(--header-border-dark);
-    border-radius: 16px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease,
-        padding 0.3s ease, height 0.3s ease;
-    position: relative;
-}
-
-body.light .header {
-    background: var(--header-bg-light);
-    border-color: var(--header-border-light);
-    color: var(--text-color-light);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 
@@ -4826,7 +4799,7 @@ body.light.theme-mode-motivational .header {
     .container {
         padding-left: 12px;
         padding-right: 12px;
-        /* padding-top: 10px;  */
+        padding-top: 10px; /* Reduzido para acomodar header sticky */
     }
 
     .header {
@@ -5475,7 +5448,7 @@ body.light .retrospective-final-logo .logo-icon {
     }
     /* Ajuste para que o container principal não sobreponha o header sticky */
     .container {
-        /* padding-top: 80px;  */
+        padding-top: 80px; /* Altura aproximada do header em telas pequenas + margem */
     }
     .header {
         position: sticky;
@@ -5585,7 +5558,7 @@ body.light .tasks-section #task-list::-webkit-scrollbar-thumb {
 .tasks-section { /* Today's Tasks */
     grid-area: today-tasks;
     /* min-height: 350px;  Comentado ou removido para usar height fixa */
-    /* height: 386px;  */
+    height: 386px; /* ALTURA FIXA - AJUSTE ESTE VALOR PARA CORRESPONDER À ALTURA COM 3 TAREFAS */
                      /* Exemplo: Se com 3 tarefas o card tem 390px, use height: 390px; */
                      /* Você pode usar a ferramenta de desenvolvedor do navegador para medir a altura do card com 3 tarefas */
     display: flex; /* Garante que é um container flex */
@@ -5655,73 +5628,4 @@ body.light .tasks-section #task-list::-webkit-scrollbar-thumb {
     transition: height 0.2s ease;
     flex-grow: 1; 
 }
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    /* Mantenha seu padding-top base, por exemplo: */
-    padding-top: 20px; /* ou 15px se preferir */
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-bottom: 20px; /* Adicionado para consistência */
-    position: relative;
-    z-index: 1;
-}
-
-/* Remova as regras específicas de padding-top para .container
-   em @media (max-width: 900px) e @media (max-width: 480px) como mencionado acima. */
-
-/* Para o header em telas pequenas */
-@media (max-width: 480px) {
-    .header {
-        /* ... outras propriedades ... */
-        margin-bottom: 15px; /* Já existe, ok */
-        /* Não precisa de padding-top aqui para o header em si se o container já tiver */
-    }
-    .container {
-        padding-left: 12px;
-        padding-right: 12px;
-        /* Ajuste o padding-top para dar espaço acima do header sticky se necessário,
-           mas o 'top: 10px' do header já o afasta da borda da viewport.
-           Um padding-top aqui seria para o espaço acima do *conteúdo* do container
-           se o header fosse position:fixed. Com sticky, o fluxo é um pouco diferente.
-           O padding-top do container é o espaço acima do header.
-           O margin-bottom do header é o espaço abaixo dele para o próximo elemento.
-           A "margem gigante" provavelmente era o padding-top: 80px em telas de tablet.
-           Para mobile (imagem 1), se o header quebra em várias linhas, ele fica alto,
-           e os 15px de margin-bottom podem parecer pouco.
-           Se a margem da imagem 1 é entre o header e o question-counter-tab:
-           Pode ser que a altura do header + margin-bottom dele seja o espaço.
-           Se o header está com `height: auto` e `flex-wrap: wrap`, ele pode ter ficado com
-           mais de uma linha, aumentando sua altura.
-        */
-        padding-top: 15px; /* Um valor consistente com outras views, para espaço acima do header */
-        padding-bottom: 15px; /* Adicionado para consistência */
-    }
-}
-
-.pomodoro-section,
-.tasks-section {
-    /* ... seus estilos existentes ... */
-    border-radius: 16px;
-    padding: 24px;
-    background: var(--card-bg-dark);
-    border: 1px solid var(--card-border-dark);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    color: var(--text-color-dark);
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%; /* Você tem height: 100% para preencher a célula do grid */
-    box-sizing: border-box;
-    overflow: hidden; /* Adicione esta linha */
-}
-
-
-
-
-
 

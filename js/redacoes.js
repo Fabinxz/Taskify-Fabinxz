@@ -1,7 +1,8 @@
 // js/redacoes.js
 
 // Variáveis globais de UI
-let redacoesSectionContent, redacoesHeader, redacoesTitle, btnAddRedacaoMain,
+let redacoesSectionContent, // <<<<<<< ALTERADO DE redacoesSection
+    redacoesHeader, redacoesTitle, btnAddRedacaoMain,
     redacoesFiltersContainer, btnManageRedacaoEixos,
     redacoesCategorySectionsContainer, redacoesEmptyMessage;
 
@@ -10,7 +11,7 @@ let redacaoFormModal, redacaoFormModalOverlay, redacaoFormModalCloseBtn,
     redacaoEixoSelect, redacaoDataInput,
     redacaoC1Select, redacaoC2Select, redacaoC3Select, redacaoC4Select, redacaoC5Select,
     redacaoStatusSelect, redacaoTempoGastoInput,
-    redacaoFormCancelBtn, formGroupCompetencias;
+    redacaoFormCancelBtn;
 
 let redacaoEixosModal, redacaoEixosModalOverlay, redacaoEixosModalCloseBtn,
     redacaoAddEixoForm, redacaoNewEixoNameInput, redacaoEixosListEl,
@@ -31,7 +32,7 @@ let redacoesState = {
     itemToDelete: { type: null, id: null },
     charts: {},
     expandedRowTracker: {},
-    isDarkModeGlobal: true // Será atualizado pelo listener
+    isDarkModeGlobal: true
 };
 
 const DEFAULT_REDACAO_EIXOS_MODULE = [
@@ -41,6 +42,7 @@ const DEFAULT_REDACAO_EIXOS_MODULE = [
     { id: 'economia', nome: 'Economia' }
 ];
 
+// Função para formatar o status da redação
 function formatRedacaoStatus(statusKey) {
     const statusMap = {
         'corrigida': 'Corrigida',
@@ -50,9 +52,126 @@ function formatRedacaoStatus(statusKey) {
     return statusMap[statusKey] || statusKey;
 }
 
+
+function initRedacoesModule() {
+    console.log("Taskify - Módulo Redações: Iniciando initRedacoesModule...");
+    redacoesSectionContent = document.getElementById('redacoes-section-content'); // <<<<<<< ALTERADO DE 'redacoes-section'
+    if (!redacoesSectionContent) { // <<<<<<< ALTERADO DE redacoesSection
+        console.error("Taskify - Módulo Redações: Seção principal 'redacoes-section-content' não encontrada.");
+        return;
+    }
+    // O restante dos seletores de ID dentro da seção 'redacoes-section-content' devem funcionar
+    // desde que seus IDs não tenham sido alterados e eles estejam dentro de #tab-redacoes
+    btnAddRedacaoMain = document.getElementById('btn-add-redacao-main');
+    redacoesFiltersContainer = document.getElementById('redacoes-filters-container');
+    btnManageRedacaoEixos = document.getElementById('btn-manage-redacao-eixos');
+    redacoesCategorySectionsContainer = document.getElementById('redacoes-category-sections-container');
+    redacoesEmptyMessage = document.getElementById('redacoes-empty-message');
+
+    // Modais (presumivelmente fora da estrutura da aba, então os IDs originais devem funcionar)
+    redacaoFormModal = document.getElementById('redacao-form-modal');
+    redacaoFormModalOverlay = document.getElementById('redacao-form-modal-overlay');
+    redacaoFormModalCloseBtn = document.getElementById('redacao-form-modal-close-btn');
+    redacaoModalTitle = document.getElementById('redacao-modal-title');
+    redacaoForm = document.getElementById('redacao-form');
+    redacaoIdInput = document.getElementById('redacao-id-input');
+    redacaoTemaInput = document.getElementById('redacao-tema-input');
+    redacaoEixoSelect = document.getElementById('redacao-eixo-select');
+    redacaoDataInput = document.getElementById('redacao-data-input');
+
+    redacaoC1Select = document.getElementById('redacao-c1-input');
+    redacaoC2Select = document.getElementById('redacao-c2-input');
+    redacaoC3Select = document.getElementById('redacao-c3-input');
+    redacaoC4Select = document.getElementById('redacao-c4-input');
+    redacaoC5Select = document.getElementById('redacao-c5-input');
+
+    redacaoStatusSelect = document.getElementById('redacao-status-select');
+    redacaoTempoGastoInput = document.getElementById('redacao-tempo-gasto-input');
+    redacaoFormCancelBtn = document.getElementById('redacao-form-cancel-btn');
+
+    redacaoEixosModal = document.getElementById('redacao-eixos-modal');
+    redacaoEixosModalOverlay = document.getElementById('redacao-eixos-modal-overlay');
+    redacaoEixosModalCloseBtn = document.getElementById('redacao-eixos-modal-close-btn');
+    redacaoAddEixoForm = document.getElementById('redacao-add-eixo-form');
+    redacaoNewEixoNameInput = document.getElementById('redacao-new-eixo-name-input');
+    redacaoEixosListEl = document.getElementById('redacao-eixos-list');
+    redacaoEixosDoneBtn = document.getElementById('redacao-eixos-done-btn');
+    redacaoConfirmDeleteModal = document.getElementById('redacao-confirm-delete-modal');
+    redacaoConfirmDeleteModalOverlay = document.getElementById('redacao-confirm-delete-modal-overlay');
+    redacaoConfirmDeleteCloseBtn = document.getElementById('redacao-confirm-delete-close-btn');
+    redacaoConfirmDeleteTitle = document.getElementById('redacao-confirm-delete-title');
+    redacaoConfirmDeleteMessage = document.getElementById('redacao-confirm-delete-message');
+    redacaoBtnCancelDeleteConfirmation = document.getElementById('redacao-btn-cancel-delete-confirmation');
+    redacaoBtnConfirmDeleteAction = document.getElementById('redacao-btn-confirm-delete-action');
+
+    loadRedacoesStateLocal();
+    if (redacaoDataInput && typeof flatpickr === 'function') {
+        redacaoDatePickerInstance = flatpickr(redacaoDataInput, {
+            dateFormat: "d/m/Y", defaultDate: "today", locale: "pt", allowInput: true,
+            theme: redacoesState.isDarkModeGlobal ? "dark" : "light"
+        });
+    } else if (redacaoDataInput) {
+        console.warn("Flatpickr não carregado, usando input date nativo para redações.");
+        redacaoDataInput.type = 'date';
+        try { redacaoDataInput.valueAsDate = new Date(); } catch(e) { redacaoDataInput.value = getTodayISO();}
+    }
+
+    if (btnAddRedacaoMain) { btnAddRedacaoMain.addEventListener('click', () => openRedacaoFormModal()); }
+    if (btnManageRedacaoEixos) { btnManageRedacaoEixos.addEventListener('click', openRedacaoEixosModal); }
+    if (redacaoForm) redacaoForm.addEventListener('submit', handleSaveRedacao);
+    if (redacaoFormModalOverlay) redacaoFormModalOverlay.addEventListener('click', (e) => { if (e.target === redacaoFormModalOverlay) closeModal('redacao-form-modal'); });
+    if (redacaoFormModalCloseBtn) redacaoFormModalCloseBtn.addEventListener('click', () => closeModal('redacao-form-modal'));
+    if (redacaoFormCancelBtn) redacaoFormCancelBtn.addEventListener('click', () => closeModal('redacao-form-modal'));
+
+    if (redacaoEixosModalOverlay) redacaoEixosModalOverlay.addEventListener('click', (e) => { if (e.target === redacaoEixosModalOverlay) closeModal('redacao-eixos-modal'); });
+    if (redacaoEixosModalCloseBtn) redacaoEixosModalCloseBtn.addEventListener('click', () => closeModal('redacao-eixos-modal'));
+    if (redacaoAddEixoForm) redacaoAddEixoForm.addEventListener('submit', handleAddRedacaoEixo);
+    if (redacaoEixosDoneBtn) redacaoEixosDoneBtn.addEventListener('click', () => { closeModal('redacao-eixos-modal'); renderRedacaoEixosFiltro(); renderAllRedacaoEixoSections(); });
+    if (redacaoConfirmDeleteModalOverlay) redacaoConfirmDeleteModalOverlay.addEventListener('click', (e) => { if (e.target === redacaoConfirmDeleteModalOverlay) closeModal('redacao-confirm-delete-modal'); });
+    if (redacaoConfirmDeleteCloseBtn) redacaoConfirmDeleteCloseBtn.addEventListener('click', () => closeModal('redacao-confirm-delete-modal'));
+    if (redacaoBtnCancelDeleteConfirmation) redacaoBtnCancelDeleteConfirmation.addEventListener('click', () => closeModal('redacao-confirm-delete-modal'));
+    if (redacaoBtnConfirmDeleteAction) redacaoBtnConfirmDeleteAction.addEventListener('click', executeDeleteRedacaoItemLocal);
+
+    renderRedacaoEixosFiltro();
+    renderAllRedacaoEixoSections();
+    console.log("Taskify - Módulo Redações: Inicializado com sucesso no final de init.");
+}
+
+function loadRedacoesStateLocal() {
+    const mainState = window.state || {};
+    const redacoesAppFromGlobal = mainState.redacoesApp || { redacoes: [], eixosTematicos: [] };
+    redacoesState.redacoes = (Array.isArray(redacoesAppFromGlobal.redacoes) ? redacoesAppFromGlobal.redacoes : [])
+        .map(r => ({
+            ...r,
+            c1: parseFloat(r.c1) || 0, c2: parseFloat(r.c2) || 0, c3: parseFloat(r.c3) || 0,
+            c4: parseFloat(r.c4) || 0, c5: parseFloat(r.c5) || 0,
+            notaTotal: parseFloat(r.notaTotal) || 0,
+            tempoGastoMinutos: r.tempoGastoMinutos !== undefined && !isNaN(parseInt(r.tempoGastoMinutos, 10)) ? parseInt(r.tempoGastoMinutos, 10) : null,
+            conteudo: undefined, conteudoTipo: undefined, nomeArquivoImagem: undefined, feedback: undefined
+        }));
+    redacoesState.eixosTematicos = Array.isArray(redacoesAppFromGlobal.eixosTematicos) ? redacoesAppFromGlobal.eixosTematicos : [];
+    if (redacoesState.eixosTematicos.length === 0 && (!localStorage.getItem('taskify-redacoes-app-standalone') && !localStorage.getItem('taskify-eixos-standalone'))) {
+        redacoesState.eixosTematicos = JSON.parse(JSON.stringify(DEFAULT_REDACAO_EIXOS_MODULE));
+        saveRedacoesStateLocal();
+    }
+    redacoesState.isDarkModeGlobal = mainState.isDarkMode !== undefined ? mainState.isDarkMode : true;
+}
+
+function saveRedacoesStateLocal() {
+    if (window.state) {
+        if (!window.state.redacoesApp) window.state.redacoesApp = { redacoes: [], eixosTematicos: [] };
+        window.state.redacoesApp.redacoes = redacoesState.redacoes.map(r => {
+            const { conteudo, conteudoTipo, nomeArquivoImagem, feedback, ...rest } = r;
+            return rest;
+        });
+        window.state.redacoesApp.eixosTematicos = redacoesState.eixosTematicos;
+        if (typeof window.saveState === 'function') window.saveState();
+    }
+}
+
 function populateRedacaoEixosSelect(selectElement) {
     if (!selectElement) {
-        console.error("Elemento select de eixos não fornecido ou inválido para popular.");
+        console.error("Elemento select de eixos não fornecido ou inválido.");
         return;
     }
     const currentValue = selectElement.value;
@@ -80,159 +199,6 @@ function populateRedacaoEixosSelect(selectElement) {
     }
 }
 
-
-function initRedacoesModule() {
-    console.log("Taskify - Módulo Redações: Iniciando initRedacoesModule...");
-    redacoesSectionContent = document.getElementById('redacoes-section-content');
-    if (!redacoesSectionContent) {
-        console.error("Taskify - Módulo Redações: Seção principal 'redacoes-section-content' não encontrada.");
-        return;
-    }
-    btnAddRedacaoMain = document.getElementById('btn-add-redacao-main');
-    redacoesFiltersContainer = document.getElementById('redacoes-filters-container');
-    btnManageRedacaoEixos = document.getElementById('btn-manage-redacao-eixos');
-    redacoesCategorySectionsContainer = document.getElementById('redacoes-category-sections-container');
-    redacoesEmptyMessage = document.getElementById('redacoes-empty-message');
-    redacaoFormModal = document.getElementById('redacao-form-modal');
-    redacaoFormModalOverlay = document.getElementById('redacao-form-modal-overlay');
-    redacaoFormModalCloseBtn = document.getElementById('redacao-form-modal-close-btn');
-    redacaoModalTitle = document.getElementById('redacao-modal-title');
-    redacaoForm = document.getElementById('redacao-form');
-    redacaoIdInput = document.getElementById('redacao-id-input');
-    redacaoTemaInput = document.getElementById('redacao-tema-input');
-    redacaoEixoSelect = document.getElementById('redacao-eixo-select');
-    redacaoDataInput = document.getElementById('redacao-data-input');
-    redacaoC1Select = document.getElementById('redacao-c1-input');
-    redacaoC2Select = document.getElementById('redacao-c2-input');
-    redacaoC3Select = document.getElementById('redacao-c3-input');
-    redacaoC4Select = document.getElementById('redacao-c4-input');
-    redacaoC5Select = document.getElementById('redacao-c5-input');
-    redacaoStatusSelect = document.getElementById('redacao-status-select');
-    redacaoTempoGastoInput = document.getElementById('redacao-tempo-gasto-input');
-    redacaoFormCancelBtn = document.getElementById('redacao-form-cancel-btn');
-    formGroupCompetencias = redacaoForm ? redacaoForm.querySelector('.form-group-competencias') : null;
-    redacaoEixosModal = document.getElementById('redacao-eixos-modal');
-    redacaoEixosModalOverlay = document.getElementById('redacao-eixos-modal-overlay');
-    redacaoEixosModalCloseBtn = document.getElementById('redacao-eixos-modal-close-btn');
-    redacaoAddEixoForm = document.getElementById('redacao-add-eixo-form');
-    redacaoNewEixoNameInput = document.getElementById('redacao-new-eixo-name-input');
-    redacaoEixosListEl = document.getElementById('redacao-eixos-list');
-    redacaoEixosDoneBtn = document.getElementById('redacao-eixos-done-btn');
-    // Não precisamos dos seletores do modal de confirmação de exclusão, pois ele foi removido
-    // redacaoConfirmDeleteModal = document.getElementById('redacao-confirm-delete-modal');
-    // redacaoConfirmDeleteModalOverlay = document.getElementById('redacao-confirm-delete-modal-overlay');
-    // redacaoConfirmDeleteCloseBtn = document.getElementById('redacao-confirm-delete-close-btn');
-    // redacaoConfirmDeleteTitle = document.getElementById('redacao-confirm-delete-title');
-    // redacaoConfirmDeleteMessage = document.getElementById('redacao-confirm-delete-message');
-    // redacaoBtnCancelDeleteConfirmation = document.getElementById('redacao-btn-cancel-delete-confirmation');
-    // redacaoBtnConfirmDeleteAction = document.getElementById('redacao-btn-confirm-delete-action');
-
-    loadRedacoesStateLocal();
-    if (redacaoDataInput && typeof flatpickr === 'function') {
-        redacaoDatePickerInstance = flatpickr(redacaoDataInput, {
-            dateFormat: "d/m/Y", defaultDate: "today", locale: "pt", allowInput: true,
-            theme: redacoesState.isDarkModeGlobal ? "dark" : "light"
-        });
-    } else if (redacaoDataInput) {
-        console.warn("Flatpickr não carregado, usando input date nativo para redações.");
-        redacaoDataInput.type = 'date';
-        try { redacaoDataInput.valueAsDate = new Date(); } catch(e) { redacaoDataInput.value = getTodayISO();}
-    }
-
-    if (btnAddRedacaoMain) btnAddRedacaoMain.addEventListener('click', () => openRedacaoFormModal());
-    if (btnManageRedacaoEixos) btnManageRedacaoEixos.addEventListener('click', openRedacaoEixosModal);
-    if (redacaoForm) redacaoForm.addEventListener('submit', handleSaveRedacao);
-    if (redacaoFormModalOverlay) redacaoFormModalOverlay.addEventListener('click', (e) => { if (e.target === redacaoFormModalOverlay) closeModal('redacao-form-modal'); });
-    if (redacaoFormModalCloseBtn) redacaoFormModalCloseBtn.addEventListener('click', () => closeModal('redacao-form-modal'));
-    if (redacaoFormCancelBtn) redacaoFormCancelBtn.addEventListener('click', () => closeModal('redacao-form-modal'));
-    if (redacaoEixosModalOverlay) redacaoEixosModalOverlay.addEventListener('click', (e) => { if (e.target === redacaoEixosModalOverlay) closeModal('redacao-eixos-modal'); });
-    if (redacaoEixosModalCloseBtn) redacaoEixosModalCloseBtn.addEventListener('click', () => closeModal('redacao-eixos-modal'));
-    if (redacaoAddEixoForm) redacaoAddEixoForm.addEventListener('submit', handleAddRedacaoEixo);
-    if (redacaoEixosDoneBtn) redacaoEixosDoneBtn.addEventListener('click', () => { closeModal('redacao-eixos-modal'); renderRedacaoEixosFiltro(); renderAllRedacaoEixoSections(); });
-    // if (redacaoBtnConfirmDeleteAction) redacaoBtnConfirmDeleteAction.addEventListener('click', executeDeleteRedacaoItemLocal); // Removido listener do botão de confirmação
-
-    if (redacaoStatusSelect && redacaoStatusSelect._redacaoStatusListenerAttached !== true) {
-        redacaoStatusSelect.addEventListener('change', toggleRedacaoNotaFieldsBasedOnStatus);
-        redacaoStatusSelect._redacaoStatusListenerAttached = true;
-    }
-
-    renderRedacaoEixosFiltro();
-    renderAllRedacaoEixoSections();
-    console.log("Taskify - Módulo Redações: Inicializado com sucesso no final de init.");
-}
-
-function loadRedacoesStateLocal() {
-    const mainState = window.state || {};
-    const redacoesAppFromGlobal = mainState.redacoesApp || { redacoes: [], eixosTematicos: [] };
-    redacoesState.redacoes = (Array.isArray(redacoesAppFromGlobal.redacoes) ? redacoesAppFromGlobal.redacoes : [])
-        .map(r => ({
-            ...r,
-            c1: r.c1 !== null && r.c1 !== undefined ? parseFloat(r.c1) : null,
-            c2: r.c2 !== null && r.c2 !== undefined ? parseFloat(r.c2) : null,
-            c3: r.c3 !== null && r.c3 !== undefined ? parseFloat(r.c3) : null,
-            c4: r.c4 !== null && r.c4 !== undefined ? parseFloat(r.c4) : null,
-            c5: r.c5 !== null && r.c5 !== undefined ? parseFloat(r.c5) : null,
-            notaTotal: r.notaTotal !== null && r.notaTotal !== undefined ? parseFloat(r.notaTotal) : null,
-            tempoGastoMinutos: r.tempoGastoMinutos !== undefined && !isNaN(parseInt(r.tempoGastoMinutos, 10)) ? parseInt(r.tempoGastoMinutos, 10) : null,
-        }));
-    redacoesState.eixosTematicos = Array.isArray(redacoesAppFromGlobal.eixosTematicos) ? redacoesAppFromGlobal.eixosTematicos : [];
-    if (redacoesState.eixosTematicos.length === 0) {
-        redacoesState.eixosTematicos = JSON.parse(JSON.stringify(DEFAULT_REDACAO_EIXOS_MODULE));
-        saveRedacoesStateLocal();
-    }
-    redacoesState.isDarkModeGlobal = mainState.isDarkMode !== undefined ? mainState.isDarkMode : true;
-    console.log("Estado das redações carregado:", JSON.parse(JSON.stringify(redacoesState)));
-}
-
-function saveRedacoesStateLocal() {
-    if (window.state) {
-        if (!window.state.redacoesApp) window.state.redacoesApp = { redacoes: [], eixosTematicos: [] };
-        window.state.redacoesApp.redacoes = redacoesState.redacoes.map(r => {
-            const { conteudo, conteudoTipo, nomeArquivoImagem, feedback, ...rest } = r;
-            return rest;
-        });
-        window.state.redacoesApp.eixosTematicos = redacoesState.eixosTematicos;
-        if (typeof window.saveState === 'function') window.saveState();
-    }
-    console.log("Estado das redações salvo.");
-}
-
-function toggleRedacaoNotaFieldsBasedOnStatus() {
-    const statusSelecionado = redacaoStatusSelect.value;
-    const notasSaoObrigatoriasOuVisiveis = statusSelecionado === 'corrigida';
-
-    const competenciaSelects = [redacaoC1Select, redacaoC2Select, redacaoC3Select, redacaoC4Select, redacaoC5Select];
-    competenciaSelects.forEach(select => {
-        if (select) {
-            select.disabled = !notasSaoObrigatoriasOuVisiveis;
-        }
-    });
-
-    if (formGroupCompetencias) {
-        formGroupCompetencias.style.opacity = notasSaoObrigatoriasOuVisiveis ? '1' : '0.5';
-        formGroupCompetencias.style.pointerEvents = notasSaoObrigatoriasOuVisiveis ? 'auto' : 'none';
-        
-        const legend = formGroupCompetencias.querySelector('legend');
-        if (legend) {
-            const asteriskSpanId = 'competencias-required-asterisk-redacao';
-            let asteriskSpan = legend.querySelector(`#${asteriskSpanId}`);
-            if (notasSaoObrigatoriasOuVisiveis) {
-                if (!asteriskSpan) {
-                    asteriskSpan = document.createElement('span');
-                    asteriskSpan.id = asteriskSpanId;
-                    asteriskSpan.className = 'required-asterisk';
-                    asteriskSpan.textContent = ' *';
-                    legend.appendChild(asteriskSpan);
-                }
-                asteriskSpan.style.display = 'inline';
-            } else {
-                if (asteriskSpan) asteriskSpan.style.display = 'none';
-            }
-        }
-    }
-}
-
-
 function openRedacaoFormModal(redacaoId = null) {
     if (!redacaoFormModal || !redacaoModalTitle || !redacaoForm || !redacaoEixoSelect ||
         !redacaoDatePickerInstance || !redacaoStatusSelect || !redacaoTemaInput ||
@@ -242,7 +208,7 @@ function openRedacaoFormModal(redacaoId = null) {
         return;
     }
     redacaoForm.reset();
-    populateRedacaoEixosSelect(redacaoEixoSelect); 
+    populateRedacaoEixosSelect(redacaoEixoSelect);
 
     if (redacaoId) {
         redacoesState.editingRedacaoId = redacaoId;
@@ -252,14 +218,12 @@ function openRedacaoFormModal(redacaoId = null) {
             redacaoIdInput.value = redacao.id;
             redacaoTemaInput.value = redacao.tema;
             redacaoEixoSelect.value = redacao.eixoId;
-            if (redacaoDatePickerInstance && redacao.data) redacaoDatePickerInstance.setDate(redacao.data, true);
-            else if (redacaoDatePickerInstance) redacaoDatePickerInstance.setDate(new Date(), true);
-            
-            redacaoC1Select.value = redacao.c1 !== null && redacao.c1 !== undefined ? String(redacao.c1) : '0';
-            redacaoC2Select.value = redacao.c2 !== null && redacao.c2 !== undefined ? String(redacao.c2) : '0';
-            redacaoC3Select.value = redacao.c3 !== null && redacao.c3 !== undefined ? String(redacao.c3) : '0';
-            redacaoC4Select.value = redacao.c4 !== null && redacao.c4 !== undefined ? String(redacao.c4) : '0';
-            redacaoC5Select.value = redacao.c5 !== null && redacao.c5 !== undefined ? String(redacao.c5) : '0';
+            if (redacaoDatePickerInstance && redacao.data) redacaoDatePickerInstance.setDate(redacao.data, true); else if (redacaoDatePickerInstance) redacaoDatePickerInstance.setDate(new Date(), true);
+            redacaoC1Select.value = redacao.c1 !== undefined ? String(redacao.c1) : '0';
+            redacaoC2Select.value = redacao.c2 !== undefined ? String(redacao.c2) : '0';
+            redacaoC3Select.value = redacao.c3 !== undefined ? String(redacao.c3) : '0';
+            redacaoC4Select.value = redacao.c4 !== undefined ? String(redacao.c4) : '0';
+            redacaoC5Select.value = redacao.c5 !== undefined ? String(redacao.c5) : '0';
 
             redacaoStatusSelect.value = redacao.status || 'corrigida';
             redacaoTempoGastoInput.value = formatMinutesToHHMM(redacao.tempoGastoMinutos) || '';
@@ -268,22 +232,21 @@ function openRedacaoFormModal(redacaoId = null) {
         redacoesState.editingRedacaoId = null;
         redacaoModalTitle.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Adicionar Redação';
         if (redacaoDatePickerInstance) redacaoDatePickerInstance.setDate(new Date(), true);
-        redacaoC1Select.value = '0'; redacaoC2Select.value = '0'; redacaoC3Select.value = '0';
-        redacaoC4Select.value = '0'; redacaoC5Select.value = '0';
+        redacaoC1Select.value = '0';
+        redacaoC2Select.value = '0';
+        redacaoC3Select.value = '0';
+        redacaoC4Select.value = '0';
+        redacaoC5Select.value = '0';
         redacaoStatusSelect.value = 'corrigida';
         redacaoTempoGastoInput.value = '';
     }
-
-    toggleRedacaoNotaFieldsBasedOnStatus();
     openModal('redacao-form-modal');
     if (redacaoTemaInput) redacaoTemaInput.focus();
 }
 
+
 async function handleSaveRedacao(event) {
     event.preventDefault();
-    const statusSelecionado = redacaoStatusSelect.value;
-    const notasSaoObrigatorias = statusSelecionado === 'corrigida';
-
     if (!redacaoTemaInput.value.trim() || !redacaoEixoSelect.value || !redacaoDataInput.value) {
         showRedacaoCustomAlert("Preencha os campos Tema, Eixo Temático e Data.", "Campos Obrigatórios"); return;
     }
@@ -292,51 +255,25 @@ async function handleSaveRedacao(event) {
     if (redacaoDatePickerInstance && redacaoDatePickerInstance.selectedDates.length > 0) { dataISO = redacaoDatePickerInstance.selectedDates[0].toISOString().split('T')[0]; }
     else if (redacaoDataInput.value) { dataISO = formatDateToISO(redacaoDataInput.value); if (!dataISO) { showRedacaoCustomAlert("Data inválida.", "Erro"); return; }}
 
-    let c1 = null, c2 = null, c3 = null, c4 = null, c5 = null, notaTotal = null;
-    const competenciaSelects = [redacaoC1Select, redacaoC2Select, redacaoC3Select, redacaoC4Select, redacaoC5Select];
+    const c1 = parseFloat(redacaoC1Select.value);
+    const c2 = parseFloat(redacaoC2Select.value);
+    const c3 = parseFloat(redacaoC3Select.value);
+    const c4 = parseFloat(redacaoC4Select.value);
+    const c5 = parseFloat(redacaoC5Select.value);
 
-    if (notasSaoObrigatorias) {
-        c1 = parseFloat(redacaoC1Select.value); c2 = parseFloat(redacaoC2Select.value);
-        c3 = parseFloat(redacaoC3Select.value); c4 = parseFloat(redacaoC4Select.value);
-        c5 = parseFloat(redacaoC5Select.value);
-        
-        if (isNaN(c1) || isNaN(c2) || isNaN(c3) || isNaN(c4) || isNaN(c5)) {
-            showRedacaoCustomAlert("Todas as notas das competências são obrigatórias para o status 'Corrigida' e devem ser numéricas.", "Notas Inválidas");
-            return;
-        }
-        notaTotal = c1 + c2 + c3 + c4 + c5;
-    } else {
-        const notasInput = competenciaSelects.map(select => parseFloat(select.value));
-        
-        c1 = !isNaN(notasInput[0]) ? notasInput[0] : null;
-        c2 = !isNaN(notasInput[1]) ? notasInput[1] : null;
-        c3 = !isNaN(notasInput[2]) ? notasInput[2] : null;
-        c4 = !isNaN(notasInput[3]) ? notasInput[3] : null;
-        c5 = !isNaN(notasInput[4]) ? notasInput[4] : null;
-
-        if (c1 !== null && c2 !== null && c3 !== null && c4 !== null && c5 !== null) {
-             notaTotal = c1 + c2 + c3 + c4 + c5;
-        } else {
-            notaTotal = null;
-        }
-        if (statusSelecionado !== 'corrigida' && 
-            (c1 === 0 || c1 === null) && (c2 === 0 || c2 === null) && (c3 === 0 || c3 === null) && 
-            (c4 === 0 || c4 === null) && (c5 === 0 || c5 === null) && 
-            (notaTotal === 0 || notaTotal === null) ) {
-            c1 = c2 = c3 = c4 = c5 = notaTotal = null;
-        }
+    if (isNaN(c1) || isNaN(c2) || isNaN(c3) || isNaN(c4) || isNaN(c5)) {
+        showRedacaoCustomAlert("Ocorreu um erro ao ler as notas das competências. Verifique os campos.", "Erro de Leitura");
+        return;
     }
 
+    const notaTotal = c1 + c2 + c3 + c4 + c5;
     const tempoGastoMinutos = parseHHMMToMinutes(redacaoTempoGastoInput.value);
 
     const redacaoObject = {
-        id: redacoesState.editingRedacaoId || `red-${Date.now()}`,
-        tema: redacaoTemaInput.value.trim(),
-        eixoId: redacaoEixoSelect.value,
+        id: redacoesState.editingRedacaoId || `red-${Date.now()}`, tema: redacaoTemaInput.value.trim(), eixoId: redacaoEixoSelect.value,
         data: dataISO,
-        c1: c1, c2: c2, c3: c3, c4: c4, c5: c5,
-        notaTotal: notaTotal,
-        status: statusSelecionado,
+        c1, c2, c3, c4, c5,
+        notaTotal, status: redacaoStatusSelect.value,
         tempoGastoMinutos: tempoGastoMinutos,
         updatedAt: new Date().toISOString()
     };
@@ -348,10 +285,7 @@ async function handleSaveRedacao(event) {
         redacaoObject.createdAt = new Date().toISOString();
         redacoesState.redacoes.push(redacaoObject);
     }
-
-    saveRedacoesStateLocal();
-    renderAllRedacaoEixoSections();
-    closeModal('redacao-form-modal');
+    saveRedacoesStateLocal(); renderAllRedacaoEixoSections(); closeModal('redacao-form-modal');
 }
 
 function openRedacaoEixosModal() { if (!redacaoEixosModal) return; renderRedacaoEixosLista(); openModal('redacao-eixos-modal'); if (redacaoNewEixoNameInput) redacaoNewEixoNameInput.focus(); }
@@ -362,10 +296,7 @@ function handleAddRedacaoEixo(event) {
     if (!nomeEixo) { showRedacaoCustomAlert("Digite o nome do novo eixo.", "Nome Vazio"); return; }
     if (redacoesState.eixosTematicos.some(e => e.nome.toLowerCase() === nomeEixo.toLowerCase())) { showRedacaoCustomAlert("Eixo já existe.", "Duplicado"); return; }
     redacoesState.eixosTematicos.push({ id: `eixo-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`, nome: nomeEixo });
-    saveRedacoesStateLocal();
-    renderRedacaoEixosLista();
-    populateRedacaoEixosSelect(redacaoEixoSelect);
-    redacaoNewEixoNameInput.value = '';
+    saveRedacoesStateLocal(); renderRedacaoEixosLista(); populateRedacaoEixosSelect(redacaoEixoSelect); redacaoNewEixoNameInput.value = '';
 }
 
 function renderRedacaoEixosLista() {
@@ -396,47 +327,43 @@ function handleEditRedacaoEixoLocal(eixoId, novoNome) {
     if (!nomeTrimmed) { showRedacaoCustomAlert("O nome do eixo não pode ser vazio.", "Nome Inválido"); return; }
     const eixo = redacoesState.eixosTematicos.find(e => e.id === eixoId);
     if (eixo && !redacoesState.eixosTematicos.some(e => e.nome.toLowerCase() === nomeTrimmed.toLowerCase() && e.id !== eixoId)) {
-        eixo.nome = nomeTrimmed;
-        saveRedacoesStateLocal();
-        renderRedacaoEixosLista();
-        populateRedacaoEixosSelect(redacaoEixoSelect);
-        renderRedacaoEixosFiltro();
-        renderAllRedacaoEixoSections();
+        eixo.nome = nomeTrimmed; saveRedacoesStateLocal(); renderRedacaoEixosLista(); populateRedacaoEixosSelect(redacaoEixoSelect); renderRedacaoEixosFiltro();
     } else { showRedacaoCustomAlert("Já existe um eixo com este nome ou o nome é inválido.", "Erro ao Editar"); }
 }
-
 function handleDeleteRedacaoEixoLocal(eixoId) {
-    // Verifica se há redações associadas antes de tentar excluir o eixo
     if (redacoesState.redacoes.some(r => r.eixoId === eixoId)) {
-        showRedacaoCustomAlert("Existem redações associadas a este eixo. Não pode ser excluído.", "Eixo em Uso");
-        return;
+        showRedacaoCustomAlert("Existem redações associadas a este eixo. Não pode ser excluído.", "Eixo em Uso"); return;
     }
-    // Se não houver redações associadas, prossegue com a exclusão direta
-    executeDeleteRedacaoItemLocal('eixo', eixoId);
+    redacoesState.itemToDelete = { type: 'eixo', id: eixoId };
+    const eixoNome = redacoesState.eixosTematicos.find(e => e.id === eixoId)?.nome || "este eixo";
+    openRedacaoConfirmDeleteModal("Confirmar Exclusão", `Tem certeza que deseja excluir o eixo temático "${escapeHtml(eixoNome)}"?`);
 }
-
-function executeDeleteRedacaoItemLocal(type, id) { // Modificado para aceitar type e id
-    if (!type || !id) {
-        console.warn("executeDeleteRedacaoItemLocal chamado sem tipo ou ID.");
-        return;
-    }
+function executeDeleteRedacaoItemLocal() {
+    const { type, id } = redacoesState.itemToDelete;
+    if (!type || !id) return;
     if (type === 'redacao') {
         redacoesState.redacoes = redacoesState.redacoes.filter(r => r.id !== id);
     } else if (type === 'eixo') {
-        // A verificação de uso já foi feita em handleDeleteRedacaoEixoLocal
         redacoesState.eixosTematicos = redacoesState.eixosTematicos.filter(e => e.id !== id);
         if (redacoesState.currentEixoFilter === id) redacoesState.currentEixoFilter = 'all';
         renderRedacaoEixosFiltro();
         populateRedacaoEixosSelect(redacaoEixoSelect);
     }
-    saveRedacoesStateLocal();
-    renderAllRedacaoEixoSections();
-    // closeModal('redacao-confirm-delete-modal'); // Não é mais necessário se não há confirmação
+    saveRedacoesStateLocal(); renderAllRedacaoEixoSections(); closeModal('redacao-confirm-delete-modal');
+    redacoesState.itemToDelete = { type: null, id: null };
 }
 
 function requestDeleteRedacao(redacaoId) {
-    // Chama diretamente a exclusão da redação
-    executeDeleteRedacaoItemLocal('redacao', redacaoId);
+    redacoesState.itemToDelete = { type: 'redacao', id: redacaoId };
+    const tema = redacoesState.redacoes.find(r => r.id === redacaoId)?.tema || "esta redação";
+    openRedacaoConfirmDeleteModal("Confirmar Exclusão", `Excluir redação "${escapeHtml(tema)}"?`);
+}
+
+function openRedacaoConfirmDeleteModal(title, message) {
+    if (!redacaoConfirmDeleteModal || !redacaoConfirmDeleteTitle || !redacaoConfirmDeleteMessage) return;
+    redacaoConfirmDeleteTitle.textContent = title;
+    redacaoConfirmDeleteMessage.textContent = message;
+    openModal('redacao-confirm-delete-modal');
 }
 
 function renderRedacaoEixosFiltro() {
@@ -674,14 +601,8 @@ function createRedacaoCardElementLocal(redacao, eixoId, indexInGrid, numGridCols
 function populateRedacaoCardDetails(detailsContainer, redacao) {
     if (!detailsContainer || !redacao) return;
 
-    let notaTotalCalculada = null;
-    if (redacao.c1 !== null && redacao.c2 !== null && redacao.c3 !== null && redacao.c4 !== null && redacao.c5 !== null &&
-        typeof redacao.c1 === 'number' && typeof redacao.c2 === 'number' && typeof redacao.c3 === 'number' &&
-        typeof redacao.c4 === 'number' && typeof redacao.c5 === 'number') {
-        notaTotalCalculada = redacao.c1 + redacao.c2 + redacao.c3 + redacao.c4 + redacao.c5;
-    }
-    
-    const notaFinalExibida = redacao.notaTotal !== null ? redacao.notaTotal : (notaTotalCalculada !== null ? notaTotalCalculada : '--');
+    const notaTotalCalculada = (redacao.c1 || 0) + (redacao.c2 || 0) + (redacao.c3 || 0) + (redacao.c4 || 0) + (redacao.c5 || 0);
+    const notaFinalExibida = (typeof redacao.notaTotal === 'number' && !isNaN(redacao.notaTotal) && redacao.notaTotal > 0) ? redacao.notaTotal : notaTotalCalculada;
 
     let statusHtml = '';
     if (redacao.status && typeof formatRedacaoStatus === 'function') {
@@ -694,7 +615,7 @@ function populateRedacaoCardDetails(detailsContainer, redacao) {
     for (let i = 1; i <= 5; i++) {
         notasCompetenciasHtml += `<div class="redacao-competencia-display">
                         <span class="competencia-label">C${i}</span>
-                        <span class="competencia-nota">${redacao[`c${i}`] !== null && redacao[`c${i}`] !== undefined ? redacao[`c${i}`] : '--'}</span>
+                        <span class="competencia-nota">${redacao[`c${i}`] !== undefined ? redacao[`c${i}`] : '--'}</span>
                       </div>`;
     }
     notasCompetenciasHtml += '</div>';
@@ -722,6 +643,7 @@ function populateRedacaoCardDetails(detailsContainer, redacao) {
 }
 
 
+
 function toggleRedacaoCardExpansionLocal(clickedCard, eixoId) {
     const gridContainer = clickedCard.closest('.redacoes-grid');
     if (!gridContainer) return;
@@ -733,8 +655,10 @@ function toggleRedacaoCardExpansionLocal(clickedCard, eixoId) {
         redacoesState.expandedRowTracker[eixoId] = {};
     }
 
+    // Atualiza o estado de rastreamento para a linha do card clicado
     redacoesState.expandedRowTracker[eixoId][rowIndexOfClickedCard] = shouldBeExpanded;
 
+    // Se estamos expandindo o card clicado, colapsa outros cards em OUTRAS linhas
     if (shouldBeExpanded) {
         for (const row in redacoesState.expandedRowTracker[eixoId]) {
             if (parseInt(row, 10) !== rowIndexOfClickedCard) {
@@ -751,34 +675,46 @@ function toggleRedacaoCardExpansionLocal(clickedCard, eixoId) {
         const redacao = redacoesState.redacoes.find(r => r.id === redacaoId);
 
         if (detailsDiv) {
-            if (redacoesState.expandedRowTracker[eixoId][cardRow]) { 
+            if (redacoesState.expandedRowTracker[eixoId][cardRow]) { // Se este card (ou sua linha) deve ser expandido
                 if (redacao) {
-                    detailsDiv.innerHTML = ''; 
+                    detailsDiv.innerHTML = ''; // Limpa antes de popular para garantir scrollHeight correto
                     populateRedacaoCardDetails(detailsDiv, redacao);
                 } else if (detailsDiv.innerHTML.trim() === '' && card === clickedCard) {
+                    // Isso pode acontecer se os dados não foram encontrados, mas ainda tentamos expandir
                     console.warn(`Dados da redação ${redacaoId} não encontrados para popular detalhes no momento da expansão.`);
+                    // Poderia adicionar um placeholder aqui se quisesse
                 }
 
                 card.classList.add('expanded');
-                detailsDiv.style.display = 'flex'; 
-                void detailsDiv.offsetWidth; 
+                detailsDiv.style.display = 'flex'; // Garante que está visível para cálculo de scrollHeight
+                void detailsDiv.offsetWidth; // Força reflow
 
                 requestAnimationFrame(() => {
+                    // O scrollHeight agora deve incluir o padding se ele for aplicado pela classe .expanded
                     detailsDiv.style.maxHeight = detailsDiv.scrollHeight + "px";
                     detailsDiv.style.opacity = '1';
+                    // REMOVIDO: A aplicação de padding via JS. Deixe o CSS cuidar disso com a classe .expanded
+                    // detailsDiv.style.paddingTop = '20px';
+                    // detailsDiv.style.paddingBottom = '20px';
                 });
 
-            } else { 
+            } else { // Se este card (ou sua linha) deve ser colapsado
                 if (card.classList.contains('expanded')) {
                     card.classList.remove('expanded');
                     detailsDiv.style.maxHeight = '0';
                     detailsDiv.style.opacity = '0';
+                    // REMOVIDO: padding via JS
+                    // detailsDiv.style.paddingTop = '0';
+                    // detailsDiv.style.paddingBottom = '0';
+
+                    // Lógica de limpeza e display:none similar ao simulados.js
                     setTimeout(() => {
+                        // Verifica novamente caso o estado tenha mudado rapidamente
                         if (!card.classList.contains('expanded')) {
                             detailsDiv.style.display = 'none';
-                            detailsDiv.innerHTML = ''; 
+                            detailsDiv.innerHTML = ''; // Limpa o conteúdo para resetar scrollHeight
                         }
-                    }, 360); 
+                    }, 360); // Duração um pouco maior que a transição CSS (geralmente 0.3s ou 0.35s)
                 }
             }
         }
@@ -787,11 +723,11 @@ function toggleRedacaoCardExpansionLocal(clickedCard, eixoId) {
 
 
 function showRedacaoCardOptionsMenu(buttonElement, redacaoId) {
-    const existingMenu = document.querySelector('.simulado-card-options-menu'); 
+    const existingMenu = document.querySelector('.simulado-card-options-menu'); // Reutiliza a classe do menu de simulados
     if (existingMenu) existingMenu.remove();
 
     const menu = document.createElement('div');
-    menu.className = 'simulado-card-options-menu'; 
+    menu.className = 'simulado-card-options-menu'; // Reutiliza a classe do menu de simulados
 
     const editButton = document.createElement('button');
     editButton.innerHTML = '<i class="bi bi-pencil-fill"></i> Editar';
@@ -849,7 +785,7 @@ function updateRedacaoEixoSummary(eixoId) {
 
     redacoesParaSumario.forEach(r => {
         if (r.status === 'corrigida') {
-            const notaTotalNum = r.notaTotal !== null ? parseFloat(r.notaTotal) : null;
+            const notaTotalNum = parseFloat(r.notaTotal);
             if (typeof notaTotalNum === 'number' && !isNaN(notaTotalNum)) {
                 somaNotasTotais += notaTotalNum;
                 countNotasValidas++;
@@ -889,12 +825,7 @@ function updateRedacaoEixoChart(eixoId) {
         ? [...redacoesState.redacoes]
         : redacoesState.redacoes.filter(r => r.eixoId === eixoId);
 
-    redacoesParaGrafico = redacoesParaGrafico.filter(r => 
-        r.status === 'corrigida' && 
-        r[selectedMetricKey] !== null && 
-        r[selectedMetricKey] !== undefined && 
-        !isNaN(parseFloat(r[selectedMetricKey]))
-    );
+    redacoesParaGrafico = redacoesParaGrafico.filter(r => r.status === 'corrigida');
 
     const now = new Date();
     if (selectedPeriod !== 'allTime') {
@@ -910,8 +841,7 @@ function updateRedacaoEixoChart(eixoId) {
     redacoesParaGrafico.sort((a, b) => new Date(a.data) - new Date(b.data));
 
     const labels = redacoesParaGrafico.map(r => formatDateToDDMMYYYY(r.data));
-    const data = redacoesParaGrafico.map(r => parseFloat(r[selectedMetricKey]));
-
+    const data = redacoesParaGrafico.map(r => parseFloat(r[selectedMetricKey]) || 0);
 
     let yAxisLabel = 'Nota'; let tooltipLabelPrefix = 'Nota';
     if (selectedMetricKey.startsWith('c')) { yAxisLabel = `Nota C${selectedMetricKey.substring(1)}`; tooltipLabelPrefix = `C${selectedMetricKey.substring(1)}`; }
@@ -1003,8 +933,6 @@ if (typeof openModal === 'undefined') {
             overlay.classList.add('show');
             modal.classList.add('show');
             document.body.classList.add('modal-open');
-            const focusable = modal.querySelector('input:not([type=hidden]), textarea, select, button');
-            if (focusable) focusable.focus();
         }
     }
 }
@@ -1043,11 +971,11 @@ if (typeof escapeHtml === 'undefined') {
     window.escapeHtml = function(unsafe) {
         if (typeof unsafe !== 'string') return '';
         return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;"); 
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;"); // Using &#039; as it's widely compatible
     };
 }
 

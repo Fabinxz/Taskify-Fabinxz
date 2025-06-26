@@ -10,9 +10,8 @@ let simuladoFormModal, simuladoFormModalOverlay, simuladoFormModalCloseBtn, simu
 let simuladoCategoriesModal, simuladoCategoriesModalOverlay, simuladoCategoriesModalCloseBtn,
     simuladoAddCategoryForm, simuladoNewCategoryNameInput, simuladoCategoriesListEl, simuladoCategoriesDoneBtn;
 
-// Variáveis para o modal de confirmação (agora não serão mais usadas para a lógica de exclusão direta)
-// let simuladoConfirmDeleteModal, simuladoConfirmDeleteModalOverlay, simuladoConfirmDeleteCloseBtn,
-//     simuladoConfirmDeleteTitle, simuladoConfirmDeleteMessage, simuladoBtnCancelDeleteConfirmation, simuladoBtnConfirmDeleteAction;
+let simuladoConfirmDeleteModal, simuladoConfirmDeleteModalOverlay, simuladoConfirmDeleteCloseBtn,
+    simuladoConfirmDeleteTitle, simuladoConfirmDeleteMessage, simuladoBtnCancelDeleteConfirmation, simuladoBtnConfirmDeleteAction;
 
 let simuladoDatePicker;
 
@@ -22,10 +21,9 @@ let simuladosState = {
     editingSimuladoId: null,
     editingCategoriaId: null,
     currentCategoryFilter: 'all',
-    // itemToDelete: { type: null, id: null }, // Não mais necessário para exclusão direta
+    itemToDelete: { type: null, id: null },
     charts: {},
-    expandedRowTracker: {},
-    isDarkModeGlobal: true
+    expandedRowTracker: {} // Rastreia o estado de expansão por linha de grid por categoria
 };
 
 const DEFAULT_SIMULADO_CATEGORIES = [
@@ -67,13 +65,19 @@ function initSimuladosModule() {
     simuladoNewCategoryNameInput = document.getElementById('simulado-new-category-name-input');
     simuladoCategoriesListEl = document.getElementById('simulado-categories-list');
     simuladoCategoriesDoneBtn = document.getElementById('simulado-categories-done-btn');
+    simuladoConfirmDeleteModal = document.getElementById('simulado-confirm-delete-modal');
+    simuladoConfirmDeleteModalOverlay = document.getElementById('simulado-confirm-delete-modal-overlay');
+    simuladoConfirmDeleteCloseBtn = document.getElementById('simulado-confirm-delete-close-btn');
+    simuladoConfirmDeleteTitle = document.getElementById('simulado-confirm-delete-title');
+    simuladoConfirmDeleteMessage = document.getElementById('simulado-confirm-delete-message');
+    simuladoBtnCancelDeleteConfirmation = document.getElementById('simulado-btn-cancel-delete-confirmation');
+    simuladoBtnConfirmDeleteAction = document.getElementById('simulado-btn-confirm-delete-action');
 
     loadSimuladosState();
 
     if (simuladoDataInput && typeof flatpickr === 'function') {
         simuladoDatePicker = flatpickr(simuladoDataInput, {
             dateFormat: "d/m/Y", defaultDate: "today", locale: "pt", allowInput: true,
-            theme: simuladosState.isDarkModeGlobal ? "dark" : "light"
         });
     }
 
@@ -87,11 +91,10 @@ function initSimuladosModule() {
     if (simuladoCategoriesModalCloseBtn) simuladoCategoriesModalCloseBtn.addEventListener('click', closeSimuladoCategoriesModal);
     if (simuladoAddCategoryForm) simuladoAddCategoryForm.addEventListener('submit', handleAddSimuladoCategory);
     if (simuladoCategoriesDoneBtn) simuladoCategoriesDoneBtn.addEventListener('click', closeSimuladoCategoriesModal);
-
-    if (simuladoStatusSelect && simuladoStatusSelect._simuladoStatusListenerAttached !== true) {
-        simuladoStatusSelect.addEventListener('change', toggleSimuladoNotaFieldsBasedOnStatus);
-        simuladoStatusSelect._simuladoStatusListenerAttached = true;
-    }
+    if (simuladoConfirmDeleteModalOverlay) simuladoConfirmDeleteModalOverlay.addEventListener('click', (e) => { if (e.target === simuladoConfirmDeleteModalOverlay) closeSimuladoConfirmDeleteModal(); });
+    if (simuladoConfirmDeleteCloseBtn) simuladoConfirmDeleteCloseBtn.addEventListener('click', closeSimuladoConfirmDeleteModal);
+    if (simuladoBtnCancelDeleteConfirmation) simuladoBtnCancelDeleteConfirmation.addEventListener('click', closeSimuladoConfirmDeleteModal);
+    if (simuladoBtnConfirmDeleteAction) simuladoBtnConfirmDeleteAction.addEventListener('click', executeDeleteSimuladoItem);
 
     renderSimuladoCategoriasFiltro();
     renderAllCategorySections();
@@ -103,26 +106,22 @@ function loadSimuladosState() {
     let loadedCategorias = [];
     const mainState = window.state || {};
     const simuladosAppFromGlobal = mainState.simuladosApp || {};
-
     loadedSimulados = Array.isArray(simuladosAppFromGlobal.simulados) ? simuladosAppFromGlobal.simulados : [];
     loadedCategorias = Array.isArray(simuladosAppFromGlobal.categorias) ? simuladosAppFromGlobal.categorias : [];
-    simuladosState.isDarkModeGlobal = mainState.isDarkMode !== undefined ? mainState.isDarkMode : true;
 
-    simuladosState.simulados = loadedSimulados.map(s => ({
-        ...s,
-        acertos: s.acertos !== null && s.acertos !== undefined ? parseInt(s.acertos, 10) : null,
-        totalQuestoes: s.totalQuestoes !== null && s.totalQuestoes !== undefined ? parseInt(s.totalQuestoes, 10) : null,
-        nota: (s.nota !== undefined && s.nota !== null && !isNaN(parseFloat(s.nota))) ? parseFloat(s.nota) : null,
-        tempoGastoMinutos: s.tempoGastoMinutos !== undefined && !isNaN(parseInt(s.tempoGastoMinutos, 10)) ? parseInt(s.tempoGastoMinutos, 10) : null,
-        observacoes: s.observacoes || ''
-    }));
+    if (loadedSimulados.length === 0 && loadedCategorias.length === 0 && !mainState.simuladosApp) {
+        const savedSimuladosString = localStorage.getItem('taskify-simulados');
+        if (savedSimuladosString) { try { const p = JSON.parse(savedSimuladosString); if (Array.isArray(p)) loadedSimulados = p; } catch (e) { console.error("Erro parse simulados", e);}}
+        const savedCategoriasString = localStorage.getItem('taskify-simulados-categorias');
+        if (savedCategoriasString) { try { const p = JSON.parse(savedCategoriasString); if (Array.isArray(p)) loadedCategorias = p; } catch (e) { console.error("Erro parse categorias", e);}}
+    }
+    simuladosState.simulados = loadedSimulados.map(s => ({ ...s, acertos: parseInt(s.acertos, 10) || 0, totalQuestoes: parseInt(s.totalQuestoes, 10) || 0, nota: (s.nota !== undefined && s.nota !== null && !isNaN(parseFloat(s.nota))) ? parseFloat(s.nota) : null, tempoGastoMinutos: s.tempoGastoMinutos !== undefined && !isNaN(parseInt(s.tempoGastoMinutos, 10)) ? parseInt(s.tempoGastoMinutos, 10) : null, observacoes: s.observacoes || '' }));
     simuladosState.categorias = loadedCategorias;
 
     if (simuladosState.categorias.length === 0) {
         simuladosState.categorias = JSON.parse(JSON.stringify(DEFAULT_SIMULADO_CATEGORIES));
-        saveSimuladosState();
     } else {
-        const enemGeralId = 'enem_geral';
+        const enemGeralId = 'enem_geral'; 
         const enemGeralNome = 'ENEM Geral';
         simuladosState.categorias = simuladosState.categorias.filter(cat => !(cat.id === enemGeralId && cat.nome === enemGeralNome) && cat.nome !== enemGeralNome);
     }
@@ -131,35 +130,16 @@ function loadSimuladosState() {
 
 function saveSimuladosState() {
     if (window.state) {
-        if (!window.state.simuladosApp) window.state.simuladosApp = { simulados: [], categorias: [] };
+        if (!window.state.simuladosApp) window.state.simuladosApp = {};
         window.state.simuladosApp.simulados = simuladosState.simulados;
         window.state.simuladosApp.categorias = simuladosState.categorias;
         if (typeof window.saveState === 'function') window.saveState();
+        else localStorage.setItem('taskify-simulados-app', JSON.stringify(window.state.simuladosApp));
+    } else {
+        localStorage.setItem('taskify-simulados', JSON.stringify(simuladosState.simulados));
+        localStorage.setItem('taskify-simulados-categorias', JSON.stringify(simuladosState.categorias));
     }
     console.log("Estado dos simulados salvo.");
-}
-
-function toggleSimuladoNotaFieldsBasedOnStatus() {
-    const statusSelecionado = simuladoStatusSelect.value;
-    const camposDeNotaObrigatorios = statusSelecionado === 'corrigido';
-
-    simuladoAcertosInput.required = camposDeNotaObrigatorios;
-    simuladoTotalQuestoesInput.required = camposDeNotaObrigatorios;
-
-    simuladoAcertosInput.disabled = !camposDeNotaObrigatorios;
-    simuladoTotalQuestoesInput.disabled = !camposDeNotaObrigatorios;
-
-    const acertosLabelEl = document.querySelector('label[for="simulado-acertos-input"]');
-    const totalQuestoesLabelEl = document.querySelector('label[for="simulado-total-questoes-input"]');
-
-    if (acertosLabelEl) {
-        const baseText = "Nº de Acertos";
-        acertosLabelEl.textContent = camposDeNotaObrigatorios ? `${baseText} *` : baseText;
-    }
-    if (totalQuestoesLabelEl) {
-        const baseText = "Total de Questões";
-        totalQuestoesLabelEl.textContent = camposDeNotaObrigatorios ? `${baseText} *` : baseText;
-    }
 }
 
 function openSimuladoFormModal(simuladoId = null) {
@@ -178,8 +158,8 @@ function openSimuladoFormModal(simuladoId = null) {
             simuladoNomeInput.value = simulado.nome;
             simuladoCategoriaSelect.value = simulado.categoriaId;
             if (simuladoDatePicker && simulado.dataRealizacao) simuladoDatePicker.setDate(simulado.dataRealizacao, true);
-            simuladoAcertosInput.value = simulado.acertos !== null ? simulado.acertos : '';
-            simuladoTotalQuestoesInput.value = simulado.totalQuestoes !== null ? simulado.totalQuestoes : '';
+            simuladoAcertosInput.value = simulado.acertos;
+            simuladoTotalQuestoesInput.value = simulado.totalQuestoes;
             simuladoTempoGastoInput.value = formatMinutesToHHMM(simulado.tempoGastoMinutos) || '';
             simuladoStatusSelect.value = simulado.status || 'corrigido';
         }
@@ -187,58 +167,34 @@ function openSimuladoFormModal(simuladoId = null) {
         simuladosState.editingSimuladoId = null;
         simuladoModalTitle.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Adicionar Simulado';
         if (simuladoDatePicker) simuladoDatePicker.setDate(new Date(), true);
-        simuladoAcertosInput.value = '';
-        simuladoTotalQuestoesInput.value = '';
         simuladoStatusSelect.value = 'corrigido';
     }
-    toggleSimuladoNotaFieldsBasedOnStatus();
-    openModal('simulado-form-modal');
+    simuladoFormModalOverlay.classList.add('show');
+    simuladoFormModal.classList.add('show');
+    document.body.classList.add('modal-open');
     simuladoNomeInput.focus();
 }
 
 function closeSimuladoFormModal() {
-    closeModal('simulado-form-modal');
-    simuladosState.editingSimuladoId = null;
+    if (simuladoFormModal) {
+        simuladoFormModal.classList.remove('show');
+        simuladoFormModalOverlay.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        simuladosState.editingSimuladoId = null;
+    }
 }
 
 function handleSaveSimulado(event) {
     event.preventDefault();
-    const statusSelecionado = simuladoStatusSelect.value;
-    const camposDeNotaObrigatorios = statusSelecionado === 'corrigido';
-    let acertos = null;
-    let totalQuestoes = null;
-
-    if (!simuladoNomeInput.value.trim() || !simuladoCategoriaSelect.value || !simuladoDataInput.value) {
-        showSimuladoCustomAlert("Nome, Categoria e Data são obrigatórios.", "Campos Obrigatórios"); return;
+    if (!simuladoNomeInput.value.trim() || !simuladoCategoriaSelect.value || !simuladoDataInput.value ||
+        simuladoAcertosInput.value === '' || simuladoTotalQuestoesInput.value === '') {
+        showSimuladoCustomAlert("Preencha todos os campos obrigatórios (*).", "Campos Vazios"); return;
     }
-
-    if (camposDeNotaObrigatorios) {
-        if (simuladoAcertosInput.value === '' || simuladoTotalQuestoesInput.value === '') {
-            showSimuladoCustomAlert("Para o status 'Corrigido', Nº de Acertos e Total de Questões são obrigatórios.", "Campos Obrigatórios"); return;
-        }
-        acertos = parseInt(simuladoAcertosInput.value);
-        totalQuestoes = parseInt(simuladoTotalQuestoesInput.value);
-        if (isNaN(acertos) || acertos < 0 || isNaN(totalQuestoes) || totalQuestoes < 1 || acertos > totalQuestoes) {
-            showSimuladoCustomAlert("Número de acertos ou total de questões inválido.", "Valores Inválidos"); return;
-        }
-    } else {
-        if (simuladoAcertosInput.value !== '') acertos = parseInt(simuladoAcertosInput.value);
-        if (simuladoTotalQuestoesInput.value !== '') totalQuestoes = parseInt(simuladoTotalQuestoesInput.value);
-
-        if ((acertos !== null && (isNaN(acertos) || acertos < 0)) || (totalQuestoes !== null && (isNaN(totalQuestoes) || totalQuestoes < 1))) {
-            showSimuladoCustomAlert("Se preenchidos, Nº de Acertos e Total de Questões devem ser válidos.", "Valores Inválidos"); return;
-        }
-        if (acertos !== null && totalQuestoes !== null && acertos > totalQuestoes) {
-            showSimuladoCustomAlert("Número de acertos não pode ser maior que o total de questões.", "Valores Inválidos"); return;
-        }
-        if ((acertos !== null && totalQuestoes === null) || (acertos === null && totalQuestoes !== null)) {
-            if(!(statusSelecionado === 'pendente_realizacao' && acertos === null && totalQuestoes !== null)){
-                 showSimuladoCustomAlert("Para calcular o desempenho, ambos os campos de acertos e total de questões devem ser preenchidos ou ambos vazios (a menos que o status seja 'Pendente' e apenas o total de questões seja informado).", "Campos Incompletos");
-                 return;
-            }
-        }
+    const acertos = parseInt(simuladoAcertosInput.value);
+    const totalQuestoes = parseInt(simuladoTotalQuestoesInput.value);
+    if (isNaN(acertos) || acertos < 0 || isNaN(totalQuestoes) || totalQuestoes < 1 || acertos > totalQuestoes) {
+        showSimuladoCustomAlert("Número de acertos ou total de questões inválido.", "Valores Inválidos"); return;
     }
-
     let dataRealizacaoISO = null;
     if (simuladoDatePicker && simuladoDatePicker.selectedDates.length > 0) {
         dataRealizacaoISO = simuladoDatePicker.selectedDates[0].toISOString().split('T')[0];
@@ -246,31 +202,19 @@ function handleSaveSimulado(event) {
         dataRealizacaoISO = formatDateToISO(simuladoDataInput.value);
         if (!dataRealizacaoISO) { showSimuladoCustomAlert("Formato de data inválido. Use DD/MM/AAAA.", "Data Inválida"); return; }
     }
-
     const simuladoData = {
         id: simuladosState.editingSimuladoId || `sim-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        nome: simuladoNomeInput.value.trim(),
-        categoriaId: simuladoCategoriaSelect.value,
-        dataRealizacao: dataRealizacaoISO,
-        acertos: acertos,
-        totalQuestoes: totalQuestoes,
-        tempoGastoMinutos: parseHHMMToMinutes(simuladoTempoGastoInput.value),
-        nota: null,
-        status: statusSelecionado,
-        observacoes: '',
-        updatedAt: new Date().toISOString()
+        nome: simuladoNomeInput.value.trim(), categoriaId: simuladoCategoriaSelect.value, dataRealizacao: dataRealizacaoISO,
+        acertos: acertos, totalQuestoes: totalQuestoes, tempoGastoMinutos: parseHHMMToMinutes(simuladoTempoGastoInput.value),
+        nota: null, status: simuladoStatusSelect.value, observacoes: '', updatedAt: new Date().toISOString()
     };
-
     if (simuladosState.editingSimuladoId) {
         const index = simuladosState.simulados.findIndex(s => s.id === simuladosState.editingSimuladoId);
-        if (index > -1) {
-            simuladosState.simulados[index] = { ...simuladosState.simulados[index], ...simuladoData };
-        }
+        if (index > -1) simuladosState.simulados[index] = { ...simuladosState.simulados[index], ...simuladoData };
     } else {
         simuladoData.createdAt = new Date().toISOString();
         simuladosState.simulados.push(simuladoData);
     }
-
     saveSimuladosState();
     renderAllCategorySections();
     closeSimuladoFormModal();
@@ -279,14 +223,20 @@ function handleSaveSimulado(event) {
 function openSimuladoCategoriesModal() {
     if (!simuladoCategoriesModal) return;
     renderSimuladoCategoriasLista();
-    openModal('simulado-categories-modal');
+    simuladoCategoriesModalOverlay.classList.add('show');
+    simuladoCategoriesModal.classList.add('show');
+    document.body.classList.add('modal-open');
     if (simuladoNewCategoryNameInput) simuladoNewCategoryNameInput.focus();
 }
 
 function closeSimuladoCategoriesModal() {
-    closeModal('simulado-categories-modal');
-    renderSimuladoCategoriasFiltro();
-    renderAllCategorySections();
+    if (simuladoCategoriesModal) {
+        simuladoCategoriesModal.classList.remove('show');
+        simuladoCategoriesModalOverlay.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        renderSimuladoCategoriasFiltro();
+        renderAllCategorySections();
+    }
 }
 
 function handleAddSimuladoCategory(event) {
@@ -298,9 +248,7 @@ function handleAddSimuladoCategory(event) {
     }
     const novaCategoria = { id: `cat-${Date.now()}-${Math.random().toString(16).slice(2)}`, nome: nomeCategoria };
     simuladosState.categorias.push(novaCategoria);
-    saveSimuladosState();
-    renderSimuladoCategoriasLista();
-    populateSimuladoCategoriasSelect(simuladoCategoriaSelect);
+    saveSimuladosState(); renderSimuladoCategoriasLista();
     simuladoNewCategoryNameInput.value = ''; simuladoNewCategoryNameInput.focus();
 }
 
@@ -308,47 +256,63 @@ function handleEditSimuladoCategory(categoriaId, novoNome) {
     const categoria = simuladosState.categorias.find(cat => cat.id === categoriaId);
     if (categoria && novoNome.trim() && !simuladosState.categorias.some(cat => cat.nome.toLowerCase() === novoNome.trim().toLowerCase() && cat.id !== categoriaId)) {
         categoria.nome = novoNome.trim();
-        saveSimuladosState();
-        renderSimuladoCategoriasLista();
+        saveSimuladosState(); renderSimuladoCategoriasLista();
         populateSimuladoCategoriasSelect(simuladoCategoriaSelect);
-        renderSimuladoCategoriasFiltro();
-        renderAllCategorySections();
     } else if (novoNome.trim() === '') {
         showSimuladoCustomAlert("O nome da categoria não pode ser vazio.", "Nome Inválido");
     } else { showSimuladoCustomAlert("Já existe uma categoria com este nome ou o nome é inválido.", "Erro ao Editar"); }
 }
 
 function handleDeleteSimuladoCategory(categoriaId) {
-    executeDeleteSimuladoItem('categoria', categoriaId);
-}
-
-function requestDeleteSimulado(simuladoId) {
-    executeDeleteSimuladoItem('simulado', simuladoId);
-}
-
-function executeDeleteSimuladoItem(type, id) {
-    if (!type || !id) {
-        console.warn("executeDeleteSimuladoItem chamado sem tipo ou ID válido.");
-        return;
+    const simuladosNestaCategoria = simuladosState.simulados.filter(s => s.categoriaId === categoriaId).length;
+    if (simuladosNestaCategoria > 0) {
+        showSimuladoCustomAlert(`Não é possível excluir. Existem ${simuladosNestaCategoria} simulado(s) nesta categoria.`, "Categoria em Uso"); return;
     }
+    simuladosState.itemToDelete = { type: 'categoria', id: categoriaId };
+    openSimuladoConfirmDeleteModal("Confirmar Exclusão", `Excluir a categoria "${simuladosState.categorias.find(c => c.id === categoriaId)?.nome || ''}"?`);
+}
 
+function openSimuladoConfirmDeleteModal(title, message) {
+    if (!simuladoConfirmDeleteModal) return;
+    simuladoConfirmDeleteTitle.textContent = title;
+    simuladoConfirmDeleteMessage.textContent = message;
+    simuladoConfirmDeleteModalOverlay.classList.add('show');
+    simuladoConfirmDeleteModal.classList.add('show');
+    document.body.classList.add('modal-open');
+}
+
+function closeSimuladoConfirmDeleteModal() {
+    if (simuladoConfirmDeleteModal) {
+        simuladoConfirmDeleteModal.classList.remove('show');
+        simuladoConfirmDeleteModalOverlay.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        simuladosState.itemToDelete = { type: null, id: null };
+    }
+}
+
+function executeDeleteSimuladoItem() {
+    const { type, id } = simuladosState.itemToDelete;
+    if (!type || !id) return;
     if (type === 'simulado') {
         const index = simuladosState.simulados.findIndex(s => s.id === id);
         if (index > -1) simuladosState.simulados.splice(index, 1);
     } else if (type === 'categoria') {
-        const simuladosNestaCategoria = simuladosState.simulados.filter(s => s.categoriaId === id).length;
-        if (simuladosNestaCategoria > 0) {
-            showSimuladoCustomAlert(`Não é possível excluir. Existem ${simuladosNestaCategoria} simulado(s) nesta categoria.`, "Categoria em Uso");
-            return;
-        }
         const index = simuladosState.categorias.findIndex(cat => cat.id === id);
         if (index > -1) simuladosState.categorias.splice(index, 1);
-        if (simuladosState.currentCategoryFilter === id) simuladosState.currentCategoryFilter = 'all';
         renderSimuladoCategoriasFiltro();
-        populateSimuladoCategoriasSelect(simuladoCategoriaSelect);
+        if (simuladosState.currentCategoryFilter === id) simuladosState.currentCategoryFilter = 'all';
     }
-    saveSimuladosState();
-    renderAllCategorySections();
+    saveSimuladosState(); renderAllCategorySections(); closeSimuladoConfirmDeleteModal();
+}
+
+function requestDeleteSimulado(simuladoId) {
+    simuladosState.itemToDelete = { type: 'simulado', id: simuladoId };
+    if (simuladosState.itemToDelete.type === 'simulado') {
+        executeDeleteSimuladoItem();
+    } else { 
+        const categoriaNome = simuladosState.categorias.find(c => c.id === simuladoId)?.nome || "esta categoria";
+        openSimuladoConfirmDeleteModal("Confirmar Exclusão", `Excluir "${categoriaNome}"? Esta ação não pode ser desfeita.`);
+    }
 }
 
 function renderSimuladoCategoriasFiltro() {
@@ -383,7 +347,10 @@ function renderSimuladoCategoriasLista() {
         const editBtn = document.createElement('button'); editBtn.className = 'btn-icon edit-category-btn'; editBtn.innerHTML = '<i class="bi bi-pencil-fill"></i>'; editBtn.title = "Editar";
         editBtn.addEventListener('click', () => { const n = prompt(`Editar: "${cat.nome}"`, cat.nome); if (n !== null) handleEditSimuladoCategory(cat.id, n); });
         const deleteBtn = document.createElement('button'); deleteBtn.className = 'btn-icon delete-category-btn'; deleteBtn.innerHTML = '<i class="bi bi-trash3-fill"></i>'; deleteBtn.title = "Excluir";
-        deleteBtn.addEventListener('click', () => handleDeleteSimuladoCategory(cat.id));
+        deleteBtn.addEventListener('click', () => {
+            simuladosState.itemToDelete = { type: 'categoria', id: cat.id };
+            openSimuladoConfirmDeleteModal("Confirmar Exclusão", `Excluir a categoria "${cat.nome}"? Lembre-se que só é possível excluir categorias sem simulados vinculados.`);
+        });
         actionsDiv.appendChild(editBtn); actionsDiv.appendChild(deleteBtn);
         li.appendChild(nameSpan); li.appendChild(actionsDiv);
         simuladoCategoriesListEl.appendChild(li);
@@ -415,7 +382,6 @@ function renderAllCategorySections() {
         if (hasAnySimulado) {
             renderCategorySection('all', 'Visão Geral de Todos os Simulados', true);
         } else {
-            simuladosEmptyMessage.textContent = "Nenhum simulado registrado ainda. Que tal adicionar o primeiro?";
             simuladosEmptyMessage.style.display = 'block';
         }
     } else {
@@ -498,7 +464,7 @@ function renderCategorySection(categoryId, categoryName, isTodosSection = false)
 
 function renderSimuladosGridForCategory(categoryId, gridContainer) {
     gridContainer.innerHTML = '';
-    gridContainer.className = 'simulados-grid';
+    gridContainer.className = 'simulados-grid'; 
     simuladosState.expandedRowTracker[categoryId] = simuladosState.expandedRowTracker[categoryId] || {};
 
     const simuladosParaRenderizar = (categoryId === 'all')
@@ -508,9 +474,12 @@ function renderSimuladosGridForCategory(categoryId, gridContainer) {
     simuladosParaRenderizar.sort((a, b) => new Date(b.dataRealizacao) - new Date(a.dataRealizacao));
 
     if (simuladosParaRenderizar.length === 0) {
+        if (categoryId !== 'all') {
+            gridContainer.innerHTML = '<p class="simulados-empty-message">Nenhum simulado nesta categoria.</p>';
+        }
         return;
     }
-
+    
     const numColumns = getNumColumnsForGrid(gridContainer);
 
     simuladosParaRenderizar.forEach((simulado, index) => {
@@ -526,17 +495,9 @@ function createSimuladoCardElement(simulado, categoryId, indexInGrid, numGridCol
     card.dataset.gridRow = Math.floor(indexInGrid / numGridCols);
 
     const categoriaNome = simuladosState.categorias.find(c => c.id === simulado.categoriaId)?.nome || 'Sem Categoria';
-    
-    let percentualAcertosTexto = '--';
-    let percentualAcertosNum = 0; 
-    if (simulado.status === 'corrigido' && simulado.acertos !== null && simulado.totalQuestoes !== null && simulado.totalQuestoes > 0) {
-        percentualAcertosNum = Math.round((simulado.acertos / simulado.totalQuestoes) * 100);
-        percentualAcertosTexto = `${percentualAcertosNum}%`;
-    }
-    
-    const desempenhoTexto = (simulado.status === 'corrigido' && simulado.acertos !== null && simulado.totalQuestoes !== null) ? getDesempenhoTexto(percentualAcertosNum) : '--';
-    const desempenhoClasse = (simulado.status === 'corrigido' && simulado.acertos !== null && simulado.totalQuestoes !== null) ? getDesempenhoClasse(percentualAcertosNum) : '';
-
+    const percentualAcertos = simulado.totalQuestoes > 0 ? Math.round((simulado.acertos / simulado.totalQuestoes) * 100) : 0; // Arredondado
+    const desempenhoTexto = getDesempenhoTexto(percentualAcertos);
+    const desempenhoClasse = getDesempenhoClasse(percentualAcertos);
 
     const summaryDiv = document.createElement('div');
     summaryDiv.className = 'simulado-card-summary';
@@ -561,6 +522,40 @@ function createSimuladoCardElement(simulado, categoryId, indexInGrid, numGridCol
 
     const detailsDiv = document.createElement('div');
     detailsDiv.className = 'simulado-card-details';
+    detailsDiv.innerHTML = `
+        <div class="simulado-details-grid">
+            <div class="simulado-metric-display">
+                <div class="metric-header">
+                    <i class="bi bi-check2-circle metric-icon"></i>
+                    <span class="metric-label">Acertos</span>
+                </div>
+                <div class="metric-value">${simulado.acertos} <span class="metric-value-small">/ ${simulado.totalQuestoes} (${percentualAcertos}%)</span></div> {/* Arredondado */}
+            </div>
+            <div class="simulado-metric-display">
+                <div class="metric-header">
+                    <i class="bi bi-clock-history metric-icon"></i>
+                    <span class="metric-label">Tempo</span>
+                </div>
+                <div class="metric-value">${simulado.tempoGastoMinutos ? formatMinutesToHHMM(simulado.tempoGastoMinutos) : '--'}</div>
+            </div>
+        </div>
+        <div class="simulado-progress-section">
+            <div class="simulado-progress-header">
+                <span class="progress-label-text">Percentual de Acertos</span>
+                <span class="progress-percentage-text">${percentualAcertos}%</span> 
+            </div>
+            <div class="simulado-progress-bar-container">
+                <div class="simulado-progress-bar">
+                    <div class="simulado-progress-fill" style="width: ${percentualAcertos}%;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="simulado-performance-section">
+            <span class="performance-label"><i class="bi bi-award-fill"></i>Desempenho</span>
+            <span class="performance-badge ${desempenhoClasse}">${desempenhoTexto}</span>
+        </div>
+        ${simulado.status ? `<div class="simulado-card-status-info">Status: <strong>${formatSimuladoStatus(simulado.status)}</strong></div>` : ''}
+    `;
 
     card.appendChild(summaryDiv);
     card.appendChild(detailsDiv);
@@ -578,87 +573,29 @@ function createSimuladoCardElement(simulado, categoryId, indexInGrid, numGridCol
     
     if (simuladosState.expandedRowTracker[categoryId] && simuladosState.expandedRowTracker[categoryId][card.dataset.gridRow]) {
         card.classList.add('expanded');
-        populateSimuladoCardDetails(detailsDiv, simulado);
         detailsDiv.style.display = 'flex';
-        requestAnimationFrame(() => { 
-            detailsDiv.style.maxHeight = detailsDiv.scrollHeight + "px";
-            detailsDiv.style.opacity = '1';
-        });
+        detailsDiv.style.maxHeight = detailsDiv.scrollHeight + "px";
+        detailsDiv.style.opacity = '1';
     }
     return card;
 }
-
-function populateSimuladoCardDetails(detailsContainer, simulado) {
-    if (!detailsContainer || !simulado) return;
-
-    let acertosTexto = '--';
-    let totalQuestoesTexto = '--';
-    let percentualAcertosTexto = '--';
-    let percentualAcertosNum = 0;
-    
-    if (simulado.acertos !== null && simulado.totalQuestoes !== null && simulado.totalQuestoes > 0) {
-        acertosTexto = simulado.acertos;
-        totalQuestoesTexto = simulado.totalQuestoes;
-        percentualAcertosNum = Math.round((simulado.acertos / simulado.totalQuestoes) * 100);
-        percentualAcertosTexto = `${percentualAcertosNum}%`;
-    } else if (simulado.totalQuestoes !== null && simulado.totalQuestoes > 0 && (simulado.status === 'aguardando_correcao' || simulado.status === 'pendente_realizacao')) {
-        totalQuestoesTexto = simulado.totalQuestoes;
-    }
-
-
-    const desempenhoTexto = (simulado.status === 'corrigido' && simulado.acertos !== null && simulado.totalQuestoes !== null) ? getDesempenhoTexto(percentualAcertosNum) : '--';
-    const desempenhoClasse = (simulado.status === 'corrigido' && simulado.acertos !== null && simulado.totalQuestoes !== null) ? getDesempenhoClasse(percentualAcertosNum) : '';
-
-    detailsContainer.innerHTML = `
-        <div class="simulado-details-grid">
-            <div class="simulado-metric-display">
-                <div class="metric-header">
-                    <i class="bi bi-check2-circle metric-icon"></i>
-                    <span class="metric-label">Acertos</span>
-                </div>
-                <div class="metric-value">${acertosTexto} <span class="metric-value-small">/ ${totalQuestoesTexto} (${percentualAcertosTexto})</span></div>
-            </div>
-            <div class="simulado-metric-display">
-                <div class="metric-header">
-                    <i class="bi bi-clock-history metric-icon"></i>
-                    <span class="metric-label">Tempo</span>
-                </div>
-                <div class="metric-value">${simulado.tempoGastoMinutos ? formatMinutesToHHMM(simulado.tempoGastoMinutos) : '--'}</div>
-            </div>
-        </div>
-        <div class="simulado-progress-section">
-            <div class="simulado-progress-header">
-                <span class="progress-label-text">Percentual de Acertos</span>
-                <span class="progress-percentage-text">${percentualAcertosTexto}</span>
-            </div>
-            <div class="simulado-progress-bar-container">
-                <div class="simulado-progress-bar">
-                    <div class="simulado-progress-fill" style="width: ${percentualAcertosNum}%;"></div>
-                </div>
-            </div>
-        </div>
-        <div class="simulado-performance-section">
-            <span class="performance-label"><i class="bi bi-award-fill"></i>Desempenho</span>
-            <span class="performance-badge ${desempenhoClasse}">${desempenhoTexto}</span>
-        </div>
-        ${simulado.status ? `<div class="simulado-card-status-info">Status: <strong>${formatSimuladoStatus(simulado.status)}</strong></div>` : ''}
-    `;
-}
-
 
 function toggleSimuladoCardExpansion(clickedCard, categoryId) {
     const gridContainer = clickedCard.closest('.simulados-grid');
     if (!gridContainer) return;
 
     const rowIndexOfClickedCard = parseInt(clickedCard.dataset.gridRow, 10);
+    // Determina se o card clicado deve ser expandido ou se já estava e deve ser colapsado.
     const shouldBeExpanded = !clickedCard.classList.contains('expanded');
 
     if (!simuladosState.expandedRowTracker[categoryId]) {
         simuladosState.expandedRowTracker[categoryId] = {};
     }
 
+    // Atualiza o estado de rastreamento para a linha do card clicado
     simuladosState.expandedRowTracker[categoryId][rowIndexOfClickedCard] = shouldBeExpanded;
 
+    // Se estamos expandindo o card clicado, colapsa outros cards em OUTRAS linhas
     if (shouldBeExpanded) {
         for (const row in simuladosState.expandedRowTracker[categoryId]) {
             if (parseInt(row, 10) !== rowIndexOfClickedCard) {
@@ -675,38 +612,87 @@ function toggleSimuladoCardExpansion(clickedCard, categoryId) {
         const simulado = simuladosState.simulados.find(s => s.id === simuladoId);
 
         if (detailsDiv) {
-            if (simuladosState.expandedRowTracker[categoryId][cardRow]) {
-                if (simulado) populateSimuladoCardDetails(detailsDiv, simulado);
-                else console.warn(`Dados do simulado ${simuladoId} não encontrados para popular detalhes.`);
+            if (simuladosState.expandedRowTracker[categoryId][cardRow]) { // Se este card (ou sua linha) deve ser expandido
+                if (simulado) { // Garante que temos dados para popular
+                    detailsDiv.innerHTML = ''; // Limpa antes de popular para garantir conteúdo fresco
+                    populateSimuladoCardDetails(detailsDiv, simulado);
+                } else if (detailsDiv.innerHTML.trim() === '' && card === clickedCard) {
+                     console.warn(`Dados do simulado ${simuladoId} não encontrados para popular detalhes.`);
+                }
                 
                 card.classList.add('expanded');
                 detailsDiv.style.display = 'flex';
-                void detailsDiv.offsetWidth; 
+                void detailsDiv.offsetWidth; // Força reflow
 
                 requestAnimationFrame(() => {
                     detailsDiv.style.maxHeight = detailsDiv.scrollHeight + "px";
                     detailsDiv.style.opacity = '1';
                 });
 
-            } else { 
+            } else { // Se este card (ou sua linha) deve ser colapsado
                 if (card.classList.contains('expanded')) {
                     card.classList.remove('expanded');
                     detailsDiv.style.maxHeight = '0';
                     detailsDiv.style.opacity = '0';
+
+                    // Limpa o conteúdo após a transição para economizar memória e garantir scrollHeight=0
                     setTimeout(() => {
-                        if (!card.classList.contains('expanded')) {
+                        if (!card.classList.contains('expanded')) { // Checa novamente em caso de toggles rápidos
                             detailsDiv.style.display = 'none';
                             detailsDiv.innerHTML = '';
                         }
-                    }, 360); 
+                    }, 360); // Duração um pouco maior que a transição CSS (0.35s)
                 }
             }
         }
     });
 }
 
+function populateSimuladoCardDetails(detailsContainer, simulado) {
+    if (!detailsContainer || !simulado) return;
+
+    const percentualAcertos = simulado.totalQuestoes > 0 ? Math.round((simulado.acertos / simulado.totalQuestoes) * 100) : 0;
+    const desempenhoTexto = getDesempenhoTexto(percentualAcertos); // Certifique-se que getDesempenhoTexto existe
+    const desempenhoClasse = getDesempenhoClasse(percentualAcertos); // Certifique-se que getDesempenhoClasse existe
+
+    detailsContainer.innerHTML = `
+        <div class="simulado-details-grid">
+            <div class="simulado-metric-display">
+                <div class="metric-header">
+                    <i class="bi bi-check2-circle metric-icon"></i>
+                    <span class="metric-label">Acertos</span>
+                </div>
+                <div class="metric-value">${simulado.acertos} <span class="metric-value-small">/ ${simulado.totalQuestoes} (${percentualAcertos}%)</span></div>
+            </div>
+            <div class="simulado-metric-display">
+                <div class="metric-header">
+                    <i class="bi bi-clock-history metric-icon"></i>
+                    <span class="metric-label">Tempo</span>
+                </div>
+                <div class="metric-value">${simulado.tempoGastoMinutos ? formatMinutesToHHMM(simulado.tempoGastoMinutos) : '--'}</div>
+            </div>
+        </div>
+        <div class="simulado-progress-section">
+            <div class="simulado-progress-header">
+                <span class="progress-label-text">Percentual de Acertos</span>
+                <span class="progress-percentage-text">${percentualAcertos}%</span>
+            </div>
+            <div class="simulado-progress-bar-container">
+                <div class="simulado-progress-bar">
+                    <div class="simulado-progress-fill" style="width: ${percentualAcertos}%;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="simulado-performance-section">
+            <span class="performance-label"><i class="bi bi-award-fill"></i>Desempenho</span>
+            <span class="performance-badge ${desempenhoClasse}">${desempenhoTexto}</span>
+        </div>
+        ${simulado.status ? `<div class="simulado-card-status-info">Status: <strong>${formatSimuladoStatus(simulado.status)}</strong></div>` : ''}
+    `;
+}
+
+
 function getDesempenhoTexto(percentual) {
-    if (percentual === null || percentual === undefined || isNaN(percentual)) return '--';
     if (percentual >= 85) return "Excelente";
     if (percentual >= 70) return "Bom";
     if (percentual >= 50) return "Regular";
@@ -714,7 +700,6 @@ function getDesempenhoTexto(percentual) {
 }
 
 function getDesempenhoClasse(percentual) {
-    if (percentual === null || percentual === undefined || isNaN(percentual)) return '';
     if (percentual >= 85) return "excelente";
     if (percentual >= 70) return "bom";
     if (percentual >= 50) return "regular";
@@ -731,7 +716,7 @@ function showSimuladoCardOptionsMenu(buttonElement, simuladoId) {
     editButton.addEventListener('click', () => { openSimuladoFormModal(simuladoId); menu.remove(); });
     const deleteButton = document.createElement('button');
     deleteButton.innerHTML = '<i class="bi bi-trash3-fill"></i> Excluir';
-    deleteButton.addEventListener('click', () => { requestDeleteSimulado(simuladoId); menu.remove(); }); 
+    deleteButton.addEventListener('click', () => { requestDeleteSimulado(simuladoId); menu.remove(); });
     menu.appendChild(editButton); menu.appendChild(deleteButton);
     document.body.appendChild(menu);
     const rect = buttonElement.getBoundingClientRect();
@@ -766,7 +751,10 @@ function updateCategorySummary(categoryId) {
             const dataSimulado = new Date(s.dataRealizacao + "T00:00:00");
             if (selectedPeriod === '7days') return (now - dataSimulado) / (1000 * 60 * 60 * 24) <= 7;
             if (selectedPeriod === '30days') return (now - dataSimulado) / (1000 * 60 * 60 * 24) <= 30;
-            if (selectedPeriod === 'lastYear') { const o = new Date(now); o.setFullYear(now.getFullYear() - 1); return dataSimulado >= o && dataSimulado <= now; }
+            if (selectedPeriod === 'lastYear') {
+                const oneYearAgo = new Date(now); oneYearAgo.setFullYear(now.getFullYear() - 1);
+                return dataSimulado >= oneYearAgo && dataSimulado <= now;
+            }
             return true;
         });
     }
@@ -774,15 +762,15 @@ function updateCategorySummary(categoryId) {
     let totalTempoMinutos = 0; let countSimuladosComTempo = 0;
     const pendingCount = simuladosParaSumario.filter(s => s.status === 'pendente_realizacao' || s.status === 'aguardando_correcao').length;
     simuladosParaSumario.forEach(s => {
-        if (s.totalQuestoes > 0 && s.acertos !== null && s.status === 'corrigido') {
+        if (s.totalQuestoes > 0 && s.status === 'corrigido') {
             totalAcertos += s.acertos; totalQuestoesConsideradasParaMedia += s.totalQuestoes;
         }
         if (s.tempoGastoMinutos !== null && s.tempoGastoMinutos > 0 && s.status === 'corrigido') {
             totalTempoMinutos += s.tempoGastoMinutos; countSimuladosComTempo++;
         }
     });
-    const avgAccuracy = totalQuestoesConsideradasParaMedia > 0 ? Math.round((totalAcertos / totalQuestoesConsideradasParaMedia) * 100) + '%' : '--';
-    const avgTimeFormatted = countSimuladosComTempo > 0 ? formatMinutesToHHMM(Math.round(totalTempoMinutos / countSimuladosComTempo)) : '--';
+    const avgAccuracy = totalQuestoesConsideradasParaMedia > 0 ? Math.round((totalAcertos / totalQuestoesConsideradasParaMedia) * 100) + '%' : '0%'; // Arredondado
+    const avgTimeFormatted = countSimuladosComTempo > 0 ? formatMinutesToHHMM(Math.round(totalTempoMinutos / countSimuladosComTempo)) : '0h00';
     summaryBarEl.innerHTML = `
         <div class="summary-item"><i class="bi bi-file-earmark-text-fill"></i><span class="summary-value">${totalCount}</span><span class="summary-label">Total</span></div>
         <div class="summary-item"><i class="bi bi-graph-up"></i><span class="summary-value">${avgAccuracy}</span><span class="summary-label">Média Acertos</span></div>
@@ -803,13 +791,11 @@ function updateSimuladoChart(categoryId) {
     let simuladosParaGrafico = (categoryId === 'all')
         ? [...simuladosState.simulados]
         : simuladosState.simulados.filter(s => s.categoriaId === categoryId);
-    
-    simuladosParaGrafico = simuladosParaGrafico.filter(s => s.status === 'corrigido' && s.totalQuestoes > 0 && s.acertos !== null);
-    
+    simuladosParaGrafico = simuladosParaGrafico.filter(s => s.status === 'corrigido');
     const now = new Date();
     if (selectedPeriod !== 'allTime') {
         simuladosParaGrafico = simuladosParaGrafico.filter(s => {
-            const dataSimulado = new Date(s.dataRealizacao + "T00:00:00"); 
+            const dataSimulado = new Date(s.dataRealizacao + "T00:00:00");
             if (selectedPeriod === '7days') return (now - dataSimulado) / (1000 * 60 * 60 * 24) <= 7;
             if (selectedPeriod === '30days') return (now - dataSimulado) / (1000 * 60 * 60 * 24) <= 30;
             if (selectedPeriod === 'lastYear') { const o = new Date(now); o.setFullYear(now.getFullYear() - 1); return dataSimulado >= o && dataSimulado <= now; }
@@ -820,8 +806,8 @@ function updateSimuladoChart(categoryId) {
     const labels = simuladosParaGrafico.map(s => formatDateToDDMMYYYY(s.dataRealizacao));
     let data, yAxisLabel = '', tooltipLabelPrefix = '', dataFormatter = val => val;
     if (currentSelectedMetric === 'accuracy') {
-        data = simuladosParaGrafico.map(s => s.totalQuestoes > 0 && s.acertos !== null ? Math.round((s.acertos / s.totalQuestoes) * 100) : 0);
-        yAxisLabel = '% de Acertos'; tooltipLabelPrefix = 'Acertos'; dataFormatter = val => `${Math.round(val)}%`;
+        data = simuladosParaGrafico.map(s => s.totalQuestoes > 0 ? Math.round((s.acertos / s.totalQuestoes) * 100) : 0); // Arredondado
+        yAxisLabel = '% de Acertos'; tooltipLabelPrefix = 'Acertos'; dataFormatter = val => `${Math.round(val)}%`; // Arredondado
     } else { // duration
         data = simuladosParaGrafico.map(s => s.tempoGastoMinutos || 0);
         yAxisLabel = 'Tempo Gasto (min)'; tooltipLabelPrefix = 'Tempo Gasto'; dataFormatter = val => `${Math.round(val)} min`;
@@ -876,11 +862,11 @@ function formatSimuladoStatus(statusKey) {
 function escapeHtml(unsafe) {
     if (typeof unsafe !== 'string') return '';
     return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;"); 
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 
@@ -909,14 +895,6 @@ document.addEventListener('taskifyStateReady', (event) => {
 document.addEventListener('taskifyThemeChanged', (event) => {
     if (event.detail && typeof event.detail.isDarkMode === 'boolean') {
         simuladosState.isDarkModeGlobal = event.detail.isDarkMode;
-        if (simuladoDatePicker && simuladoDatePicker.calendarContainer) {
-            const currentValue = simuladoDatePicker.selectedDates[0] || new Date();
-            simuladoDatePicker.destroy();
-            simuladoDatePicker = flatpickr(simuladoDataInput, {
-                dateFormat: "d/m/Y", defaultDate: currentValue, locale: "pt", allowInput: true,
-                theme: simuladosState.isDarkModeGlobal ? "dark" : "light"
-            });
-        }
         Object.keys(simuladosState.charts).forEach(categoryId => updateSimuladoChart(categoryId));
     }
 });
@@ -935,63 +913,10 @@ if (typeof window !== 'undefined' && typeof window.getNumColumnsForGrid === 'und
             return columnCount > 0 ? columnCount : 1;
         } catch (e) {
             console.warn("Erro ao obter número de colunas do grid:", e);
-            return 1;
+            return 1; 
         }
-    };
-}
-
-if (typeof openModal === 'undefined' && typeof window !== 'undefined') {
-    window.openModal = function(modalId) {
-        const modal = document.getElementById(modalId);
-        const overlay = document.getElementById(`${modalId}-overlay`);
-        if (modal && overlay) {
-            overlay.classList.add('show');
-            modal.classList.add('show');
-            document.body.classList.add('modal-open');
-            const focusable = modal.querySelector('input:not([type=hidden]), textarea, select, button');
-            if (focusable) focusable.focus();
-        }
-    };
-}
-if (typeof closeModal === 'undefined' && typeof window !== 'undefined') {
-    window.closeModal = function(modalId) {
-        const modal = document.getElementById(modalId);
-        const overlay = document.getElementById(`${modalId}-overlay`);
-        if (modal && overlay) {
-            modal.classList.remove('show');
-            overlay.classList.remove('show');
-            if (!document.querySelector('.modal.show')) {
-                document.body.classList.remove('modal-open');
-            }
-        }
-    };
-}
-if (typeof formatDateToISO === 'undefined' && typeof window !== 'undefined') {
-    window.formatDateToISO = function(ddmmyyyyString) {
-        if (!ddmmyyyyString) return null;
-        const parts = ddmmyyyyString.split('/');
-        if (parts.length === 3) {
-            return `${parts[2]}-${parts[1]}-${parts[0]}`;
-        }
-        return null;
-    };
-}
-if (typeof formatDateToDDMMYYYY === 'undefined' && typeof window !== 'undefined') {
-    window.formatDateToDDMMYYYY = function(isoDateString) {
-        if (!isoDateString) return '';
-        const date = new Date(isoDateString + "T00:00:00Z"); 
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const year = date.getUTCFullYear();
-        return `${day}/${month}/${year}`;
-    };
-}
-if (typeof getTodayISO === 'undefined' && typeof window !== 'undefined') {
-    window.getTodayISO = function() {
-        const today = new Date();
-        return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     };
 }
 
 window.initSimuladosModule = initSimuladosModule;
-console.log("Taskify - Módulo Simulados: Carregado e pronto para ajustes (COMPLETO).");
+console.log("Taskify - Módulo Simulados: Carregado e pronto para ajustes.");
