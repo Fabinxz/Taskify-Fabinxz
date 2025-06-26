@@ -1,0 +1,303 @@
+<!-- Este arquivo conterá APENAS o HTML da Retrospectiva -->
+<!-- Ele será populado e manipulado pelo retrospective.js -->
+<!-- O CSS específico estará em retrospective.css -->
+
+<!-- Elemento de Áudio e Controle de Música -->
+<audio id="retrospective-background-music" loop preload="auto">
+    <source src="sounds/BalloonPlanet - Echoes of Freedom.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+<button id="retrospective-music-toggle" class="retrospective-music-control-button" aria-label="Controlar música">
+    <i class="bi bi-volume-up-fill"></i> <!-- Ícone inicial, será alterado por JS -->
+</button>
+
+<!-- Tela de Seleção de Métricas (Inicial) -->
+<div id="retrospective-selection-screen" class="retrospective-screen">
+    <div class="retrospective-selection-card">
+        <div class="retrospective-logo-container">
+            <div class="retrospective-logo-icon-wrapper">
+                <i class="bi bi-lightning-charge-fill retrospective-icon"></i>
+            </div>
+            <h1 class="retrospective-main-title">Retrospectiva Taskify</h1>
+            <p class="retrospective-month" id="retrospective-month-selection">Carregando...</p>
+        </div>
+
+        <div class="retrospective-metrics-selection">
+            <p class="retrospective-selection-prompt">Escolha suas métricas:</p>
+
+            <button class="retrospective-metric-button" data-metric="questions">
+                <i class="bi bi-check-circle retrospective-icon"></i>
+                Questões Resolvidas
+                <span class="retrospective-checkmark-placeholder">
+                </span>
+            </button>
+
+            <button class="retrospective-metric-button" data-metric="tasks">
+                <i class="bi bi-check2-circle retrospective-icon"></i>
+                Tarefas Concluídas
+                <span class="retrospective-checkmark-placeholder"></span>
+            </button>
+
+            <button class="retrospective-metric-button" data-metric="focus">
+                <i class="bi bi-clock-history retrospective-icon"></i>
+                Tempo de Foco
+                <span class="retrospective-checkmark-placeholder"></span>
+            </button>
+        </div>
+
+        <button id="retrospective-start-button" class="retrospective-button retrospective-start-button" disabled>
+            Começar Retrospectiva
+            <i class="bi bi-chevron-right retrospective-icon-small"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Tela de Introdução da Retrospectiva -->
+<div id="retrospective-intro-screen" class="retrospective-screen" style="display: none;">
+    <div class="retrospective-content-wrapper retrospective-text-center">
+        <div class="retrospective-intro-icon-wrapper">
+            <i class="bi bi-star-fill retrospective-icon-large"></i>
+        </div>
+        <h1 class="retrospective-intro-title" id="retrospective-intro-month">Sua Retrospectiva</h1>
+        <p class="retrospective-intro-subtitle">está absolutamente épica! ✨</p>
+        <button id="retrospective-intro-next-button" class="retrospective-button retrospective-intro-button">
+            Vamos descobrir! 🚀
+        </button>
+    </div>
+</div>
+
+<!-- Tela de Estatísticas Principais ("Brilharam!") -->
+<div id="retrospective-main-stats-screen" class="retrospective-screen" style="display: none;">
+    <div class="retrospective-content-wrapper">
+        <h2 class="retrospective-screen-title">
+            <i class="bi bi-stars retrospective-title-icon"></i>
+            Destaques do Mês!
+            <i class="bi bi-stars retrospective-title-icon"></i>
+        </h2>
+        <div class="retrospective-stats-grid">
+            <div class="retrospective-stat-card animated-metric-card" data-metric-card="questions"
+                style="display: none;">
+                <i class="bi bi-check-circle-fill retrospective-icon-large retrospective-icon-blue"></i>
+                <div class="retrospective-stat-value" id="retrospective-questions-resolved">0</div>
+                <div class="retrospective-stat-label">Questões Resolvidas</div>
+                <span class="retrospective-badge retrospective-badge-blue" id="retrospective-phrase-questions">Frase
+                    aqui</span>
+            </div>
+            <div class="retrospective-stat-card animated-metric-card" data-metric-card="tasks" style="display: none;">
+                <i class="bi bi-check2-circle retrospective-icon-large retrospective-icon-green"></i>
+                <div class="retrospective-stat-value" id="retrospective-tasks-completed">0</div>
+                <div class="retrospective-stat-label">Tarefas Concluídas</div>
+                <span class="retrospective-badge retrospective-badge-green" id="retrospective-phrase-tasks">Frase
+                    aqui</span>
+            </div>
+            <div class="retrospective-stat-card animated-metric-card" data-metric-card="focus" style="display: none;">
+                <i class="bi bi-clock-history retrospective-icon-large retrospective-icon-purple"></i>
+                <div class="retrospective-stat-value" id="retrospective-focus-time">0.0h</div>
+                <div class="retrospective-stat-label">Tempo de Foco</div>
+                <span class="retrospective-badge retrospective-badge-purple" id="retrospective-phrase-focus">Frase
+                    aqui</span>
+            </div>
+        </div>
+        <button id="retrospective-main-stats-next-button" class="retrospective-button retrospective-navigation-button">
+            Continue a jornada <i class="bi bi-chevron-right retrospective-icon-small"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Tela Dia Mais Produtivo -->
+<div id="retrospective-productive-day-screen" class="retrospective-screen" style="display: none;">
+    <div class="retrospective-content-wrapper retrospective-text-center">
+        <div class="retrospective-icon-container">
+            <i class="bi bi-trophy-fill retrospective-icon-xlarge retrospective-icon-yellow"></i>
+        </div>
+        <h2 class="retrospective-screen-title retrospective-title-yellow">Seu Dia Mais Épico!</h2>
+        <div class="retrospective-productive-day-card">
+            <div class="retrospective-productive-day-date" id="retrospective-most-productive-date">Data</div>
+            <div class="retrospective-productive-day-value" id="retrospective-most-productive-value">0 conquistas!</div>
+            <div class="retrospective-stars-container">
+                <i class="bi bi-star-fill retrospective-icon-medium retrospective-icon-yellow"></i>
+                <i class="bi bi-star-fill retrospective-icon-medium retrospective-icon-yellow"></i>
+                <i class="bi bi-star-fill retrospective-icon-medium retrospective-icon-yellow"></i>
+                <i class="bi bi-star-fill retrospective-icon-medium retrospective-icon-yellow"></i>
+                <i class="bi bi-star-fill retrospective-icon-medium retrospective-icon-yellow"></i>
+            </div>
+        </div>
+        <p class="retrospective-motivational-text">Você estava em <span class="retrospective-highlight-yellow">modo
+                máquina</span> neste dia! 🔥</p>
+        <button id="retrospective-productive-day-next-button"
+            class="retrospective-button retrospective-navigation-button retrospective-button-yellow">
+            Mais insights <i class="bi bi-chevron-right retrospective-icon-small"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Tela Padrões de Tempo -->
+<div id="retrospective-time-patterns-screen" class="retrospective-screen" style="display: none;">
+    <div class="retrospective-content-wrapper">
+        <h2 class="retrospective-screen-title"> <!-- Título aqui -->
+            Seus Padrões de Produtividade
+        </h2>
+        <div class="retrospective-time-patterns-grid"> <!-- Grid para os 2 cards de cima -->
+            <div class="retrospective-stat-card"> <!-- Card Pico de Foco -->
+                <div class="retrospective-card-header">
+                    <i class="bi bi-brightness-high-fill retrospective-icon-large"></i>
+                    <h3 class="retrospective-card-title">Pico de Foco</h3>
+                </div>
+                <div class="retrospective-stat-value" id="retrospective-peak-focus-hour">-</div>
+                <p class="retrospective-card-subtitle">Seu horário dourado!</p>
+            </div>
+            <div class="retrospective-stat-card"> <!-- Card Maior Streak -->
+                <div class="retrospective-card-header">
+                    <i class="bi bi-fire retrospective-icon-large"></i>
+                    <h3 class="retrospective-card-title">Maior Streak</h3>
+                </div>
+                <div class="retrospective-stat-value" id="retrospective-longest-streak">0</div>
+                <p class="retrospective-card-subtitle">dias de pura consistência!</p>
+            </div>
+        </div>
+        <div class="retrospective-card-indigo">
+            <!-- Card Distribuição Semanal (usando a classe do seu HTML original) -->
+            <div class="retrospective-card-header">
+                <i class="bi bi-bar-chart-line-fill retrospective-icon-large"></i>
+                <h3 class="retrospective-card-title">Distribuição Semanal</h3>
+            </div>
+            <div class="retrospective-weekday-chart" id="retrospective-weekday-distribution-chart">
+                <!-- Barras do gráfico -->
+            </div>
+        </div>
+        <button id="retrospective-time-patterns-next-button"
+            class="retrospective-button retrospective-navigation-button">
+            PRÓXIMA DESCOBERTA <i class="bi bi-chevron-right retrospective-icon-small"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Tela de Comparação com Mês Anterior -->
+<div id="retrospective-comparison-screen" class="retrospective-screen" style="display: none;">
+    <div class="retrospective-content-wrapper">
+        <h2 class="retrospective-screen-title retrospective-title-green">Evolução Impressionante!</h2>
+        <div class="retrospective-stats-grid">
+            <div class="retrospective-stat-card" data-metric-comparison-card="questions" style="display: none;">
+                <i class="bi bi-check-circle retrospective-icon-medium"></i>
+                <div class="retrospective-stat-value" id="retrospective-comparison-questions-resolved">0</div>
+                <div class="retrospective-stat-label">Questões</div>
+                <div class="retrospective-comparison-percentage">
+                    <i class="bi bi-arrow-up-right retrospective-icon-small retrospective-icon-green"></i>
+                    <span id="retrospective-questions-percentage">+0%</span>
+                </div>
+            </div>
+            <div class="retrospective-stat-card" data-metric-comparison-card="tasks" style="display: none;">
+                <i class="bi bi-check2-circle retrospective-icon-medium"></i>
+                <div class="retrospective-stat-value" id="retrospective-comparison-tasks-completed">0</div>
+                <div class="retrospective-stat-label">Tarefas</div>
+                <div class="retrospective-comparison-percentage">
+                    <i class="bi bi-arrow-up-right retrospective-icon-small retrospective-icon-green"></i>
+                    <span id="retrospective-tasks-percentage">+0%</span>
+                </div>
+            </div>
+            <div class="retrospective-stat-card" data-metric-comparison-card="focus" style="display: none;">
+                <i class="bi bi-clock-history retrospective-icon-medium"></i>
+                <div class="retrospective-stat-value" id="retrospective-comparison-focus-time">0h</div>
+                <div class="retrospective-stat-label">Foco</div>
+                <div class="retrospective-comparison-percentage">
+                    <i class="bi bi-arrow-up-right retrospective-icon-small retrospective-icon-green"></i>
+                    <span id="retrospective-focus-percentage">+0%</span>
+                </div>
+            </div>
+        </div>
+        <div class="retrospective-motivational-text retrospective-text-center">
+            Você superou o mês anterior e <span class="retrospective-highlight-green"
+                id="retrospective-comparison-highlight">várias métricas</span>!
+        </div>
+        <button id="retrospective-comparison-next-button"
+            class="retrospective-button retrospective-navigation-button retrospective-button-green">
+            Grande final <i class="bi bi-chevron-right retrospective-icon-small"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Tela Final da Retrospectiva (Estilo Spotify Wrapped) -->
+<div id="retrospective-final-screen" class="retrospective-screen retrospective-final-screen-spotify-style"
+    style="display: none;">
+    <button class="retrospective-final-close-x-btn" aria-label="Fechar Retrospectiva">
+        <i class="bi bi-x-lg"></i>
+    </button>
+
+    <div class="retrospective-final-content-wrapper">
+        <div class="retrospective-final-header">
+            <div class="retrospective-final-logo">
+                <div class="logo-icon"> <!-- Ícone atualizado aqui -->
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </div>
+                <span class="logo-text">Taskify</span>
+            </div>
+            <div class="retrospective-final-date" id="retrospective-final-month-year">Maio 2025</div>
+        </div>
+
+        <h1 class="retrospective-final-main-title">Retrospectiva Mensal</h1>
+
+        <div class="retrospective-final-highlights">
+            <div class="retrospective-final-highlight-item" data-final-metric="questions" style="display: none;">
+                <div class="retrospective-final-highlight-value" id="final-questions-value">0</div>
+                <div class="retrospective-final-highlight-label">Questões Resolvidas</div>
+                <i class="bi bi-check-circle final-highlight-icon"></i>
+            </div>
+            <div class="retrospective-final-highlight-item" data-final-metric="tasks" style="display: none;">
+                <div class="retrospective-final-highlight-value" id="final-tasks-value">0</div>
+                <div class="retrospective-final-highlight-label">Tarefas Concluídas</div>
+                <i class="bi bi-check2-circle final-highlight-icon"></i>
+            </div>
+            <div class="retrospective-final-highlight-item" data-final-metric="focus" style="display: none;">
+                <div class="retrospective-final-highlight-value" id="final-focus-value">0.0h</div>
+                <div class="retrospective-final-highlight-label">Tempo de Foco</div>
+                <i class="bi bi-stopwatch final-highlight-icon"></i>
+            </div>
+        </div>
+
+        <div class="retrospective-final-other-stats">
+            <div class="retrospective-final-other-stat-item" data-final-metric="peakFocus" style="display: none;">
+                <i class="bi bi-brightness-high-fill"></i>
+                <span>Pico de Foco: <strong id="final-peak-focus-hour">N/A</strong></span>
+            </div>
+            <div class="retrospective-final-other-stat-item" data-final-metric="longestStreak" style="display: none;">
+                <i class="bi bi-fire"></i>
+                <span>Maior Streak: <strong id="final-longest-streak">0</strong> dias</span>
+            </div>
+            <div class="retrospective-final-other-stat-item" data-final-metric="productiveDay" style="display: none;">
+                <i class="bi bi-trophy-fill"></i>
+                <span>Dia Mais Produtivo: <strong id="final-most-productive-day-short">N/A</strong></span>
+            </div>
+        </div>
+
+        <div class="retrospective-final-achievements-container" style="display: none;">
+            <h3 class="retrospective-final-achievements-title">Conquistas do Mês:</h3>
+            <div class="retrospective-final-achievements-list" id="retrospective-achievements-list">
+            </div>
+        </div>
+
+        <div class="retrospective-final-footer">
+            #TaskifyWrapped #Produtividade
+        </div>
+    </div>
+
+
+    <div class="retrospective-action-buttons-container">
+        <div class="retrospective-action-buttons">
+            <button id="retrospective-share-button" class="retrospective-button retrospective-action-button">
+                <svg class="twitter-logo-retro" viewBox="0 0 24 24" aria-hidden="true">
+                    <g>
+                        <path
+                            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z">
+                        </path>
+                    </g>
+                </svg>
+                Compartilhar
+            </button>
+            <button id="retrospective-download-button"
+                class="retrospective-button retrospective-action-button retrospective-button-outline">
+                <i class="bi bi-download retrospective-icon-small"></i>
+                Baixar Imagem
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskify</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/retrospective.css">
+    <link rel="stylesheet" href="css/simulados.css">
+    <link rel="stylesheet" href="css/redacoes.css">
+
+    <script>
+        (function () {
+            function hexToRgbArrayInline(hex) {
+                if (!hex || typeof hex !== 'string') return null;
+                let c = hex.startsWith('#') ? hex.substring(1) : hex.trim();
+                if (c.length === 3) {
+                    c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+                }
+                if (c.length !== 6) {
+                    return null;
+                }
+                try {
+                    const bigint = parseInt(c, 16);
+                    if (isNaN(bigint)) return null;
+                    const r = (bigint >> 16) & 255;
+                    const g = (bigint >> 8) & 255;
+                    const b = bigint & 255;
+                    return [r, g, b];
+                } catch (e) {
+                    console.warn('Error in hexToRgbArrayInline:', e);
+                    return null;
+                }
+            }
+
+            try {
+                const savedPrimaryColor = localStorage.getItem('taskify-primary-color');
+                const savedTheme = localStorage.getItem('taskify-theme');
+                const docElement = document.documentElement;
+                const defaultPrimaryColor = '#0A7CFF'; // Sua cor primária padrão
+
+                let colorToApply = savedPrimaryColor || defaultPrimaryColor;
+
+                if (!/^#[0-9A-F]{6}$/i.test(colorToApply) && !/^#[0-9A-F]{3}$/i.test(colorToApply)) {
+                    colorToApply = defaultPrimaryColor;
+                }
+
+                docElement.style.setProperty('--primary-color-light', colorToApply);
+                docElement.style.setProperty('--primary-color-dark', colorToApply);
+
+                const rgbArray = hexToRgbArrayInline(colorToApply);
+                if (rgbArray) {
+                    const rgbString = rgbArray.join(', ');
+                    docElement.style.setProperty('--primary-color-light-rgb', rgbString);
+                    docElement.style.setProperty('--primary-color-dark-rgb', rgbString);
+                } else {
+                    const defaultRgbArray = hexToRgbArrayInline(defaultPrimaryColor);
+                    if (defaultRgbArray) {
+                        const defaultRgbString = defaultRgbArray.join(', ');
+                        docElement.style.setProperty('--primary-color-light-rgb', defaultRgbString);
+                        docElement.style.setProperty('--primary-color-dark-rgb', defaultRgbString);
+                    }
+                }
+
+                if (savedTheme === 'light') {
+                    docElement.classList.add('light-theme-active');
+                }
+
+                const faviconBaseColor = colorToApply;
+                const faviconSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'><rect width='24' height='24' rx='4' fill='${faviconBaseColor}'/><path fill='white' d='M13.083 3.031a.5.5 0 0 0-.944-.313L5.986 13.41a.5.5 0 0 0 .38.738H11V21a.5.5 0 0 0 .893.33L17.83 10.33a.5.5 0 0 0-.743-.66l-3.087 2.7V3.57a.5.5 0 0 0-.5-.5zM12 4.553v5.377l2.49-2.18L12 4.553zm-1 5.92L8.046 13H11v-2.527z'/></svg>`;
+                const faviconLink = document.getElementById('favicon') || document.createElement('link');
+                faviconLink.id = 'favicon';
+                faviconLink.rel = 'icon';
+                faviconLink.href = `data:image/svg+xml,${encodeURIComponent(faviconSvg)}`;
+                if (!document.getElementById('favicon')) {
+                    document.head.appendChild(faviconLink);
+                }
+
+            } catch (e) {
+                console.warn('Error applying initial theme/color/logo from inline script:', e);
+            }
+        })();
+    </script>
+    <link id="favicon" rel="icon" href="" type="image/svg+xml">
+
+</head>
+
+<body>
+    <canvas id="particle-canvas"></canvas>
+    <div class="loader-container" id="loader">
+        <span class="loader"></span>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <a href="https://x.com/fabinxz" target="_blank" class="logo-link">
+                <div class="logo" title="Taskify - Seu Gerenciador de Tarefas e Foco">
+                    <div class="logo-icon">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                    </div>
+                    <span class="logo-text logo-text-full">Taskify</span>
+                    <span class="logo-text logo-text-short">Taskify</span>
+                </div>
+            </a>
+
+            <nav class="header-tabs">
+                <button class="header-tab-btn active" data-tab="tab-painel-principal">Painel de Questões</button>
+                <button class="header-tab-btn" data-tab="tab-foco-tarefas">Foco & Tarefas</button>
+                <button class="header-tab-btn" data-tab="tab-simulados">Simulados</button>
+                <button class="header-tab-btn" data-tab="tab-redacoes">Redações</button>
+            </nav>
+            <button class="header-menu-btn" id="header-menu-btn" aria-label="Abrir menu de navegação" style="display: none;">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <div class="header-controls">
+                <button class="btn-icon-nav" id="btn-edit-goals-header" aria-label="Editar metas"
+                    onclick="openGoalsModal()">
+                    <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn-icon-nav" id="btn-open-themes" aria-label="Personalizar Aparência"
+                    onclick="openThemesModal()">
+                    <i class="bi bi-palette-fill"></i>
+                </button>
+                <button class="theme-toggle-btn" id="theme-toggle" aria-label="Alternar tema" onclick="toggleTheme()">
+                    <i id="theme-icon" class="bi bi-moon-fill"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="tab-content-container">
+            <section id="tab-painel-principal" class="tab-content active">
+                <div class="question-counter-tab">
+                    <button class="counter-btn" id="decrement-btn" onclick="decrementToday()"
+                        title="Diminuir 1 questão">−</button>
+                    <input type="number" class="counter-display" id="questions-step-input" value="1" min="1"
+                        title="Define a quantidade de questões por clique">
+                    <button class="counter-btn" id="increment-btn" onclick="incrementToday()"
+                        title="Aumentar 1 questão">+</button>
+                </div>
+
+                <section class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">Hoje</div>
+                        <div class="circular-progress">
+                            <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                                <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                                <circle class="progress-ring-circle progress-ring-fill" id="today-progress" cx="60" cy="60"
+                                    r="52" stroke-width="8"
+                                    style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                            </svg>
+                            <div class="progress-number" id="today-count">0</div>
+                        </div>
+                        <div class="progress-target">Meta: <span id="today-target">20</span></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-title">Semana</div>
+                        <div class="circular-progress">
+                            <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                                <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                                <circle class="progress-ring-circle progress-ring-fill" id="week-progress" cx="60" cy="60"
+                                    r="52" stroke-width="8"
+                                    style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                            </svg>
+                            <div class="progress-number" id="week-count">0</div>
+                        </div>
+                        <div class="progress-target">Meta: <span id="week-target">50</span></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-title">Mês</div>
+                        <div class="circular-progress">
+                            <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                                <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                                <circle class="progress-ring-circle progress-ring-fill" id="month-progress" cx="60" cy="60"
+                                    r="52" stroke-width="8"
+                                    style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                            </svg>
+                            <div class="progress-number" id="month-count">0</div>
+                        </div>
+                        <div class="progress-target">Meta: <span id="month-target">1200</span></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-title">Ano</div>
+                        <div class="circular-progress">
+                            <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
+                                <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" />
+                                <circle class="progress-ring-circle progress-ring-fill" id="year-progress" cx="60" cy="60"
+                                    r="52" stroke-width="8"
+                                    style="stroke-dasharray: 326.7256359611859, 326.7256359611859; stroke-dashoffset: 326.7256359611859" />
+                            </svg>
+                            <div class="progress-number" id="year-count">0</div>
+                        </div>
+                        <div class="progress-target">Meta: <span id="year-target">20000</span></div>
+                    </div>
+                </section>
+
+                <section class="bottom-cards">
+                    <div class="info-card">
+                        <div class="card-title">
+                            <span>Recorde Diário</span>
+                            <i class="bi bi-trophy card-title-icon"></i>
+                        </div>
+                        <div class="card-value" id="daily-record-value">0 questões</div>
+                        <div class="card-subtitle" id="daily-record-date">-</div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="card-title">
+                            <span>Streak Atual</span>
+                            <i class="bi bi-fire card-title-icon"></i>
+                        </div>
+
+                        <div class="streak-value-meta-container">
+                            <div class="card-value" id="current-streak-value">0 dias</div>
+                            <div class="card-streak-target">Meta: <span id="streak-target-value">30</span></div>
+                        </div>
+
+                        <div class="progress-bar-horizontal">
+                            <div class="progress-fill" id="streak-progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="card-title">
+                            <span>Pico de Atividade Semanal</span>
+                            <i class="bi bi-graph-up-arrow card-title-icon"></i>
+                        </div>
+                        <div class="card-value" id="peak-activity-day">-</div>
+                        <div class="card-subtitle" id="peak-activity-questions">0 questões</div>
+                    </div>
+                </section>
+
+                <section class="activity-section">
+                    <div class="activity-header">
+                        <div class="activity-title">Atividade Semanal (Questões)</div>
+                        <div class="chart-period-selector-container">
+                            <select id="weeklyActivityChartPeriodSelector" class="chart-period-selector"
+                                aria-label="Selecionar período para o gráfico de atividade semanal">
+                                <option value="7days">Últimos 7 dias</option>
+                                <option value="30days">Últimos 30 dias</option>
+                                <option value="lastYear">Último Ano</option>
+                                <option value="allTime">Desde o Início</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="weeklyActivityChart"></canvas>
+                    </div>
+                </section>
+            </section>
+
+            <section id="tab-foco-tarefas" class="tab-content">
+                <section class="productivity-focus-area">
+                    <!-- Performance Overview (Gráfico de Foco Semanal) -->
+                    <div class="chart-section pomodoro-chart-section" style="grid-area: performance-overview;">
+                        <div class="chart-header">
+                            <h4 class="chart-title">Tempo de Foco Semanal</h4>
+                            <div class="chart-period-selector-container">
+                                <select id="weeklyPomodoroFocusChartPeriodSelector" class="chart-period-selector"
+                                    aria-label="Selecionar período para o gráfico de tempo de foco">
+                                    <option value="7days">Últimos 7 dias</option>
+                                    <option value="30days">Últimos 30 dias</option>
+                                    <option value="lastYear">Último Ano</option>
+                                    <option value="allTime">Desde o Início</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weeklyPomodoroFocusChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Focus Timer (Pomodoro) -->
+                    <div class="pomodoro-section" style="grid-area: focus-timer;">
+                        <div class="pomodoro-header">
+                            <h3 class="pomodoro-title">Timer Pomodoro</h3>
+                            <button class="pomodoro-settings-btn" id="btn-pomodoro-settings"
+                                aria-label="Configurar Pomodoro" onclick="openPomodoroSettingsModal()">
+                                <i class="bi bi-gear-fill"></i>
+                            </button>
+                        </div>
+                        <div class="pomodoro-timer-display" id="pomodoro-timer-display">25:00</div>
+                        <div class="pomodoro-status" id="pomodoro-status">Pronto para focar?</div>
+                        <div class="pomodoro-controls">
+                            <button class="btn-start" id="pomodoro-start-btn" onclick="startPomodoro()">Iniciar</button>
+                            <button class="btn-pause" id="pomodoro-pause-btn" onclick="pausePomodoro()"
+                                style="display: none;">Pausar</button>
+                            <button class="btn-reset" id="pomodoro-reset-btn" onclick="resetPomodoro()">Resetar</button>
+                        </div>
+                        <div class="pomodoro-cycles" id="pomodoro-cycles-display-container">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <span class="pomodoro-cycles-text-label">Ciclos: </span>
+                            <span id="pomodoro-cycles-count-value">0</span>
+                        </div>
+                        <button class="btn btn-secondary btn-pomodoro-details" id="btn-view-cycle-stats"
+                            onclick="openNewPomodoroDetailsModal()">
+                            <i class="bi bi-bar-chart-line"></i> Ver Estatísticas Detalhadas
+                        </button>
+                    </div>
+
+                    <!-- Today's Tasks -->
+                    <div class="tasks-section" style="grid-area: today-tasks;">
+                        <div class="tasks-header">
+                            <h3 class="tasks-title">Tarefas</h3>
+                            <span class="tasks-counter" id="tasks-counter">0/0</span>
+                        </div>
+                        <form id="task-form">
+                            <input type="text" id="task-input" placeholder="Adicione nova tarefa...">
+                            <input type="text" id="task-assigned-date" class="task-date-input" placeholder="DD/MM/AAAA">
+
+                            <button type="submit" id="add-task-btn" class="btn-primary">
+                                <i class="bi bi-plus-lg"></i> Adicionar
+                            </button>
+                            <button type="button" id="btn-open-recurring-task-modal" class="btn btn-secondary btn-recurring"
+                                onclick="openRecurringTaskPatternModal_v2()" title="Configurar Rotina Semanal">
+                                <i class="bi bi-arrow-repeat"></i> Configurar Rotina
+                            </button>
+                        </form>
+                        <ul id="task-list">
+                            <!-- Tarefas serão adicionadas aqui pelo JS -->
+                        </ul>
+                        <div class="task-progress-container">
+                            <div class="task-progress-label-group">
+                                <span>Progresso</span>
+                                <span id="task-progress-percentage">0%</span>
+                            </div>
+                            <div class="task-progress-bar">
+                                <div class="task-progress-bar-fill" id="task-progress-bar-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weekly Performance (Tarefas Concluídas) -->
+                    <div class="chart-section tasks-chart-section" style="grid-area: weekly-performance;">
+                        <div class="chart-header">
+                            <h4 class="chart-title">Tarefas Concluídas</h4>
+                            <div class="chart-period-selector-container">
+                                <select id="weeklyTasksCompletedChartPeriodSelector" class="chart-period-selector"
+                                    aria-label="Selecionar período para o gráfico de tarefas concluídas">
+                                    <option value="7days">Últimos 7 dias</option>
+                                    <option value="30days">Últimos 30 dias</option>
+                                    <option value="lastYear">Último Ano</option>
+                                    <option value="allTime">Desde o Início</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weeklyTasksCompletedChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+                <!-- O scroll-indicator pode ser removido ou ajustado futuramente -->
+                <div class="scroll-indicator" id="scroll-indicator" style="display: none;">
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+            </section>
+
+            <section id="tab-simulados" class="tab-content">
+                <section class="simulados-section" id="simulados-section-content"> <!-- ID alterado para evitar conflito -->
+                    <div class="simulados-header">
+                        <h2 class="simulados-title"><i class="bi bi-bar-chart-line-fill"></i> Desempenho em Simulados</h2>
+                        <button class="btn btn-primary btn-add-simulado-main" id="btn-add-simulado-main">
+                            <i class="bi bi-plus-circle-fill"></i> Adicionar Simulado
+                        </button>
+                    </div>
+                    <div class="simulados-filters" id="simulados-filters-container">
+                        <button class="btn btn-manage-categories" id="btn-manage-simulado-categories">
+                            <i class="bi bi-tags-fill"></i> Gerenciar Categorias
+                        </button>
+                    </div>
+                    <div id="simulados-category-sections-container"></div>
+                    <p class="simulados-empty-message" id="simulados-empty-message" style="display: none;">Nenhum simulado
+                        registrado ainda. Que tal adicionar o primeiro?</p>
+                </section>
+            </section>
+
+            <section id="tab-redacoes" class="tab-content">
+                <section class="redacoes-section" id="redacoes-section-content"> <!-- ID alterado para evitar conflito -->
+                    <div class="redacoes-header">
+                        <h2 class="redacoes-title"><i class="bi bi-pencil-square"></i> Minhas Redações</h2>
+                        <button class="btn btn-primary btn-add-redacao-main" id="btn-add-redacao-main">
+                            <i class="bi bi-plus-circle-fill"></i> Adicionar Redação
+                        </button>
+                    </div>
+                    <div class="redacoes-filters" id="redacoes-filters-container">
+                        <button class="btn btn-manage-eixos" id="btn-manage-redacao-eixos">
+                            <i class="bi bi-diagram-3-fill"></i> Gerenciar Eixos Temáticos
+                        </button>
+                    </div>
+                    <div id="redacoes-category-sections-container">
+                        <!-- Conteúdo da seção de redações será gerado pelo JS -->
+                    </div>
+                    <p class="redacoes-empty-message" id="redacoes-empty-message" style="display: none;">Nenhuma redação
+                        registrada ainda. Que tal adicionar a primeira?</p>
+                </section>
+            </section>
+        </main>
+
+    </div> <!-- Fim .container -->
+
+    <!-- MODAIS PARA SIMULADOS -->
+    <div class="modal-overlay" id="simulado-form-modal-overlay"></div>
+    <div class="modal simulado-modal" id="simulado-form-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="simulado-form-modal-close-btn" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title" id="simulado-modal-title">Adicionar Simulado</h2>
+            <form id="simulado-form">
+                <input type="hidden" id="simulado-id-input">
+                <div class="form-group">
+                    <label class="form-label" for="simulado-nome-input">Nome da Prova/Simulado <span
+                            class="required-asterisk">*</span></label>
+                    <input type="text" class="form-input" id="simulado-nome-input" required
+                        placeholder="Ex: ENEM 2023 - 1ª Aplicação">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="simulado-categoria-select">Categoria <span
+                            class="required-asterisk">*</span></label>
+                    <select class="form-input" id="simulado-categoria-select" required>
+                        <!-- Opções de categoria serão populadas pelo JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="simulado-data-input">Data de Realização <span
+                            class="required-asterisk">*</span></label>
+                    <input type="text" class="form-input simulado-date-picker" id="simulado-data-input" required
+                        placeholder="DD/MM/AAAA">
+                </div>
+                <div class="form-group-inline">
+                    <div class="form-group">
+                        <label class="form-label" for="simulado-acertos-input">Nº de Acertos <span class="required-asterisk">*</span></label>
+                        <input type="number" class="form-input" id="simulado-acertos-input" min="0"> <!-- Removido 'required' daqui -->
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="simulado-total-questoes-input">Total de Questões <span
+                                class="required-asterisk">*</span></label>
+                        <input type="number" class="form-input" id="simulado-total-questoes-input" min="1"> <!-- Removido 'required' daqui -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="simulado-tempo-gasto-input">Tempo Gasto</label>
+                    <input type="text" class="form-input" id="simulado-tempo-gasto-input"
+                        placeholder="Ex: 03:30 ou 3h30">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="simulado-status-select">Status</label>
+                    <select class="form-input" id="simulado-status-select">
+                        <option value="corrigido">Corrigido / Finalizado</option>
+                        <option value="aguardando_correcao">Realizado - Aguardando Correção</option>
+                        <option value="pendente_realizacao">Pendente de Realização</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" id="simulado-form-cancel-btn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Simulado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="simulado-categories-modal-overlay"></div>
+    <div class="modal simulado-modal" id="simulado-categories-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="simulado-categories-modal-close-btn" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Gerenciar Categorias de Simulados</h2>
+            <form id="simulado-add-category-form" class="category-add-form">
+                <input type="text" class="form-input" id="simulado-new-category-name-input"
+                    placeholder="Nome da nova categoria" required>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Adicionar</button>
+            </form>
+            <ul id="simulado-categories-list" class="categories-list">
+            </ul>
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button type="button" class="btn btn-primary" id="simulado-categories-done-btn">Concluído</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="simulado-confirm-delete-modal-overlay"></div>
+    <div class="modal simulado-modal" id="simulado-confirm-delete-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="simulado-confirm-delete-close-btn" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title" id="simulado-confirm-delete-title">Confirmar Exclusão</h2>
+            <p class="modal-body-text" id="simulado-confirm-delete-message">Você tem certeza?</p>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary"
+                    id="simulado-btn-cancel-delete-confirmation">Cancelar</button>
+                <button type="button" class="btn btn-danger-style"
+                    id="simulado-btn-confirm-delete-action">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAIS PARA REDAÇÕES -->
+    <div class="modal-overlay" id="redacao-form-modal-overlay"></div>
+    <div class="modal redacao-modal" id="redacao-form-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="redacao-form-modal-close-btn" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title" id="redacao-modal-title">Adicionar Redação</h2>
+            <form id="redacao-form">
+                <input type="hidden" id="redacao-id-input">
+                <div class="form-group">
+                    <label class="form-label" for="redacao-tema-input">Tema da Redação <span
+                            class="required-asterisk">*</span></label>
+                    <input type="text" class="form-input" id="redacao-tema-input" required
+                        placeholder="Ex: Os desafios da educação a distância no Brasil">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="redacao-eixo-select">Eixo Temático <span
+                            class="required-asterisk">*</span></label>
+                    <select class="form-input" id="redacao-eixo-select" required>
+                        <!-- Opções de eixos serão populadas pelo JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="redacao-data-input">Data <span
+                            class="required-asterisk">*</span></label>
+                    <input type="text" class="form-input redacao-date-picker" id="redacao-data-input" required
+                        placeholder="DD/MM/AAAA">
+                </div>
+
+                <fieldset class="form-group-competencias">
+                    <legend class="form-label">Notas das Competências <span id="competencias-required-asterisk-redacao" class="required-asterisk" style="display: none;">*</span></legend>
+                    <div class="competencias-grid">
+                        <div class="form-group">
+                            <label class="form-label-competencia" for="redacao-c1-input">C1</label>
+                            <select class="form-input" id="redacao-c1-input">
+                                <option value="0">0</option> <option value="40">40</option> <option value="80">80</option>
+                                <option value="120">120</option> <option value="160">160</option> <option value="200">200</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label-competencia" for="redacao-c2-input">C2</label>
+                            <select class="form-input" id="redacao-c2-input">
+                                <option value="0">0</option> <option value="40">40</option> <option value="80">80</option>
+                                <option value="120">120</option> <option value="160">160</option> <option value="200">200</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label-competencia" for="redacao-c3-input">C3</label>
+                            <select class="form-input" id="redacao-c3-input">
+                                <option value="0">0</option> <option value="40">40</option> <option value="80">80</option>
+                                <option value="120">120</option> <option value="160">160</option> <option value="200">200</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label-competencia" for="redacao-c4-input">C4</label>
+                            <select class="form-input" id="redacao-c4-input">
+                                <option value="0">0</option> <option value="40">40</option> <option value="80">80</option>
+                                <option value="120">120</option> <option value="160">160</option> <option value="200">200</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label-competencia" for="redacao-c5-input">C5</label>
+                            <select class="form-input" id="redacao-c5-input">
+                                <option value="0">0</option> <option value="40">40</option> <option value="80">80</option>
+                                <option value="120">120</option> <option value="160">160</option> <option value="200">200</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="form-group">
+                    <label class="form-label" for="redacao-tempo-gasto-input">Tempo Gasto</label>
+                    <input type="text" class="form-input" id="redacao-tempo-gasto-input"
+                        placeholder="Ex: 01:30 ou 1h30m">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="redacao-status-select">Status</label>
+                    <select class="form-input" id="redacao-status-select">
+                        <option value="corrigida">Corrigida</option>
+                        <option value="aguardando_correcao">Aguardando Correção</option>
+                        <option value="rascunho">Rascunho Inicial</option>
+                    </select>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" id="redacao-form-cancel-btn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Redação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="redacao-eixos-modal-overlay"></div>
+    <div class="modal redacao-modal" id="redacao-eixos-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="redacao-eixos-modal-close-btn" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Gerenciar Eixos Temáticos</h2>
+            <form id="redacao-add-eixo-form" class="category-add-form">
+                <input type="text" class="form-input" id="redacao-new-eixo-name-input"
+                    placeholder="Nome do novo eixo temático" required>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Adicionar</button>
+            </form>
+            <ul id="redacao-eixos-list" class="categories-list">
+                <!-- Lista de eixos temáticos será populada aqui -->
+            </ul>
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button type="button" class="btn btn-primary" id="redacao-eixos-done-btn">Concluído</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="redacao-confirm-delete-modal-overlay"></div>
+    <div class="modal redacao-modal" id="redacao-confirm-delete-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="redacao-confirm-delete-close-btn" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title" id="redacao-confirm-delete-title">Confirmar Exclusão</h2>
+            <p class="modal-body-text" id="redacao-confirm-delete-message">Você tem certeza?</p>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary"
+                    id="redacao-btn-cancel-delete-confirmation">Cancelar</button>
+                <button type="button" class="btn btn-danger-style"
+                    id="redacao-btn-confirm-delete-action">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal de Edição de Metas -->
+    <div class="modal-overlay" id="goals-modal-overlay"></div>
+    <div class="modal" id="goals-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" aria-label="Fechar" onclick="closeModal('goals-modal')">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Editar Metas</h2>
+            <form id="goals-form">
+                <div class="form-group">
+                    <label class="form-label" for="daily-goal-input">Meta Diária</label>
+                    <input type="number" class="form-input" id="daily-goal-input" value="20" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="weekly-goal-input">Meta Semanal</label>
+                    <input type="number" class="form-input" id="weekly-goal-input" value="50" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="monthly-goal-input">Meta Mensal</label>
+                    <input type="number" class="form-input" id="monthly-goal-input" value="1200" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="yearly-goal-input">Meta Anual</label>
+                    <input type="number" class="form-input" id="yearly-goal-input" value="20000" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="streak-goal-input">Meta de Streak (dias)</label>
+                    <input type="number" class="form-input" id="streak-goal-input" value="30" min="1">
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-reset-app" id="btn-reset-app-data">Resetar App</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('goals-modal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Padrões de Tarefas Recorrentes (v2) -->
+    <div class="modal-overlay" id="recurring-task-modal-overlay"></div>
+    <div class="modal" id="recurring-task-modal" data-modal-type="recurring-task-definition-v2">
+        <div class="modal-content recurring-pattern-definition-v2-content">
+            <div class="recurring-modal-header">
+                <div class="recurring-modal-title-group">
+                    <h2 class="modal-title" id="recurring-task-def-v2-modal-title">
+                        <i class="bi bi-calendar-check icon-title-recurring"></i> Configurar Rotina Semanal
+                    </h2>
+                    <p class="modal-subtitle-description" id="recurring-task-def-v2-modal-description">Defina as tarefas
+                        para cada dia da sua semana e organize seus estudos de forma eficiente</p>
+                </div>
+                <button class="modal-close-btn" aria-label="Fechar" onclick="closeRecurringTaskPatternModal()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="recurring-modal-controls-top">
+                <div class="new-task-input-container-v2" id="new-task-input-container-v2">
+                    <input type="text" class="form-input" id="new-task-text-input-v2"
+                        placeholder="Digite o nome da tarefa...">
+                    <button type="button" class="btn btn-primary btn-confirm-add-task-v2">
+                        <i class="bi bi-plus-lg"></i> Adicionar
+                    </button>
+                </div>
+                <div class="recurring-modal-sub-controls-line">
+                    <span class="selected-days-count" id="recurring-v2-selected-days-count">Nenhum dia
+                        selecionado</span>
+                    <div class="day-selection-actions">
+                        <button type="button" class="btn btn-secondary btn-select-all-days">Selecionar Todos</button>
+                        <button type="button" class="btn btn-secondary btn-clear-day-selection">Limpar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recurring-pattern-v2-days-grid">
+                <div class="day-card-v2" data-day-index="1">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Segunda</h3>
+                        <span class="day-card-task-count-v2" id="task-count-monday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-monday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+                <div class="day-card-v2" data-day-index="2">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Terça</h3>
+                        <span class="day-card-task-count-v2" id="task-count-tuesday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-tuesday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+                <div class="day-card-v2" data-day-index="3">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Quarta</h3>
+                        <span class="day-card-task-count-v2" id="task-count-wednesday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-wednesday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+                <div class="day-card-v2" data-day-index="4">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Quinta</h3>
+                        <span class="day-card-task-count-v2" id="task-count-thursday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-thursday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+                <div class="day-card-v2" data-day-index="5">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Sexta</h3>
+                        <span class="day-card-task-count-v2" id="task-count-friday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-friday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+                <div class="day-card-v2" data-day-index="6">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Sábado</h3>
+                        <span class="day-card-task-count-v2" id="task-count-saturday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-saturday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+                <div class="day-card-v2" data-day-index="0">
+                    <div class="day-card-header-v2">
+                        <h3 class="day-card-v2-short">Domingo</h3>
+                        <span class="day-card-task-count-v2" id="task-count-sunday">0</span>
+                    </div>
+                    <div class="day-card-v2-tasks" id="pattern-v2-tasks-sunday">
+                        <span class="no-tasks-msg">Nenhuma tarefa</span>
+                    </div>
+                    <div class="day-card-v2-selected-indicator"></div>
+                </div>
+            </div>
+
+            <div class="recurring-modal-footer">
+                <p class="footer-info-text" id="recurring-modal-footer-tip">Dica: Clique nos dias para selecioná-los e
+                    adicionar tarefas. Você também pode arrastar tarefas entre os dias para reorganizar!</p>
+                <span class="footer-total-tasks-count" id="recurring-modal-total-tasks">Total de tarefas: 0</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal de Confirmação de Exclusão de Tarefa Recorrente -->
+    <div class="modal-overlay" id="delete-recurring-task-modal-overlay"></div>
+    <div class="modal" id="delete-recurring-task-modal" data-modal-type="delete-recurring-task">
+        <div class="modal-content">
+            <button class="modal-close-btn" aria-label="Fechar" onclick="closeDeleteRecurringTaskModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Excluir Tarefa Recorrente</h2>
+            <p class="modal-body-text" id="delete-recurring-task-prompt">Escolha como deseja proceder com a exclusão
+                desta tarefa recorrente:</p>
+
+            <div class="delete-options-group">
+                <label class="delete-option-card">
+                    <input type="radio" name="delete-recurring-option" value="this" checked>
+                    <span class="delete-option-card-content">
+                        <span class="delete-option-icon"><i class="bi bi-calendar-x"></i></span>
+                        <span class="delete-option-text">
+                            <strong>Apenas esta ocorrência</strong>
+                            <small>Remove somente esta instância da tarefa.</small>
+                        </span>
+                    </span>
+                </label>
+                <label class="delete-option-card">
+                    <input type="radio" name="delete-recurring-option" value="future">
+                    <span class="delete-option-card-content">
+                        <span class="delete-option-icon"><i class="bi bi-calendar2-x"></i></span>
+                        <span class="delete-option-text">
+                            <strong>Esta e todas as futuras</strong>
+                            <small>Remove esta ocorrência e todas as próximas.</small>
+                        </span>
+                    </span>
+                </label>
+                <label class="delete-option-card" id="delete-option-all-card">
+                    <input type="radio" name="delete-recurring-option" value="all">
+                    <span class="delete-option-card-content">
+                        <span class="delete-option-icon"><i class="bi bi-trash3"></i></span>
+                        <span class="delete-option-text">
+                            <strong>Toda a série recorrente</strong>
+                            <small>Remove permanentemente toda a tarefa recorrente.</small>
+                        </span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="delete-recurring-warning" id="delete-recurring-warning-message">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Apenas esta ocorrência será removida. A tarefa recorrente continuará normalmente.</span>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-delete-recurring">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-confirm-delete-recurring-action">Excluir
+                    Ocorrência</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal de Confirmação de Reset -->
+    <div class="modal-overlay" id="confirm-reset-modal-overlay"></div>
+    <div class="modal" id="confirm-reset-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="confirm-reset-modal-close-btn" aria-label="Fechar"
+                onclick="closeModal('confirm-reset-modal')">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Confirmar Reset de Dados</h2>
+            <div class="modal-body-text">
+                <p>Você tem certeza que deseja resetar todos os dados do Taskify?</p>
+                <p><strong>Esta ação não pode ser desfeita e removerá:</strong></p>
+                <ul>
+                    <li>Todo o seu progresso (diário, semanal, mensal, anual)</li>
+                    <li>Seu recorde diário</li>
+                    <li>Seu streak atual e histórico de streak</li>
+                    <li>Suas metas personalizadas (serão revertidas para o padrão)</li>
+                    <li>Sua preferência de tema e cor primária (serão revertidas para o padrão)</li>
+                    <li>Suas configurações, histórico do Pomodoro, lista de tarefas e padrões recorrentes</li>
+                    <li>Seus dados de simulados (categorias e registros)</li>
+                    <li>Seus dados de redações (eixos temáticos e registros)</li>
+                </ul>
+                <p>A página será recarregada com as configurações de fábrica.</p>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-reset-confirmation"
+                    onclick="closeModal('confirm-reset-modal')">Cancelar</button>
+                <button type="button" class="btn btn-reset-app" id="btn-confirm-reset-action">Confirmar Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Guia de Boas-vindas -->
+    <div class="modal-overlay" id="welcome-guide-modal-overlay"></div>
+    <div class="modal" id="welcome-guide-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="welcome-guide-modal-close-btn" aria-label="Fechar"
+                onclick="closeModal('welcome-guide-modal')">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Bem-vindo ao Taskify!</h2>
+            <div class="modal-body-text guide-text">
+                <p>Este é um guia rápido para te ajudar a começar:</p>
+                <ul>
+                    <li><strong>Contador Principal (<span class="guide-highlight">na aba "Painel Principal"</span>):</strong> Use os botões <span
+                            class="guide-highlight guide-btn-example">+</span> e <span
+                            class="guide-highlight guide-btn-example">−</span> para adicionar ou remover questões
+                        resolvidas hoje. O número entre eles define quantas questões são adicionadas/removidas por
+                        clique.</li>
+                    <li><strong>Navegação por Abas (<span class="guide-highlight">no cabeçalho</span>):</strong> Clique nas abas (Painel Principal, Foco & Tarefas, Simulados, Redações) para navegar entre as seções.</li>
+                    <li><strong>Configurar Rotina Semanal:</strong> Na aba "Foco & Tarefas", no formulário de tarefas, clique no botão <span
+                            class="guide-highlight guide-btn-example"><i class="bi bi-arrow-repeat"></i> Configurar
+                            Rotina</span> para definir suas tarefas para cada dia da semana.</li>
+                    <li><strong>Desempenho em Simulados e Redações:</strong> Acesse as abas "Simulados" e "Redações" para registrar, visualizar e analisar seu desempenho.
+                    </li>
+                    <li><strong>Editar Metas:</strong> Clique no ícone <i
+                            class="bi bi-pencil-square guide-icon-example"></i> no cabeçalho para definir suas metas
+                        diárias, semanais, mensais, anuais e de streak.</li>
+                    <li><strong>Alternar Tema:</strong> Use o ícone <i class="bi bi-moon-fill guide-icon-example"></i> /
+                        <i class="bi bi-sun-fill guide-icon-example"></i> no cabeçalho para trocar entre o tema escuro e
+                        claro.
+                    </li>
+                    <li><strong>Personalizar Aparência:</strong> Clique no ícone <i
+                            class="bi bi-palette-fill guide-icon-example"></i> no cabeçalho para escolher paletas de
+                        cores e modos visuais.</li>
+                    <li><strong>Timer Pomodoro & Tarefas:</strong> Acesse a aba "Foco & Tarefas" para encontrar o Timer Pomodoro, a Lista de Tarefas e seus respectivos gráficos de atividade semanal.</li>
+                    <li><strong>Retrospectiva Mensal:</strong> Clique no ícone <i
+                            class="bi bi-calendar-heart-fill guide-icon-example"></i> no canto inferior direito para ver
+                        sua retrospectiva do mês.</li>
+                    <li><strong>Resetar Dados:</strong> No modal de "Editar Metas" (<i
+                            class="bi bi-pencil-square guide-icon-example"></i>), você encontrará um botão <span
+                            class="guide-highlight guide-btn-example"
+                            style="background-color: #dc3545; color: white; padding: 2px 4px;">Resetar App</span> para
+                        limpar todos os seus dados e começar do zero. Use com cuidado!</li>
+                </ul>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="dont-show-guide-again-checkbox">
+                    <label for="dont-show-guide-again-checkbox">Não mostrar esta mensagem novamente</label>
+                </div>
+            </div>
+            <div class="modal-buttons" style="justify-content: flex-end;">
+                <button type="button" class="btn btn-primary" id="btn-close-welcome-guide"
+                    onclick="closeModal('welcome-guide-modal')">Entendi!</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal de Configurações do Pomodoro -->
+    <div class="modal-overlay" id="pomodoro-settings-modal-overlay"></div>
+    <div class="modal" id="pomodoro-settings-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="pomodoro-settings-modal-close-btn" aria-label="Fechar"
+                onclick="closeModal('pomodoro-settings-modal')">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">Configurações do Pomodoro</h2>
+            <form id="pomodoro-settings-form">
+                <div class="form-group">
+                    <label class="form-label" for="pomodoro-focus-duration-input">Duração do Foco (minutos)</label>
+                    <input type="number" class="form-input" id="pomodoro-focus-duration-input" value="25" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="pomodoro-short-break-duration-input">Duração da Pausa Curta
+                        (minutos)</label>
+                    <input type="number" class="form-input" id="pomodoro-short-break-duration-input" value="5" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="pomodoro-long-break-duration-input">Duração da Pausa Longa
+                        (minutos)</label>
+                    <input type="number" class="form-input" id="pomodoro-long-break-duration-input" value="15" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="pomodoro-cycles-before-long-break-input">Ciclos de Foco antes da
+                        Pausa Longa</label>
+                    <input type="number" class="form-input" id="pomodoro-cycles-before-long-break-input" value="4"
+                        min="1">
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="pomodoro-auto-start-breaks-checkbox">
+                    <label for="pomodoro-auto-start-breaks-checkbox">Iniciar pausas automaticamente?</label>
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="pomodoro-auto-start-focus-checkbox">
+                    <label for="pomodoro-auto-start-focus-checkbox">Iniciar foco automaticamente após pausas?</label>
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="pomodoro-enable-sound-checkbox">
+                    <label for="pomodoro-enable-sound-checkbox">Ativar sons de notificação?</label>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('pomodoro-settings-modal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="new-pomodoro-details-modal-overlay"></div>
+    <div class="modal new-pomodoro-details-modal-container" id="new-pomodoro-details-modal">
+        <div class="new-pomodoro-details-header">
+            <h2 class="new-pomodoro-details-title">Detalhes dos Ciclos de Hoje</h2>
+            <button class="modal-close-btn" id="new-pomodoro-details-close-btn-x" aria-label="Fechar"
+                onclick="closeModal('new-pomodoro-details-modal')">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="new-pomodoro-details-summary">
+            <div class="summary-card">
+                <div class="summary-card-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="summary-card-content">
+                    <span class="summary-card-value" id="details-sessions-count">0</span>
+                    <span class="summary-card-label">Sessões</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-icon">
+                    <i class="bi bi-stopwatch"></i>
+                </div>
+                <div class="summary-card-content">
+                    <span class="summary-card-value" id="details-total-focus-time">0min</span>
+                    <span class="summary-card-label">Foco Total</span>
+                </div>
+            </div>
+        </div>
+        <div class="new-pomodoro-details-list-container">
+            <ul class="new-pomodoro-details-list" id="new-pomodoro-cycle-list">
+                <!-- Itens da lista serão populados pelo JS -->
+            </ul>
+            <p class="new-pomodoro-details-empty" id="new-pomodoro-details-empty-message" style="display:none;">Nenhum
+                ciclo registrado hoje.</p>
+        </div>
+        <div class="new-pomodoro-details-footer">
+            <button type="button" class="btn btn-secondary" id="new-pomodoro-details-btn-close"
+                onclick="closeModal('new-pomodoro-details-modal')">Fechar</button>
+            <button type="button" class="btn btn-primary" id="new-pomodoro-details-btn-new-cycle">Novo Ciclo</button>
+        </div>
+    </div>
+
+
+    <!-- Modal de Temas e Aparência -->
+    <div class="modal-overlay" id="themes-modal-overlay"></div>
+    <div class="modal" id="themes-modal">
+        <div class="modal-content themes-modal-content">
+            <button class="modal-close-btn" id="themes-modal-close-btn" aria-label="Fechar"
+                onclick="closeModal('themes-modal')">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 class="modal-title">
+                <i class="bi bi-palette-fill themes-modal-title-icon"></i>
+                Personalizar Aparência
+            </h2>
+
+            <div class="themes-modal-section">
+                <h3 class="themes-modal-section-title">
+                    <i class="bi bi-paint-bucket"></i>
+                    Paleta de Cores
+                </h3>
+                <p class="themes-modal-section-subtitle">Escolha sua vibe de cor perfeita.</p>
+                <div class="palette-buttons" id="palette-buttons-container">
+                    <!-- Botões de paleta serão gerados pelo JS -->
+                </div>
+            </div>
+
+            <div class="themes-modal-section">
+                <h3 class="themes-modal-section-title">
+                    <i class="bi bi-eye-fill"></i>
+                    Modo Visual
+                </h3>
+                <p class="themes-modal-section-subtitle">Selecione sua preferência de visualização.</p>
+                <div class="mode-buttons" id="mode-buttons-container">
+                    <!-- Botões de modo visual serão gerados pelo JS -->
+                </div>
+            </div>
+
+            <div class="modal-buttons themes-modal-actions">
+                <button type="button" class="btn btn-secondary themes-btn-cancel"
+                    onclick="closeModal('themes-modal')">Cancelar</button>
+                <button type="button" class="btn btn-primary themes-btn-apply" onclick="closeModal('themes-modal')">
+                    Aplicar Mudanças
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Alerta Personalizado -->
+    <div class="custom-alert-overlay" id="custom-alert-overlay"></div>
+    <div class="custom-alert-modal" id="custom-alert-modal">
+        <h3 class="custom-alert-title" id="custom-alert-title">Alerta</h3>
+        <p class="custom-alert-message" id="custom-alert-message"></p>
+        <button class="custom-alert-ok-btn" id="custom-alert-ok-btn">OK</button>
+    </div>
+
+    <!-- Botão Flutuante e Modal da Retrospectiva -->
+    <button class="btn-icon-nav" id="btn-open-retrospective" aria-label="Abrir Retrospectiva" style="position: fixed; bottom: 20px; right: 20px; z-index: 1001;
+               background-color: var(--primary-color-dark); color: white;
+               width: 50px; height: 50px; border-radius: 50%;
+               box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 1.5rem;
+               display: flex; align-items: center; justify-content: center;">
+        <i class="bi bi-calendar-heart-fill"></i>
+    </button>
+
+    <div class="retrospective-modal-overlay" id="retrospective-modal-overlay"></div>
+    <div class="retrospective-modal" id="retrospective-modal">
+        <!-- O conteúdo da retrospectiva será carregado aqui pelo JS (de retrospective.html) -->
+    </div>
+
+    <!-- Elementos de Áudio para Notificações do Pomodoro -->
+    <audio id="focus-end-sound" src="sounds/focus_end.mp3" preload="auto"></audio>
+    <audio id="break-end-sound" src="sounds/break_end.mp3" preload="auto"></audio>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="js/script.js" defer></script>
+    <script src="js/retrospective.js" defer></script>
+    <script src="js/simulados.js" defer></script>
+    <script src="js/redacoes.js" defer></script>
+</body>
+
+</html>
